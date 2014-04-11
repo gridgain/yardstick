@@ -23,6 +23,12 @@ import java.util.*;
  * CSV probe point writer.
  */
 public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
+    /** */
+    public static final String META_INFO_SEPARATOR = ";";
+
+    /** */
+    public static final String META_INFO_PREFIX = "*MI*";
+
     /** Print writer. */
     private PrintWriter writer;
 
@@ -34,6 +40,18 @@ public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
 
             writer.println("--Probe dump file for probe: " + probe + " (" + probe.getClass() + ")");
             writer.println("--Created " + new Date());
+
+            if (probe.metaInfo() != null && probe.metaInfo().size() > 0) {
+                int i = 0;
+
+                writer.print(META_INFO_PREFIX);
+
+                for (String metaInfo : probe.metaInfo())
+                    writer.print(metaInfo + (++i == probe.metaInfo().size() ? "" : META_INFO_SEPARATOR));
+
+                if (i != 0)
+                    writer.println();
+            }
         }
 
         for (BenchmarkProbePoint pt : points) {

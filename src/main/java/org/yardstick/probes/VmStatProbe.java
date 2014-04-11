@@ -115,6 +115,12 @@ public class VmStatProbe implements BenchmarkProbe {
     }
 
     /** {@inheritDoc} */
+    @Override public Collection<String> metaInfo() {
+        return Arrays.asList("procs r", "procs b", "memory swpd", "memory free", "memory buff", "memory cache",
+            "swap si", "swap so", "io bi", "io bo", "system in", "system cs", "cpu us", "cpu sy", "cpu id", "cpu wa");
+    }
+
+    /** {@inheritDoc} */
     @Override public synchronized Collection<BenchmarkProbePoint> points() {
         Collection<BenchmarkProbePoint> ret = collected;
 

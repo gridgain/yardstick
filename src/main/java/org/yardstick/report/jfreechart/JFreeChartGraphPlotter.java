@@ -28,6 +28,8 @@ import java.io.*;
 import java.util.*;
 import java.util.List;
 
+import static org.yardstick.writers.BenchmarkProbePointCsvWriter.*;
+
 /**
  * JFreeChart graph plotter.
  */
@@ -54,7 +56,7 @@ public class JFreeChartGraphPlotter {
                 return;
             }
 
-            Collection<PlotData> plots = readData(file, args.splitGraphs());
+            Collection<PlotData> plots = readData(file);
 
             for (PlotData plotData : plots) {
                 DefaultXYDataset dataset = new DefaultXYDataset();
@@ -64,8 +66,8 @@ public class JFreeChartGraphPlotter {
 
                 JFreeChart chart = ChartFactory.createXYLineChart(
                     "Performance",
-                    "Time, ms",
-                    "Operations/sec",
+                    plotData.xAxisLabel,
+                    plotData.yAxisLabel,
                     dataset,
                     PlotOrientation.VERTICAL,
                     true,
@@ -99,58 +101,59 @@ public class JFreeChartGraphPlotter {
 
     /**
      * @param file File.
-     * @param splitGraphs Split graphs.
      * @return Collection of plot data.
      * @throws Exception If failed.
      */
-    private static Collection<PlotData> readData(File file, boolean splitGraphs) throws Exception {
+    private static Collection<PlotData> readData(File file) throws Exception {
         List<PlotData> data = new ArrayList<>();
 
         try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file)))) {
+            long initTime = 0;
+
+            String[] metaInfo = null;
+
             for (String line; (line = br.readLine()) != null;) {
                 if (line.startsWith("--"))
                     continue;
 
+                if (line.startsWith(META_INFO_PREFIX)) {
+                    metaInfo = line.substring(META_INFO_PREFIX.length()).split(META_INFO_SEPARATOR);
+
+                    continue;
+                }
+
                 String[] split = line.split(",");
 
                 if (data.isEmpty()) {
-                    // Determine number of plots.
-                    if (splitGraphs) {
-                        int plotNum = split.length - 1;
+                    initTime = Long.parseLong(split[0]);
 
-                        if (plotNum < 1)
-                            throw new Exception("Invalid data file.");
+                    int plotNum = split.length - 1;
 
-                        for (int i = 0; i < plotNum; i++) {
-                            // Separate series for each plot.
-                            List<PlotSeries> single = Collections.singletonList(new PlotSeries("Series-" + i));
+                    if (plotNum < 1)
+                        throw new Exception("Invalid data file.");
 
-                            data.add(new PlotData("Plot-" + file.getName() + "-" + i, single));
-                        }
-                    }
-                    else {
-                        List<PlotSeries> multiple = new ArrayList<>(split.length - 1);
+                    String xAxisLabel = metaInfo == null || metaInfo.length == 0 ?  "" : metaInfo[0];
 
-                        for (int i = 0; i < split.length - 1; i++)
-                            multiple.add(new PlotSeries("Series-" + i));
+                    for (int i = 0; i < plotNum; i++) {
+                        // Separate series for each plot.
+                        List<PlotSeries> single = Collections.singletonList(new PlotSeries("Series-" + i));
 
-                        data.add(new PlotData("Plot-" + file.getName(), multiple));
+                        String yAxisLabel = metaInfo == null || i + 1 >= metaInfo.length  ?  "" : metaInfo[i + 1];
+
+                        data.add(new PlotData("Plot-" + file.getName() + "-" + i, single, xAxisLabel, yAxisLabel));
                     }
                 }
 
                 double[] tup = new double[split.length];
 
-                for (int i = 0; i < tup.length; i++)
-                    tup[i] = Double.parseDouble(split[i]);
+                for (int i = 0; i < tup.length; i++) {
+                    double d = i == 0 ? (Long.parseLong(split[0]) - initTime) : Double.parseDouble(split[i]);
 
-                if (splitGraphs) {
-                    for (int i = 0; i < split.length - 1; i++)
-                        data.get(i).series().get(0).rawData.add(new double[] {tup[0], tup[i + 1]});
+                    tup[i] = d;
                 }
-                else {
-                    for (int i = 0; i < split.length - 1; i++)
-                        data.get(0).series().get(i).rawData.add(new double[] {tup[0], tup[i + 1]});
-                }
+
+                for (int i = 0; i < split.length - 1; i++)
+                    data.get(i).series().get(0).rawData.add(new double[] {tup[0], tup[i + 1]});
             }
 
             for (PlotData plotData : data) {
@@ -194,13 +197,21 @@ public class JFreeChartGraphPlotter {
 
         private final String plotName;
 
+        private final String xAxisLabel;
+
+        private final String yAxisLabel;
+
         /**
          * @param plotName Plot name.
          * @param series Series.
+         * @param xAxisLabel X axis label.
+         * @param yAxisLabel Y axis label.
          */
-        PlotData(String plotName, List<PlotSeries> series) {
+        PlotData(String plotName, List<PlotSeries> series, String xAxisLabel, String yAxisLabel) {
             this.plotName = plotName;
             this.series = series;
+            this.xAxisLabel = xAxisLabel;
+            this.yAxisLabel = yAxisLabel;
         }
 
         /**

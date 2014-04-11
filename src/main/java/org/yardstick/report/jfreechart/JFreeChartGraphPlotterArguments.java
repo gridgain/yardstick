@@ -32,10 +32,6 @@ public class JFreeChartGraphPlotterArguments {
     @Parameter(names = {"-o", "--output"}, description = "Output file name")
     private String outputFileName;
 
-    /** Split graphs flag. */
-    @Parameter(names = {"-s", "--split"}, description = "Split graphs flag. Set to render each series in separate graph.")
-    private boolean splitGraphs;
-
     /**
      * @return Input file name.
      */
@@ -62,20 +58,6 @@ public class JFreeChartGraphPlotterArguments {
      */
     public void outputFileName(String outputFileName) {
         this.outputFileName = outputFileName;
-    }
-
-    /**
-     * @return Split graphs.
-     */
-    public boolean splitGraphs() {
-        return splitGraphs;
-    }
-
-    /**
-     * @param splitGraphs Split graphs.
-     */
-    public void splitGraphs(boolean splitGraphs) {
-        this.splitGraphs = splitGraphs;
     }
 
     /**

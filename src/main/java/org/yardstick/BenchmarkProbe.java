@@ -36,6 +36,14 @@ public interface BenchmarkProbe {
     void stop() throws Exception;
 
     /**
+     * Gets collection of meta information.
+     * Meta information is description of every point value.
+     *
+     * @return Collection of meta information.
+     */
+    Collection<String> metaInfo();
+
+    /**
      * Gets collection of probe points. This collection should reset each time this method is called.
      *
      * @return Collection of probe points.
