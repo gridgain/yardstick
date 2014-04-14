@@ -25,11 +25,12 @@ public class JFreeChartGraphPlotterArguments {
     private boolean help;
 
     /** Input file name. */
-    @Parameter(names = {"-i", "--input"}, description = "Folder where files with probe points are located")
+    @Parameter(names = {"-i", "--input"},
+        description = "Input folder where files with probe points are located (required)")
     private String inputFolder;
 
     /** Output file name. */
-    @Parameter(names = {"-o", "--output"}, description = "Output folder")
+    @Parameter(names = {"-o", "--output"}, description = "Output folder, if it's not defined then input folder is used")
     private String outputFolder;
 
     /**
