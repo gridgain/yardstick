@@ -34,8 +34,8 @@ public class ThroughputLatencyProbe implements BenchmarkExecutionAwareProbe {
     /** Collected points. */
     private Collection<BenchmarkProbePoint> collected = new ArrayList<>();
 
-    /** Timer thread. */
-    private Thread timerThread;
+    /** Thread collecting probe points. */
+    private Thread collectingThread;
 
     /** {@inheritDoc} */
     @SuppressWarnings("BusyWait")
@@ -47,7 +47,7 @@ public class ThroughputLatencyProbe implements BenchmarkExecutionAwareProbe {
 
         final long interval = interval(cfg);
 
-        timerThread = new Thread() {
+        collectingThread = new Thread() {
             @Override public void run() {
                 try {
                     while (!Thread.currentThread().isInterrupted()) {
@@ -70,14 +70,14 @@ public class ThroughputLatencyProbe implements BenchmarkExecutionAwareProbe {
             }
         };
 
-        timerThread.start();
+        collectingThread.start();
     }
 
     /** {@inheritDoc} */
     @Override public void stop() throws Exception {
-        timerThread.interrupt();
+        collectingThread.interrupt();
 
-        timerThread.join();
+        collectingThread.join();
     }
 
     /** {@inheritDoc} */

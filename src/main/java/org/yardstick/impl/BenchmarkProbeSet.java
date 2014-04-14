@@ -72,6 +72,8 @@ public class BenchmarkProbeSet {
 
         boolean warn = true;
 
+        long writersStartTime = System.currentTimeMillis();
+
         for (BenchmarkProbe probe : probes) {
             BenchmarkProbePointWriter writer = ldr.loadBenchmarkClass(BenchmarkProbePointWriter.class, writerClsName);
 
@@ -89,6 +91,8 @@ public class BenchmarkProbeSet {
 
             if (probe instanceof BenchmarkExecutionAwareProbe)
                 execProbes.add((BenchmarkExecutionAwareProbe)probe);
+
+            writer.start(cfg, writersStartTime);
         }
 
         try {

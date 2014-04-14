@@ -25,39 +25,39 @@ public class JFreeChartGraphPlotterArguments {
     private boolean help;
 
     /** Input file name. */
-    @Parameter(names = {"-i", "--input"}, description = "Input file name")
-    private String inputFileName;
+    @Parameter(names = {"-i", "--input"}, description = "Folder where files with probe points are located")
+    private String inputFolder;
 
     /** Output file name. */
-    @Parameter(names = {"-o", "--output"}, description = "Output file name")
-    private String outputFileName;
+    @Parameter(names = {"-o", "--output"}, description = "Output folder")
+    private String outputFolder;
 
     /**
      * @return Input file name.
      */
-    public String inputFileName() {
-        return inputFileName;
+    public String inputFolder() {
+        return inputFolder;
     }
 
     /**
      * @param inputFileName Input file name.
      */
-    public void inputFileName(String inputFileName) {
-        this.inputFileName = inputFileName;
+    public void inputFolder(String inputFileName) {
+        this.inputFolder = inputFileName;
     }
 
     /**
      * @return Output file name.
      */
-    public String outputFileName() {
-        return outputFileName;
+    public String outputFolder() {
+        return outputFolder;
     }
 
     /**
      * @param outputFileName Output file name.
      */
-    public void outputFileName(String outputFileName) {
-        this.outputFileName = outputFileName;
+    public void outputFolder(String outputFileName) {
+        this.outputFolder = outputFileName;
     }
 
     /**

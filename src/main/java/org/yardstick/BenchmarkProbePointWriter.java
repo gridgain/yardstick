@@ -21,6 +21,14 @@ import java.util.*;
  */
 public interface BenchmarkProbePointWriter extends AutoCloseable {
     /**
+     * Writer preparation and all resource initialization should be done here.
+     *
+     * @param cfg Benchmark configuration.
+     * @param startTime Time when writers are initialized.
+     */
+    void start(BenchmarkConfiguration cfg, long startTime);
+
+    /**
      * Writes collection of collected points to target.
      *
      * @param probe Probe for which points are collected.
