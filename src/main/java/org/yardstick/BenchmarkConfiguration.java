@@ -81,6 +81,9 @@ public class BenchmarkConfiguration {
     /** Output writer. */
     private PrintStream outputWriter;
 
+    /** Error writer. */
+    private PrintStream errorWriter;
+
     /**
      * @return Main arguments.
      */
@@ -205,6 +208,20 @@ public class BenchmarkConfiguration {
      */
     public void output(PrintStream outputWriter) {
         this.outputWriter = outputWriter;
+    }
+
+    /**
+     * @return Error writer.
+     */
+    public PrintStream error() {
+        return errorWriter;
+    }
+
+    /**
+     * @param errorWriter Error writer.
+     */
+    public void error(PrintStream errorWriter) {
+        this.errorWriter = errorWriter;
     }
 
     /**

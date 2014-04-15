@@ -31,7 +31,7 @@ public class EchoServer implements BenchmarkServer {
     private Thread th;
 
     /** {@inheritDoc} */
-    @Override public void start(BenchmarkConfiguration cfg) throws Exception {
+    @Override public void start(final BenchmarkConfiguration cfg) throws Exception {
         args = new EchoServerBenchmarkArguments();
 
         BenchmarkUtils.jcommander(cfg.commandLineArguments(), args, "<echo-server>");
@@ -55,14 +55,14 @@ public class EchoServer implements BenchmarkServer {
                                         out.write(b);
                                 }
                                 catch (IOException e) {
-                                    e.printStackTrace();
+                                    e.printStackTrace(cfg.error());
                                 }
                                 finally {
                                     try {
                                         sock.close();
                                     }
                                     catch (IOException e) {
-                                        e.printStackTrace();
+                                        e.printStackTrace(cfg.error());
                                     }
                                 }
                             }
@@ -74,7 +74,7 @@ public class EchoServer implements BenchmarkServer {
                     }
                 }
                 catch (IOException e) {
-                    e.printStackTrace();
+                    e.printStackTrace(cfg.error());
                 }
             }
         });

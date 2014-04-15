@@ -162,7 +162,7 @@ public class BenchmarkRunner {
             if (err != null) {
                 cfg.output().println("Shutting down benchmark driver to to unexpected exception: ");
 
-                err.printStackTrace(cfg.output());
+                err.printStackTrace(cfg.error());
             }
 
             try {
@@ -176,7 +176,7 @@ public class BenchmarkRunner {
             catch (Exception e) {
                 cfg.output().println("Failed to gracefully shutdown benchmark runner.");
 
-                e.printStackTrace(cfg.output());
+                e.printStackTrace(cfg.error());
             }
         }
     }

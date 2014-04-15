@@ -122,7 +122,7 @@ public class BenchmarkProbeSet {
                             }
                             catch (Exception e) {
                                 // TODO should we shutdown this probe?
-                                e.printStackTrace();
+                                e.printStackTrace(cfg.error());
                             }
                         }
                     }
@@ -140,7 +140,7 @@ public class BenchmarkProbeSet {
                                 "[probe=" + entry.getKey() + ", writer=" + entry.getValue() +
                                 ", err=" + e.getMessage() + ']');
 
-                            e.printStackTrace(cfg.output());
+                            e.printStackTrace(cfg.error());
                         }
                     }
                 }
@@ -206,7 +206,7 @@ public class BenchmarkProbeSet {
                 cfg.output().println("Failed to gracefully stop probe [probe=" + probe + ", err=" + e.getMessage() +
                     ']');
 
-                e.printStackTrace(cfg.output());
+                e.printStackTrace(cfg.error());
             }
         }
     }

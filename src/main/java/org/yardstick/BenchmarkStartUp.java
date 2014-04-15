@@ -32,7 +32,7 @@ public class BenchmarkStartUp {
         System.out.println("For help use '--help' or '-h' options");
         System.out.println();
 
-        BenchmarkConfiguration cfg = new BenchmarkConfiguration();
+        final BenchmarkConfiguration cfg = new BenchmarkConfiguration();
 
         cfg.commandLineArguments(cmdArgs);
 
@@ -75,7 +75,7 @@ public class BenchmarkStartUp {
                             srv0.stop();
                         }
                         catch (Exception e) {
-                            e.printStackTrace();
+                            e.printStackTrace(cfg.error());
                         }
                     }
                 });
@@ -101,7 +101,7 @@ public class BenchmarkStartUp {
                             runner.cancel();
                         }
                         catch (Exception e) {
-                            e.printStackTrace();
+                            e.printStackTrace(cfg.error());
                         }
                     }
                 });
