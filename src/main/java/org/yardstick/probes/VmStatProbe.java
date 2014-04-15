@@ -26,9 +26,6 @@ import java.util.regex.*;
  */
 public class VmStatProbe implements BenchmarkProbe {
     /** */
-    private static final String INVERVAL = "benchmark.probe.vmstat.interval";
-
-    /** */
     private static final String PATH = "benchmark.probe.vmstat.path";
 
     /** */
@@ -41,7 +38,7 @@ public class VmStatProbe implements BenchmarkProbe {
     private static final String DEFAULT_PATH = "vmstat";
 
     /** */
-    private static final String DEFAULT_OPTS = "-n";
+    private static final String DEFAULT_OPTS = "-n " + DEFAULT_INVERVAL_IN_SECS;
 
     /** */
     private static final String FIRST_LINE_RE = "^\\s*procs -*memory-* -*swap-* -*io-* -*system-* -*cpu-*\\s*$";
@@ -105,7 +102,6 @@ public class VmStatProbe implements BenchmarkProbe {
 
         cmdParams.add(vmstatPath(cfg));
         cmdParams.addAll(vmstatOpts(cfg));
-        cmdParams.add(Integer.toString(interval(cfg)));
 
         proc.exec(cmdParams, Collections.<String, String>emptyMap(), c);
 
@@ -187,19 +183,6 @@ public class VmStatProbe implements BenchmarkProbe {
             }
             else
                 cfg.output().println("ERROR: Can't parse line: " + line + ".");
-        }
-    }
-
-    /**
-     * @param cfg Config.
-     * @return Interval.
-     */
-    private static int interval(BenchmarkConfiguration cfg) {
-        try {
-            return Integer.parseInt(cfg.customProperties().get(INVERVAL));
-        }
-        catch (NumberFormatException | NullPointerException ignored) {
-            return DEFAULT_INVERVAL_IN_SECS;
         }
     }
 

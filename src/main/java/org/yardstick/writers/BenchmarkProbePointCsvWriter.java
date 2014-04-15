@@ -24,13 +24,13 @@ import java.util.*;
  */
 public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
     /** */
-    public static final String PRINT_TO_OUTPUT = "benchmark.writer.print.to.output";
+    private static final String PRINT_TO_OUTPUT = "benchmark.writer.print.to.output";
 
     /** */
-    public static final String OUTPUT_PATH = "benchmark.writer.output.path";
+    private static final String OUTPUT_PATH = "benchmark.writer.output.path";
 
     /** */
-    public static final boolean DEFAULT_PRINT_TO_OUTPUT = false;
+    private static final boolean DEFAULT_PRINT_TO_OUTPUT = false;
 
     /** */
     public static final String META_INFO_SEPARATOR = ",";
