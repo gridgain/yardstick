@@ -27,6 +27,9 @@ public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
     public static final String PRINT_TO_OUTPUT = "benchmark.writer.print.to.output";
 
     /** */
+    public static final String OUTPUT_PATH = "benchmark.writer.output.path";
+
+    /** */
     public static final boolean DEFAULT_PRINT_TO_OUTPUT = false;
 
     /** */
@@ -47,18 +50,33 @@ public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
     /** */
     private boolean printToOutput;
 
+    /** */
+    private File outPath;
+
     /** {@inheritDoc} */
     @Override public void start(BenchmarkConfiguration cfg, long startTime) {
         this.cfg = cfg;
         this.startTime = startTime;
         this.printToOutput = printToOutput(cfg);
+
+        String path = cfg.customProperties().get(OUTPUT_PATH);
+
+        if (path != null) {
+            outPath = new File(path);
+
+            if (!outPath.exists())
+                throw new IllegalStateException("Output path does not exist: '" + path + "'.");
+        }
     }
 
     /** {@inheritDoc} */
     @Override public void writePoints(BenchmarkProbe probe, Collection<BenchmarkProbePoint> points) throws Exception {
         if (writer == null) {
-            writer = new PrintWriter(new OutputStreamWriter(
-                new FileOutputStream(probe.getClass().getSimpleName() + "_" + startTime + ".csv")));
+            String fileName = probe.getClass().getSimpleName() + "_" + startTime + ".csv";
+
+            File f = outPath == null ? new File(fileName) : new File(outPath, fileName);
+
+            writer = new PrintWriter(new OutputStreamWriter(new FileOutputStream(f)));
 
             println("--Probe dump file for probe: " + probe + " (" + probe.getClass() + ")");
             println("--Created " + new Date(startTime));
