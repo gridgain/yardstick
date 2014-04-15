@@ -20,7 +20,9 @@ To run a remote server the following should be done:
 
 1. Some configuration parameters can be defined in `benchmark.properties`.
 The file is specified via `-c` program argument.
-2. Run `bin/benchmark-run.sh` script with specified benchmark server name. For example:
+2. Run `bin/benchmark-run.sh` script with specified benchmark server name.
+
+For example:
 `benchmark-run.sh -c ../benchmark.properties -n EchoServer`
 
 Additional parameters of the script are listed below.
