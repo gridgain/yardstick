@@ -13,10 +13,6 @@
 #    limitations under the License.
 
 #
-# Benchmark runner.
-#
-
-#
 # Discovers path to Java executable and checks it's version.
 # The function exports JAVA variable with path to Java executable.
 #

@@ -117,7 +117,7 @@ public class JFreeChartResultPageGenerator {
 
                 for (File file : entry.getValue()) {
                     writeLine(bw, "<h3>" + file.getName() + "</h3>");
-                    writeLine(bw, "<img src=\"" + file.getAbsolutePath() + "\">");
+                    writeLine(bw, "<img src=\"" + file.getName() + "\">");
                 }
             }
 
