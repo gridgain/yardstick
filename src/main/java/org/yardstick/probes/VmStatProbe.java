@@ -103,7 +103,12 @@ public class VmStatProbe implements BenchmarkProbe {
         cmdParams.add(vmstatPath(cfg));
         cmdParams.addAll(vmstatOpts(cfg));
 
-        proc.exec(cmdParams, Collections.<String, String>emptyMap(), c);
+        try {
+            proc.exec(cmdParams, Collections.<String, String>emptyMap(), c);
+        }
+        catch (Exception e) {
+            cfg.error().println("Can not start 'vmstat' process due to exception: " + e.getMessage());
+        }
 
         cfg.output().println(VmStatProbe.class.getSimpleName() + " is started.");
     }
