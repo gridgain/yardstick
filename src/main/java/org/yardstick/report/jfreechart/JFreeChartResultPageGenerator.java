@@ -67,7 +67,7 @@ public class JFreeChartResultPageGenerator {
             Map<String, List<File>> map = res.get(tokens[2]);
 
             if (map == null) {
-                map = new HashMap<>();
+                map = new TreeMap<>();
 
                 res.put(tokens[2], map);
             }
@@ -81,6 +81,18 @@ public class JFreeChartResultPageGenerator {
             }
 
             list.add(file);
+        }
+
+        Comparator<File> comp = new Comparator<File>() {
+            @Override public int compare(File o1, File o2) {
+                return o1.getName().compareTo(o2.getName());
+            }
+        };
+
+        // Sort files to have them always in the same order.
+        for (Map<String, List<File>> map : res.values()) {
+            for (List<File> list : map.values())
+                Collections.sort(list, comp);
         }
 
         return res;
