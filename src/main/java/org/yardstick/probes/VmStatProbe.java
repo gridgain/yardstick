@@ -155,7 +155,7 @@ public class VmStatProbe implements BenchmarkProbe {
             Matcher m = FIRST_LINE.matcher(line);
 
             if (!m.matches())
-                cfg.output().println("WARNING: vmstat returned unexpected first line: " + line);
+                cfg.output().println("WARNING: vmstat returned unexpected first line: '" + line + "'.");
         }
         else if (lineNum == 1) {
             Matcher m = HEADER_LINE.matcher(line);
@@ -184,11 +184,11 @@ public class VmStatProbe implements BenchmarkProbe {
                     collectPoint(pnt);
                 }
                 catch (NumberFormatException e) {
-                    cfg.output().println("ERROR: Can't parse line: " + line + ".");
+                    cfg.output().println("ERROR: Can't parse line: '" + line + "'.");
                 }
             }
             else
-                cfg.output().println("ERROR: Can't parse line: " + line + ".");
+                cfg.output().println("ERROR: Can't parse line: '" + line + "'.");
         }
     }
 

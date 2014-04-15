@@ -33,7 +33,7 @@ public class DStatProbe implements BenchmarkProbe {
     private static final String DEFAULT_PATH = "dstat";
 
     /** */
-    private static final String DEFAULT_OPTS = "--noheaders --noupdate " + DEFAULT_INVERVAL_IN_SECS;
+    private static final String DEFAULT_OPTS = "--all --noheaders --noupdate " + DEFAULT_INVERVAL_IN_SECS;
 
     /** */
     private static final String FIRST_LINE_RE =
@@ -148,7 +148,7 @@ public class DStatProbe implements BenchmarkProbe {
             Matcher m = FIRST_LINE.matcher(line);
 
             if (!m.matches())
-                cfg.output().println("WARNING: dstat returned unexpected first line: " + line);
+                cfg.output().println("WARNING: dstat returned unexpected first line: '" + line + "'.");
         }
         else if (lineNum == 1) {
             Matcher m = HEADER_LINE.matcher(line);
@@ -168,7 +168,7 @@ public class DStatProbe implements BenchmarkProbe {
                             Integer.parseInt(m.group(3)), Integer.parseInt(m.group(4)),
                             Integer.parseInt(m.group(5)), Integer.parseInt(m.group(6)),
                             parseMem(m.group(7)), parseMem(m.group(8)),
-                            Integer.parseInt(m.group(9)), Integer.parseInt(m.group(10)),
+                            parseMem(m.group(9)), parseMem(m.group(10)),
                             Integer.parseInt(m.group(11)), Integer.parseInt(m.group(12)),
                             Integer.parseInt(m.group(13)), Integer.parseInt(m.group(14)),
                         });
@@ -176,11 +176,11 @@ public class DStatProbe implements BenchmarkProbe {
                     collectPoint(pnt);
                 }
                 catch (NumberFormatException e) {
-                    cfg.output().println("ERROR: Can't parse line: " + line + ".");
+                    cfg.output().println("ERROR: Can't parse line: '" + line + "'.");
                 }
             }
             else
-                cfg.output().println("ERROR: Can't parse line: " + line + ".");
+                cfg.output().println("ERROR: Can't parse line: '" + line + "'.");
         }
     }
 
@@ -191,6 +191,9 @@ public class DStatProbe implements BenchmarkProbe {
     private static int parseMem(String val) {
         if (val.isEmpty())
             throw new NumberFormatException("Value is empty");
+
+        if (val.length() == 1)
+            return Integer.parseInt(val);
 
         char last = val.charAt(val.length() - 1);
 
