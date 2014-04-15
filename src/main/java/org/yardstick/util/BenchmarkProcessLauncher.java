@@ -65,13 +65,15 @@ public class BenchmarkProcessLauncher {
      * @throws Exception If failed.
      */
     public void shutdown(boolean wait) throws Exception {
-        if (wait)
-            proc.waitFor();
-        else
-            proc.destroy();
+        if (proc != null) {
+            if (wait)
+                proc.waitFor();
+            else
+                proc.destroy();
 
-        inGrabber.stop();
-        errGrabber.stop();
+            inGrabber.stop();
+            errGrabber.stop();
+        }
     }
 
     /**

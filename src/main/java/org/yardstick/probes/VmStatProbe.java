@@ -26,22 +26,22 @@ import java.util.regex.*;
  */
 public class VmStatProbe implements BenchmarkProbe {
     /** */
-    private static final String VMSTAT_PROBE_INVERVAL = "benchmark.probe.vmstat.interval";
+    private static final String INVERVAL = "benchmark.probe.vmstat.interval";
 
     /** */
-    private static final String VMSTAT_PROBE_PATH = "benchmark.probe.vmstat.path";
+    private static final String PATH = "benchmark.probe.vmstat.path";
 
     /** */
-    private static final String VMSTAT_PROBE_OPTS = "benchmark.probe.vmstat.opts";
+    private static final String OPTS = "benchmark.probe.vmstat.opts";
 
     /** */
-    private static final int VMSTAT_DEFAULT_INVERVAL_IN_SECS = 1;
+    private static final int DEFAULT_INVERVAL_IN_SECS = 1;
 
     /** */
-    private static final String VMSTAT_DEFAULT_PATH = "vmstat";
+    private static final String DEFAULT_PATH = "vmstat";
 
     /** */
-    private static final String VMSTAT_DEFAULT_OPTS = "-n";
+    private static final String DEFAULT_OPTS = "-n";
 
     /** */
     private static final String FIRST_LINE_RE = "^\\s*procs -*memory-* -*swap-* -*io-* -*system-* -*cpu-*\\s*$";
@@ -79,6 +79,9 @@ public class VmStatProbe implements BenchmarkProbe {
     }
 
     /** */
+    private BenchmarkConfiguration cfg;
+
+    /** */
     private BenchmarkProcessLauncher proc;
 
     /** Collected points. */
@@ -86,6 +89,8 @@ public class VmStatProbe implements BenchmarkProbe {
 
     /** {@inheritDoc} */
     @Override public void start(BenchmarkConfiguration cfg) throws Exception {
+        this.cfg = cfg;
+
         BenchmarkClosure<String> c = new BenchmarkClosure<String>() {
             private final AtomicInteger lineNum = new AtomicInteger(0);
 
@@ -104,14 +109,16 @@ public class VmStatProbe implements BenchmarkProbe {
 
         proc.exec(cmdParams, Collections.<String, String>emptyMap(), c);
 
-        System.out.println(VmStatProbe.class.getSimpleName() + " is started.");
+        cfg.output().println(VmStatProbe.class.getSimpleName() + " is started.");
     }
 
     /** {@inheritDoc} */
     @Override public void stop() throws Exception {
-        proc.shutdown(false);
+        if (proc != null) {
+            proc.shutdown(false);
 
-        System.out.println(VmStatProbe.class.getSimpleName() + " is stopped.");
+            cfg.output().println(VmStatProbe.class.getSimpleName() + " is stopped.");
+        }
     }
 
     /** {@inheritDoc} */
@@ -146,13 +153,13 @@ public class VmStatProbe implements BenchmarkProbe {
             Matcher m = FIRST_LINE.matcher(line);
 
             if (!m.matches())
-                System.out.println("WARNING: vmstat returned unexpected first line: " + line);
+                cfg.output().println("WARNING: vmstat returned unexpected first line: " + line);
         }
         else if (lineNum == 1) {
             Matcher m = HEADER_LINE.matcher(line);
 
             if (!m.matches())
-                System.err.println("ERROR: Header line does match expected header " +
+                cfg.output().println("ERROR: Header line does match expected header " +
                     "[exp=" + HEADER_LINE + ", act=" + line + "].");
         }
         else {
@@ -175,11 +182,11 @@ public class VmStatProbe implements BenchmarkProbe {
                     collectPoint(pnt);
                 }
                 catch (NumberFormatException e) {
-                    System.err.println("ERROR: Can't parse line: " + line + ".");
+                    cfg.output().println("ERROR: Can't parse line: " + line + ".");
                 }
             }
             else
-                System.err.println("ERROR: Can't parse line: " + line + ".");
+                cfg.output().println("ERROR: Can't parse line: " + line + ".");
         }
     }
 
@@ -189,10 +196,10 @@ public class VmStatProbe implements BenchmarkProbe {
      */
     private static int interval(BenchmarkConfiguration cfg) {
         try {
-            return Integer.parseInt(cfg.customProperties().get(VMSTAT_PROBE_INVERVAL));
+            return Integer.parseInt(cfg.customProperties().get(INVERVAL));
         }
         catch (NumberFormatException | NullPointerException ignored) {
-            return VMSTAT_DEFAULT_INVERVAL_IN_SECS;
+            return DEFAULT_INVERVAL_IN_SECS;
         }
     }
 
@@ -201,9 +208,9 @@ public class VmStatProbe implements BenchmarkProbe {
      * @return Path to vmstat executable.
      */
     private static String vmstatPath(BenchmarkConfiguration cfg) {
-        String res = cfg.customProperties().get(VMSTAT_PROBE_PATH);
+        String res = cfg.customProperties().get(PATH);
 
-        return res == null || res.isEmpty() ? VMSTAT_DEFAULT_PATH : res;
+        return res == null || res.isEmpty() ? DEFAULT_PATH : res;
     }
 
     /**
@@ -211,9 +218,9 @@ public class VmStatProbe implements BenchmarkProbe {
      * @return Path to vmstat executable.
      */
     private static Collection<String> vmstatOpts(BenchmarkConfiguration cfg) {
-        String res = cfg.customProperties().get(VMSTAT_PROBE_OPTS);
+        String res = cfg.customProperties().get(OPTS);
 
-        res = res == null || res.isEmpty() ? VMSTAT_DEFAULT_OPTS : res;
+        res = res == null || res.isEmpty() ? DEFAULT_OPTS : res;
 
         return Arrays.asList(res.split("\\s+"));
     }

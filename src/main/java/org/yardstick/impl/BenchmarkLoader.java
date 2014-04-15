@@ -116,8 +116,7 @@ public class BenchmarkLoader {
             }
         }
 
-        if (!customProps.isEmpty())
-            cfg.customProperties(customProps);
+        cfg.customProperties(customProps);
 
         // Init probes.
         List<BenchmarkProbe> probes = new ArrayList<>(cfg.defaultProbeClassNames().size());

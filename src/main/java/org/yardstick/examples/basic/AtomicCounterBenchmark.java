@@ -15,9 +15,7 @@
 package org.yardstick.examples.basic;
 
 import org.yardstick.*;
-import org.yardstick.probes.*;
 
-import java.util.*;
 import java.util.concurrent.atomic.*;
 
 /**
@@ -26,27 +24,12 @@ import java.util.concurrent.atomic.*;
  * <p>
  * This benchmark is local and does not have remote server counterpart.
  */
-public class AtomicCounterBenchmark implements BenchmarkDriver {
+public class AtomicCounterBenchmark extends BenchmarkDriverAdapter {
     /** Counter to benchmark. */
-    private final AtomicInteger cntr = new AtomicInteger();
-
-    /** {@inheritDoc} */
-    @Override public void setUp(BenchmarkConfiguration cfg) throws Exception {
-        // No-op.
-    }
-
-    /** {@inheritDoc} */
-    @Override public void tearDown() throws Exception {
-        // No-op.
-    }
-
-    /** {@inheritDoc} */
-    @Override public Collection<BenchmarkProbe> probes() {
-        return Arrays.<BenchmarkProbe>asList(new ThroughputLatencyProbe());
-    }
+    private final AtomicInteger cnt = new AtomicInteger();
 
     /** {@inheritDoc} */
     @Override public void test() throws Exception {
-        cntr.incrementAndGet();
+        cnt.incrementAndGet();
     }
 }

@@ -24,20 +24,34 @@ import java.util.*;
  */
 public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
     /** */
+    public static final String PRINT_TO_OUTPUT = "benchmark.writer.print.to.output";
+
+    /** */
+    public static final boolean DEFAULT_PRINT_TO_OUTPUT = false;
+
+    /** */
     public static final String META_INFO_SEPARATOR = ",";
 
     /** */
-    public static final String META_INFO_PREFIX = "*MI*";
+    public static final String META_INFO_PREFIX = "**";
 
     /** */
     private PrintWriter writer;
 
     /** */
+    private BenchmarkConfiguration cfg;
+
+    /** */
     private long startTime;
+
+    /** */
+    private boolean printToOutput;
 
     /** {@inheritDoc} */
     @Override public void start(BenchmarkConfiguration cfg, long startTime) {
+        this.cfg = cfg;
         this.startTime = startTime;
+        this.printToOutput = printToOutput(cfg);
     }
 
     /** {@inheritDoc} */
@@ -46,36 +60,36 @@ public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
             writer = new PrintWriter(new OutputStreamWriter(
                 new FileOutputStream(probe.getClass().getSimpleName() + "_" + startTime + ".csv")));
 
-            writer.println("--Probe dump file for probe: " + probe + " (" + probe.getClass() + ")");
-            writer.println("--Created " + new Date(startTime));
+            println("--Probe dump file for probe: " + probe + " (" + probe.getClass() + ")");
+            println("--Created " + new Date(startTime));
 
             if (probe.metaInfo() != null && probe.metaInfo().size() > 0) {
                 int i = 0;
 
-                writer.print(META_INFO_PREFIX);
+                print(META_INFO_PREFIX);
 
                 for (String metaInfo : probe.metaInfo())
-                    writer.print("\"" + metaInfo + "\"" + (++i == probe.metaInfo().size() ? "" : META_INFO_SEPARATOR));
+                    print("\"" + metaInfo + "\"" + (++i == probe.metaInfo().size() ? "" : META_INFO_SEPARATOR));
 
                 if (i != 0)
-                    writer.println();
+                    println("");
             }
         }
 
         for (BenchmarkProbePoint pt : points) {
-            writer.write(String.valueOf(pt.time()));
-            writer.write(",");
+            print(String.valueOf(pt.time()));
+            print(",");
 
             float[] vals = pt.values();
 
             for (int i = 0; i < vals.length; i++) {
-                writer.write(String.format("%.2f", vals[i]));
+                print(String.format("%.2f", vals[i]));
 
                 if (i != vals.length - 1)
-                    writer.write(",");
+                    print(",");
             }
 
-            writer.println();
+            println("");
         }
 
         writer.flush();
@@ -85,5 +99,38 @@ public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
     @Override public void close() throws Exception {
         if (writer != null)
             writer.close();
+    }
+
+    /**
+     * @param s String to write.
+     */
+    private void print(String s) {
+        writer.print(s);
+
+        if (printToOutput)
+            cfg.output().print(s);
+    }
+
+    /**
+     * @param s String to write.
+     */
+    private void println(String s) {
+        writer.println(s);
+
+        if (printToOutput)
+            cfg.output().println(s);
+    }
+
+    /**
+     * @param cfg Config.
+     * @return Flat indicating whether to print to output or not.
+     */
+    private static boolean printToOutput(BenchmarkConfiguration cfg) {
+        try {
+            return Boolean.parseBoolean(cfg.customProperties().get(PRINT_TO_OUTPUT));
+        }
+        catch (NumberFormatException | NullPointerException ignored) {
+            return DEFAULT_PRINT_TO_OUTPUT;
+        }
     }
 }

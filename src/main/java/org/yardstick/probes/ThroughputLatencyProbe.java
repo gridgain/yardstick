@@ -23,10 +23,10 @@ import java.util.*;
 */
 public class ThroughputLatencyProbe implements BenchmarkExecutionAwareProbe {
     /** */
-    public static final String THROUGHPUT_LATENCY_PROBE_INVERVAL = "benchmark.probe.throughput.interval";
+    public static final String INVERVAL = "benchmark.probe.throughput.interval";
 
     /** */
-    public static final long THROUGHPUT_LATENCY_PROBE_DEFAULT_INVERVAL_IN_MSECS = 1_000;
+    public static final long DEFAULT_INVERVAL_IN_MSECS = 1_000;
 
     /** Operations executed. */
     private ThreadAgent[] agents;
@@ -37,9 +37,14 @@ public class ThroughputLatencyProbe implements BenchmarkExecutionAwareProbe {
     /** Thread collecting probe points. */
     private Thread collectingThread;
 
+    /** */
+    private BenchmarkConfiguration cfg;
+
     /** {@inheritDoc} */
     @SuppressWarnings("BusyWait")
     @Override public void start(BenchmarkConfiguration cfg) throws Exception {
+        this.cfg = cfg;
+
         agents = new ThreadAgent[cfg.threads()];
 
         for (int i = 0; i < agents.length; i++)
@@ -71,13 +76,18 @@ public class ThroughputLatencyProbe implements BenchmarkExecutionAwareProbe {
         };
 
         collectingThread.start();
+
+        cfg.output().println(ThroughputLatencyProbe.class.getSimpleName() + " is started.");
     }
 
     /** {@inheritDoc} */
     @Override public void stop() throws Exception {
-        collectingThread.interrupt();
+        if (collectingThread != null) {
+            collectingThread.interrupt();
+            collectingThread.join();
 
-        collectingThread.join();
+            cfg.output().println(ThroughputLatencyProbe.class.getSimpleName() + " is stopped.");
+        }
     }
 
     /** {@inheritDoc} */
@@ -117,10 +127,10 @@ public class ThroughputLatencyProbe implements BenchmarkExecutionAwareProbe {
      */
     private static long interval(BenchmarkConfiguration cfg) {
         try {
-            return Long.parseLong(cfg.customProperties().get(THROUGHPUT_LATENCY_PROBE_INVERVAL));
+            return Long.parseLong(cfg.customProperties().get(INVERVAL));
         }
         catch (NumberFormatException | NullPointerException ignored) {
-            return THROUGHPUT_LATENCY_PROBE_DEFAULT_INVERVAL_IN_MSECS;
+            return DEFAULT_INVERVAL_IN_MSECS;
         }
     }
 

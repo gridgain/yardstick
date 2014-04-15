@@ -21,7 +21,7 @@ To run a remote server the following should be done:
 1. Some configuration parameters can be defined in `benchmark.properties`.
 The file is specified via `-c` program argument.
 2. Run `bin/benchmark-run.sh` script with specified benchmark server name. For example:
-`bin/benchmark-run.sh -c benchmark.properties -n EchoServer`
+`benchmark-run.sh -c ../benchmark.properties -n EchoServer`
 
 Additional parameters of the script are listed below.
 
@@ -30,12 +30,13 @@ After remote servers are started, the benchmark should be run. Procedure is almo
 difference is that the benchmark class name should be specified instead of server clsss name.
 
 For example:
-`bin/benchmark-run.sh -c benchmark.properties -n EchoServerBenchmark`
+`benchmark-run.sh -c ../benchmark.properties -n EchoServerBenchmark`
 
 The following properties can be defined in `benchmark.properties` file:
 
 * `benchmark.default.probes` - the list of default probes
-* `benchmark.packages` - packages where the specified benchmark is searched by reflection mechanism.
+* `benchmark.packages` - packages where the specified benchmark is searched by reflection mechanism
+* `benchmark.writer` - probe point writer class name
 
 `benchmark-run.sh` script accepts the following arguments:
 
