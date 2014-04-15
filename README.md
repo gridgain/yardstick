@@ -19,11 +19,11 @@ That's it, Yardstick benchmark will measure latency and other metrics for you.
 To run a remote server the following should be done:
 
 1. Some configuration parameters can be defined in `benchmark.properties`.
-The file is specified via `-c` program argument.
+The file is specified via `--config` program argument.
 2. Run `bin/benchmark-run.sh` script with specified benchmark server name.
 
 For example:
-`benchmark-run.sh -c ../benchmark.properties -n EchoServer`
+`benchmark-run.sh --config ../benchmark.properties -n EchoServer`
 
 Additional parameters of the script are listed below.
 
@@ -32,7 +32,7 @@ After remote servers are started, the benchmark should be run. Procedure is almo
 difference is that the benchmark class name should be specified instead of server clsss name.
 
 For example:
-`benchmark-run.sh -c ../benchmark.properties -n EchoServerBenchmark`
+`benchmark-run.sh --config ../benchmark.properties -n EchoServerBenchmark`
 
 The following properties can be defined in `benchmark.properties` file:
 
@@ -42,23 +42,23 @@ The following properties can be defined in `benchmark.properties` file:
 
 `benchmark-run.sh` script accepts the following arguments:
 
-* `-c <path>` - framework configuration file path
-* `-n <name>` - benchmark name (required)
-* `-p <list>` - comma separated list of packages for benchmarks
+* `--config <path>` - framework configuration file path
+* `--name <name>` - benchmark name (required)
+* `--packages <list>` - comma separated list of packages for benchmarks
 * `--probes <list>` - comma separated list of probes for benchmarks
 * `--writer <name>` - Probe point writer class name
-* `-t <num>` - thread count (set to 'cpus * 2')
-* `-d <time>` - test duration, in seconds
-* `-w <time>` - warmup time, in seconds
-* `-sh` - flag indicating whether to invoke shutdown hook or not
+* `--threads <num>` - thread count (set to 'cpus * 2')
+* `--duration <time>` - test duration, in seconds
+* `--warmup <time>` - warmup time, in seconds
+* `--shutdown` - flag indicating whether to invoke shutdown hook or not
 
 ## JFreeChart graphs
 Yardstick goes with the script `jfreechart-graph-plotter-run.sh` that builds JFreeChart graphs using probe points.
 
 `jfreechart-graph-plotter-run.sh` script accepts the following arguments:
 
-* `-i` - input folder where files with probe points are located (required)
-* `-o` - output folder, if it's not defined then the input folder is used
+* `--input` - input folder where files with probe points are located (required)
+* `--output` - output folder, if it's not defined then the input folder is used
 
 As a result the script produces 'png' images with graphs and html pages where all graphs belonging to the one test run
 are located.
