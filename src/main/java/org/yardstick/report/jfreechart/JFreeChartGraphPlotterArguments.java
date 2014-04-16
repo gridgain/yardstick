@@ -29,10 +29,6 @@ public class JFreeChartGraphPlotterArguments {
         description = "Input folder where files with probe points are located (required)")
     private String inputFolder;
 
-    /** Output file name. */
-    @Parameter(names = {"-o", "--output"}, description = "Output folder, if it's not defined then input folder is used")
-    private String outputFolder;
-
     /**
      * @return Input file name.
      */
@@ -45,20 +41,6 @@ public class JFreeChartGraphPlotterArguments {
      */
     public void inputFolder(String inputFileName) {
         this.inputFolder = inputFileName;
-    }
-
-    /**
-     * @return Output file name.
-     */
-    public String outputFolder() {
-        return outputFolder;
-    }
-
-    /**
-     * @param outputFileName Output file name.
-     */
-    public void outputFolder(String outputFileName) {
-        this.outputFolder = outputFileName;
     }
 
     /**

@@ -65,19 +65,9 @@ public class JFreeChartGraphPlotter {
             return;
         }
 
-        File outFolder = new File(args.outputFolder() == null ? args.inputFolder() : args.outputFolder());
-
-        if (!outFolder.exists()) {
-            if (!outFolder.mkdir()) {
-                System.out.println("Output folder '" + outFolder + "'can not be created.");
-
-                return;
-            }
-        }
-
         for (File file : files(inFolder)) {
             try {
-                processFile(file, outFolder);
+                processFile(file);
             }
             catch (Exception e) {
                 System.out.println("Exception is raised during file '" + file + "' processing.");
@@ -86,7 +76,7 @@ public class JFreeChartGraphPlotter {
             }
         }
 
-        JFreeChartResultPageGenerator.main(new String[] {outFolder.getAbsolutePath()});
+        JFreeChartResultPageGenerator.main(new String[] {inFolder.getAbsolutePath()});
     }
 
     /**
@@ -94,33 +84,53 @@ public class JFreeChartGraphPlotter {
      * @return Collection of files.
      */
     private static Collection<File> files(File folder) {
-        File[] files = folder.listFiles();
+        File[] dirs = folder.listFiles();
 
-        if (files == null || files.length == 0)
+        if (dirs == null || dirs.length == 0)
             return Collections.emptyList();
 
-        Collection<File> res = new ArrayList<>(files.length);
+        Collection<File> res = new ArrayList<>();
 
-        for (File file : files) {
-            if (!file.canRead()) {
-                System.out.println("File '" + file + "' can not be read.");
+        for (File dir : dirs) {
+            if (dir.isDirectory()) {
+                File[] files = dir.listFiles();
 
-                continue;
+                if (files == null || files.length == 0)
+                    continue;
+
+                for (File file : files)
+                    addFile(file, res);
             }
-
-            if (file.getName().endsWith(INPUT_FILE_EXTENSION))
-                res.add(file);
+            else
+                addFile(dir, res);
         }
 
         return res;
     }
 
     /**
+     * @param file File to add.
+     * @param res Resulted collection.
+     */
+    private static void addFile(File file, Collection<File> res) {
+        if (file.isDirectory())
+            return;
+
+        if (!file.canRead()) {
+            System.out.println("File '" + file + "' can not be read.");
+
+            return;
+        }
+
+        if (file.getName().endsWith(INPUT_FILE_EXTENSION))
+            res.add(file);
+    }
+
+    /**
      * @param file File to process.
-     * @param outFolder Output folder.
      * @throws Exception If failed.
      */
-    private static void processFile(File file, File outFolder) throws Exception {
+    private static void processFile(File file) throws Exception {
         System.out.println("Processing file '" + file + "'.");
 
         ChartRenderingInfo info = new ChartRenderingInfo(new StandardEntityCollection());
@@ -158,7 +168,7 @@ public class JFreeChartGraphPlotter {
 
             renderer.setSeriesPaint(0, Color.BLACK);
 
-            File res = new File(outFolder, plotData.plotName() + ".png");
+            File res = new File(file.getParent(), plotData.plotName() + ".png");
 
             ChartUtilities.saveChartAsPNG(res, chart, 800, 400, info);
 

@@ -17,6 +17,7 @@ package org.yardstick.writers;
 import org.yardstick.*;
 
 import java.io.*;
+import java.text.*;
 import java.util.*;
 
 /**
@@ -37,6 +38,9 @@ public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
 
     /** */
     public static final String META_INFO_PREFIX = "**";
+
+    /** */
+    public static final SimpleDateFormat FORMAT = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss.SSS");
 
     /** */
     private PrintWriter writer;
@@ -61,22 +65,37 @@ public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
 
         String path = cfg.customProperties().get(OUTPUT_PATH);
 
-        if (path != null) {
-            outPath = new File(path);
+        File folder = null;
 
-            if (!outPath.exists())
-                throw new IllegalStateException("Output path does not exist: '" + path + "'.");
+        if (path != null) {
+            folder = new File(path);
+
+            if (!folder.exists())
+                throw new IllegalStateException("Output path defined by property '" + OUTPUT_PATH +
+                    "' does not exist: '" + path + "'.");
+        }
+
+        String subFolderName = FORMAT.format(new Date(startTime)) + '_' + cfg.name();
+
+        outPath = folder == null ? new File(subFolderName) : new File(folder, subFolderName);
+
+        if (!outPath.exists()) {
+            if (!outPath.mkdir())
+                throw new IllegalStateException("Can not create folder: '" + outPath.getAbsolutePath() + "'.");
         }
     }
 
     /** {@inheritDoc} */
     @Override public void writePoints(BenchmarkProbe probe, Collection<BenchmarkProbePoint> points) throws Exception {
         if (writer == null) {
-            String fileName = probe.getClass().getSimpleName() + "_" + startTime + ".csv";
+            String fileName = probe.getClass().getSimpleName() + ".csv";
 
             File f = outPath == null ? new File(fileName) : new File(outPath, fileName);
 
             writer = new PrintWriter(new OutputStreamWriter(new FileOutputStream(f)));
+
+            cfg.output().println(probe.getClass().getSimpleName() +
+                " results will be saved to '" + f.getAbsolutePath() + "'.");
 
             println("--Probe dump file for probe: " + probe + " (" + probe.getClass() + ")");
             println("--Created " + new Date(startTime));

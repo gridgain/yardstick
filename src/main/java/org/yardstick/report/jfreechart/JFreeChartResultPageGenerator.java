@@ -14,7 +14,10 @@
 
 package org.yardstick.report.jfreechart;
 
+import org.yardstick.writers.*;
+
 import java.io.*;
+import java.text.*;
 import java.util.*;
 
 /**
@@ -39,18 +42,54 @@ public class JFreeChartResultPageGenerator {
             return;
         }
 
-        Map<String, Map<String, List<File>>> files = files(inFolder.listFiles());
+        for (File folder : folders(inFolder)) {
+            Map<String, List<File>> files = files(folder.listFiles());
 
-        for (Map.Entry<String, Map<String, List<File>>> entry : files.entrySet())
-            generateHtml(entry.getKey(), entry.getValue(), inFolder);
+            int i = folder.getName().lastIndexOf('_');
+
+            Date testTime = null;
+
+            if (i != -1) {
+                try {
+                    testTime = BenchmarkProbePointCsvWriter.FORMAT.parse(folder.getName().substring(0, i));
+                }
+                catch (ParseException ignored) {
+                    // No-op.
+                }
+            }
+
+            generateHtml(testTime, files, folder);
+        }
+    }
+
+    /**
+     * @param folder Folder to scan for folders.
+     * @return Collection of folder.
+     */
+    private static Collection<File> folders(File folder) {
+        File[] dirs = folder.listFiles();
+
+        if (dirs == null || dirs.length == 0)
+            return Collections.emptyList();
+
+        Collection<File> res = new ArrayList<>();
+
+        res.add(folder);
+
+        for (File dir : dirs) {
+            if (dir.isDirectory())
+                res.add(dir);
+        }
+
+        return res;
     }
 
     /**
      * @param files Files.
      * @return Map of files.
      */
-    private static Map<String, Map<String, List<File>>> files(File[] files) {
-        Map<String, Map<String, List<File>>> res = new HashMap<>();
+    private static Map<String, List<File>> files(File[] files) {
+        Map<String, List<File>> res = new HashMap<>();
 
         for (File file : files) {
             if (!file.getName().endsWith(".png"))
@@ -58,26 +97,18 @@ public class JFreeChartResultPageGenerator {
 
             String[] tokens = file.getName().split("_");
 
-            if (tokens.length < 4) {
+            if (tokens.length < 3) {
                 System.out.println("Incorrect file name: '" + file.getName() + "'.");
 
                 continue;
             }
 
-            Map<String, List<File>> map = res.get(tokens[2]);
-
-            if (map == null) {
-                map = new TreeMap<>();
-
-                res.put(tokens[2], map);
-            }
-
-            List<File> list = map.get(tokens[1]);
+            List<File> list = res.get(tokens[1]);
 
             if (list == null) {
                 list = new ArrayList<>();
 
-                map.put(tokens[1], list);
+                res.put(tokens[1], list);
             }
 
             list.add(file);
@@ -90,21 +121,19 @@ public class JFreeChartResultPageGenerator {
         };
 
         // Sort files to have them always in the same order.
-        for (Map<String, List<File>> map : res.values()) {
-            for (List<File> list : map.values())
-                Collections.sort(list, comp);
-        }
+        for (List<File> list : res.values())
+            Collections.sort(list, comp);
 
         return res;
     }
 
     /**
-     * @param id Id.
+     * @param testTime Tsst time.
      * @param files Files.
      * @param outFolder Output folder.
      */
-    private static void generateHtml(String id, Map<String, List<File>> files, File outFolder) {
-        File outFile = new File(outFolder, "Results_" + id + ".html");
+    private static void generateHtml(Date testTime, Map<String, List<File>> files, File outFolder) {
+        File outFile = new File(outFolder, "Results.html");
 
         try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outFile)))) {
             writeLine(bw, "<html>");
@@ -112,16 +141,7 @@ public class JFreeChartResultPageGenerator {
             writeLine(bw, "</head>");
             writeLine(bw, "<body>");
 
-            long time;
-
-            try {
-                time = Long.parseLong(id);
-            }
-            catch (NumberFormatException e) {
-                time = 0;
-            }
-
-            writeLine(bw, "<h1>Results" + (time == 0 ? "" : " on " + new Date(time)) + "</h1>");
+            writeLine(bw, "<h1>Results" + (testTime == null ? "" : " on " + testTime) + "</h1>");
             writeLine(bw, "<br>");
 
             for (Map.Entry<String, List<File>> entry : files.entrySet()) {
