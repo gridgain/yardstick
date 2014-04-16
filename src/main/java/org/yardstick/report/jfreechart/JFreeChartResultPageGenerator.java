@@ -45,6 +45,9 @@ public class JFreeChartResultPageGenerator {
         for (File folder : folders(inFolder)) {
             Map<String, List<File>> files = files(folder.listFiles());
 
+            if (files.isEmpty())
+                continue;
+
             int i = folder.getName().lastIndexOf('_');
 
             Date testTime = null;

@@ -16,6 +16,7 @@ package org.yardstick.report.jfreechart;
 
 import com.beust.jcommander.*;
 import org.jfree.chart.*;
+import org.jfree.chart.axis.*;
 import org.jfree.chart.entity.*;
 import org.jfree.chart.plot.*;
 import org.jfree.chart.renderer.xy.*;
@@ -28,6 +29,7 @@ import java.io.*;
 import java.util.*;
 import java.util.List;
 
+import static java.awt.Color.*;
 import static org.yardstick.writers.BenchmarkProbePointCsvWriter.*;
 
 /**
@@ -36,6 +38,10 @@ import static org.yardstick.writers.BenchmarkProbePointCsvWriter.*;
 public class JFreeChartGraphPlotter {
     /** */
     private static final String INPUT_FILE_EXTENSION = ".csv";
+
+    /** */
+    private static final Color[] PLOT_COLORS = {GREEN, BLUE, RED, ORANGE, CYAN, MAGENTA,
+        new Color(255, 0, 137), new Color(163, 143, 255), new Color(76, 255, 153)};
 
     /**
      * @param cmdArgs Arguments.
@@ -139,6 +145,8 @@ public class JFreeChartGraphPlotter {
 
         Collection<PlotData> plots = readData(file);
 
+        int i = 0;
+
         for (PlotData plotData : plots) {
             DefaultXYDataset dataset = new DefaultXYDataset();
 
@@ -155,18 +163,18 @@ public class JFreeChartGraphPlotter {
                 false,
                 false);
 
+            AxisSpace as = new AxisSpace();
+
+            as.add(100, RectangleEdge.LEFT);
+
             XYPlot plot = (XYPlot)chart.getPlot();
+
             plot.setRenderer(renderer);
-
-            IntervalMarker intervalIncertitude = new IntervalMarker(1.0d, 2.0d);
-            intervalIncertitude.setPaint(new Color(222, 222, 255, 128));
-            plot.addDomainMarker(intervalIncertitude, Layer.BACKGROUND);
-
-            Marker distanceTiers = new ValueMarker(1.0d);
-            distanceTiers.setPaint(Color.BLACK);
-            plot.addDomainMarker(distanceTiers);
-
-            renderer.setSeriesPaint(0, Color.BLACK);
+            plot.setBackgroundPaint(WHITE);
+            plot.setRangeGridlinePaint(GRAY);
+            plot.setDomainGridlinePaint(GRAY);
+            plot.setFixedRangeAxisSpace(as);
+            renderer.setSeriesPaint(0, PLOT_COLORS[i++ % PLOT_COLORS.length]);
 
             File res = new File(file.getParent(), plotData.plotName() + ".png");
 
