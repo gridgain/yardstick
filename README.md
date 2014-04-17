@@ -58,6 +58,7 @@ Yardstick goes with the script `jfreechart-graph-plotter-run.sh` that builds JFr
 `jfreechart-graph-plotter-run.sh` script accepts the following arguments:
 
 * `--input` - input folder where files with probe points are located (required)
+* `--chartColumns` - number of columns that the charts are displayed in on the resulted page
 
 As a result the script produces 'png' images with graphs and html pages where all graphs belonging to the one test run
 are located.

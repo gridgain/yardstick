@@ -20,14 +20,22 @@ import com.beust.jcommander.*;
  * Graph plotter arguments.
  */
 public class JFreeChartGraphPlotterArguments {
-    /** Help message flag. */
+    /** */
+    @SuppressWarnings("UnusedDeclaration")
     @Parameter(names = {"-h", "--help"}, description = "Print help message")
     private boolean help;
 
-    /** Input file name. */
+    /** */
+    @SuppressWarnings("UnusedDeclaration")
     @Parameter(names = {"-i", "--input"},
         description = "Input folder where files with probe points are located (required)")
     private String inputFolder;
+
+    /** */
+    @SuppressWarnings("FieldCanBeLocal")
+    @Parameter(names = {"-cc", "--chartColumns"},
+        description = "Number of columns that the charts are displayed in on the resulted page")
+    private int chartCols = 3;
 
     /**
      * @return Input file name.
@@ -37,10 +45,10 @@ public class JFreeChartGraphPlotterArguments {
     }
 
     /**
-     * @param inputFileName Input file name.
+     * @return Chart columns number.
      */
-    public void inputFolder(String inputFileName) {
-        this.inputFolder = inputFileName;
+    public int chartColumns() {
+        return chartCols;
     }
 
     /**
@@ -48,12 +56,5 @@ public class JFreeChartGraphPlotterArguments {
      */
     public boolean help() {
         return help;
-    }
-
-    /**
-     * @param help Help.
-     */
-    public void help(boolean help) {
-        this.help = help;
     }
 }

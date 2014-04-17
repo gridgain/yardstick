@@ -20,6 +20,7 @@ import org.jfree.chart.axis.*;
 import org.jfree.chart.entity.*;
 import org.jfree.chart.plot.*;
 import org.jfree.chart.renderer.xy.*;
+import org.jfree.chart.title.*;
 import org.jfree.data.xy.*;
 import org.jfree.ui.*;
 import org.yardstick.util.*;
@@ -82,7 +83,7 @@ public class JFreeChartGraphPlotter {
             }
         }
 
-        JFreeChartResultPageGenerator.main(new String[] {inFolder.getAbsolutePath()});
+        JFreeChartResultPageGenerator.generate(inFolder, args);
     }
 
     /**
@@ -165,9 +166,11 @@ public class JFreeChartGraphPlotter {
 
             AxisSpace as = new AxisSpace();
 
-            as.add(100, RectangleEdge.LEFT);
+            as.add(130, RectangleEdge.LEFT);
 
             XYPlot plot = (XYPlot)chart.getPlot();
+
+            BasicStroke stroke = new BasicStroke(1);
 
             plot.setRenderer(renderer);
             plot.setBackgroundPaint(WHITE);
@@ -175,6 +178,19 @@ public class JFreeChartGraphPlotter {
             plot.setDomainGridlinePaint(GRAY);
             plot.setFixedRangeAxisSpace(as);
             renderer.setSeriesPaint(0, PLOT_COLORS[i++ % PLOT_COLORS.length]);
+            renderer.setSeriesStroke(0, new BasicStroke(3)); // Line thickness.
+            plot.setOutlineStroke(stroke);
+
+            ValueAxis axis = plot.getRangeAxis();
+
+            Font font = new Font(axis.getTickLabelFont().getName(), Font.BOLD, axis.getTickLabelFont().getSize() + 3);
+
+            axis.setTickLabelFont(font);
+            axis.setLabelFont(font);
+            plot.getDomainAxis().setTickLabelFont(font);
+            plot.getDomainAxis().setLabelFont(font);
+
+            chart.setTitle(new TextTitle(plotData.yAxisLabel, new Font(font.getName(), font.getStyle(), 30)));
 
             File res = new File(file.getParent(), plotData.plotName() + ".png");
 

@@ -42,6 +42,16 @@ public class JFreeChartResultPageGenerator {
             return;
         }
 
+        generate(inFolder, null);
+    }
+
+    /**
+     * Generates a page containing all charts that belong to one test run.
+     *
+     * @param inFolder Input folder.
+     * @param args Arguments.
+     */
+    public static void generate(File inFolder, JFreeChartGraphPlotterArguments args) {
         for (File folder : folders(inFolder)) {
             Map<String, List<File>> files = files(folder.listFiles());
 
@@ -61,7 +71,7 @@ public class JFreeChartResultPageGenerator {
                 }
             }
 
-            generateHtml(testTime, files, folder);
+            generateHtml(testTime, files, folder, args);
         }
     }
 
@@ -134,8 +144,10 @@ public class JFreeChartResultPageGenerator {
      * @param testTime Tsst time.
      * @param files Files.
      * @param outFolder Output folder.
+     * @param args Arguments.
      */
-    private static void generateHtml(Date testTime, Map<String, List<File>> files, File outFolder) {
+    private static void generateHtml(Date testTime, Map<String, List<File>> files, File outFolder,
+        JFreeChartGraphPlotterArguments args) {
         File outFile = new File(outFolder, "Results.html");
 
         try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outFile)))) {
@@ -147,17 +159,49 @@ public class JFreeChartResultPageGenerator {
             writeLine(bw, "<h1>Results" + (testTime == null ? "" : " on " + testTime) + "</h1>");
             writeLine(bw, "<br>");
 
+            int cnt = 0;
+
             for (Map.Entry<String, List<File>> entry : files.entrySet()) {
                 writeLine(bw, "<h2>" + entry.getKey() + "</h2>");
+                writeLine(bw, "<table>");
+                writeLine(bw, "<tr>");
+
+                int imgInRow = 0;
 
                 for (File file : entry.getValue()) {
-                    writeLine(bw, "<h3>" + file.getName() + "</h3>");
-                    writeLine(bw, "<img src=\"" + file.getName() + "\">");
+                    if (imgInRow != 0 && imgInRow % args.chartColumns() == 0) {
+                        writeLine(bw, "</tr>");
+                        writeLine(bw, "</table>");
+                        writeLine(bw, "<table>");
+                        writeLine(bw, "<tr>");
+                    }
+
+                    writeLine(bw, "<td>");
+                    writeLine(bw, "<a href=\"javascript:showCloseLevel('id" + (cnt + 1) + "', 'id" +
+                        cnt + "')\"><img src=\"" + file.getName() + "\" id=\"id" +
+                        cnt + "\" width=\"400\" height=\"200\"/></a>");
+                    writeLine(bw, "<a href=\"javascript:showCloseLevel('id" + cnt + "', 'id" +
+                        (cnt + 1) + "')\"><img src=\"" + file.getName() + "\" id=\"id" +
+                        (cnt + 1) + "\" style=\"display:none\"/></a>");
+                    writeLine(bw, "</td>");
+
+                    cnt += 2;
+
+                    imgInRow++;
                 }
+
+                writeLine(bw, "</tr>");
+                writeLine(bw, "</table>");
             }
 
             writeLine(bw, "</body>");
             writeLine(bw, "</html>");
+            writeLine(bw, "<script type=\"text/javascript\">");
+            writeLine(bw, "function showCloseLevel(idOpen, idClose) {");
+            writeLine(bw, "    document.getElementById(idOpen).style.display = \"\";");
+            writeLine(bw, "    document.getElementById(idClose).style.display = \"none\";");
+            writeLine(bw, "}");
+            writeLine(bw, "</script>");
         }
         catch (Exception e) {
             System.out.println("Exception is raised during file '" + outFile + "' processing.");
