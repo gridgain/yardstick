@@ -16,6 +16,9 @@
 # Discovers path to Java executable and checks it's version.
 # The function exports JAVA variable with path to Java executable.
 #
+
+SCRIPT_DIR=$(cd $(dirname "$0"); pwd)
+
 checkJava() {
     # Check JAVA_HOME.
     if [ "$JAVA_HOME" = "" ]; then
@@ -67,7 +70,7 @@ checkJava
 
 ARGS=$*
 
-CP="../libs/*:../yardstick-1.0.0.jar"
+CP="${SCRIPT_DIR}/../libs/*:${SCRIPT_DIR}/../yardstick-1.0.0.jar"
 
 #
 # JVM options. See http://java.sun.com/javase/technologies/hotspot/vmoptions.jsp for more details.

@@ -25,18 +25,18 @@ export BHOSTS=localhost
 export BSERVER=EchoServer
 
 # Name of the BenchmarkDriver that is to be run on remote machines.
-export BSERVER=EchoServerBenchmark
+export BDRIVER=EchoServerBenchmark
 
 # Comma-separated list of configs.
 cfgs="\
--c ${SCRIPT_DIR}../benchmark.properties --host localhost -d 10,\
--c ${SCRIPT_DIR}../benchmark.properties --host localhost -d 20 -t 64
+-c ${SCRIPT_DIR}/../benchmark.properties --host localhost -d 10,\
+-c ${SCRIPT_DIR}/../benchmark.properties --host localhost -d 20 -t 64
 "
 
 IFS=',' read -ra configs0 <<< "${cfgs}"
 for cfg in "${configs0[@]}";
 do
-    export BCONFIG=cfg
+    export BCONFIG=${cfg}
 
     /bin/bash ${SCRIPT_DIR}/benchmark-remote-run.sh
 done
