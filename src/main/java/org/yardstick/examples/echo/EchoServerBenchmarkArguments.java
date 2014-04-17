@@ -21,11 +21,13 @@ import com.beust.jcommander.*;
  */
 public class EchoServerBenchmarkArguments {
     /** Port echo server listens on. */
-    @Parameter(names = "-port", description = "Echo server port")
+    @SuppressWarnings("FieldCanBeLocal")
+    @Parameter(names = "--port", description = "Echo server port")
     private int port = 54321;
 
     /** Port echo server listens on. */
-    @Parameter(names = "-host", description = "Echo server port")
+    @SuppressWarnings("FieldCanBeLocal")
+    @Parameter(names = "--host", description = "Echo server port")
     private String host = "127.0.0.1";
 
     /**
