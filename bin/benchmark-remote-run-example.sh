@@ -13,9 +13,10 @@
 #    limitations under the License.
 
 #
-# Script allows to define the set of benchmark configurations that are run on remote machines.
+# Example of the script that defines the set of benchmark configurations that should be run on remote machines.
 #
 
+# Define script directory.
 SCRIPT_DIR=$(cd $(dirname "$0"); pwd)
 
 # Comma-separated List of the hosts to run BenchmarkServers on.

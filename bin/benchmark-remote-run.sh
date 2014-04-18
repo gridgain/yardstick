@@ -15,15 +15,17 @@
 #
 # Script that starts BenchmarkServer on remote machines, starts BenchmarkDriver with specified configuration
 # on local machine and after the benchmark finishes it stops remote BenchmarkServers.
+# NOTE: This script requires some environment variables to be defined.
 #
 
 # Define user to establish remote ssh session.
 REMOTE_USER=$(whoami)
 
+# Define script directory.
+SCRIPT_DIR=$(cd $(dirname "$0"); pwd)
+
 # Define logs directory.
 LOGS_DIR=${SCRIPT_DIR}../logs
-
-SCRIPT_DIR=$(cd $(dirname "$0"); pwd)
 
 if [ "${BDRIVER}" == "" ]; then
     echo $0", ERROR:"

@@ -23,16 +23,16 @@ The file is specified via `--config` program argument.
 2. Run `bin/benchmark-run.sh` script with specified benchmark server name.
 
 For example:
-`benchmark-run.sh --config ../benchmark.properties -n EchoServer`
+`bin/benchmark-run.sh --config benchmark.properties -n EchoServer`
 
 Additional parameters of the script are listed below.
 
 ### Starting benchmark
 After remote servers are started, the benchmark should be run. Procedure is almost the same - the only
-difference is that the benchmark class name should be specified instead of server clsss name.
+difference is that the benchmark class name should be specified instead of server class name.
 
 For example:
-`benchmark-run.sh --config ../benchmark.properties -n EchoServerBenchmark`
+`bin/benchmark-run.sh --config benchmark.properties -n EchoServerBenchmark`
 
 The following properties can be defined in `benchmark.properties` file:
 
@@ -51,6 +51,18 @@ The following properties can be defined in `benchmark.properties` file:
 * `--duration <time>` - test duration, in seconds
 * `--warmup <time>` - warmup time, in seconds
 * `--shutdown` - flag indicating whether to invoke shutdown hook or not
+
+### Starting remote servers and benchmark by one script
+Several benchmarks with different configurations can be run with remote servers by using `bin\benchmark-remote-run.sh`
+script. To run the script some environment variables should be defined:
+
+* `BHOSTS` - comma-separated list of hosts where to start servers, one server per host
+* `BSERVER` - class name of the server to be started
+* `BDRIVER` - class name of the benchmark to be started
+* `BCONFIG` - benchmark configuration to be passed to the servers and to the benchmarks
+
+Yardstick is shipped with `bin\benchmark-remote-run-example.sh` script as an example of the script
+that defines the set of benchmark configurations and needed environment variables.
 
 ## JFreeChart graphs
 Yardstick goes with the script `jfreechart-graph-plotter-run.sh` that builds JFreeChart graphs using probe points.

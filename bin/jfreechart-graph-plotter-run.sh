@@ -13,14 +13,16 @@
 #    limitations under the License.
 
 #
-# Discovers path to Java executable and checks it's version.
-# The function exports JAVA variable with path to Java executable.
+# Script that builds JFreeChart graphs and generates a page with resulted graphs.
 #
 
 SCRIPT_DIR=$(cd $(dirname "$0"); pwd)
 
+#
+# Discovers path to Java executable and checks it's version.
+# The function exports JAVA variable with path to Java executable.
+#
 checkJava() {
-    # Check JAVA_HOME.
     if [ "$JAVA_HOME" = "" ]; then
         JAVA=`which java`
         RETCODE=$?
@@ -39,9 +41,6 @@ checkJava() {
         JAVA=${JAVA_HOME}/bin/java
     fi
 
-    #
-    # Check JDK.
-    #
     if [ ! -e "$JAVA" ]; then
         echo $0", ERROR:"
         echo "JAVA is not found in JAVA_HOME=$JAVA_HOME."
