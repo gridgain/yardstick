@@ -64,7 +64,7 @@ public class ThroughputLatencyProbe implements BenchmarkExecutionAwareProbe {
                             agent.collect(collector);
 
                         BenchmarkProbePoint pnt = new BenchmarkProbePoint(System.currentTimeMillis(),
-                            new float[] {collector.execCnt, (float)collector.totalLatency / collector.execCnt});
+                            new double[] {collector.execCnt, (float)collector.totalLatency / collector.execCnt});
 
                         collectPoint(pnt);
                     }

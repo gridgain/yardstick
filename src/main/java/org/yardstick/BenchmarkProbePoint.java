@@ -22,13 +22,13 @@ public class BenchmarkProbePoint {
     private final long time;
 
     /** Measured values. */
-    private final float[] vals;
+    private final double[] vals;
 
     /**
      * @param time Time tag.
      * @param vals Measured values.
      */
-    public BenchmarkProbePoint(long time, float[] vals) {
+    public BenchmarkProbePoint(long time, double[] vals) {
         this.time = time;
         this.vals = vals;
     }
@@ -43,7 +43,7 @@ public class BenchmarkProbePoint {
     /**
      * @return Array of measured values.
      */
-    public float[] values() {
+    public double[] values() {
         return vals;
     }
 }

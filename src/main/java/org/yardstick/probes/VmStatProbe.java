@@ -171,15 +171,15 @@ public class VmStatProbe implements BenchmarkProbe {
             if (m.matches()) {
                 try {
                     BenchmarkProbePoint pnt = new BenchmarkProbePoint(System.currentTimeMillis(),
-                        new float[] {
-                            Integer.parseInt(m.group(1)), Integer.parseInt(m.group(2)),
-                            Integer.parseInt(m.group(3)), Integer.parseInt(m.group(4)),
-                            Integer.parseInt(m.group(5)), Integer.parseInt(m.group(6)),
-                            Integer.parseInt(m.group(7)), Integer.parseInt(m.group(8)),
-                            Integer.parseInt(m.group(9)), Integer.parseInt(m.group(10)),
-                            Integer.parseInt(m.group(11)), Integer.parseInt(m.group(12)),
-                            Integer.parseInt(m.group(13)), Integer.parseInt(m.group(14)),
-                            Integer.parseInt(m.group(15)), Integer.parseInt(m.group(16)),
+                        new double[] {
+                            parseValue(m.group(1)), parseValue(m.group(2)),
+                            parseValue(m.group(3)), parseValue(m.group(4)),
+                            parseValue(m.group(5)), parseValue(m.group(6)),
+                            parseValue(m.group(7)), parseValue(m.group(8)),
+                            parseValue(m.group(9)), parseValue(m.group(10)),
+                            parseValue(m.group(11)), parseValue(m.group(12)),
+                            parseValue(m.group(13)), parseValue(m.group(14)),
+                            parseValue(m.group(15)), parseValue(m.group(16)),
                         });
 
                     collectPoint(pnt);
@@ -191,6 +191,14 @@ public class VmStatProbe implements BenchmarkProbe {
             else
                 cfg.output().println("ERROR: Can't parse line: '" + line + "'.");
         }
+    }
+
+    /**
+     * @param val Value.
+     * @return Parsed value.
+     */
+    private static long parseValue(String val) {
+        return Long.parseLong(val);
     }
 
     /**

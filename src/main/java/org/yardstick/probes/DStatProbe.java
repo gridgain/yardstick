@@ -171,14 +171,14 @@ public class DStatProbe implements BenchmarkProbe {
             if (m.matches()) {
                 try {
                     BenchmarkProbePoint pnt = new BenchmarkProbePoint(System.currentTimeMillis(),
-                        new float[] {
-                            Integer.parseInt(m.group(1)), Integer.parseInt(m.group(2)),
-                            Integer.parseInt(m.group(3)), Integer.parseInt(m.group(4)),
-                            Integer.parseInt(m.group(5)), Integer.parseInt(m.group(6)),
-                            parseValue(m.group(7)), parseValue(m.group(8)),
-                            parseValue(m.group(9)), parseValue(m.group(10)),
-                            Integer.parseInt(m.group(11)), Integer.parseInt(m.group(12)),
-                            Integer.parseInt(m.group(13)), Integer.parseInt(m.group(14)),
+                        new double[] {
+                            parseValue(m.group(1)), parseValue(m.group(2)),
+                            parseValue(m.group(3)), parseValue(m.group(4)),
+                            parseValue(m.group(5)), parseValue(m.group(6)),
+                            parseValueWithUnit(m.group(7)), parseValueWithUnit(m.group(8)),
+                            parseValueWithUnit(m.group(9)), parseValueWithUnit(m.group(10)),
+                            parseValue(m.group(11)), parseValue(m.group(12)),
+                            parseValue(m.group(13)), parseValue(m.group(14)),
                         });
 
                     collectPoint(pnt);
@@ -196,12 +196,12 @@ public class DStatProbe implements BenchmarkProbe {
      * @param val Value.
      * @return Parsed value.
      */
-    private static int parseValue(String val) {
+    private static long parseValueWithUnit(String val) {
         if (val.isEmpty())
             throw new NumberFormatException("Value is empty.");
 
         if (val.length() == 1)
-            return Integer.parseInt(val);
+            return Long.parseLong(val);
 
         char last = val.charAt(val.length() - 1);
 
@@ -218,7 +218,15 @@ public class DStatProbe implements BenchmarkProbe {
         else
             throw new NumberFormatException("Unknown '" + last + "' unit of measure for value '" + val + "'.");
 
-        return Integer.parseInt(val.substring(0, val.length() - 1)) * multiplier;
+        return Long.parseLong(val.substring(0, val.length() - 1)) * multiplier;
+    }
+
+    /**
+     * @param val Value.
+     * @return Parsed value.
+     */
+    private static long parseValue(String val) {
+        return Long.parseLong(val);
     }
 
     /**
