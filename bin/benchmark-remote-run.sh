@@ -25,7 +25,7 @@ REMOTE_USER=$(whoami)
 SCRIPT_DIR=$(cd $(dirname "$0"); pwd)
 
 # Define logs directory.
-LOGS_DIR=${SCRIPT_DIR}../logs
+LOGS_DIR=${SCRIPT_DIR}/../logs
 
 if [ "${BDRIVER}" == "" ]; then
     echo $0", ERROR:"

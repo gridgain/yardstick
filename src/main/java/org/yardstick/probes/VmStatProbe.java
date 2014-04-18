@@ -70,8 +70,7 @@ public class VmStatProbe implements BenchmarkProbe {
                 sb.append("\\s*");
         }
 
-        sb.append("(\\d+)?\\s*");
-        sb.append("$");
+        sb.append("(\\d+)?\\s*$");
 
         VMSTAT_PAT = Pattern.compile(sb.toString());
     }
@@ -111,7 +110,9 @@ public class VmStatProbe implements BenchmarkProbe {
             cfg.error().println("Can not start 'vmstat' process due to exception: " + e.getMessage());
         }
 
-        cfg.output().println(VmStatProbe.class.getSimpleName() + " is started.");
+        String execCmd = cmdParams.toString().replaceAll(",|\\[|\\]", "");
+
+        cfg.output().println(VmStatProbe.class.getSimpleName() + " is started. Command: '" + execCmd + "'.");
     }
 
     /** {@inheritDoc} */

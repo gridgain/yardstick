@@ -37,14 +37,14 @@ public class DStatProbe implements BenchmarkProbe {
 
     /** */
     private static final String FIRST_LINE_RE =
-        "-*total-cpu-usage-* -*dsk/total-* -*net/total-* -*paging-* -*system-*\\s*$";
+        "^\\s*-*total-cpu-usage-* -*dsk/total-* -*net/total-* -*paging-* -*system-*\\s*$";
 
     /** */
     private static final Pattern FIRST_LINE = Pattern.compile(FIRST_LINE_RE);
 
     /** */
-    private static final String HEADER_LINE_RE = "^\\s*usr\\s+sys\\s+idl\\s+wai\\s+hiq\\s+siq\\s+read\\s+writ" +
-        "\\s+recv\\s+send\\s+in\\s+out\\s+int\\s+csw\\s*";
+    private static final String HEADER_LINE_RE = "^\\s*usr\\s+sys\\s+idl\\s+wai\\s+hiq\\s+siq\\s*\\Q|\\E\\s+" +
+        "read\\s+writ\\s*\\Q|\\E\\s+recv\\s+send\\s*\\Q|\\E\\s+in\\s+out\\s*\\Q|\\E\\s+int\\s+csw\\s*$";
 
     /** */
     private static final Pattern HEADER_LINE = Pattern.compile(HEADER_LINE_RE);
@@ -58,13 +58,19 @@ public class DStatProbe implements BenchmarkProbe {
         StringBuilder sb = new StringBuilder("^\\s*");
 
         for (int i = 0; i < numFields; i++) {
-            sb.append("(\\d+)");
+            sb.append("(\\w+)");
 
-            if (i < numFields - 1)
-                sb.append("\\s+");
+            if (i < numFields - 1) {
+                if (i == 5 || i == 7 || i == 9 || i == 11)
+                    sb.append("\\s*\\Q|\\E\\s*");
+                else
+                    sb.append("\\s+");
+            }
             else
                 sb.append("\\s*");
         }
+
+        sb.append("\\s*$");
 
         DSTAT_PAT = Pattern.compile(sb.toString());
     }
@@ -104,7 +110,9 @@ public class DStatProbe implements BenchmarkProbe {
             cfg.error().println("Can not start 'dstat' process due to exception: " + e.getMessage());
         }
 
-        cfg.output().println(DStatProbe.class.getSimpleName() + " is started.");
+        String execCmd = cmdParams.toString().replaceAll(",|\\[|\\]", "");
+
+        cfg.output().println(DStatProbe.class.getSimpleName() + " is started. Command: '" + execCmd + "'.");
     }
 
     /** {@inheritDoc} */
@@ -167,8 +175,8 @@ public class DStatProbe implements BenchmarkProbe {
                             Integer.parseInt(m.group(1)), Integer.parseInt(m.group(2)),
                             Integer.parseInt(m.group(3)), Integer.parseInt(m.group(4)),
                             Integer.parseInt(m.group(5)), Integer.parseInt(m.group(6)),
-                            parseMem(m.group(7)), parseMem(m.group(8)),
-                            parseMem(m.group(9)), parseMem(m.group(10)),
+                            parseValue(m.group(7)), parseValue(m.group(8)),
+                            parseValue(m.group(9)), parseValue(m.group(10)),
                             Integer.parseInt(m.group(11)), Integer.parseInt(m.group(12)),
                             Integer.parseInt(m.group(13)), Integer.parseInt(m.group(14)),
                         });
@@ -188,27 +196,29 @@ public class DStatProbe implements BenchmarkProbe {
      * @param val Value.
      * @return Parsed value.
      */
-    private static int parseMem(String val) {
+    private static int parseValue(String val) {
         if (val.isEmpty())
-            throw new NumberFormatException("Value is empty");
+            throw new NumberFormatException("Value is empty.");
 
         if (val.length() == 1)
             return Integer.parseInt(val);
 
         char last = val.charAt(val.length() - 1);
 
-        int multipier;
+        int multiplier;
 
         if (last == 'B')
-            multipier = 1;
-        else if (last == 'k' || last == 'K')
-            multipier = 1024;
-        else if (last == 'm' || last == 'M')
-            multipier = 1048576;
+            multiplier = 1;
+        else if (last == 'k')
+            multiplier = 1024;
+        else if (last == 'M')
+            multiplier = 1048576;
+        else if (last == 'G')
+            multiplier = 1073741824;
         else
-            throw new NumberFormatException("Unknown " + last + " for value " + val);
+            throw new NumberFormatException("Unknown '" + last + "' unit of measure for value '" + val + "'.");
 
-        return Integer.parseInt(val.substring(0, val.length() - 1)) * multipier;
+        return Integer.parseInt(val.substring(0, val.length() - 1)) * multiplier;
     }
 
     /**
