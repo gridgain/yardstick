@@ -27,13 +27,13 @@ public class DStatProbe implements BenchmarkProbe {
     private static final String OPTS = "benchmark.probe.dstat.opts";
 
     /** */
-    private static final int DEFAULT_INVERVAL_IN_SECS = 1;
+    private static final int DEFAULT_INTERVAL_IN_SECS = 1;
 
     /** */
     private static final String DEFAULT_PATH = "dstat";
 
     /** */
-    private static final String DEFAULT_OPTS = "--all --noheaders --noupdate " + DEFAULT_INVERVAL_IN_SECS;
+    private static final String DEFAULT_OPTS = "--all --noheaders --noupdate " + DEFAULT_INTERVAL_IN_SECS;
 
     /** */
     private static final String FIRST_LINE_RE =

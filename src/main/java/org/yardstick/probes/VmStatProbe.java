@@ -32,13 +32,13 @@ public class VmStatProbe implements BenchmarkProbe {
     private static final String OPTS = "benchmark.probe.vmstat.opts";
 
     /** */
-    private static final int DEFAULT_INVERVAL_IN_SECS = 1;
+    private static final int DEFAULT_INTERVAL_IN_SECS = 1;
 
     /** */
     private static final String DEFAULT_PATH = "vmstat";
 
     /** */
-    private static final String DEFAULT_OPTS = "-n " + DEFAULT_INVERVAL_IN_SECS;
+    private static final String DEFAULT_OPTS = "-n " + DEFAULT_INTERVAL_IN_SECS;
 
     /** */
     private static final String FIRST_LINE_RE = "^\\s*procs -*memory-* -*swap-* -*io-* -*system-* -*cpu-*\\s*$";

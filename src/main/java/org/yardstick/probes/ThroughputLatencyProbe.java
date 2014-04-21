@@ -23,10 +23,10 @@ import java.util.*;
 */
 public class ThroughputLatencyProbe implements BenchmarkExecutionAwareProbe {
     /** */
-    public static final String INVERVAL = "benchmark.probe.throughput.interval";
+    public static final String INTERVAL = "benchmark.probe.throughput.interval";
 
     /** */
-    public static final long DEFAULT_INVERVAL_IN_MSECS = 1_000;
+    public static final long DEFAULT_INTERVAL_IN_MSECS = 1_000;
 
     /** Operations executed. */
     private ThreadAgent[] agents;
@@ -127,10 +127,10 @@ public class ThroughputLatencyProbe implements BenchmarkExecutionAwareProbe {
      */
     private static long interval(BenchmarkConfiguration cfg) {
         try {
-            return Long.parseLong(cfg.customProperties().get(INVERVAL));
+            return Long.parseLong(cfg.customProperties().get(INTERVAL));
         }
         catch (NumberFormatException | NullPointerException ignored) {
-            return DEFAULT_INVERVAL_IN_MSECS;
+            return DEFAULT_INTERVAL_IN_MSECS;
         }
     }
 
