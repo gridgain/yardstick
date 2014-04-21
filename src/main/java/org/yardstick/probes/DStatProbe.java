@@ -37,7 +37,7 @@ public class DStatProbe implements BenchmarkProbe {
 
     /** */
     private static final String FIRST_LINE_RE =
-        "^\\s*-*total-cpu-usage-* -*dsk/total-* -*net/total-* -*paging-* -*system-*\\s*$";
+        "^\\W*\\w*-*total-cpu-usage-* -*dsk/total-* -*net/total-* -*paging-* -*system-*\\s*$";
 
     /** */
     private static final Pattern FIRST_LINE = Pattern.compile(FIRST_LINE_RE);
@@ -50,7 +50,7 @@ public class DStatProbe implements BenchmarkProbe {
     private static final Pattern HEADER_LINE = Pattern.compile(HEADER_LINE_RE);
 
     /** */
-    private static final Pattern DSTAT_PAT;
+    private static final Pattern VALUES_PAT;
 
     static {
         int numFields = 14;
@@ -72,7 +72,7 @@ public class DStatProbe implements BenchmarkProbe {
 
         sb.append("\\s*$");
 
-        DSTAT_PAT = Pattern.compile(sb.toString());
+        VALUES_PAT = Pattern.compile(sb.toString());
     }
 
     /** */
@@ -103,16 +103,16 @@ public class DStatProbe implements BenchmarkProbe {
         cmdParams.add(path(cfg));
         cmdParams.addAll(opts(cfg));
 
-        try {
-            proc.exec(cmdParams, Collections.<String, String>emptyMap(), c);
-        }
-        catch (Exception e) {
-            cfg.error().println("Can not start 'dstat' process due to exception: " + e.getMessage());
-        }
-
         String execCmd = cmdParams.toString().replaceAll(",|\\[|\\]", "");
 
-        cfg.output().println(DStatProbe.class.getSimpleName() + " is started. Command: '" + execCmd + "'.");
+        try {
+            proc.exec(cmdParams, Collections.<String, String>emptyMap(), c);
+
+            cfg.output().println(this.getClass().getSimpleName() + " is started. Command: '" + execCmd + "'.");
+        }
+        catch (Exception e) {
+            cfg.error().println("Can not start '" + execCmd + "' process due to exception: '" + e.getMessage() + "'.");
+        }
     }
 
     /** {@inheritDoc} */
@@ -120,7 +120,7 @@ public class DStatProbe implements BenchmarkProbe {
         if (proc != null) {
             proc.shutdown(false);
 
-            cfg.output().println(DStatProbe.class.getSimpleName() + " is stopped.");
+            cfg.output().println(this.getClass().getSimpleName() + " is stopped.");
         }
     }
 
@@ -156,7 +156,7 @@ public class DStatProbe implements BenchmarkProbe {
             Matcher m = FIRST_LINE.matcher(line);
 
             if (!m.matches())
-                cfg.output().println("WARNING: dstat returned unexpected first line: '" + line + "'.");
+                cfg.output().println("WARNING: Unexpected first line: '" + line + "'.");
         }
         else if (lineNum == 1) {
             Matcher m = HEADER_LINE.matcher(line);
@@ -166,7 +166,7 @@ public class DStatProbe implements BenchmarkProbe {
                     "[exp=" + HEADER_LINE + ", act=" + line + "].");
         }
         else {
-            Matcher m = DSTAT_PAT.matcher(line);
+            Matcher m = VALUES_PAT.matcher(line);
 
             if (m.matches()) {
                 try {

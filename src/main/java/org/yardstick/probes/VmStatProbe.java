@@ -54,7 +54,7 @@ public class VmStatProbe implements BenchmarkProbe {
     private static final Pattern HEADER_LINE = Pattern.compile(HEADER_LINE_RE);
 
     /** */
-    private static final Pattern VMSTAT_PAT;
+    private static final Pattern VALUES_PAT;
 
     static {
         int numFields = 16;
@@ -72,7 +72,7 @@ public class VmStatProbe implements BenchmarkProbe {
 
         sb.append("(\\d+)?\\s*$");
 
-        VMSTAT_PAT = Pattern.compile(sb.toString());
+        VALUES_PAT = Pattern.compile(sb.toString());
     }
 
     /** */
@@ -103,16 +103,16 @@ public class VmStatProbe implements BenchmarkProbe {
         cmdParams.add(path(cfg));
         cmdParams.addAll(opts(cfg));
 
-        try {
-            proc.exec(cmdParams, Collections.<String, String>emptyMap(), c);
-        }
-        catch (Exception e) {
-            cfg.error().println("Can not start 'vmstat' process due to exception: " + e.getMessage());
-        }
-
         String execCmd = cmdParams.toString().replaceAll(",|\\[|\\]", "");
 
-        cfg.output().println(VmStatProbe.class.getSimpleName() + " is started. Command: '" + execCmd + "'.");
+        try {
+            proc.exec(cmdParams, Collections.<String, String>emptyMap(), c);
+
+            cfg.output().println(this.getClass().getSimpleName() + " is started. Command: '" + execCmd + "'.");
+        }
+        catch (Exception e) {
+            cfg.error().println("Can not start '" + execCmd + "' process due to exception: '" + e.getMessage() + "'.");
+        }
     }
 
     /** {@inheritDoc} */
@@ -120,7 +120,7 @@ public class VmStatProbe implements BenchmarkProbe {
         if (proc != null) {
             proc.shutdown(false);
 
-            cfg.output().println(VmStatProbe.class.getSimpleName() + " is stopped.");
+            cfg.output().println(this.getClass().getSimpleName() + " is stopped.");
         }
     }
 
@@ -156,7 +156,7 @@ public class VmStatProbe implements BenchmarkProbe {
             Matcher m = FIRST_LINE.matcher(line);
 
             if (!m.matches())
-                cfg.output().println("WARNING: vmstat returned unexpected first line: '" + line + "'.");
+                cfg.output().println("WARNING: Unexpected first line: '" + line + "'.");
         }
         else if (lineNum == 1) {
             Matcher m = HEADER_LINE.matcher(line);
@@ -166,7 +166,7 @@ public class VmStatProbe implements BenchmarkProbe {
                     "[exp=" + HEADER_LINE + ", act=" + line + "].");
         }
         else {
-            Matcher m = VMSTAT_PAT.matcher(line);
+            Matcher m = VALUES_PAT.matcher(line);
 
             if (m.matches()) {
                 try {
