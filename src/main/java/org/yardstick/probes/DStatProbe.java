@@ -33,18 +33,19 @@ public class DStatProbe implements BenchmarkProbe {
     private static final String DEFAULT_PATH = "dstat";
 
     /** */
-    private static final String DEFAULT_OPTS = "--all --noheaders --noupdate " + DEFAULT_INTERVAL_IN_SECS;
+    private static final String DEFAULT_OPTS = "-m --all --noheaders --noupdate " + DEFAULT_INTERVAL_IN_SECS;
 
     /** */
     private static final String FIRST_LINE_RE =
-        "^\\W*\\w*-*total-cpu-usage-* -*dsk/total-* -*net/total-* -*paging-* -*system-*\\s*$";
+        "^\\W*\\w*-*memory-usage-* -*total-cpu-usage-* -*dsk/total-* -*net/total-* -*paging-* -*system-*\\s*$";
 
     /** */
     private static final Pattern FIRST_LINE = Pattern.compile(FIRST_LINE_RE);
 
     /** */
-    private static final String HEADER_LINE_RE = "^\\s*usr\\s+sys\\s+idl\\s+wai\\s+hiq\\s+siq\\s*\\Q|\\E\\s+" +
-        "read\\s+writ\\s*\\Q|\\E\\s+recv\\s+send\\s*\\Q|\\E\\s+in\\s+out\\s*\\Q|\\E\\s+int\\s+csw\\s*$";
+    private static final String HEADER_LINE_RE = "^\\s*used\\s+buff\\s+cach\\s+free\\s*\\Q|\\E\\s*usr\\s+sys\\s+idl" +
+        "\\s+wai\\s+hiq\\s+siq\\s*\\Q|\\E\\s*read\\s+writ\\s*\\Q|\\E\\s*recv\\s+send\\s*\\Q|\\E\\s*in\\s+out" +
+        "\\s*\\Q|\\E\\s*int\\s+csw\\s*$";
 
     /** */
     private static final Pattern HEADER_LINE = Pattern.compile(HEADER_LINE_RE);
@@ -53,15 +54,15 @@ public class DStatProbe implements BenchmarkProbe {
     private static final Pattern VALUES_PAT;
 
     static {
-        int numFields = 14;
+        int numFields = 18;
 
         StringBuilder sb = new StringBuilder("^\\s*");
 
         for (int i = 0; i < numFields; i++) {
-            sb.append("(\\w+)");
+            sb.append("(\\d*\\.\\d+\\w?|\\d+\\w?)");
 
             if (i < numFields - 1) {
-                if (i == 5 || i == 7 || i == 9 || i == 11)
+                if (i == 3 || i == 9 || i == 11 || i == 13 || i == 15)
                     sb.append("\\s*\\Q|\\E\\s*");
                 else
                     sb.append("\\s+");
@@ -126,9 +127,9 @@ public class DStatProbe implements BenchmarkProbe {
 
     /** {@inheritDoc} */
     @Override public Collection<String> metaInfo() {
-        return Arrays.asList("Time, ms", "cpu usr", "cpu sys", "cpu idl", "cpu wai",
-            "cpu hiq", "cpu siq", "dsk read", "dsk writ", "net recv", "net send", "paging in",
-            "paging out", "system int", "system csw");
+        return Arrays.asList("Time, ms", "memory used", "memory buff", "memory cach", "memory free", "cpu usr",
+            "cpu sys", "cpu idl", "cpu wai", "cpu hiq", "cpu siq", "dsk read", "dsk writ", "net recv", "net send",
+            "paging in", "paging out", "system int", "system csw");
     }
 
     /** {@inheritDoc} */
@@ -172,19 +173,22 @@ public class DStatProbe implements BenchmarkProbe {
                 try {
                     BenchmarkProbePoint pnt = new BenchmarkProbePoint(System.currentTimeMillis(),
                         new double[] {
-                            parseValue(m.group(1)), parseValue(m.group(2)),
-                            parseValue(m.group(3)), parseValue(m.group(4)),
+                            parseValueWithUnit(m.group(1)), parseValueWithUnit(m.group(2)),
+                            parseValueWithUnit(m.group(3)), parseValueWithUnit(m.group(4)),
                             parseValue(m.group(5)), parseValue(m.group(6)),
-                            parseValueWithUnit(m.group(7)), parseValueWithUnit(m.group(8)),
-                            parseValueWithUnit(m.group(9)), parseValueWithUnit(m.group(10)),
-                            parseValue(m.group(11)), parseValue(m.group(12)),
-                            parseValue(m.group(13)), parseValue(m.group(14)),
+                            parseValue(m.group(7)), parseValue(m.group(8)),
+                            parseValue(m.group(9)), parseValue(m.group(10)),
+                            parseValueWithUnit(m.group(11)), parseValueWithUnit(m.group(12)),
+                            parseValueWithUnit(m.group(13)), parseValueWithUnit(m.group(14)),
+                            parseValue(m.group(15)), parseValue(m.group(16)),
+                            parseValue(m.group(17)), parseValue(m.group(18)),
                         });
 
                     collectPoint(pnt);
                 }
                 catch (NumberFormatException e) {
-                    cfg.output().println("ERROR: Can't parse line: '" + line + "'.");
+                    cfg.output().println("ERROR: Can't parse line '" + line + "' due to exception: '" +
+                        e.getMessage() + "'.");
                 }
             }
             else
@@ -196,7 +200,7 @@ public class DStatProbe implements BenchmarkProbe {
      * @param val Value.
      * @return Parsed value.
      */
-    private static long parseValueWithUnit(String val) {
+    private static double parseValueWithUnit(String val) {
         if (val.isEmpty())
             throw new NumberFormatException("Value is empty.");
 
@@ -218,7 +222,7 @@ public class DStatProbe implements BenchmarkProbe {
         else
             throw new NumberFormatException("Unknown '" + last + "' unit of measure for value '" + val + "'.");
 
-        return Long.parseLong(val.substring(0, val.length() - 1)) * multiplier;
+        return Double.parseDouble(val.substring(0, val.length() - 1)) * multiplier;
     }
 
     /**

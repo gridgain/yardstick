@@ -185,7 +185,8 @@ public class VmStatProbe implements BenchmarkProbe {
                     collectPoint(pnt);
                 }
                 catch (NumberFormatException e) {
-                    cfg.output().println("ERROR: Can't parse line: '" + line + "'.");
+                    cfg.output().println("ERROR: Can't parse line '" + line + "' due to exception: '" +
+                        e.getMessage() + "'.");
                 }
             }
             else
