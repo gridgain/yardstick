@@ -56,17 +56,19 @@ public class ThroughputLatencyProbe implements BenchmarkExecutionAwareProbe {
             @Override public void run() {
                 try {
                     while (!Thread.currentThread().isInterrupted()) {
-                        Thread.sleep(interval);
-
                         ThreadAgent collector = new ThreadAgent();
 
                         for (ThreadAgent agent : agents)
                             agent.collect(collector);
 
+                        double latency = collector.execCnt == 0 ? 0 : (double)collector.totalLatency / collector.execCnt;
+
                         BenchmarkProbePoint pnt = new BenchmarkProbePoint(System.currentTimeMillis(),
-                            new double[] {collector.execCnt, (float)collector.totalLatency / collector.execCnt});
+                            new double[] {collector.execCnt, latency});
 
                         collectPoint(pnt);
+
+                        Thread.sleep(interval);
                     }
                 }
                 catch (InterruptedException ignore) {
