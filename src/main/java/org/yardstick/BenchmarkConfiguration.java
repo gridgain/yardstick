@@ -23,10 +23,6 @@ import java.util.*;
  * Input arguments for benchmarks.
  */
 public class BenchmarkConfiguration {
-    /** Main arguments (arguments without prefix '-') fall here. */
-    @Parameter(description = "Main arguments")
-    private Iterable<String> mainArgs = new ArrayList<>();
-
     /** */
     @SuppressWarnings({"UnusedDeclaration", "FieldCanBeLocal"})
     @Parameter(names = {"-c", "--config"}, description = "Framework configuration file path")
@@ -83,13 +79,6 @@ public class BenchmarkConfiguration {
 
     /** Error writer. */
     private PrintStream errorWriter;
-
-    /**
-     * @return Main arguments.
-     */
-    public Iterable<String> mainArgs() {
-        return mainArgs;
-    }
 
     /**
      * @return Properties file name.

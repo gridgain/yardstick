@@ -165,17 +165,23 @@ public class BenchmarkStartUp {
      * @return Object to be included to usage string.
      */
     private static Object arguments(Object target) {
-        for (Field field : target.getClass().getDeclaredFields()) {
-            Annotation ann = field.getAnnotation(BenchmarkIncludeToUsage.class);
+        Class c = target.getClass();
 
-            if (ann != null) {
-                try {
-                    return field.getType().newInstance();
-                }
-                catch (Exception ignore) {
-                    // No-op.
+        while (c != null) {
+            for (Field field : c.getDeclaredFields()) {
+                Annotation ann = field.getAnnotation(BenchmarkIncludeToUsage.class);
+
+                if (ann != null) {
+                    try {
+                        return field.getType().newInstance();
+                    }
+                    catch (Exception ignore) {
+                        // No-op.
+                    }
                 }
             }
+
+            c = c.getSuperclass();
         }
 
         return null;
