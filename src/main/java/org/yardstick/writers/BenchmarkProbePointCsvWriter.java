@@ -25,13 +25,13 @@ import java.util.*;
  */
 public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
     /** */
-    private static final String PRINT_TO_OUTPUT = "benchmark.writer.print.to.output";
+    private static final String DUPLICATE_TO_OUTPUT = "benchmark.writer.duplicate.to.output";
 
     /** */
     private static final String OUTPUT_PATH = "benchmark.writer.output.path";
 
     /** */
-    private static final boolean DEFAULT_PRINT_TO_OUTPUT = false;
+    private static final boolean DEFAULT_DUPLICATE_TO_OUTPUT = false;
 
     /** */
     public static final String META_INFO_SEPARATOR = ",";
@@ -52,7 +52,7 @@ public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
     private long startTime;
 
     /** */
-    private boolean printToOutput;
+    private boolean dupToOutput;
 
     /** */
     private File outPath;
@@ -61,7 +61,7 @@ public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
     @Override public void start(BenchmarkConfiguration cfg, long startTime) {
         this.cfg = cfg;
         this.startTime = startTime;
-        this.printToOutput = printToOutput(cfg);
+        this.dupToOutput = duplicateToOutput(cfg);
 
         String path = cfg.customProperties().get(OUTPUT_PATH);
 
@@ -144,7 +144,7 @@ public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
     private void print(String s) {
         writer.print(s);
 
-        if (printToOutput)
+        if (dupToOutput)
             cfg.output().print(s);
     }
 
@@ -154,20 +154,20 @@ public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
     private void println(String s) {
         writer.println(s);
 
-        if (printToOutput)
+        if (dupToOutput)
             cfg.output().println(s);
     }
 
     /**
      * @param cfg Config.
-     * @return Flat indicating whether to print to output or not.
+     * @return Flat indicating whether to duplicate to output or not.
      */
-    private static boolean printToOutput(BenchmarkConfiguration cfg) {
+    private static boolean duplicateToOutput(BenchmarkConfiguration cfg) {
         try {
-            return Boolean.parseBoolean(cfg.customProperties().get(PRINT_TO_OUTPUT));
+            return Boolean.parseBoolean(cfg.customProperties().get(DUPLICATE_TO_OUTPUT));
         }
         catch (NumberFormatException | NullPointerException ignored) {
-            return DEFAULT_PRINT_TO_OUTPUT;
+            return DEFAULT_DUPLICATE_TO_OUTPUT;
         }
     }
 }
