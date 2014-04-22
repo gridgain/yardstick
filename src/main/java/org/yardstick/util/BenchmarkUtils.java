@@ -15,6 +15,10 @@
 package org.yardstick.util;
 
 import com.beust.jcommander.*;
+import org.yardstick.*;
+
+import java.lang.annotation.*;
+import java.lang.reflect.*;
 
 /**
  * Utils.
@@ -36,6 +40,71 @@ public class BenchmarkUtils {
         jCommander.parse(a);
 
         return jCommander;
+    }
+
+    /**
+     * Prints usage string to output.
+     *
+     * @param cfg Benchmark configuration.
+     * @param benchmarkArgs Benchmark arguments.
+     * @throws Exception If failed.
+     */
+    public static void showUsage(BenchmarkConfiguration cfg, Object benchmarkArgs) throws Exception {
+        CompositeParameters cp = new CompositeParameters();
+
+        cp.benchmarkArgs = benchmarkArgs == null ? new Object() : benchmarkArgs;
+
+        JCommander jCommander = new JCommander();
+
+        jCommander.setAcceptUnknownOptions(true);
+        jCommander.addObject(cp);
+
+        StringBuilder sb = new StringBuilder();
+
+        jCommander.usage(sb);
+
+        cfg.output().println(sb.toString());
+    }
+
+    /**
+     * Finds the first field that is annotated to be included to usage string.
+     *
+     * @param target Object to be scanned for arguments.
+     * @return Object to be included to usage string.
+     */
+    public static Object arguments(Object target) {
+        Class c = target.getClass();
+
+        while (c != null) {
+            for (Field field : c.getDeclaredFields()) {
+                Annotation ann = field.getAnnotation(BenchmarkIncludeToUsage.class);
+
+                if (ann != null) {
+                    try {
+                        return field.getType().newInstance();
+                    }
+                    catch (Exception ignore) {
+                        // No-op.
+                    }
+                }
+            }
+
+            c = c.getSuperclass();
+        }
+
+        return null;
+    }
+
+    /** */
+    @SuppressWarnings("UnusedDeclaration")
+    private static class CompositeParameters {
+        @ParametersDelegate
+        /** */
+        private BenchmarkConfiguration cfg = new BenchmarkConfiguration();
+
+        @ParametersDelegate
+        /** */
+        private Object benchmarkArgs;
     }
 
     /** */

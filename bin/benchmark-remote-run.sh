@@ -69,7 +69,7 @@ if [ "${BSERVER}" != "" ] && [ "${BHOSTS}" != "" ]; then
 
     VM_OPTS=${JVM_OPTS}" -Dyardstick.bench"
 
-    IFS=',' read -ra hosts0 <<< "$BHOSTS"
+    IFS=',' read -ra hosts0 <<< "${BHOSTS}"
     for host_name in "${hosts0[@]}";
     do
         echo "<<<"

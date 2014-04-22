@@ -99,6 +99,7 @@ public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
 
             println("--Probe dump file for probe: " + probe + " (" + probe.getClass() + ")");
             println("--Created " + new Date(startTime));
+            println("--Configuration: " + cfg.toString());
 
             if (probe.metaInfo() != null && probe.metaInfo().size() > 0) {
                 int i = 0;

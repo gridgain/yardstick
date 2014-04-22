@@ -14,13 +14,12 @@
 
 package org.yardstick;
 
-import com.beust.jcommander.*;
 import org.yardstick.impl.*;
 import org.yardstick.util.*;
 
-import java.lang.annotation.*;
-import java.lang.reflect.*;
 import java.util.*;
+
+import static org.yardstick.util.BenchmarkUtils.*;
 
 /**
  * Benchmark startup class.
@@ -122,68 +121,5 @@ public class BenchmarkStartUp {
             cfg.output().println("Make sure class name is specified correctly and corresponding package is added " +
                 "to -p argument list.");
         }
-    }
-
-    /**
-     * @param cfg Benchmark configuration.
-     * @param benchmarkArgs Benchmark arguments.
-     * @throws Exception If failed.
-     */
-    private static void showUsage(BenchmarkConfiguration cfg, Object benchmarkArgs) throws Exception {
-        CompositeParameters cp = new CompositeParameters();
-
-        cp.benchmarkArgs = benchmarkArgs == null ? new Object() : benchmarkArgs;
-
-        JCommander jCommander = new JCommander();
-
-        jCommander.setAcceptUnknownOptions(true);
-        jCommander.addObject(cp);
-
-        StringBuilder sb = new StringBuilder();
-
-        jCommander.usage(sb);
-
-        cfg.output().println(sb.toString());
-    }
-
-    /** */
-    @SuppressWarnings("UnusedDeclaration")
-    private static class CompositeParameters {
-        @ParametersDelegate
-        /** */
-        private BenchmarkConfiguration cfg = new BenchmarkConfiguration();
-
-        @ParametersDelegate
-        /** */
-        private Object benchmarkArgs;
-    }
-
-    /**
-     * Finds the first field that is annotated to be included to usage string.
-     *
-     * @param target Object to be scanned for arguments.
-     * @return Object to be included to usage string.
-     */
-    private static Object arguments(Object target) {
-        Class c = target.getClass();
-
-        while (c != null) {
-            for (Field field : c.getDeclaredFields()) {
-                Annotation ann = field.getAnnotation(BenchmarkIncludeToUsage.class);
-
-                if (ann != null) {
-                    try {
-                        return field.getType().newInstance();
-                    }
-                    catch (Exception ignore) {
-                        // No-op.
-                    }
-                }
-            }
-
-            c = c.getSuperclass();
-        }
-
-        return null;
     }
 }

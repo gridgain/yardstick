@@ -268,4 +268,24 @@ public class BenchmarkConfiguration {
     public void probeWriterClassName(String probeWriter) {
         this.probeWriter = probeWriter;
     }
+
+    /** {@inheritDoc} */
+    @Override public String toString() {
+        return "BenchmarkConfiguration{" +
+            "name='" + name + '\'' +
+            ", threads=" + threads +
+            ", duration=" + duration +
+            ", warmup=" + warmup +
+            ", propsFileName='" + propsFileName + '\'' +
+            ", dfltProbeClsNames=" + dfltProbeClsNames +
+            ", dfltProbes=" + dfltProbes +
+            ", packages=" + packages +
+            ", cmdArgs=" + Arrays.toString(cmdArgs) +
+            ", probeWriter='" + probeWriter + '\'' +
+            ", customProps=" + customProps +
+            ", shutdownHook=" + shutdownHook +
+            ", outputWriter=" + outputWriter +
+            ", errorWriter=" + errorWriter +
+            '}';
+    }
 }
