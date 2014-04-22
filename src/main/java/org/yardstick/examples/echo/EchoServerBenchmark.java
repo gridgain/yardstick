@@ -33,6 +33,7 @@ public class EchoServerBenchmark extends BenchmarkDriverAdapter {
     private final ConcurrentMap<Thread, Socket> sockMap = new ConcurrentHashMap<>();
 
     /** Arguments. */
+    @BenchmarkIncludeToUsage
     private EchoServerBenchmarkArguments args;
 
     /** {@inheritDoc} */

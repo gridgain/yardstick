@@ -39,7 +39,7 @@ public class BenchmarkConfiguration {
 
     /** */
     @SuppressWarnings("UnusedDeclaration")
-    @Parameter(names = { "-h", "--help" }, description = "Print help message", hidden = true)
+    @Parameter(names = { "-h", "--help" }, description = "Print help message", help = true)
     private boolean help;
 
     /** */

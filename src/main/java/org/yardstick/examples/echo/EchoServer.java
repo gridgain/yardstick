@@ -25,6 +25,7 @@ import java.net.*;
  */
 public class EchoServer implements BenchmarkServer {
     /** Echo server benchmark arguments. */
+    @BenchmarkIncludeToUsage
     private EchoServerBenchmarkArguments args;
 
     /** Echo thread. */
