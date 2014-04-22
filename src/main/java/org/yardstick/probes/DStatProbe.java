@@ -175,13 +175,13 @@ public class DStatProbe implements BenchmarkProbe {
                         new double[] {
                             parseValueWithUnit(m.group(1)) / 1024, parseValueWithUnit(m.group(2)) / 1024,
                             parseValueWithUnit(m.group(3)) / 1024, parseValueWithUnit(m.group(4)) / 1024,
-                            parseValue(m.group(5)), parseValue(m.group(6)),
-                            parseValue(m.group(7)), parseValue(m.group(8)),
-                            parseValue(m.group(9)), parseValue(m.group(10)),
+                            parseValueWithUnit(m.group(5)), parseValueWithUnit(m.group(6)),
+                            parseValueWithUnit(m.group(7)), parseValueWithUnit(m.group(8)),
+                            parseValueWithUnit(m.group(9)), parseValueWithUnit(m.group(10)),
                             parseValueWithUnit(m.group(11)), parseValueWithUnit(m.group(12)),
                             parseValueWithUnit(m.group(13)), parseValueWithUnit(m.group(14)),
-                            parseValue(m.group(15)), parseValue(m.group(16)),
-                            parseValue(m.group(17)), parseValue(m.group(18)),
+                            parseValueWithUnit(m.group(15)), parseValueWithUnit(m.group(16)),
+                            parseValueWithUnit(m.group(17)), parseValueWithUnit(m.group(18)),
                         });
 
                     collectPoint(pnt);
@@ -204,10 +204,10 @@ public class DStatProbe implements BenchmarkProbe {
         if (val.isEmpty())
             throw new NumberFormatException("Value is empty.");
 
-        if (val.length() == 1)
-            return Long.parseLong(val);
-
         char last = val.charAt(val.length() - 1);
+
+        if (Character.isDigit(last))
+            return Double.parseDouble(val);
 
         int multiplier;
 
@@ -223,14 +223,6 @@ public class DStatProbe implements BenchmarkProbe {
             throw new NumberFormatException("Unknown '" + last + "' unit of measure for value '" + val + "'.");
 
         return Double.parseDouble(val.substring(0, val.length() - 1)) * multiplier;
-    }
-
-    /**
-     * @param val Value.
-     * @return Parsed value.
-     */
-    private static long parseValue(String val) {
-        return Long.parseLong(val);
     }
 
     /**
