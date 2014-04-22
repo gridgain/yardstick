@@ -173,8 +173,8 @@ public class DStatProbe implements BenchmarkProbe {
                 try {
                     BenchmarkProbePoint pnt = new BenchmarkProbePoint(System.currentTimeMillis(),
                         new double[] {
-                            parseValueWithUnit(m.group(1)), parseValueWithUnit(m.group(2)),
-                            parseValueWithUnit(m.group(3)), parseValueWithUnit(m.group(4)),
+                            parseValueWithUnit(m.group(1)) / 1024, parseValueWithUnit(m.group(2)) / 1024,
+                            parseValueWithUnit(m.group(3)) / 1024, parseValueWithUnit(m.group(4)) / 1024,
                             parseValue(m.group(5)), parseValue(m.group(6)),
                             parseValue(m.group(7)), parseValue(m.group(8)),
                             parseValue(m.group(9)), parseValue(m.group(10)),
