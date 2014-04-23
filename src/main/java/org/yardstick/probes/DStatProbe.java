@@ -53,6 +53,9 @@ public class DStatProbe implements BenchmarkProbe {
     /** */
     private static final Pattern VALUES_PAT;
 
+    /**
+     *
+     */
     static {
         int numFields = 18;
 

@@ -56,6 +56,9 @@ public class VmStatProbe implements BenchmarkProbe {
     /** */
     private static final Pattern VALUES_PAT;
 
+    /**
+     *
+     */
     static {
         int numFields = 16;
 
