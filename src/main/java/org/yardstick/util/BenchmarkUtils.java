@@ -113,6 +113,6 @@ public class BenchmarkUtils {
 
     /** */
     private BenchmarkUtils() {
-        // No-op
+        // No-op.
     }
 }
