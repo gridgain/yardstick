@@ -58,8 +58,10 @@ public class BenchmarkStartUp {
         BenchmarkDriver drv;
 
         if ((srv = ldr.loadBenchmarkClass(BenchmarkServer.class, name)) != null) {
+            cfg.benchmark(srv);
+
             if (cfg.help()) {
-                showUsage(cfg, arguments(srv));
+                showUsage(cfg);
 
                 return;
             }
@@ -82,8 +84,10 @@ public class BenchmarkStartUp {
             }
         }
         else if ((drv = ldr.loadBenchmarkClass(BenchmarkDriver.class, name)) != null) {
+            cfg.benchmark(drv);
+
             if (cfg.help()) {
-                showUsage(cfg, arguments(drv));
+                showUsage(cfg);
 
                 return;
             }

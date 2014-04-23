@@ -46,13 +46,14 @@ public class BenchmarkUtils {
      * Prints usage string to output.
      *
      * @param cfg Benchmark configuration.
-     * @param benchmarkArgs Benchmark arguments.
      * @throws Exception If failed.
      */
-    public static void showUsage(BenchmarkConfiguration cfg, Object benchmarkArgs) throws Exception {
+    public static void showUsage(BenchmarkConfiguration cfg) throws Exception {
         CompositeParameters cp = new CompositeParameters();
 
-        cp.benchmarkArgs = benchmarkArgs == null ? new Object() : benchmarkArgs;
+        Object args = cfg.benchmark() == null ? null : arguments(cfg.benchmark(), true);
+
+        cp.benchmarkArgs = args == null ? new Object() : args;
 
         JCommander jCommander = new JCommander();
 
@@ -70,18 +71,21 @@ public class BenchmarkUtils {
      * Finds the first field that is annotated to be included to usage string.
      *
      * @param target Object to be scanned for arguments.
+     * @param newInstance Flag indicating whether to return a new instance of arguments or the current value.
      * @return Object to be included to usage string.
      */
-    public static Object arguments(Object target) {
+    public static Object arguments(Object target, boolean newInstance) {
         Class c = target.getClass();
 
         while (c != null) {
             for (Field field : c.getDeclaredFields()) {
+                field.setAccessible(true);
+
                 Annotation ann = field.getAnnotation(BenchmarkIncludeToUsage.class);
 
                 if (ann != null) {
                     try {
-                        return field.getType().newInstance();
+                        return newInstance ? field.getType().newInstance() : field.get(target);
                     }
                     catch (Exception ignore) {
                         // No-op.

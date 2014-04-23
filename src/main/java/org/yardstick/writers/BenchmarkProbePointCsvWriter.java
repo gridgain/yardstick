@@ -15,6 +15,7 @@
 package org.yardstick.writers;
 
 import org.yardstick.*;
+import org.yardstick.util.*;
 
 import java.io.*;
 import java.text.*;
@@ -97,9 +98,12 @@ public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
             cfg.output().println(probe.getClass().getSimpleName() +
                 " results will be saved to '" + f.getAbsolutePath() + "'.");
 
+            Object args = BenchmarkUtils.arguments(cfg.benchmark(), false);
+
             println("--Probe dump file for probe: " + probe + " (" + probe.getClass() + ")");
             println("--Created " + new Date(startTime));
-            println("--Configuration: " + cfg.toString());
+            println("--Benchmark config: " + cfg.toString());
+            println("--Custom config: " + (args == null ? "" : args.toString()));
 
             if (probe.metaInfo() != null && probe.metaInfo().size() > 0) {
                 int i = 0;

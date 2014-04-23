@@ -80,6 +80,9 @@ public class BenchmarkConfiguration {
     /** Error writer. */
     private PrintStream errorWriter;
 
+    /** Benchmark server or benchmark driver implementation. */
+    private Object benchmark;
+
     /**
      * @return Properties file name.
      */
@@ -269,6 +272,21 @@ public class BenchmarkConfiguration {
         this.probeWriter = probeWriter;
     }
 
+
+    /**
+     * @return Benchmark.
+     */
+    public Object benchmark() {
+        return benchmark;
+    }
+
+    /**
+     * @param benchmark Benchmark.
+     */
+    public void benchmark(Object benchmark) {
+        this.benchmark = benchmark;
+    }
+
     /** {@inheritDoc} */
     @Override public String toString() {
         return "BenchmarkConfiguration{" +
@@ -276,8 +294,8 @@ public class BenchmarkConfiguration {
             ", threads=" + threads +
             ", duration=" + duration +
             ", warmup=" + warmup +
-            ", propsFileName='" + propsFileName + '\'' +
             ", dfltProbeClsNames=" + dfltProbeClsNames +
+            ", propsFileName='" + propsFileName + '\'' +
             ", dfltProbes=" + dfltProbes +
             ", packages=" + packages +
             ", cmdArgs=" + Arrays.toString(cmdArgs) +

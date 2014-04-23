@@ -43,4 +43,12 @@ public class EchoServerBenchmarkArguments {
     public String host() {
         return host;
     }
+
+    /** {@inheritDoc} */
+    @Override public String toString() {
+        return "EchoServerBenchmarkArguments{" +
+            "port=" + port +
+            ", host='" + host + '\'' +
+            '}';
+    }
 }
