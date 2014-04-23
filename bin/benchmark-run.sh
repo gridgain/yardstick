@@ -76,9 +76,7 @@ CP="${SCRIPT_DIR}/../libs/*:${SCRIPT_DIR}/../yardstick-1.0.0.jar"
 #
 # ADD YOUR/CHANGE ADDITIONAL OPTIONS HERE
 #
-if [ -z "$JVM_OPTS" ] ; then
-    JVM_OPTS="-Xms2g -Xmx2g -server -Djava.net.preferIPv4Stack=true"
-fi
+JVM_OPTS=${JVM_OPTS}" -Xms2g -Xmx2g -server -Djava.net.preferIPv4Stack=true"
 
 #
 # Assertions are disabled by default.

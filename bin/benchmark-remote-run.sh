@@ -46,12 +46,12 @@ if [ "${BCONFIG}" == "" ]; then
 fi
 
 # JVM options.
-JVM_OPTS="-XX:+PrintGC -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath="${SCRIPT_DIR}
+JVM_OPTS="-Dyardstick.bench"
 
 function cleanup() {
     pkill -9 -f "Dyardstick.bench"
 
-    IFS=',' read -ra hosts0 <<<"${BHOSTS}"
+    IFS=',' read -ra hosts0 <<< "${BHOSTS}"
     for host_name in "${hosts0[@]}";
     do
         ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} pkill -9 -f "Dyardstick.bench"
@@ -67,8 +67,6 @@ if [ "${BSERVER}" != "" ] && [ "${BHOSTS}" != "" ]; then
 
     cntr=0
 
-    VM_OPTS=${JVM_OPTS}" -Dyardstick.bench"
-
     IFS=',' read -ra hosts0 <<< "${BHOSTS}"
     for host_name in "${hosts0[@]}";
     do
@@ -78,7 +76,7 @@ if [ "${BSERVER}" != "" ] && [ "${BHOSTS}" != "" ]; then
 
         file_log=${LOGS_DIR}"/"${cntr}"_"${host_name}".log"
 
-        ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} "JVM_OPTS='${VM_OPTS}'" \
+        ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} "JVM_OPTS='${JVM_OPTS}'" \
             ${SCRIPT_DIR}/benchmark-run.sh ${BCONFIG} "-n" ${BSERVER} > ${file_log} 2>& 1 &
 
         cntr=$((1 + $cntr))
