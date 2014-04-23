@@ -25,7 +25,7 @@ export BHOSTS=localhost
 # Name of the BenchmarkServer that is to be run on remote machines.
 export BSERVER=EchoServer
 
-# Name of the BenchmarkDriver that is to be run on remote machines.
+# Name of the BenchmarkDriver that is to be run on a local machine.
 export BDRIVER=EchoServerBenchmark
 
 # Comma-separated list of configs.
