@@ -21,11 +21,17 @@
 # Define script directory.
 SCRIPT_DIR=$(cd $(dirname "$0"); pwd)
 
-CONFIG_INCLUDE = $1
+CONFIG_INCLUDE=$1
 
 shift
 
-. $CONFIG_INCLUDE
+CONFIG_TMP=`tempfile`
+
+cp $CONFIG_FILE $CONFIG_TMP
+chmod +x $CONFIG_TMP
+
+. $CONFIG_TMP
+rm $CONFIG_TMP
 
 # Define user to establish remote ssh session.
 if [ "${REMOTE_USER}" == "" ]; then
