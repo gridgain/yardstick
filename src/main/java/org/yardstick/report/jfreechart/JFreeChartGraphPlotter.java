@@ -24,6 +24,7 @@ import org.jfree.chart.title.*;
 import org.jfree.data.xy.*;
 import org.jfree.ui.*;
 import org.yardstick.util.*;
+import org.yardstick.writers.*;
 
 import java.awt.*;
 import java.io.*;
@@ -46,8 +47,9 @@ public class JFreeChartGraphPlotter {
 
     /**
      * @param cmdArgs Arguments.
+     * @throws Exception If failed.
      */
-    public static void main(String[] cmdArgs) {
+    public static void main(String[] cmdArgs) throws Exception {
         JFreeChartGraphPlotterArguments args = new JFreeChartGraphPlotterArguments();
 
         JCommander jCommander = BenchmarkUtils.jcommander(cmdArgs, args, "<graph-plotter>");
@@ -72,31 +74,71 @@ public class JFreeChartGraphPlotter {
             return;
         }
 
-        for (File file : files(inFolder)) {
-            try {
-                processFile(file);
-            }
-            catch (Exception e) {
-                System.out.println("Exception is raised during file '" + file + "' processing.");
+        if (args.compoundChart()) {
+            String date = BenchmarkProbePointCsvWriter.FORMAT.format(System.currentTimeMillis());
 
-                e.printStackTrace();
+            File folderToWrite = new File(inFolder + File.separator + date + "_compound_results");
+
+            if (!folderToWrite.exists()) {
+                if (!folderToWrite.mkdir()) {
+                    System.out.println("Can not create folder '" + folderToWrite.getAbsolutePath() + "'.");
+
+                    return;
+                }
             }
+
+            for (Map.Entry<String, List<File>> entry : files(inFolder).entrySet()) {
+                Collection<List<PlotData>> plots = new ArrayList<>(entry.getValue().size());
+
+                for (File file : entry.getValue()) {
+                    System.out.println("Processing file '" + file + "'.");
+
+                    try {
+                        plots.add(readData(file));
+                    } catch (Exception e) {
+                        System.out.println("Exception is raised during file '" + file + "' processing.");
+
+                        e.printStackTrace();
+                    }
+                }
+
+                processFile(folderToWrite, plots);
+            }
+
+            JFreeChartResultPageGenerator.generate(folderToWrite, args);
         }
+        else {
+            for (List<File> files : files(inFolder).values()) {
+                for (File file : files) {
+                    System.out.println("Processing file '" + file + "'.");
 
-        JFreeChartResultPageGenerator.generate(inFolder, args);
+                    try {
+                        List<PlotData> plotData = readData(file);
+
+                        processFile(file.getParentFile(), Collections.singleton(plotData));
+                    } catch (Exception e) {
+                        System.out.println("Exception is raised during file '" + file + "' processing.");
+
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            JFreeChartResultPageGenerator.generate(inFolder, args);
+        }
     }
 
     /**
      * @param folder Folder to scan for files.
      * @return Collection of files.
      */
-    private static Collection<File> files(File folder) {
+    private static Map<String, List<File>> files(File folder) {
         File[] dirs = folder.listFiles();
 
         if (dirs == null || dirs.length == 0)
-            return Collections.emptyList();
+            return Collections.emptyMap();
 
-        Collection<File> res = new ArrayList<>();
+        Map<String, List<File>> res = new HashMap<>();
 
         for (File dir : dirs) {
             if (dir.isDirectory()) {
@@ -119,7 +161,7 @@ public class JFreeChartGraphPlotter {
      * @param file File to add.
      * @param res Resulted collection.
      */
-    private static void addFile(File file, Collection<File> res) {
+    private static void addFile(File file, Map<String, List<File>> res) {
         if (file.isDirectory())
             return;
 
@@ -129,40 +171,75 @@ public class JFreeChartGraphPlotter {
             return;
         }
 
-        if (file.getName().endsWith(INPUT_FILE_EXTENSION))
-            res.add(file);
+        if (file.getName().endsWith(INPUT_FILE_EXTENSION)) {
+            List<File> list = res.get(file.getName());
+
+            if (list == null) {
+                list = new ArrayList<>();
+
+                res.put(file.getName(), list);
+            }
+
+            list.add(file);
+        }
     }
 
     /**
-     * @param file File to process.
+     * @param folderToWrite Folder to write the resulted charts.
      * @throws Exception If failed.
      */
-    private static void processFile(File file) throws Exception {
-        System.out.println("Processing file '" + file + "'.");
-
+    private static void processFile(File folderToWrite, Collection<List<PlotData>> plots) throws Exception {
         ChartRenderingInfo info = new ChartRenderingInfo(new StandardEntityCollection());
 
         XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer(true, false);
 
-        Collection<PlotData> plots = readData(file);
+        int colorIdx = 0;
 
-        int i = 0;
+        int idx = -1;
 
-        for (PlotData plotData : plots) {
-            DefaultXYDataset dataset = new DefaultXYDataset();
+        while (true) {
+            idx++;
 
-            for (PlotSeries s : plotData.series())
-                dataset.addSeries(s.seriesName, s.data);
+            boolean dataExists = false;
+
+            DefaultXYDataset dataSet = new DefaultXYDataset();
+
+            String xAxisLabel = "";
+            String yAxisLabel = "";
+            String plotName = "";
+
+            int seriesNum = 0;
+
+            for (List<PlotData> plotData0 : plots) {
+                if (plotData0.size() <= idx)
+                    continue;
+                else
+                    dataExists = true;
+
+                PlotData plotData = plotData0.get(idx);
+
+                for (PlotSeries s : plotData.series())
+                    dataSet.addSeries(s.seriesName, s.data);
+
+                xAxisLabel = plotData.xAxisLabel;
+                yAxisLabel = plotData.yAxisLabel;
+                plotName = plotData.plotName();
+
+                seriesNum++;
+            }
+
+            if (!dataExists)
+                break;
 
             JFreeChart chart = ChartFactory.createXYLineChart(
-                "",
-                plotData.xAxisLabel,
-                plotData.yAxisLabel,
-                dataset,
-                PlotOrientation.VERTICAL,
-                false,
-                false,
-                false);
+                    "",
+                    xAxisLabel,
+                    yAxisLabel,
+                    dataSet,
+                    PlotOrientation.VERTICAL,
+                    true,
+                    false,
+                    false);
 
             AxisSpace as = new AxisSpace();
 
@@ -177,9 +254,12 @@ public class JFreeChartGraphPlotter {
             plot.setRangeGridlinePaint(GRAY);
             plot.setDomainGridlinePaint(GRAY);
             plot.setFixedRangeAxisSpace(as);
-            renderer.setSeriesPaint(0, PLOT_COLORS[i++ % PLOT_COLORS.length]);
-            renderer.setSeriesStroke(0, new BasicStroke(3)); // Line thickness.
             plot.setOutlineStroke(stroke);
+
+            for (int i = 0; i < seriesNum; i++) {
+                renderer.setSeriesPaint(i, PLOT_COLORS[colorIdx++ % PLOT_COLORS.length]);
+                renderer.setSeriesStroke(i, new BasicStroke(3)); // Line thickness.
+            }
 
             ValueAxis axis = plot.getRangeAxis();
 
@@ -190,9 +270,9 @@ public class JFreeChartGraphPlotter {
             plot.getDomainAxis().setTickLabelFont(font);
             plot.getDomainAxis().setLabelFont(font);
 
-            chart.setTitle(new TextTitle(plotData.yAxisLabel, new Font(font.getName(), font.getStyle(), 30)));
+            chart.setTitle(new TextTitle(yAxisLabel, new Font(font.getName(), font.getStyle(), 30)));
 
-            File res = new File(file.getParent(), plotData.plotName() + ".png");
+            File res = new File(folderToWrite, plotName + ".png");
 
             ChartUtilities.saveChartAsPNG(res, chart, 800, 400, info);
 
@@ -207,7 +287,7 @@ public class JFreeChartGraphPlotter {
      * @return Collection of plot data.
      * @throws Exception If failed.
      */
-    private static Collection<PlotData> readData(File file) throws Exception {
+    private static List<PlotData> readData(File file) throws Exception {
         List<PlotData> data = new ArrayList<>();
 
         try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file)))) {
@@ -238,8 +318,7 @@ public class JFreeChartGraphPlotter {
                     String xAxisLabel = metaInfo == null || metaInfo.length == 0 ? "" : metaInfo[0].replace("\"", "");
 
                     for (int i = 0; i < plotNum; i++) {
-                        // Separate series for each plot.
-                        List<PlotSeries> single = Collections.singletonList(new PlotSeries("Series-" + i));
+                        List<PlotSeries> single = Collections.singletonList(new PlotSeries(file.getParentFile().getName()));
 
                         String yAxisLabel = metaInfo == null || i + 1 >= metaInfo.length ? "" :
                             metaInfo[i + 1].replace("\"", "");

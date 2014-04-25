@@ -19,14 +19,13 @@ import com.beust.jcommander.*;
 /**
  * Graph plotter arguments.
  */
+@SuppressWarnings("UnusedDeclaration")
 public class JFreeChartGraphPlotterArguments {
     /** */
-    @SuppressWarnings("UnusedDeclaration")
     @Parameter(names = {"-h", "--help"}, description = "Print help message", help = true)
     private boolean help;
 
     /** */
-    @SuppressWarnings("UnusedDeclaration")
     @Parameter(names = {"-i", "--input"},
         description = "Input folder where files with probe points are located (required)")
     private String inputFolder;
@@ -36,6 +35,10 @@ public class JFreeChartGraphPlotterArguments {
     @Parameter(names = {"-cc", "--chartColumns"},
         description = "Number of columns that the charts are displayed in on the resulted page")
     private int chartCols = 3;
+
+    @Parameter(names = {"-cm", "--compoundChart"},
+        description = "Mode in which the same probe metrics are displayed on one chart")
+    private boolean compoundChart;
 
     /**
      * @return Input file name.
@@ -56,5 +59,12 @@ public class JFreeChartGraphPlotterArguments {
      */
     public boolean help() {
         return help;
+    }
+
+    /**
+     * @return Compound chart.
+     */
+    public boolean compoundChart() {
+        return compoundChart;
     }
 }

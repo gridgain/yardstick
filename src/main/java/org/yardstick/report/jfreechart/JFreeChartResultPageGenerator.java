@@ -42,7 +42,7 @@ public class JFreeChartResultPageGenerator {
             return;
         }
 
-        generate(inFolder, null);
+        generate(inFolder, new JFreeChartGraphPlotterArguments());
     }
 
     /**
