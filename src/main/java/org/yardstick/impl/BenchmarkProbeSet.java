@@ -44,7 +44,7 @@ public class BenchmarkProbeSet {
     /** Loader. */
     private final BenchmarkLoader ldr;
 
-    /** Flag indicating whether warmup is finished or not*/
+    /** Flag indicating whether warmup is finished or not. */
     private volatile boolean warmupFinished;
 
     /**
