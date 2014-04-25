@@ -15,6 +15,7 @@
 package org.yardstick;
 
 import com.beust.jcommander.*;
+import org.yardstick.util.*;
 
 import java.io.*;
 import java.util.*;
@@ -32,11 +33,6 @@ public class BenchmarkConfiguration {
     @SuppressWarnings("UnusedDeclaration")
     @Parameter(names = {"-n", "--name"}, description = "Benchmark name (required)")
     private String name;
-
-    /** */
-    @SuppressWarnings("UnusedDeclaration")
-    @Parameter(names = { "-h", "--help" }, description = "Print help message", help = true)
-    private boolean help;
 
     /** */
     @Parameter(names = {"-p", "--packages"}, description = "Comma separated list of packages for benchmarks")
@@ -65,8 +61,14 @@ public class BenchmarkConfiguration {
     @Parameter(names = {"-w", "--warmup"}, description = "Warmup, in seconds")
     private long warmup = 20;
 
+    /** */
     @Parameter(names = {"-sh", "--shutdown"}, description = "Invoke shutdown hook")
     private boolean shutdownHook = true;
+
+    /** */
+    @SuppressWarnings("UnusedDeclaration")
+    @Parameter(names = { "-h", "--help" }, description = "Print help message", help = true)
+    private boolean help;
 
     /** Non-parsed command line arguments. */
     private String[] cmdArgs;
@@ -285,6 +287,14 @@ public class BenchmarkConfiguration {
      */
     public void benchmark(Object benchmark) {
         this.benchmark = benchmark;
+    }
+
+    /**
+     * @return Short string.
+     */
+    @BenchmarkToShortString
+    public String toShortString() {
+        return "-t=" + threads + "_-d=" + duration + "_-w=" + warmup;
     }
 
     /** {@inheritDoc} */

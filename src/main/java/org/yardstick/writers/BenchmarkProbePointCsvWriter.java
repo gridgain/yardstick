@@ -15,11 +15,12 @@
 package org.yardstick.writers;
 
 import org.yardstick.*;
-import org.yardstick.util.*;
 
 import java.io.*;
 import java.text.*;
 import java.util.*;
+
+import static org.yardstick.util.BenchmarkUtils.*;
 
 /**
  * CSV probe point writer.
@@ -76,7 +77,13 @@ public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
                     "' does not exist: '" + path + "'.");
         }
 
-        String subFolderName = FORMAT.format(new Date(startTime)) + '_' + cfg.name();
+        String argsToShort = toShortString(arguments(cfg.benchmark(), false));
+
+        String cfgToShort = toShortString(cfg);
+
+        String subFolderName = FORMAT.format(new Date(startTime)) + '_' + cfg.name() +
+                (argsToShort.isEmpty() ? "" : '_' + argsToShort) +
+                (cfgToShort.isEmpty() ? "" : '_' + toShortString(cfg));
 
         outPath = folder == null ? new File(subFolderName) : new File(folder, subFolderName);
 
@@ -98,7 +105,7 @@ public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
             cfg.output().println(probe.getClass().getSimpleName() +
                 " results will be saved to '" + f.getAbsolutePath() + "'.");
 
-            Object args = BenchmarkUtils.arguments(cfg.benchmark(), false);
+            Object args = arguments(cfg.benchmark(), false);
 
             println("--Probe dump file for probe: " + probe + " (" + probe.getClass() + ")");
             println("--Created " + new Date(startTime));

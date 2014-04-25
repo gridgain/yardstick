@@ -99,6 +99,34 @@ public class BenchmarkUtils {
         return null;
     }
 
+    /**
+     * Returns short description of arguments.
+     *
+     * @param target Object to be scanned for the method that returns short string.
+     * @return Returns short description of arguments.
+     */
+    public static String toShortString(Object target) {
+        if (target == null)
+            return "";
+
+        Method[] methods = target.getClass().getMethods();
+
+        for (Method method : methods) {
+            BenchmarkToShortString ann = method.getAnnotation(BenchmarkToShortString.class);
+            if (ann != null) {
+                try {
+                    Object res = method.invoke(target);
+
+                    return res instanceof String ? (String) res : "";
+                } catch (Exception ignore) {
+                    // No-op.
+                }
+            }
+        }
+
+        return "";
+    }
+
     /** */
     @SuppressWarnings("UnusedDeclaration")
     private static class CompositeParameters {

@@ -17,11 +17,11 @@ package org.yardstick.util;
 import java.lang.annotation.*;
 
 /**
- * Allows to mark benchmark arguments to include them to usage string.
+ * Allows to mark benchmark method that returns short description of benchmark arguments.
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.FIELD})
-public @interface BenchmarkIncludeToUsage {
+@Target({ElementType.METHOD})
+public @interface BenchmarkToShortString {
     // No-op.
 }

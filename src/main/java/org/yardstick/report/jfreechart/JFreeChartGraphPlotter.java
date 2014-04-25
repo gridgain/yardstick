@@ -127,7 +127,7 @@ public class JFreeChartGraphPlotter {
                     }
                 }
 
-                processFile(folderToWrite, plots);
+                processPlots(folderToWrite, plots);
             }
 
             JFreeChartResultPageGenerator.generate(folderToWrite, args);
@@ -141,7 +141,7 @@ public class JFreeChartGraphPlotter {
                         try {
                             List<PlotData> plotData = readData(file);
 
-                            processFile(file.getParentFile(), Collections.singleton(plotData));
+                            processPlots(file.getParentFile(), Collections.singleton(plotData));
                         } catch (Exception e) {
                             System.out.println("Exception is raised during file '" + file + "' processing.");
 
@@ -215,7 +215,7 @@ public class JFreeChartGraphPlotter {
      * @param folderToWrite Folder to write the resulted charts.
      * @throws Exception If failed.
      */
-    private static void processFile(File folderToWrite, Collection<List<PlotData>> plots) throws Exception {
+    private static void processPlots(File folderToWrite, Collection<List<PlotData>> plots) throws Exception {
         ChartRenderingInfo info = new ChartRenderingInfo(new StandardEntityCollection());
 
         XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer(true, false);
