@@ -22,7 +22,7 @@ import com.beust.jcommander.*;
 public class JFreeChartGraphPlotterArguments {
     /** */
     @SuppressWarnings("UnusedDeclaration")
-    @Parameter(names = {"-h", "--help"}, description = "Print help message")
+    @Parameter(names = {"-h", "--help"}, description = "Print help message", help = true)
     private boolean help;
 
     /** */

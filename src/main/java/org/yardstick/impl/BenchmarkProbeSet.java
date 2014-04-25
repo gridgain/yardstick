@@ -24,7 +24,7 @@ import java.util.*;
  */
 public class BenchmarkProbeSet {
     /** Probe statistics dump frequency. */
-    public static final int PROBE_DUMP_FREQ = 10_000;
+    public static final int PROBE_DUMP_FREQ = 1_000;
 
     /** Writers. */
     private final Map<BenchmarkProbe, BenchmarkProbePointWriter> writers;
@@ -43,6 +43,9 @@ public class BenchmarkProbeSet {
 
     /** Loader. */
     private final BenchmarkLoader ldr;
+
+    /** Flag indicating whether warmup is finished or not*/
+    private volatile boolean warmupFinished;
 
     /**
      * @param cfg Context.
@@ -111,18 +114,21 @@ public class BenchmarkProbeSet {
                     while (!Thread.currentThread().isInterrupted()) {
                         Thread.sleep(PROBE_DUMP_FREQ);
 
+                        boolean warmupFinished0 = warmupFinished;
+
                         for (Map.Entry<BenchmarkProbe, BenchmarkProbePointWriter> entry : writers.entrySet()) {
                             BenchmarkProbe probe = entry.getKey();
                             BenchmarkProbePointWriter writer = entry.getValue();
 
                             Collection<BenchmarkProbePoint> points = probe.points();
 
-                            try {
-                                writer.writePoints(probe, points);
-                            }
-                            catch (Exception e) {
-                                // TODO should we shutdown this probe?
-                                e.printStackTrace(cfg.error());
+                            if (warmupFinished0) {
+                                try {
+                                    writer.writePoints(probe, points);
+                                }
+                                catch (Exception e) {
+                                    e.printStackTrace(cfg.error());
+                                }
                             }
                         }
                     }
@@ -178,7 +184,7 @@ public class BenchmarkProbeSet {
      * Warmup finished callback.
      */
     public void onWarmupFinished() {
-        // TODO
+        warmupFinished = true;
     }
 
     /**
