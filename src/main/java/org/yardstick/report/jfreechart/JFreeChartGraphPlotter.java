@@ -279,12 +279,16 @@ public class JFreeChartGraphPlotter {
      *
      */
     private static class PlotData {
+        /** */
         private final List<PlotSeries> series;
 
+        /** */
         private final String plotName;
 
+        /** */
         private final String xAxisLabel;
 
+        /** */
         private final String yAxisLabel;
 
         /**
@@ -319,10 +323,13 @@ public class JFreeChartGraphPlotter {
      *
      */
     private static class PlotSeries {
+        /** */
         private final String seriesName;
 
+        /** */
         private List<double[]> rawData = new ArrayList<>();
 
+        /** */
         private double[][] data;
 
         /**

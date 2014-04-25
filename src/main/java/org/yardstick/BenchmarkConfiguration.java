@@ -289,7 +289,7 @@ public class BenchmarkConfiguration {
 
     /** {@inheritDoc} */
     @Override public String toString() {
-        return "BenchmarkConfiguration{" +
+        return "BenchmarkConfiguration [" +
             "name='" + name + '\'' +
             ", threads=" + threads +
             ", duration=" + duration +
@@ -304,6 +304,6 @@ public class BenchmarkConfiguration {
             ", shutdownHook=" + shutdownHook +
             ", outputWriter=" + outputWriter +
             ", errorWriter=" + errorWriter +
-            '}';
+            ']';
     }
 }
