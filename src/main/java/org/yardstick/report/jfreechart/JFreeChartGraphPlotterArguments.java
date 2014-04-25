@@ -26,9 +26,9 @@ public class JFreeChartGraphPlotterArguments {
     private boolean help;
 
     /** */
-    @Parameter(names = {"-i", "--input"},
-        description = "Input folder where files with probe points are located (required)")
-    private String inputFolder;
+    @Parameter(names = {"-i", "--inputFolders"},
+        description = "Comma-separated list of Input folders which contains folders with probe results files (required)")
+    private String inputFolders;
 
     /** */
     @SuppressWarnings("FieldCanBeLocal")
@@ -41,10 +41,10 @@ public class JFreeChartGraphPlotterArguments {
     private boolean compoundChart;
 
     /**
-     * @return Input file name.
+     * @return List of input folders.
      */
-    public String inputFolder() {
-        return inputFolder;
+    public String inputFolders() {
+        return inputFolders;
     }
 
     /**

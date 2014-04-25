@@ -69,7 +69,7 @@ Yardstick goes with the script `jfreechart-graph-plotter-run.sh` that builds JFr
 
 `jfreechart-graph-plotter-run.sh` script accepts the following arguments:
 
-* `--input` - input folder where files with probe points are located (required)
+* `--inputFolders` - comma-separated list of Input folders which contains folders with probe results files (required)
 * `--chartColumns` - number of columns that the charts are displayed in on the resulted page
 * `--compoundChart` - mode in which the same probe metrics are displayed on one chart. For example,
 throughput plots from different benchmark runs are displayed on one chart.

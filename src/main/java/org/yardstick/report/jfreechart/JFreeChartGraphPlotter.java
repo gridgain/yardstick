@@ -60,24 +60,31 @@ public class JFreeChartGraphPlotter {
             return;
         }
 
-        if (args.inputFolder() == null) {
+        if (args.inputFolders() == null) {
             System.out.println("Input folder is not defined.");
 
             return;
         }
 
-        File inFolder = new File(args.inputFolder());
+        String[] inFoldersAsString = args.inputFolders().split(",");
 
-        if (!inFolder.exists()) {
-            System.out.println("Folder '" + args.inputFolder() + "' does not exist.");
+        File[] inFolders = new File[inFoldersAsString.length];
 
-            return;
+        for (int i = 0; i < inFoldersAsString.length; i++)
+            inFolders[i] = new File(inFoldersAsString[i]);
+
+        for (File inFolder : inFolders) {
+            if (!inFolder.exists()) {
+                System.out.println("Folder '" + inFolder.getAbsolutePath() + "' does not exist.");
+
+                return;
+            }
         }
 
         if (args.compoundChart()) {
             String date = BenchmarkProbePointCsvWriter.FORMAT.format(System.currentTimeMillis());
 
-            File folderToWrite = new File(inFolder + File.separator + date + "_compound_results");
+            File folderToWrite = new File(inFolders[0].getParent() + File.separator + date + "_compound_results");
 
             if (!folderToWrite.exists()) {
                 if (!folderToWrite.mkdir()) {
@@ -87,7 +94,25 @@ public class JFreeChartGraphPlotter {
                 }
             }
 
-            for (Map.Entry<String, List<File>> entry : files(inFolder).entrySet()) {
+            Map<String, List<File>> res = new HashMap<>();
+
+            for (File inFolder : inFolders) {
+                Map<String, List<File>> map = files(inFolder);
+
+                for (Map.Entry<String, List<File>> entry : map.entrySet()) {
+                    List<File> list = res.get(entry.getKey());
+
+                    if (list == null) {
+                        list = new ArrayList<>();
+
+                        res.put(entry.getKey(), list);
+                    }
+
+                    list.addAll(entry.getValue());
+                }
+            }
+
+            for (Map.Entry<String, List<File>> entry : res.entrySet()) {
                 Collection<List<PlotData>> plots = new ArrayList<>(entry.getValue().size());
 
                 for (File file : entry.getValue()) {
@@ -108,23 +133,25 @@ public class JFreeChartGraphPlotter {
             JFreeChartResultPageGenerator.generate(folderToWrite, args);
         }
         else {
-            for (List<File> files : files(inFolder).values()) {
-                for (File file : files) {
-                    System.out.println("Processing file '" + file + "'.");
+            for (File inFolder : inFolders) {
+                for (List<File> files : files(inFolder).values()) {
+                    for (File file : files) {
+                        System.out.println("Processing file '" + file + "'.");
 
-                    try {
-                        List<PlotData> plotData = readData(file);
+                        try {
+                            List<PlotData> plotData = readData(file);
 
-                        processFile(file.getParentFile(), Collections.singleton(plotData));
-                    } catch (Exception e) {
-                        System.out.println("Exception is raised during file '" + file + "' processing.");
+                            processFile(file.getParentFile(), Collections.singleton(plotData));
+                        } catch (Exception e) {
+                            System.out.println("Exception is raised during file '" + file + "' processing.");
 
-                        e.printStackTrace();
+                            e.printStackTrace();
+                        }
                     }
                 }
-            }
 
-            JFreeChartResultPageGenerator.generate(inFolder, args);
+                JFreeChartResultPageGenerator.generate(inFolder, args);
+            }
         }
     }
 
