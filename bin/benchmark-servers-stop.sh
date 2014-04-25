@@ -13,7 +13,7 @@
 #    limitations under the License.
 
 #
-# Script that starts BenchmarkDriver on local machine.
+# Script that stops BenchmarkServer on remote machines.
 # This script expects first argument to be a path to run properties file which contains
 # the list of remote nodes to start server on, server class name and driver class name.
 #
@@ -32,24 +32,20 @@ if [ "${REMOTE_USER}" == "" ]; then
     REMOTE_USER=$(whoami)
 fi
 
-# Define logs directory.
-LOGS_DIR=${SCRIPT_DIR}/../logs
-
-if [ "${BDRIVER}" == "" ]; then
+if [ "${BHOSTS}" == "" ]; then
     echo $0", ERROR:"
-    echo "BenchmarkDriver (BDRIVER) is not defined."
+    echo "Benchmark hosts (BHOSTS) is not defined."
     exit 1
 fi
 
-BCONFIG = "$BCONFIG $*"
-
-if [ "${BCONFIG}" == "" ]; then
+if [ "${REMOTE_USER}" == "" ]; then
     echo $0", ERROR:"
-    echo "Config is not defined."
+    echo "Remote user (REMOTE_USER) is not defined."
     exit 1
 fi
 
-# JVM options.
-JVM_OPTS="-Dyardstick.bench"
-
-/bin/bash ${SCRIPT_DIR}/bin/benchmark-bootsrtap.sh ${BCONFIG} "-n" ${BDRIVER}
+IFS=',' read -ra hosts0 <<< "${BHOSTS}"
+for host_name in "${hosts0[@]}";
+do
+    ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} pkill -9 -f "Dyardstick.bench"
+done

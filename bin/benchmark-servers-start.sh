@@ -13,31 +13,47 @@
 #    limitations under the License.
 
 #
-# Script that starts BenchmarkServer on remote machines, starts BenchmarkDriver with specified configuration
-# on local machine and after the benchmark finishes it stops remote BenchmarkServers.
-# NOTE: This script requires some environment variables to be defined.
+# Script that starts BenchmarkServer on remote machines.
+# This script expects first argument to be a path to run properties file which contains
+# the list of remote nodes to start server on, server class name and driver class name.
 #
-
-# Define user to establish remote ssh session.
-REMOTE_USER=$(whoami)
 
 # Define script directory.
 SCRIPT_DIR=$(cd $(dirname "$0"); pwd)
 
+CONFIG_INCLUDE = $1
+
+shift
+
+. $CONFIG_INCLUDE
+
+# Define user to establish remote ssh session.
+if [ "${REMOTE_USER}" == "" ]; then
+    REMOTE_USER=$(whoami)
+fi
+
 # Define logs directory.
 LOGS_DIR=${SCRIPT_DIR}/../logs
 
-if [ "${BDRIVER}" == "" ]; then
+if [ "${BSERVER}" == "" ]; then
     echo $0", ERROR:"
-    echo "BenchmarkDriver is not defined."
+    echo "BenchmarkServer (BSERVER) is not defined."
+    exit 1
+fi
+
+if [ "${BHOSTS}" == "" ]; then
+    echo $0", ERROR:"
+    echo "Benchmark hosts (BHOSTS) is not defined."
     exit 1
 fi
 
 if [ "${REMOTE_USER}" == "" ]; then
     echo $0", ERROR:"
-    echo "Remote user is not defined."
+    echo "Remote user (REMOTE_USER) is not defined."
     exit 1
 fi
+
+BCONFIG = "$BCONFIG $*"
 
 if [ "${BCONFIG}" == "" ]; then
     echo $0", ERROR:"
@@ -60,35 +76,23 @@ function cleanup() {
 
 trap "cleanup; exit" SIGHUP SIGINT SIGTERM SIGQUIT SIGKILL
 
-if [ "${BSERVER}" != "" ] && [ "${BHOSTS}" != "" ]; then
-    if [ ! -d "${LOGS_DIR}" ]; then
-        mkdir -p ${LOGS_DIR}
-    fi
-
-    cntr=0
-
-    IFS=',' read -ra hosts0 <<< "${BHOSTS}"
-    for host_name in "${hosts0[@]}";
-    do
-        echo "<<<"
-        echo "<<< Starting config '"${BCONFIG}"' on "${host_name}" >>>"
-        echo "<<<"
-
-        file_log=${LOGS_DIR}"/"${cntr}"_"${host_name}".log"
-
-        ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} "JVM_OPTS='${JVM_OPTS}'" \
-            ${SCRIPT_DIR}/benchmark-run.sh ${BCONFIG} "-n" ${BSERVER} > ${file_log} 2>& 1 &
-
-        cntr=$((1 + $cntr))
-    done
-
-    sleep 3s
+if [ ! -d "${LOGS_DIR}" ]; then
+    mkdir -p ${LOGS_DIR}
 fi
 
-echo "<<<"
-echo "<<< Starting benchmark >>>"
-echo "<<<"
+cntr=0
 
-/bin/bash ${SCRIPT_DIR}/benchmark-run.sh ${BCONFIG} "-n" ${BDRIVER}
+IFS=',' read -ra hosts0 <<< "${BHOSTS}"
+for host_name in "${hosts0[@]}";
+do
+    echo "<<<"
+    echo "<<< Starting config '"${BCONFIG}"' on "${host_name}" >>>"
+    echo "<<<"
 
-cleanup
+    file_log=${LOGS_DIR}"/"${cntr}"_"${host_name}".log"
+
+    ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} "JVM_OPTS='${JVM_OPTS}'" \
+        ${SCRIPT_DIR}/benchmark-bootsrtap.sh ${BCONFIG} "-n" ${BSERVER} > ${file_log} 2>& 1 &
+
+    cntr=$((1 + $cntr))
+done
