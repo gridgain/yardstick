@@ -27,7 +27,7 @@ shift
 
 CONFIG_TMP=`tempfile`
 
-cp $CONFIG_FILE $CONFIG_TMP
+cp $CONFIG_INCLUDE $CONFIG_TMP
 chmod +x $CONFIG_TMP
 
 . $CONFIG_TMP
