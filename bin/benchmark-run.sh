@@ -27,7 +27,7 @@ shift
 
 CONFIG_TMP=`tempfile`
 
-cp $CONFIG_FILE $CONFIG_TMP
+cp $CONFIG_INCLUDE $CONFIG_TMP
 chmod +x $CONFIG_TMP
 
 . $CONFIG_TMP
@@ -47,7 +47,7 @@ if [ "${BDRIVER}" == "" ]; then
     exit 1
 fi
 
-BCONFIG = "$BCONFIG $*"
+BCONFIG="$BCONFIG $*"
 
 if [ "${BCONFIG}" == "" ]; then
     echo $0", ERROR:"
@@ -58,4 +58,4 @@ fi
 # JVM options.
 JVM_OPTS="-Dyardstick.bench"
 
-/bin/bash ${SCRIPT_DIR}/bin/benchmark-bootsrtap.sh ${BCONFIG} "-n" ${BDRIVER}
+/bin/bash ${SCRIPT_DIR}/benchmark-bootstrap.sh ${BCONFIG} "-n" ${BDRIVER}
