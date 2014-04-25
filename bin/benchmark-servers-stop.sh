@@ -23,6 +23,18 @@ SCRIPT_DIR=$(cd $(dirname "$0"); pwd)
 
 CONFIG_INCLUDE=$1
 
+if [ "${CONFIG_INCLUDE}" == "" ]; then
+    echo $0", ERROR:"
+    echo "Configuration file should be the first script argument."
+    exit 1
+fi
+
+if [ ! -f $CONFIG_INCLUDE ]; then
+    echo $0", ERROR:"
+    echo "Configuration file not found."
+    exit 1
+fi
+
 shift
 
 CONFIG_TMP=`tempfile`
