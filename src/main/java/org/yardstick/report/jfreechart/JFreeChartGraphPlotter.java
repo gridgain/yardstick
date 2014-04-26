@@ -84,7 +84,9 @@ public class JFreeChartGraphPlotter {
         if (args.compoundChart()) {
             String date = BenchmarkProbePointCsvWriter.FORMAT.format(System.currentTimeMillis());
 
-            File folderToWrite = new File(inFolders[0].getParent() + File.separator + date + "_compound_results");
+            String parent = inFolders[0].getParent() == null ? inFolders[0].getName() : inFolders[0].getParent();
+
+            File folderToWrite = new File(parent + File.separator + date + "_compound_results");
 
             if (!folderToWrite.exists()) {
                 if (!folderToWrite.mkdir()) {
