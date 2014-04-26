@@ -220,8 +220,6 @@ public class JFreeChartGraphPlotter {
 
         XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer(true, false);
 
-        int colorIdx = 0;
-
         int idx = -1;
 
         while (true) {
@@ -284,7 +282,7 @@ public class JFreeChartGraphPlotter {
             plot.setOutlineStroke(stroke);
 
             for (int i = 0; i < seriesNum; i++) {
-                renderer.setSeriesPaint(i, PLOT_COLORS[colorIdx++ % PLOT_COLORS.length]);
+                renderer.setSeriesPaint(i, PLOT_COLORS[i % PLOT_COLORS.length]);
                 renderer.setSeriesStroke(i, new BasicStroke(3)); // Line thickness.
             }
 

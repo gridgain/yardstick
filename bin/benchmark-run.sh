@@ -71,3 +71,5 @@ fi
 JVM_OPTS="-Dyardstick.bench"
 
 /bin/bash ${SCRIPT_DIR}/benchmark-bootstrap.sh ${BCONFIG} "-n" ${BDRIVER}
+
+echo "Benchark execution finished."
