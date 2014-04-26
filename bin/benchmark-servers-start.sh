@@ -110,7 +110,7 @@ do
     file_log=${LOGS_DIR}"/"${cntr}"_"${host_name}".log"
 
     ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} "JVM_OPTS='${JVM_OPTS}'" \
-        ${SCRIPT_DIR}/benchmark-bootsrtap.sh ${BCONFIG} "-n" ${BSERVER} > ${file_log} 2>& 1 &
+        ${SCRIPT_DIR}/benchmark-bootstrap.sh ${BCONFIG} "-n" ${BSERVER} > ${file_log} 2>& 1 &
 
     cntr=$((1 + $cntr))
 done
