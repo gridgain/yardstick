@@ -71,7 +71,7 @@ public class JFreeChartGraphPlotter {
         File[] inFolders = new File[inFoldersAsString.length];
 
         for (int i = 0; i < inFoldersAsString.length; i++)
-            inFolders[i] = new File(inFoldersAsString[i]);
+            inFolders[i] = new File(inFoldersAsString[i]).getAbsoluteFile();
 
         for (File inFolder : inFolders) {
             if (!inFolder.exists()) {
