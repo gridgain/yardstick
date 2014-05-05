@@ -131,7 +131,7 @@ public class VmStatProbe implements BenchmarkProbe {
     @Override public Collection<String> metaInfo() {
         return Arrays.asList("Time, ms", "Processes Waiting For Run Time", "Processes In Uninterruptible Sleep",
             "Memory Used", "Memory Free", "Memory Buffered", "Memory Cached",
-            "Memory Swapped In From Disk", "Memory Swapped To Disk", "Blocks Received", "Blocks Sent",
+            "Memory Swapped In From Disk", "Memory Swapped To Disk", "IO Blocks Received", "IO Blocks Sent",
             "System Interrupts", "System Context Switches", "CPU User", "CPU System", "CPU Idle", "CPU Wait");
     }
 
