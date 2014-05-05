@@ -83,7 +83,7 @@ public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
 
         String subFolderName = FORMAT.format(new Date(startTime)) + '_' + cfg.name() +
                 (argsToShort.isEmpty() ? "" : '_' + argsToShort) +
-                (cfgToShort.isEmpty() ? "" : '_' + toShortString(cfg));
+                (cfgToShort.isEmpty() ? "" : '_' + cfgToShort);
 
         outPath = folder == null ? new File(subFolderName) : new File(folder, subFolderName);
 
