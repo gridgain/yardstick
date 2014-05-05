@@ -25,33 +25,14 @@ import java.util.*;
  */
 public class JFreeChartResultPageGenerator {
     /**
-     * @param args Arguments.
-     */
-    public static void main(String[] args) {
-        if (args == null || args.length == 0) {
-            System.out.println("Folder with graphs is not defined.");
-
-            return;
-        }
-
-        File inFolder = new File(args[0]);
-
-        if (!inFolder.exists()) {
-            System.out.println("Input folder '" + inFolder + "' does not exist.");
-
-            return;
-        }
-
-        generate(inFolder, new JFreeChartGraphPlotterArguments());
-    }
-
-    /**
      * Generates a page containing all charts that belong to one test run.
      *
      * @param inFolder Input folder.
      * @param args Arguments.
+     * @param infoMap Map with additional plot info.
      */
-    public static void generate(File inFolder, JFreeChartGraphPlotterArguments args) {
+    public static void generate(File inFolder, JFreeChartGraphPlotterArguments args,
+        Map<String, List<JFreeChartPlotInfo>> infoMap) {
         for (File folder : folders(inFolder)) {
             Map<String, List<File>> files = files(folder.listFiles());
 
@@ -71,7 +52,7 @@ public class JFreeChartResultPageGenerator {
                 }
             }
 
-            generateHtml(testTime, files, folder, args);
+            generateHtml(testTime, files, folder, args, infoMap);
         }
     }
 
@@ -145,9 +126,10 @@ public class JFreeChartResultPageGenerator {
      * @param files Files.
      * @param outFolder Output folder.
      * @param args Arguments.
+     * @param infoMap Map with additional plot info.
      */
     private static void generateHtml(Date testTime, Map<String, List<File>> files, File outFolder,
-        JFreeChartGraphPlotterArguments args) {
+        JFreeChartGraphPlotterArguments args, Map<String, List<JFreeChartPlotInfo>> infoMap) {
         File outFile = new File(outFolder, "Results.html");
 
         try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outFile)))) {
@@ -173,9 +155,13 @@ public class JFreeChartResultPageGenerator {
                         writeLine(bw, "</tr>");
                         writeLine(bw, "</table>");
                         writeLine(bw, "<table>");
+                        writeLine(bw, "<br>");
                         writeLine(bw, "<tr>");
                     }
 
+                    writeLine(bw, "<td>");
+                    writeLine(bw, "<table>");
+                    writeLine(bw, "<tr>");
                     writeLine(bw, "<td>");
                     writeLine(bw, "<a href=\"javascript:showCloseLevel('id" + (cnt + 1) + "', 'id" +
                         cnt + "')\"><img src=\"" + file.getName() + "\" id=\"id" +
@@ -183,6 +169,36 @@ public class JFreeChartResultPageGenerator {
                     writeLine(bw, "<a href=\"javascript:showCloseLevel('id" + cnt + "', 'id" +
                         (cnt + 1) + "')\"><img src=\"" + file.getName() + "\" id=\"id" +
                         (cnt + 1) + "\" style=\"display:none\"/></a>");
+                    writeLine(bw, "</td>");
+                    writeLine(bw, "</tr>");
+                    writeLine(bw, "<tr>");
+                    writeLine(bw, "<td>");
+
+                    writeLine(bw, "<table border=\"1\" style=\"border:1 solid;border-collapse:collapse\">");
+                    writeLine(bw, "<tr>");
+                    writeLine(bw, "<th>Avg</th>");
+                    writeLine(bw, "<th>Min</th>");
+                    writeLine(bw, "<th>Max</th>");
+                    writeLine(bw, "<th>Std Deviation</th>");
+                    writeLine(bw, "</tr>");
+
+                    for (JFreeChartPlotInfo info : infoMap.get(file.getAbsolutePath())) {
+                        writeLine(bw, "<tr>");
+//                        writeValueToTable(bw, "Plot", info.name());
+                        writeValueToTable(bw, info.average());
+                        writeValueToTable(bw, info.minimum());
+                        writeValueToTable(bw, info.maximum());
+                        writeValueToTable(bw, info.standardDeviation());
+
+                        writeLine(bw, "</tr>");
+                    }
+
+                    writeLine(bw, "</tr>");
+                    writeLine(bw, "</table>");
+
+                    writeLine(bw, "</td>");
+                    writeLine(bw, "</tr>");
+                    writeLine(bw, "</table>");
                     writeLine(bw, "</td>");
 
                     cnt += 2;
@@ -210,6 +226,35 @@ public class JFreeChartResultPageGenerator {
 
             e.printStackTrace();
         }
+    }
+
+    /**
+     * @param bw Buffered writer.
+     * @param val Value.
+     * @throws IOException If failed.
+     */
+    private static void writeValueToTable(BufferedWriter bw, double val) throws IOException {
+        writeLine(bw, "<td>");
+
+        writeLine(bw, String.format(Locale.US, "%.2f", val));
+
+        writeLine(bw, "</td>");
+    }
+
+    /**
+     * @param bw Buffered writer.
+     * @param rowName Row name.
+     * @param val Value.
+     * @throws IOException If failed.
+     */
+    private static void writeValueToTable(BufferedWriter bw, String rowName, String val) throws IOException {
+        writeLine(bw, "<tr>");
+        writeLine(bw, "<td>");
+
+        writeLine(bw, rowName + ": " + val);
+
+        writeLine(bw, "</td>");
+        writeLine(bw, "</tr>");
     }
 
     /**

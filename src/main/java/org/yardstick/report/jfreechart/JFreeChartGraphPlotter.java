@@ -114,6 +114,8 @@ public class JFreeChartGraphPlotter {
                 }
             }
 
+            Map<String, List<JFreeChartPlotInfo>> infoMap = new HashMap<>();
+
             for (Map.Entry<String, List<File>> entry : res.entrySet()) {
                 Collection<List<PlotData>> plots = new ArrayList<>(entry.getValue().size());
 
@@ -129,13 +131,15 @@ public class JFreeChartGraphPlotter {
                     }
                 }
 
-                processPlots(folderToWrite, plots);
+                processPlots(folderToWrite, plots, infoMap);
             }
 
-            JFreeChartResultPageGenerator.generate(folderToWrite, args);
+            JFreeChartResultPageGenerator.generate(folderToWrite, args, infoMap);
         }
         else {
             for (File inFolder : inFolders) {
+                Map<String, List<JFreeChartPlotInfo>> infoMap = new HashMap<>();
+
                 for (List<File> files : files(inFolder).values()) {
                     for (File file : files) {
                         System.out.println("Processing file '" + file + "'.");
@@ -143,7 +147,7 @@ public class JFreeChartGraphPlotter {
                         try {
                             List<PlotData> plotData = readData(file);
 
-                            processPlots(file.getParentFile(), Collections.singleton(plotData));
+                            processPlots(file.getParentFile(), Collections.singleton(plotData), infoMap);
                         } catch (Exception e) {
                             System.out.println("Exception is raised during file '" + file + "' processing.");
 
@@ -152,7 +156,7 @@ public class JFreeChartGraphPlotter {
                     }
                 }
 
-                JFreeChartResultPageGenerator.generate(inFolder, args);
+                JFreeChartResultPageGenerator.generate(inFolder, args, infoMap);
             }
         }
     }
@@ -215,9 +219,12 @@ public class JFreeChartGraphPlotter {
 
     /**
      * @param folderToWrite Folder to write the resulted charts.
+     * @param plots Collections of plots.
+     * @param infoMap Map with additional plot info.
      * @throws Exception If failed.
      */
-    private static void processPlots(File folderToWrite, Collection<List<PlotData>> plots) throws Exception {
+    private static void processPlots(File folderToWrite, Collection<List<PlotData>> plots,
+        Map<String, List<JFreeChartPlotInfo>> infoMap) throws Exception {
         ChartRenderingInfo info = new ChartRenderingInfo(new StandardEntityCollection());
 
         XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer(true, false);
@@ -227,35 +234,30 @@ public class JFreeChartGraphPlotter {
         while (true) {
             idx++;
 
-            boolean dataExists = false;
-
             DefaultXYDataset dataSet = new DefaultXYDataset();
+
+            List<JFreeChartPlotInfo> infoList = new ArrayList<>();
 
             String xAxisLabel = "";
             String yAxisLabel = "";
             String plotName = "";
 
-            int seriesNum = 0;
-
             for (List<PlotData> plotData0 : plots) {
                 if (plotData0.size() <= idx)
                     continue;
-                else
-                    dataExists = true;
 
                 PlotData plotData = plotData0.get(idx);
 
-                for (PlotSeries s : plotData.series())
-                    dataSet.addSeries(s.seriesName, s.data);
+                dataSet.addSeries(plotData.series().seriesName, plotData.series().data);
 
                 xAxisLabel = plotData.xAxisLabel;
                 yAxisLabel = plotData.yAxisLabel;
                 plotName = plotData.plotName();
 
-                seriesNum++;
+                infoList.add(info(plotData.series()));
             }
 
-            if (!dataExists)
+            if (infoList.isEmpty())
                 break;
 
             JFreeChart chart = ChartFactory.createXYLineChart(
@@ -283,7 +285,7 @@ public class JFreeChartGraphPlotter {
             plot.setFixedRangeAxisSpace(as);
             plot.setOutlineStroke(stroke);
 
-            for (int i = 0; i < seriesNum; i++) {
+            for (int i = 0; i < infoList.size(); i++) {
                 renderer.setSeriesPaint(i, PLOT_COLORS[i % PLOT_COLORS.length]);
                 renderer.setSeriesStroke(i, new BasicStroke(3)); // Line thickness.
             }
@@ -303,10 +305,48 @@ public class JFreeChartGraphPlotter {
 
             ChartUtilities.saveChartAsPNG(res, chart, 800, 400, info);
 
+            infoMap.put(res.getAbsolutePath(), infoList);
+
             System.out.println("Resulted chart is saved to file '" + res.getAbsolutePath() + "'.");
         }
 
         System.out.println();
+    }
+
+    /**
+     * @param series Plot series.
+     * @return Graph info.
+     */
+    private static JFreeChartPlotInfo info(PlotSeries series) {
+        double sum = 0;
+        double min = Long.MAX_VALUE;
+        double max = Long.MIN_VALUE;
+
+        int len = series.data[1].length;
+
+        for (int i = 0; i < len; i++) {
+            double val = series.data[1][i];
+
+            min = Math.min(min, val);
+
+            max = Math.max(max, val);
+
+            sum += val;
+        }
+
+        double avg = sum / len;
+
+        double s = 0;
+
+        for (int i = 0; i < len; i++) {
+            double val = series.data[1][i];
+
+            s += Math.pow((val - avg), 2);
+        }
+
+        double stdDiv = Math.sqrt(s / len);
+
+        return new JFreeChartPlotInfo(series.seriesName, avg, min, max, stdDiv);
     }
 
     /**
@@ -345,7 +385,7 @@ public class JFreeChartGraphPlotter {
                     String xAxisLabel = metaInfo == null || metaInfo.length == 0 ? "" : metaInfo[0].replace("\"", "");
 
                     for (int i = 0; i < plotNum; i++) {
-                        List<PlotSeries> single = Collections.singletonList(new PlotSeries(file.getParentFile().getName()));
+                        PlotSeries single = new PlotSeries(file.getParentFile().getName());
 
                         String yAxisLabel = metaInfo == null || i + 1 >= metaInfo.length ? "" :
                             metaInfo[i + 1].replace("\"", "");
@@ -369,13 +409,11 @@ public class JFreeChartGraphPlotter {
                 }
 
                 for (int i = 0; i < split.length - 1; i++)
-                    data.get(i).series().get(0).rawData.add(new double[] {tup[0], tup[i + 1]});
+                    data.get(i).series().rawData.add(new double[] {tup[0], tup[i + 1]});
             }
 
-            for (PlotData plotData : data) {
-                for (PlotSeries series : plotData.series())
-                    series.finish();
-            }
+            for (PlotData plotData : data)
+                plotData.series().finish();
 
             return data;
         }
@@ -386,7 +424,7 @@ public class JFreeChartGraphPlotter {
      */
     private static class PlotData {
         /** */
-        private final List<PlotSeries> series;
+        private final PlotSeries series;
 
         /** */
         private final String plotName;
@@ -403,7 +441,7 @@ public class JFreeChartGraphPlotter {
          * @param xAxisLabel X axis label.
          * @param yAxisLabel Y axis label.
          */
-        PlotData(String plotName, List<PlotSeries> series, String xAxisLabel, String yAxisLabel) {
+        PlotData(String plotName, PlotSeries series, String xAxisLabel, String yAxisLabel) {
             this.plotName = plotName;
             this.series = series;
             this.xAxisLabel = xAxisLabel;
@@ -413,7 +451,7 @@ public class JFreeChartGraphPlotter {
         /**
          * @return Series.
          */
-        public List<PlotSeries> series() {
+        public PlotSeries series() {
             return series;
         }
 
