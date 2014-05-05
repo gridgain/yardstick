@@ -184,7 +184,6 @@ public class JFreeChartResultPageGenerator {
 
                     for (JFreeChartPlotInfo info : infoMap.get(file.getAbsolutePath())) {
                         writeLine(bw, "<tr>");
-//                        writeValueToTable(bw, "Plot", info.name());
                         writeValueToTable(bw, info.average());
                         writeValueToTable(bw, info.minimum());
                         writeValueToTable(bw, info.maximum());
@@ -239,22 +238,6 @@ public class JFreeChartResultPageGenerator {
         writeLine(bw, String.format(Locale.US, "%.2f", val));
 
         writeLine(bw, "</td>");
-    }
-
-    /**
-     * @param bw Buffered writer.
-     * @param rowName Row name.
-     * @param val Value.
-     * @throws IOException If failed.
-     */
-    private static void writeValueToTable(BufferedWriter bw, String rowName, String val) throws IOException {
-        writeLine(bw, "<tr>");
-        writeLine(bw, "<td>");
-
-        writeLine(bw, rowName + ": " + val);
-
-        writeLine(bw, "</td>");
-        writeLine(bw, "</tr>");
     }
 
     /**
