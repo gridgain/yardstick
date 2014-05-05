@@ -141,7 +141,7 @@ public class JFreeChartResultPageGenerator {
     }
 
     /**
-     * @param testTime Tsst time.
+     * @param testTime Test time.
      * @param files Files.
      * @param outFolder Output folder.
      * @param args Arguments.
@@ -202,14 +202,14 @@ public class JFreeChartResultPageGenerator {
             writeLine(bw, "    document.getElementById(idClose).style.display = \"none\";");
             writeLine(bw, "}");
             writeLine(bw, "</script>");
+
+            System.out.println("Html file is generated: " + outFile.getAbsolutePath());
         }
         catch (Exception e) {
             System.out.println("Exception is raised during file '" + outFile + "' processing.");
 
             e.printStackTrace();
         }
-
-        System.out.println("Html file is generated: " + outFile.getAbsolutePath());
     }
 
     /**
