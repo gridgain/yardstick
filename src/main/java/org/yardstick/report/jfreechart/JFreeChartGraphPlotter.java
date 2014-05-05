@@ -61,7 +61,7 @@ public class JFreeChartGraphPlotter {
         }
 
         if (args.inputFolders() == null) {
-            System.out.println("Input folder is not defined.");
+            System.out.println("Input folders are not defined.");
 
             return;
         }

@@ -16,40 +16,41 @@ That's it, Yardstick benchmark will measure latency and other metrics for you.
 ## How to run Yardstick benchmarks
 
 ### Starting remote servers
-To run a remote server the following should be done:
+To run remote servers the following should be done:
 
-1. Prepare run properties for the benchmark execution. These properties will contain list of remote servers
+1. Prepare benchmark properties for the benchmark execution. These properties will contain list of remote servers
 to run benchmark on, optional username to log in on remote servers, class names for benchmark server and driver.
-2. Run `bin/benchmark-servers-start.sh` script with specified run properties file.
+2. Run `bin/benchmark-servers-start.sh` script with specified benchmark properties file.
 
 For example:
-`bin/benchmark-run.sh config/run.properties`
-
-Additional parameters of the script are listed below.
+`bin/benchmark-servers-start.sh config/benchmark.properties`
 
 ### Starting benchmark
 After remote servers are started, the benchmark should be run. Procedure is almost the same - the only
 difference is that the `bin/benchmark-run.sh` script should be used.
 
 For example:
-`bin/benchmark-run.sh config/run.properties`
+`bin/benchmark-run.sh config/benchmark.properties`
+
+### Stopping remote servers
+To stop remote servers after the benchmark finished his job `bin/benchmark-servers-stop.sh` script should be run.
+
+For example:
+`bin/benchmark-servers-stop.sh config/benchmark.properties`
 
 ### Properties and command line arguments
 
-The following properties can be defined in `benchmark.properties` file:
+The following properties can be defined in benchmark properties file:
 
-* `benchmark.default.probes` - the list of default probes
+* `benchmark.default.probes` - list of default probes
 * `benchmark.packages` - packages where the specified benchmark is searched by reflection mechanism
 * `benchmark.writer` - probe point writer class name
-
-The following properties should be defined in run properties file:
-
 * `BHOSTS` - comma-separated list of hosts where to start servers, one server per host
 * `BSERVER` - class name of the server to be started
 * `BDRIVER` - class name of the benchmark to be started
 * `BCONFIG` - benchmark configuration to be passed to the servers and to the benchmarks
 
-`benchmark-run.sh` script accepts the following arguments:
+The following properties can be defined in the benchmark configuration:
 
 * `--config <path>` - framework configuration file path
 * `--name <name>` - benchmark name (required)

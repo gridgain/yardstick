@@ -27,7 +27,7 @@ public class BenchmarkConfiguration {
     /** */
     @SuppressWarnings({"UnusedDeclaration", "FieldCanBeLocal"})
     @Parameter(names = {"-c", "--config"}, description = "Framework configuration file path")
-    private String propsFileName = "benchmark.properties";
+    private String propsFileName = "config/benchmark.properties";
 
     /** */
     @SuppressWarnings("UnusedDeclaration")
