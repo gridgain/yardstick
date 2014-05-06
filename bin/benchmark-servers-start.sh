@@ -71,7 +71,7 @@ if [ "${REMOTE_USER}" == "" ]; then
     exit 1
 fi
 
-BCONFIG = "$BCONFIG $*"
+BCONFIG="$BCONFIG $*"
 
 if [ "${BCONFIG}" == "" ]; then
     echo $0", ERROR:"
