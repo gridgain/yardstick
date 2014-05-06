@@ -18,6 +18,10 @@
 
 SCRIPT_DIR=$(cd $(dirname "$0"); pwd)
 
+if [ "${CUR_DIR}" != "" ]; then
+    cd ${CUR_DIR}
+fi
+
 #
 # Discovers path to Java executable and checks it's version.
 # The function exports JAVA variable with path to Java executable.
@@ -69,7 +73,7 @@ checkJava
 
 ARGS=$*
 
-CP="${SCRIPT_DIR}/../libs/*:${SCRIPT_DIR}/../yardstick-1.0.0.jar"
+CP=${CP}":${SCRIPT_DIR}/../libs/*:${SCRIPT_DIR}/../yardstick-1.0.0.jar"
 
 #
 # JVM options. See http://java.sun.com/javase/technologies/hotspot/vmoptions.jsp for more details.

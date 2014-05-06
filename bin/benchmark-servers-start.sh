@@ -80,7 +80,7 @@ if [ "${BCONFIG}" == "" ]; then
 fi
 
 # JVM options.
-JVM_OPTS="-Dyardstick.bench"
+JVM_OPTS=${JVM_OPTS}" -Dyardstick.bench"
 
 function cleanup() {
     pkill -9 -f "Dyardstick.bench"
@@ -98,6 +98,8 @@ if [ ! -d "${LOGS_DIR}" ]; then
     mkdir -p ${LOGS_DIR}
 fi
 
+CUR_DIR=$(pwd -P)
+
 cntr=0
 
 IFS=',' read -ra hosts0 <<< "${BHOSTS}"
@@ -109,7 +111,7 @@ do
 
     file_log=${LOGS_DIR}"/"${cntr}"_"${host_name}".log"
 
-    ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} "JVM_OPTS='${JVM_OPTS}'" \
+    ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} "JVM_OPTS='${JVM_OPTS}'" "CP='${CP}'" "CUR_DIR='${CUR_DIR}'" \
         ${SCRIPT_DIR}/benchmark-bootstrap.sh ${BCONFIG} "--config" ${CONFIG_INCLUDE} "--name" ${BSERVER} > ${file_log} 2>& 1 &
 
     cntr=$((1 + $cntr))

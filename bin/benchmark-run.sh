@@ -65,8 +65,11 @@ if [ "${BCONFIG}" == "" ]; then
 fi
 
 # JVM options.
-JVM_OPTS="-Dyardstick.bench"
+JVM_OPTS=${JVM_OPTS}" -Dyardstick.bench"
+
+export CP
+export JVM_OPTS
 
 /bin/bash ${SCRIPT_DIR}/benchmark-bootstrap.sh ${BCONFIG} "--config" ${CONFIG_INCLUDE} "--name" ${BDRIVER}
 
-echo "Benchark execution finished."
+echo "Benchmark execution finished."
