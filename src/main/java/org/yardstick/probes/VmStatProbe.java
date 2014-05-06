@@ -26,10 +26,10 @@ import java.util.regex.*;
  */
 public class VmStatProbe implements BenchmarkProbe {
     /** */
-    private static final String PATH = "benchmark.probe.vmstat.path";
+    private static final String PATH = "BENCHMARK_PROBE_VMSTAT_PATH";
 
     /** */
-    private static final String OPTS = "benchmark.probe.vmstat.opts";
+    private static final String OPTS = "BENCHMARK_PROBE_VMSTAT_OPTS";
 
     /** */
     private static final int DEFAULT_INTERVAL_IN_SECS = 1;

@@ -50,9 +50,6 @@ if [ "${REMOTE_USER}" == "" ]; then
     REMOTE_USER=$(whoami)
 fi
 
-# Define logs directory.
-LOGS_DIR=${SCRIPT_DIR}/../logs
-
 if [ "${BDRIVER}" == "" ]; then
     echo $0", ERROR:"
     echo "BenchmarkDriver (BDRIVER) is not defined."

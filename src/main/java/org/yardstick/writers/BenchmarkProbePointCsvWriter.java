@@ -27,10 +27,10 @@ import static org.yardstick.util.BenchmarkUtils.*;
  */
 public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
     /** */
-    private static final String DUPLICATE_TO_OUTPUT = "benchmark.writer.duplicate.to.output";
+    private static final String DUPLICATE_TO_OUTPUT = "BENCHMARK_WRITER_DUPLICATE_TO_OUTPUT";
 
     /** */
-    private static final String OUTPUT_PATH = "benchmark.writer.output.path";
+    private static final String OUTPUT_PATH = "BENCHMARK_WRITER_OUTPUT_PATH";
 
     /** */
     private static final boolean DEFAULT_DUPLICATE_TO_OUTPUT = false;

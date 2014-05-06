@@ -21,10 +21,10 @@ import java.util.regex.*;
  */
 public class DStatProbe implements BenchmarkProbe {
     /** */
-    private static final String PATH = "benchmark.probe.dstat.path";
+    private static final String PATH = "BENCHMARK_PROBE_DSTAT_PATH";
 
     /** */
-    private static final String OPTS = "benchmark.probe.dstat.opts";
+    private static final String OPTS = "BENCHMARK_PROBE_DSTAT_OPTS";
 
     /** */
     private static final int DEFAULT_INTERVAL_IN_SECS = 1;

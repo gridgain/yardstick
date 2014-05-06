@@ -42,9 +42,9 @@ For example:
 
 The following properties can be defined in benchmark properties file:
 
-* `benchmark.default.probes` - list of default probes
-* `benchmark.packages` - packages where the specified benchmark is searched by reflection mechanism
-* `benchmark.writer` - probe point writer class name
+* `BENCHMARK_DEFAULT_PROBES` - list of default probes
+* `BENCHMARK_PACKAGES` - packages where the specified benchmark is searched by reflection mechanism
+* `BENCHMARK_WRITER` - probe point writer class name
 * `BHOSTS` - comma-separated list of hosts where to start servers, one server per host
 * `BSERVER` - class name of the server to be started
 * `BDRIVER` - class name of the benchmark to be started

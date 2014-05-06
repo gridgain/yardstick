@@ -54,9 +54,9 @@ public class BenchmarkLoader {
         }
 
         // Try init packages first.
-        if (props.getProperty("benchmark.packages") != null) {
+        if (props.getProperty("BENCHMARK_PACKAGES") != null) {
             if (cfg.packages().isEmpty()) {
-                String[] packagesArr = props.getProperty("benchmark.packages").split(",");
+                String[] packagesArr = props.getProperty("BENCHMARK_PACKAGES").split(",");
 
                 List<String> packagesLst = new ArrayList<>(packagesArr.length);
 
@@ -85,7 +85,7 @@ public class BenchmarkLoader {
             String val = (String)entry.getValue();
 
             switch (key) {
-                case "benchmark.default.probes":
+                case "BENCHMARK_DEFAULT_PROBES":
                     if (cfg.defaultProbeClassNames().isEmpty()) {
                         String[] clsArr = val.split(",");
 
@@ -102,7 +102,7 @@ public class BenchmarkLoader {
                     }
                     break;
 
-                case "benchmark.writer":
+                case "BENCHMARK_WRITER":
                     if (cfg.probeWriterClassName() == null) {
                         String writerClsName = val.trim();
 

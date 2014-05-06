@@ -23,7 +23,7 @@ import java.util.*;
 */
 public class ThroughputLatencyProbe implements BenchmarkExecutionAwareProbe {
     /** */
-    public static final String INTERVAL = "benchmark.probe.throughput.interval";
+    public static final String INTERVAL = "BENCHMARK_PROBE_THROUGHPUT_INTERVAL";
 
     /** */
     public static final long DEFAULT_INTERVAL_IN_MSECS = 1_000;
