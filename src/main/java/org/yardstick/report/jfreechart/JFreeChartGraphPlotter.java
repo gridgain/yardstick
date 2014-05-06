@@ -324,6 +324,12 @@ public class JFreeChartGraphPlotter {
 
         int len = series.data[1].length;
 
+        if (len == 1) {
+            double val = series.data[1][0];
+
+            return new JFreeChartPlotInfo(series.seriesName, val, val, val, 0);
+        }
+
         for (int i = 0; i < len; i++) {
             double val = series.data[1][i];
 
@@ -344,7 +350,7 @@ public class JFreeChartGraphPlotter {
             s += Math.pow((val - avg), 2);
         }
 
-        double stdDiv = Math.sqrt(s / len);
+        double stdDiv = Math.sqrt(s / (len - 1));
 
         return new JFreeChartPlotInfo(series.seriesName, avg, min, max, stdDiv);
     }
