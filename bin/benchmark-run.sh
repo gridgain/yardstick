@@ -37,7 +37,7 @@ fi
 
 shift
 
-CONFIG_TMP=`tempfile`
+CONFIG_TMP=`mktemp`
 
 cp $CONFIG_INCLUDE $CONFIG_TMP
 chmod +x $CONFIG_TMP
