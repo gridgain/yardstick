@@ -15,7 +15,7 @@
 package org.yardstick.probes;
 
 import org.yardstick.*;
-import org.yardstick.util.*;
+import org.yardstick.impl.util.*;
 
 import java.util.*;
 import java.util.concurrent.atomic.*;

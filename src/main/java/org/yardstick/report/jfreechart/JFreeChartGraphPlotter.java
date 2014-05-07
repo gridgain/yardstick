@@ -23,7 +23,7 @@ import org.jfree.chart.renderer.xy.*;
 import org.jfree.chart.title.*;
 import org.jfree.data.xy.*;
 import org.jfree.ui.*;
-import org.yardstick.util.*;
+import org.yardstick.impl.util.*;
 import org.yardstick.writers.*;
 
 import java.awt.*;

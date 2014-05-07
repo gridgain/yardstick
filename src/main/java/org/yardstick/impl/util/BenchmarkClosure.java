@@ -12,7 +12,7 @@
  limitations under the License.
  */
 
-package org.yardstick.util;
+package org.yardstick.impl.util;
 
 /**
  * Closure with one in-parameter and void return type.

@@ -15,7 +15,7 @@
 package org.yardstick;
 
 import com.beust.jcommander.*;
-import org.yardstick.util.*;
+import org.yardstick.impl.util.*;
 
 import java.io.*;
 import java.util.*;

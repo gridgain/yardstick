@@ -15,7 +15,7 @@
 package org.yardstick.examples.echo;
 
 import com.beust.jcommander.*;
-import org.yardstick.util.*;
+import org.yardstick.impl.util.*;
 
 /**
  * Echo server benchmark arguments.

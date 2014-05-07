@@ -20,7 +20,7 @@ import java.io.*;
 import java.text.*;
 import java.util.*;
 
-import static org.yardstick.util.BenchmarkUtils.*;
+import static org.yardstick.impl.util.BenchmarkUtils.*;
 
 /**
  * CSV probe point writer.

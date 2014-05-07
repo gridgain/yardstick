@@ -15,11 +15,11 @@
 package org.yardstick;
 
 import org.yardstick.impl.*;
-import org.yardstick.util.*;
+import org.yardstick.impl.util.*;
 
 import java.util.*;
 
-import static org.yardstick.util.BenchmarkUtils.*;
+import static org.yardstick.impl.util.BenchmarkUtils.*;
 
 /**
  * Benchmark startup class.

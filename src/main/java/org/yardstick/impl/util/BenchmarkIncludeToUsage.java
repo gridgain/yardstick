@@ -12,7 +12,7 @@
  limitations under the License.
  */
 
-package org.yardstick.util;
+package org.yardstick.impl.util;
 
 import java.lang.annotation.*;
 
