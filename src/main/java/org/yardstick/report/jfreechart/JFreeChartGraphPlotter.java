@@ -261,14 +261,14 @@ public class JFreeChartGraphPlotter {
                 break;
 
             JFreeChart chart = ChartFactory.createXYLineChart(
-                    "",
-                    xAxisLabel,
-                    yAxisLabel,
-                    dataSet,
-                    PlotOrientation.VERTICAL,
-                    true,
-                    false,
-                    false);
+                "",
+                xAxisLabel,
+                yAxisLabel,
+                dataSet,
+                PlotOrientation.VERTICAL,
+                false,
+                false,
+                false);
 
             AxisSpace as = new AxisSpace();
 
@@ -286,8 +286,12 @@ public class JFreeChartGraphPlotter {
             plot.setOutlineStroke(stroke);
 
             for (int i = 0; i < infoList.size(); i++) {
-                renderer.setSeriesPaint(i, PLOT_COLORS[i % PLOT_COLORS.length]);
+                Color color = PLOT_COLORS[i % PLOT_COLORS.length];
+
+                renderer.setSeriesPaint(i, color);
                 renderer.setSeriesStroke(i, new BasicStroke(3)); // Line thickness.
+
+                infoList.get(i).color(Integer.toHexString(color.getRGB()).substring(2));
             }
 
             ValueAxis axis = plot.getRangeAxis();

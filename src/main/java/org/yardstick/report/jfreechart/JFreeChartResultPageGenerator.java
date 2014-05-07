@@ -141,6 +141,25 @@ public class JFreeChartResultPageGenerator {
             writeLine(bw, "<h1>Results" + (testTime == null ? "" : " on " + testTime) + "</h1>");
             writeLine(bw, "<br>");
 
+            Iterator<List<File>> iter = files.values().iterator();
+
+            if (iter.hasNext()) {
+                File f = iter.next().get(0);
+
+                List<JFreeChartPlotInfo> list = infoMap.get(f.getAbsolutePath());
+
+                if (list != null) {
+                    for (JFreeChartPlotInfo info : list) {
+                        writeLine(bw, "<table>");
+                        writeLine(bw, "<tr>");
+                        writeLine(bw, "<td width=\"15\" style=\"border: 1 solid\" bgcolor=\"" + info.color() + "\"></td>");
+                        writeLine(bw, "<td>" + info.name() + "</td>");
+                        writeLine(bw, "</tr>");
+                        writeLine(bw, "</table>");
+                    }
+                }
+            }
+
             int cnt = 0;
 
             for (Map.Entry<String, List<File>> entry : files.entrySet()) {
@@ -176,20 +195,27 @@ public class JFreeChartResultPageGenerator {
 
                     writeLine(bw, "<table border=\"1\" style=\"border:1 solid;border-collapse:collapse\">");
                     writeLine(bw, "<tr>");
+                    writeLine(bw, "<th></th>");
                     writeLine(bw, "<th>Avg</th>");
                     writeLine(bw, "<th>Min</th>");
                     writeLine(bw, "<th>Max</th>");
                     writeLine(bw, "<th>Std Deviation</th>");
                     writeLine(bw, "</tr>");
 
-                    for (JFreeChartPlotInfo info : infoMap.get(file.getAbsolutePath())) {
-                        writeLine(bw, "<tr>");
-                        writeValueToTable(bw, info.average());
-                        writeValueToTable(bw, info.minimum());
-                        writeValueToTable(bw, info.maximum());
-                        writeValueToTable(bw, info.standardDeviation());
+                    List<JFreeChartPlotInfo> list = infoMap.get(file.getAbsolutePath());
 
-                        writeLine(bw, "</tr>");
+                    if (list != null) {
+                        for (JFreeChartPlotInfo info : list) {
+                            writeLine(bw, "<tr>");
+
+                            writeLine(bw, "<td width=\"15\" style=\"border: 1\" bgcolor=\"" + info.color() + "\"></td>");
+                            writeValueToTable(bw, info.average());
+                            writeValueToTable(bw, info.minimum());
+                            writeValueToTable(bw, info.maximum());
+                            writeValueToTable(bw, info.standardDeviation());
+
+                            writeLine(bw, "</tr>");
+                        }
                     }
 
                     writeLine(bw, "</tr>");

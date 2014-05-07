@@ -33,6 +33,9 @@ public class JFreeChartPlotInfo {
     /** */
     private final double stdDiv;
 
+    /** */
+    private String color;
+
     /**
      * @param name Plot name.
      * @param avg Average.
@@ -81,5 +84,19 @@ public class JFreeChartPlotInfo {
      */
     public double standardDeviation() {
         return stdDiv;
+    }
+
+    /**
+     * @return Plot color.
+     */
+    public String color() {
+        return color;
+    }
+
+    /**
+     * @param color Color.
+     */
+    public void color(String color) {
+        this.color = color;
     }
 }
