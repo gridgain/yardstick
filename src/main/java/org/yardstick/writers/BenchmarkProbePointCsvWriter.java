@@ -20,8 +20,6 @@ import java.io.*;
 import java.text.*;
 import java.util.*;
 
-import static org.yardstick.impl.util.BenchmarkUtils.*;
-
 /**
  * CSV probe point writer.
  */
@@ -77,13 +75,10 @@ public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
                     "' does not exist: '" + path + "'.");
         }
 
-        String argsToShort = toShortString(arguments(cfg.benchmark(), false));
+        String desc = cfg.description() == null || cfg.description().isEmpty() ? "" :
+            '_' + cfg.description().replaceAll(",|\\\\|/|\\||%|:|<|>|\\*|\\?|\"|\\s", "_").replaceAll("_+", "_");
 
-        String cfgToShort = toShortString(cfg);
-
-        String subFolderName = FORMAT.format(new Date(startTime)) + '_' + cfg.name() +
-                (argsToShort.isEmpty() ? "" : '_' + argsToShort) +
-                (cfgToShort.isEmpty() ? "" : '_' + cfgToShort);
+        String subFolderName = FORMAT.format(new Date(startTime)) + '_' + cfg.name() + desc;
 
         outPath = folder == null ? new File(subFolderName) : new File(folder, subFolderName);
 
@@ -105,12 +100,10 @@ public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
             cfg.output().println(probe.getClass().getSimpleName() +
                 " results will be saved to '" + f.getAbsolutePath() + "'.");
 
-            Object args = arguments(cfg.benchmark(), false);
-
             println("--Probe dump file for probe: " + probe + " (" + probe.getClass() + ")");
             println("--Created " + new Date(startTime));
             println("--Benchmark config: " + cfg.toString());
-            println("--Custom config: " + (args == null ? "" : args.toString()));
+            println("--Description: " + (cfg.description() == null ? "" : cfg.description()));
 
             if (probe.metaInfo() != null && probe.metaInfo().size() > 0) {
                 int i = 0;

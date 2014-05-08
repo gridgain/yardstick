@@ -25,16 +25,13 @@ import java.net.*;
  */
 public class EchoServer implements BenchmarkServer {
     /** Echo server benchmark arguments. */
-    @BenchmarkIncludeToUsage
-    private EchoServerBenchmarkArguments args;
+    private final EchoServerBenchmarkArguments args = new EchoServerBenchmarkArguments();
 
     /** Echo thread. */
     private Thread th;
 
     /** {@inheritDoc} */
     @Override public void start(final BenchmarkConfiguration cfg) throws Exception {
-        args = new EchoServerBenchmarkArguments();
-
         BenchmarkUtils.jcommander(cfg.commandLineArguments(), args, "<echo-server>");
 
         th = new Thread(new Runnable() {
@@ -88,5 +85,10 @@ public class EchoServer implements BenchmarkServer {
         th.interrupt();
 
         th.join();
+    }
+
+    /** {@inheritDoc} */
+    @Override public String usage() {
+        return BenchmarkUtils.usage(args);
     }
 }

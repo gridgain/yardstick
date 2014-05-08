@@ -15,7 +15,6 @@
 package org.yardstick.examples.echo;
 
 import com.beust.jcommander.*;
-import org.yardstick.impl.util.*;
 
 /**
  * Echo server benchmark arguments.
@@ -46,10 +45,9 @@ public class EchoServerBenchmarkArguments {
     }
 
     /**
-     * @return Short string.
+     * @return Description.
      */
-    @BenchmarkToShortString
-    public String toShortString() {
+    public String parametersToString() {
         return "--host=" + host + "_--port=" + port;
     }
 

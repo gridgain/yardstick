@@ -15,7 +15,6 @@
 package org.yardstick;
 
 import com.beust.jcommander.*;
-import org.yardstick.impl.util.*;
 
 import java.io.*;
 import java.util.*;
@@ -67,7 +66,7 @@ public class BenchmarkConfiguration {
 
     /** */
     @SuppressWarnings("UnusedDeclaration")
-    @Parameter(names = { "-h", "--help" }, description = "Print help message", help = true)
+    @Parameter(names = { "-h", "--help" }, description = "Print help message", help = true, hidden = true)
     private boolean help;
 
     /** Non-parsed command line arguments. */
@@ -82,8 +81,8 @@ public class BenchmarkConfiguration {
     /** Error writer. */
     private PrintStream errorWriter;
 
-    /** Benchmark server or benchmark driver implementation. */
-    private Object benchmark;
+    /** */
+    private String description;
 
     /**
      * @return Properties file name.
@@ -274,26 +273,24 @@ public class BenchmarkConfiguration {
         this.probeWriter = probeWriter;
     }
 
-
     /**
-     * @return Benchmark.
+     * @return Description.
      */
-    public Object benchmark() {
-        return benchmark;
+    public String description() {
+        return description;
     }
 
     /**
-     * @param benchmark Benchmark.
+     * @param description Description.
      */
-    public void benchmark(Object benchmark) {
-        this.benchmark = benchmark;
+    public void description(String description) {
+        this.description = description;
     }
 
     /**
-     * @return Short string.
+     * @return Description.
      */
-    @BenchmarkToShortString
-    public String toShortString() {
+    public String parametersToString() {
         return "-t=" + threads + "_-d=" + duration + "_-w=" + warmup;
     }
 

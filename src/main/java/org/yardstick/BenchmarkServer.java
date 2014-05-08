@@ -32,4 +32,11 @@ public interface BenchmarkServer {
      * @throws Exception If failed.
      */
     public void stop() throws Exception;
+
+    /**
+     * Gets benchmark usage.
+     *
+     * @return Benchmark usage.
+     */
+    public String usage();
 }

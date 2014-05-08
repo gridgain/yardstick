@@ -14,6 +14,8 @@
 
 package org.yardstick;
 
+import org.yardstick.impl.util.*;
+
 import java.util.*;
 
 /**
@@ -36,5 +38,15 @@ public abstract class BenchmarkDriverAdapter implements BenchmarkDriver {
     /** {@inheritDoc} */
     @Override public Collection<BenchmarkProbe> probes() {
         return cfg.defaultProbes();
+    }
+
+    /** {@inheritDoc} */
+    @Override public String description() {
+        return cfg.parametersToString();
+    }
+
+    /** {@inheritDoc} */
+    @Override public String usage() {
+        return BenchmarkUtils.usage(null);
     }
 }

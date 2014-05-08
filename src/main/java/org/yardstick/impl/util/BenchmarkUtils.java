@@ -17,9 +17,6 @@ package org.yardstick.impl.util;
 import com.beust.jcommander.*;
 import org.yardstick.*;
 
-import java.lang.annotation.*;
-import java.lang.reflect.*;
-
 /**
  * Utils.
  */
@@ -45,13 +42,11 @@ public class BenchmarkUtils {
     /**
      * Prints usage string to output.
      *
-     * @param cfg Benchmark configuration.
-     * @throws Exception If failed.
+     * @param args JCommander arguments.
+     * @return Usage string.
      */
-    public static void showUsage(BenchmarkConfiguration cfg) throws Exception {
+    public static String usage(Object args) {
         CompositeParameters cp = new CompositeParameters();
-
-        Object args = cfg.benchmark() == null ? null : arguments(cfg.benchmark(), true);
 
         cp.benchmarkArgs = args == null ? new Object() : args;
 
@@ -64,67 +59,7 @@ public class BenchmarkUtils {
 
         jCommander.usage(sb);
 
-        cfg.output().println(sb.toString());
-    }
-
-    /**
-     * Finds the first field that is annotated to be included to usage string.
-     *
-     * @param target Object to be scanned for arguments.
-     * @param newInstance Flag indicating whether to return a new instance of arguments or the current value.
-     * @return Object to be included to usage string.
-     */
-    public static Object arguments(Object target, boolean newInstance) {
-        Class c = target.getClass();
-
-        while (c != null) {
-            for (Field field : c.getDeclaredFields()) {
-                field.setAccessible(true);
-
-                Annotation ann = field.getAnnotation(BenchmarkIncludeToUsage.class);
-
-                if (ann != null) {
-                    try {
-                        return newInstance ? field.getType().newInstance() : field.get(target);
-                    }
-                    catch (Exception ignore) {
-                        // No-op.
-                    }
-                }
-            }
-
-            c = c.getSuperclass();
-        }
-
-        return null;
-    }
-
-    /**
-     * Returns short description of arguments.
-     *
-     * @param target Object to be scanned for the method that returns short string.
-     * @return Returns short description of arguments.
-     */
-    public static String toShortString(Object target) {
-        if (target == null)
-            return "";
-
-        Method[] methods = target.getClass().getMethods();
-
-        for (Method method : methods) {
-            BenchmarkToShortString ann = method.getAnnotation(BenchmarkToShortString.class);
-            if (ann != null) {
-                try {
-                    Object res = method.invoke(target);
-
-                    return res instanceof String ? (String) res : "";
-                } catch (Exception ignore) {
-                    // No-op.
-                }
-            }
-        }
-
-        return "";
+        return sb.toString();
     }
 
     /** */

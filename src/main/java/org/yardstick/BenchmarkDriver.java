@@ -50,4 +50,18 @@ public interface BenchmarkDriver {
      * @return Collection of custom probes or {@code null} if set of default probes should be used.
      */
     public Collection<BenchmarkProbe> probes();
+
+    /**
+     * Gets benchmark description.
+     *
+     * @return Benchmark description.
+     */
+    public String description();
+
+    /**
+     * Gets benchmark usage.
+     *
+     * @return Benchmark usage.
+     */
+    public String usage();
 }

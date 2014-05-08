@@ -33,14 +33,11 @@ public class EchoServerBenchmark extends BenchmarkDriverAdapter {
     private final ConcurrentMap<Thread, Socket> sockMap = new ConcurrentHashMap<>();
 
     /** Arguments. */
-    @BenchmarkIncludeToUsage
-    private EchoServerBenchmarkArguments args;
+    private final EchoServerBenchmarkArguments args = new EchoServerBenchmarkArguments();
 
     /** {@inheritDoc} */
     @Override public void setUp(BenchmarkConfiguration cfg) throws Exception {
         super.setUp(cfg);
-
-        args = new EchoServerBenchmarkArguments();
 
         BenchmarkUtils.jcommander(cfg.commandLineArguments(), args, "<echo-driver>");
     }
@@ -80,6 +77,16 @@ public class EchoServerBenchmark extends BenchmarkDriverAdapter {
 
         if (!req.equals(res))
             throw new Exception("Invalid echo response [req=" + req + ", res=" + res + ']');
+    }
+
+    /** {@inheritDoc} */
+    @Override public String description() {
+        return args.parametersToString() + '_' + super.description();
+    }
+
+    /** {@inheritDoc} */
+    @Override public String usage() {
+        return BenchmarkUtils.usage(args);
     }
 
     /**
