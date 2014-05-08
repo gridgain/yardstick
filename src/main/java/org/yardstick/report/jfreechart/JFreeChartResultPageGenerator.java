@@ -248,7 +248,7 @@ public class JFreeChartResultPageGenerator {
             writeLine(bw, "    document.getElementById(idClose).style.display = \"none\";");
             writeLine(bw, "    var el = document.getElementById(idClose + \"_table\");");
             writeLine(bw, "    if (el != null)");
-            writeLine(bw, "        el.style.fontSize = \"17\";");
+            writeLine(bw, "        el.style.fontSize = \"18\";");
             writeLine(bw, "    else");
             writeLine(bw, "        document.getElementById(idOpen + \"_table\").style.fontSize = \"10\";");
             writeLine(bw, "}");
