@@ -26,7 +26,7 @@ public interface BenchmarkProbePointWriter extends AutoCloseable {
      * @param cfg Benchmark configuration.
      * @param startTime Time when writers are initialized.
      */
-    void start(BenchmarkConfiguration cfg, long startTime);
+    public void start(BenchmarkConfiguration cfg, long startTime);
 
     /**
      * Writes collection of collected points to target.
@@ -35,5 +35,5 @@ public interface BenchmarkProbePointWriter extends AutoCloseable {
      * @param points Points to write.
      * @throws Exception If write failed.
      */
-    void writePoints(BenchmarkProbe probe, Collection<BenchmarkProbePoint> points) throws Exception;
+    public void writePoints(BenchmarkProbe probe, Collection<BenchmarkProbePoint> points) throws Exception;
 }

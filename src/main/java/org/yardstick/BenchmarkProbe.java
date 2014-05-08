@@ -26,14 +26,14 @@ public interface BenchmarkProbe {
      * @param cfg Benchmark context.
      * @throws Exception If start failed.
      */
-    void start(BenchmarkConfiguration cfg) throws Exception;
+    public void start(BenchmarkConfiguration cfg) throws Exception;
 
     /**
      * Stops probe execution.
      *
      * @throws Exception If stop failed.
      */
-    void stop() throws Exception;
+    public void stop() throws Exception;
 
     /**
      * Gets collection of meta information.
@@ -41,12 +41,12 @@ public interface BenchmarkProbe {
      *
      * @return Collection of meta information.
      */
-    Collection<String> metaInfo();
+    public Collection<String> metaInfo();
 
     /**
      * Gets collection of probe points. This collection should reset each time this method is called.
      *
      * @return Collection of probe points.
      */
-    Collection<BenchmarkProbePoint> points();
+    public Collection<BenchmarkProbePoint> points();
 }

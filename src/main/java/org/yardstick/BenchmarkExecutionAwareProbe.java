@@ -23,12 +23,12 @@ public interface BenchmarkExecutionAwareProbe extends BenchmarkProbe {
      *
      * @param threadIdx Thread index.
      */
-    void beforeExecute(int threadIdx);
+    public void beforeExecute(int threadIdx);
 
     /**
      * After test sample execution callback.
      *
      * @param threadIdx Thread index.
      */
-    void afterExecute(int threadIdx);
+    public void afterExecute(int threadIdx);
 }

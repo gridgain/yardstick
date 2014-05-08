@@ -27,14 +27,14 @@ public interface BenchmarkDriver {
      * @param cfg Benchmark configuration.
      * @throws Exception If failed.
      */
-    void setUp(BenchmarkConfiguration cfg) throws Exception;
+    public void setUp(BenchmarkConfiguration cfg) throws Exception;
 
     /**
      * Operation or group of operations that are to be benchmarked.
      *
      * @throws Exception If failed.
      */
-    void test() throws Exception;
+    public void test() throws Exception;
 
     /**
      * This method is invoked right after the {@link #test()} method.
@@ -42,12 +42,12 @@ public interface BenchmarkDriver {
      *
      * @throws Exception If failed.
      */
-    void tearDown() throws Exception;
+    public void tearDown() throws Exception;
 
     /**
      * Gets collection of custom probes that this benchmark provides.
      *
      * @return Collection of custom probes or {@code null} if set of default probes should be used.
      */
-    Collection<BenchmarkProbe> probes();
+    public Collection<BenchmarkProbe> probes();
 }

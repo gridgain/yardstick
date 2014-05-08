@@ -24,12 +24,12 @@ public interface BenchmarkServer {
      * @param cfg Benchmark configuration.
      * @throws Exception If failed.
      */
-    void start(BenchmarkConfiguration cfg) throws Exception;
+    public void start(BenchmarkConfiguration cfg) throws Exception;
 
     /**
      * All necessary resources should be released here.
      *
      * @throws Exception If failed.
      */
-    void stop() throws Exception;
+    public void stop() throws Exception;
 }
