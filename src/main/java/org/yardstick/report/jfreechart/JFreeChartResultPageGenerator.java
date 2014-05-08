@@ -182,18 +182,23 @@ public class JFreeChartResultPageGenerator {
                     writeLine(bw, "<table>");
                     writeLine(bw, "<tr>");
                     writeLine(bw, "<td>");
-                    writeLine(bw, "<a href=\"javascript:showCloseLevel('id" + (cnt + 1) + "', 'id" +
-                        cnt + "')\"><img src=\"" + file.getName() + "\" id=\"id" +
-                        cnt + "\" width=\"400\" height=\"200\"/></a>");
-                    writeLine(bw, "<a href=\"javascript:showCloseLevel('id" + cnt + "', 'id" +
-                        (cnt + 1) + "')\"><img src=\"" + file.getName() + "\" id=\"id" +
-                        (cnt + 1) + "\" style=\"display:none\"/></a>");
+
+                    int id1 = cnt;
+                    int id2 = cnt + 1;
+
+                    writeLine(bw, "<a href=\"javascript:showCloseLevel('id" + id2 + "', 'id" +
+                        id1 + "')\"><img src=\"" + file.getName() + "\" id=\"id" +
+                        id1 + "\" width=\"400\" height=\"200\"/></a>");
+                    writeLine(bw, "<a href=\"javascript:showCloseLevel('id" + id1 + "', 'id" +
+                        id2 + "')\"><img src=\"" + file.getName() + "\" id=\"id" +
+                        id2 + "\" style=\"display:none\"/></a>");
                     writeLine(bw, "</td>");
                     writeLine(bw, "</tr>");
                     writeLine(bw, "<tr>");
                     writeLine(bw, "<td>");
 
-                    writeLine(bw, "<table border=\"1\" style=\"border:1 solid;border-collapse:collapse\">");
+                    writeLine(bw, "<table id=\"id" + id1 + "_table\" border=\"1\" " +
+                        "style=\"border:1 solid;border-collapse:collapse;font-size:10\" align=\"right\">");
                     writeLine(bw, "<tr>");
                     writeLine(bw, "<th></th>");
                     writeLine(bw, "<th>Avg</th>");
@@ -241,6 +246,11 @@ public class JFreeChartResultPageGenerator {
             writeLine(bw, "function showCloseLevel(idOpen, idClose) {");
             writeLine(bw, "    document.getElementById(idOpen).style.display = \"\";");
             writeLine(bw, "    document.getElementById(idClose).style.display = \"none\";");
+            writeLine(bw, "    var el = document.getElementById(idClose + \"_table\");");
+            writeLine(bw, "    if (el != null)");
+            writeLine(bw, "        el.style.fontSize = \"17\";");
+            writeLine(bw, "    else");
+            writeLine(bw, "        document.getElementById(idOpen + \"_table\").style.fontSize = \"10\";");
             writeLine(bw, "}");
             writeLine(bw, "</script>");
 
@@ -259,11 +269,7 @@ public class JFreeChartResultPageGenerator {
      * @throws IOException If failed.
      */
     private static void writeValueToTable(BufferedWriter bw, double val) throws IOException {
-        writeLine(bw, "<td>");
-
-        writeLine(bw, String.format(Locale.US, "%.2f", val));
-
-        writeLine(bw, "</td>");
+        writeLine(bw, "<td>" + String.format(Locale.US, "%.2f", val) + "</td>");
     }
 
     /**
