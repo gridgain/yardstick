@@ -17,12 +17,10 @@ package org.yardstick;
 import org.yardstick.impl.*;
 import org.yardstick.impl.util.*;
 
-import java.util.*;
-
 /**
- * Benchmark startup class.
+ * Benchmark server startup class.
  */
-public class BenchmarkStartUp {
+public class BenchmarkServerStartup {
     /**
      * @param cmdArgs Arguments.
      * @throws Exception If failed.
@@ -41,19 +39,18 @@ public class BenchmarkStartUp {
 
         ldr.initialize(cfg);
 
-        String name = cfg.name();
+        String name = cfg.serverName();
 
         if (name != null)
             name = name.trim();
 
         if (name == null || name.isEmpty()) {
-            cfg.output().println("Class name is not specified.");
+            cfg.output().println("Server class name is not specified.");
 
             return;
         }
 
         BenchmarkServer srv;
-        BenchmarkDriver drv;
 
         if ((srv = ldr.loadBenchmarkClass(BenchmarkServer.class, name)) != null) {
             if (cfg.help()) {
@@ -78,43 +75,6 @@ public class BenchmarkStartUp {
                     }
                 });
             }
-        }
-        else if ((drv = ldr.loadBenchmarkClass(BenchmarkDriver.class, name)) != null) {
-            if (cfg.help()) {
-                cfg.output().println(drv.usage());
-
-                return;
-            }
-
-            drv.setUp(cfg);
-
-            cfg.description(drv.description());
-
-            Collection<BenchmarkProbe> probes = drv.probes();
-
-            if (probes == null || probes.isEmpty()) {
-                cfg.output().println("No probes provided by benchmark driver (stopping benchmark): " + name);
-
-                return;
-            }
-
-            final BenchmarkRunner runner = new BenchmarkRunner(cfg, drv, new BenchmarkProbeSet(cfg, probes, ldr));
-
-            if (cfg.shutdownHook()) {
-                Runtime.getRuntime().addShutdownHook(new Thread() {
-                    @Override public void run() {
-                        try {
-                            runner.cancel();
-                        }
-                        catch (Exception e) {
-                            e.printStackTrace(cfg.error());
-                        }
-                    }
-                });
-            }
-
-            // Runner will shutdown driver.
-            runner.runBenchmark();
         }
         else {
             cfg.output().println("Could not find runner class name in classpath: " + name);

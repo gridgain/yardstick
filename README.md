@@ -46,8 +46,6 @@ The following properties can be defined in benchmark properties file:
 * `BENCHMARK_PACKAGES` - packages where the specified benchmark is searched by reflection mechanism
 * `BENCHMARK_WRITER` - probe point writer class name
 * `HOSTS` - comma-separated list of hosts where to start servers, one server per host
-* `SERVER` - class name of the server to be started
-* `DRIVER` - class name of the benchmark to be started
 * `CONFIG` - benchmark configuration to be passed to the servers and to the benchmarks
 
 The following properties can be defined in the benchmark configuration:
@@ -61,6 +59,7 @@ The following properties can be defined in the benchmark configuration:
 * `--duration <time>` - test duration, in seconds
 * `--warmup <time>` - warmup time, in seconds
 * `--shutdown` - flag indicating whether to invoke shutdown hook or not
+* `--outputFolder` - output folder for benchmark results, current folder is used by default
 
 ## JFreeChart graphs
 Yardstick goes with the script `jfreechart-graph-plotter-run.sh` that builds JFreeChart graphs using probe points.

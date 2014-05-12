@@ -30,8 +30,13 @@ public class BenchmarkConfiguration {
 
     /** */
     @SuppressWarnings("UnusedDeclaration")
-    @Parameter(names = {"-n", "--name"}, description = "Benchmark name (required)")
-    private String name;
+    @Parameter(names = {"-sn", "--serverName"}, description = "Benchmark server name (required)")
+    private String serverName;
+
+    /** */
+    @SuppressWarnings("UnusedDeclaration")
+    @Parameter(names = {"-dn", "--driverName"}, description = "Benchmark driver name (required)")
+    private String driverName;
 
     /** */
     @Parameter(names = {"-p", "--packages"}, description = "Comma separated list of packages for benchmarks")
@@ -63,6 +68,10 @@ public class BenchmarkConfiguration {
     /** */
     @Parameter(names = {"-sh", "--shutdown"}, description = "Invoke shutdown hook")
     private boolean shutdownHook = true;
+
+    /** */
+    @Parameter(names = {"-of", "--outputFolder"}, description = "Output folder for benchmark results")
+    private String outputFolder;
 
     /** */
     @SuppressWarnings("UnusedDeclaration")
@@ -99,10 +108,17 @@ public class BenchmarkConfiguration {
     }
 
     /**
-     * @return Benchmark name.
+     * @return Benchmark server name.
      */
-    public String name() {
-        return name;
+    public String serverName() {
+        return serverName;
+    }
+
+    /**
+     * @return Benchmark driver name.
+     */
+    public String driverName() {
+        return driverName;
     }
 
     /**
@@ -288,6 +304,13 @@ public class BenchmarkConfiguration {
     }
 
     /**
+     * @return Output folder.
+     */
+    public String outputFolder() {
+        return outputFolder;
+    }
+
+    /**
      * @return Description.
      */
     public String parametersToString() {
@@ -297,7 +320,8 @@ public class BenchmarkConfiguration {
     /** {@inheritDoc} */
     @Override public String toString() {
         return "BenchmarkConfiguration [" +
-            "name='" + name + '\'' +
+            "serverName='" + serverName + '\'' +
+            ", driverName='" + driverName + '\'' +
             ", threads=" + threads +
             ", duration=" + duration +
             ", warmup=" + warmup +
@@ -309,6 +333,7 @@ public class BenchmarkConfiguration {
             ", probeWriter='" + probeWriter + '\'' +
             ", customProps=" + customProps +
             ", shutdownHook=" + shutdownHook +
+            ", outputFolder=" + outputFolder +
             ", outputWriter=" + outputWriter +
             ", errorWriter=" + errorWriter +
             ']';

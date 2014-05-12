@@ -53,12 +53,6 @@ fi
 # Define logs directory.
 LOGS_DIR=${SCRIPT_DIR}/../logs
 
-if [ "${SERVER}" == "" ]; then
-    echo $0", ERROR:"
-    echo "BenchmarkServer (SERVER) is not defined."
-    exit 1
-fi
-
 if [ "${HOSTS}" == "" ]; then
     echo $0", ERROR:"
     echo "Benchmark hosts (HOSTS) is not defined."
@@ -111,8 +105,9 @@ do
 
     file_log=${LOGS_DIR}"/"${cntr}"_"${host_name}".log"
 
-    ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} "JVM_OPTS='${JVM_OPTS}'" "CP='${CP}'" "CUR_DIR='${CUR_DIR}'" \
-        ${SCRIPT_DIR}/benchmark-bootstrap.sh ${CONFIG} "--config" ${CONFIG_INCLUDE} "--name" ${SERVER} > ${file_log} 2>& 1 &
+    ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} \
+        "MAIN_CLASS='org.yardstick.BenchmarkServerStartUp'" "JVM_OPTS='${JVM_OPTS}'" "CP='${CP}'" "CUR_DIR='${CUR_DIR}'" \
+        ${SCRIPT_DIR}/benchmark-bootstrap.sh ${CONFIG} "--config" ${CONFIG_INCLUDE} > ${file_log} 2>& 1 &
 
     cntr=$((1 + $cntr))
 done

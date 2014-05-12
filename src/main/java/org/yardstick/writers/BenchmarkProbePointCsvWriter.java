@@ -28,9 +28,6 @@ public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
     private static final String DUPLICATE_TO_OUTPUT = "BENCHMARK_WRITER_DUPLICATE_TO_OUTPUT";
 
     /** */
-    private static final String OUTPUT_PATH = "BENCHMARK_WRITER_OUTPUT_PATH";
-
-    /** */
     private static final boolean DEFAULT_DUPLICATE_TO_OUTPUT = false;
 
     /** */
@@ -63,7 +60,7 @@ public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
         this.startTime = startTime;
         this.dupToOutput = duplicateToOutput(cfg);
 
-        String path = cfg.customProperties().get(OUTPUT_PATH);
+        String path = cfg.outputFolder();
 
         File folder = null;
 
@@ -71,14 +68,13 @@ public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
             folder = new File(path);
 
             if (!folder.exists())
-                throw new IllegalStateException("Output path defined by property '" + OUTPUT_PATH +
-                    "' does not exist: '" + path + "'.");
+                throw new IllegalStateException("Output folder does not exist: '" + path + "'.");
         }
 
         String desc = cfg.description() == null || cfg.description().isEmpty() ? "" :
             '_' + cfg.description().replaceAll(",|\\\\|/|\\||%|:|<|>|\\*|\\?|\"|\\s", "_").replaceAll("_+", "_");
 
-        String subFolderName = FORMAT.format(new Date(startTime)) + '_' + cfg.name() + desc;
+        String subFolderName = FORMAT.format(new Date(startTime)) + '_' + cfg.driverName() + desc;
 
         outPath = folder == null ? new File(subFolderName) : new File(folder, subFolderName);
 

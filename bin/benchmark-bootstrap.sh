@@ -95,6 +95,4 @@ if [ "${ENABLE_ASSERTIONS}" = "1" ]; then
     JVM_OPTS="${JVM_OPTS} -ea"
 fi
 
-MAIN_CLASS=org.yardstick.BenchmarkStartUp
-
 "$JAVA" ${JVM_OPTS} -cp ${CP} ${MAIN_CLASS} ${ARGS}

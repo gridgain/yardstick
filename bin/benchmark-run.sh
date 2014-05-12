@@ -50,12 +50,6 @@ if [ "${REMOTE_USER}" == "" ]; then
     REMOTE_USER=$(whoami)
 fi
 
-if [ "${DRIVER}" == "" ]; then
-    echo $0", ERROR:"
-    echo "BenchmarkDriver (DRIVER) is not defined."
-    exit 1
-fi
-
 CONFIG="$CONFIG $*"
 
 if [ "${CONFIG}" == "" ]; then
@@ -69,7 +63,8 @@ JVM_OPTS=${JVM_OPTS}" -Dyardstick.bench"
 
 export CP
 export JVM_OPTS
+export MAIN_CLASS=org.yardstick.BenchmarkDriverStartUp
 
-/bin/bash ${SCRIPT_DIR}/benchmark-bootstrap.sh ${CONFIG} "--config" ${CONFIG_INCLUDE} "--name" ${DRIVER}
+/bin/bash ${SCRIPT_DIR}/benchmark-bootstrap.sh ${CONFIG} "--config" ${CONFIG_INCLUDE}
 
 echo "Benchmark execution finished."
