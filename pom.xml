@@ -23,6 +23,39 @@
     <name>Yardstick</name>
     <version>1.0.0</version>
 
+    <url>https://github.com/gridgain/yardstick</url>
+    <description>Framework for benchmarks writing.</description>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+
+    <scm>
+        <url>https://github.com/gridgain/yardstick</url>
+        <connection>scm:git:git://github.com/gridgain/yardstick.git</connection>
+    </scm>
+
+    <developers>
+        <developer>
+            <id>nivanov</id>
+            <name>Nikita Ivanov</name>
+            <email>nivanov@gridgain.com</email>
+        </developer>
+        <developer>
+            <id>dsetrakyan</id>
+            <name>Dmitriy Setrakyan</name>
+            <email>dsetrakyan@gridgain.com</email>
+        </developer>
+        <developer>
+            <id>yzhdanov</id>
+            <name>Yakov Zhdanov</name>
+            <email>yzhdanov@gridgain.com</email>
+        </developer>
+    </developers>
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.7</maven.compiler.source>
@@ -83,8 +116,7 @@
             <plugin>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <configuration>
-                    <appendAssemblyId>false</appendAssemblyId>
-                    <finalName>${artifactId}-resources-${version}</finalName>
+                    <classifier>resources</classifier>
                     <outputDirectory>${basedir}</outputDirectory>
                     <descriptors>
                         <descriptor>src/main/assembly/resources.xml</descriptor>
