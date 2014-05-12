@@ -20,7 +20,7 @@ import org.yardstick.impl.util.*;
 /**
  * Benchmark server startup class.
  */
-public class BenchmarkServerStartup {
+public class BenchmarkServerStartUp {
     /**
      * @param cmdArgs Arguments.
      * @throws Exception If failed.
