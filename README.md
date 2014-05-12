@@ -88,6 +88,41 @@ The easiest way to get started with Yardstick in your project is to use Maven de
 
 You can copy and paste this snippet into your Maven POM file. Make sure to replace version with the one you need.
 
+Copy and paste one more code snippet to add the scripts that run Yardstick benchmarks to your project:
+
+```xml
+<build>
+    <plugins>
+        <plugin>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <executions>
+                <execution>
+                    <id>unpack</id>
+                    <phase>package</phase>
+                    <goals>
+                        <goal>unpack</goal>
+                    </goals>
+                    <configuration>
+                        <artifactItems>
+                            <artifactItem>
+                                <groupId>org.yardstick</groupId>
+                                <artifactId>yardstick</artifactId>
+                                <version>${yardstick.version}</version>
+                                <type>zip</type>
+                                <classifier>resources</classifier>
+                                <outputDirectory>${basedir}</outputDirectory>
+                            </artifactItem>
+                        </artifactItems>
+                    </configuration>
+                </execution>
+            </executions>
+        </plugin>
+    </plugins>
+</build>
+```
+
+The scripts will be unpacked to `bin` folder by command `mvn package`.
+
 ## Issues
 Use GitHub [issues](https://github.com/gridgain/yardstick/issues) to file bugs.
 
