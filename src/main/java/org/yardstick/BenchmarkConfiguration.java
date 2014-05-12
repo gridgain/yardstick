@@ -30,13 +30,13 @@ public class BenchmarkConfiguration {
 
     /** */
     @SuppressWarnings("UnusedDeclaration")
-    @Parameter(names = {"-sn", "--serverName"}, description = "Benchmark server name (required)")
-    private String serverName;
+    @Parameter(names = {"-dn", "--driverName"}, description = "Benchmark driver name (required)")
+    private String driverName;
 
     /** */
     @SuppressWarnings("UnusedDeclaration")
-    @Parameter(names = {"-dn", "--driverName"}, description = "Benchmark driver name (required)")
-    private String driverName;
+    @Parameter(names = {"-sn", "--serverName"}, description = "Benchmark server name (required)")
+    private String serverName;
 
     /** */
     @Parameter(names = {"-p", "--packages"}, description = "Comma separated list of packages for benchmarks")
