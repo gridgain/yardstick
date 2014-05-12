@@ -53,15 +53,15 @@ fi
 # Define logs directory.
 LOGS_DIR=${SCRIPT_DIR}/../logs
 
-if [ "${BSERVER}" == "" ]; then
+if [ "${SERVER}" == "" ]; then
     echo $0", ERROR:"
-    echo "BenchmarkServer (BSERVER) is not defined."
+    echo "BenchmarkServer (SERVER) is not defined."
     exit 1
 fi
 
-if [ "${BHOSTS}" == "" ]; then
+if [ "${HOSTS}" == "" ]; then
     echo $0", ERROR:"
-    echo "Benchmark hosts (BHOSTS) is not defined."
+    echo "Benchmark hosts (HOSTS) is not defined."
     exit 1
 fi
 
@@ -71,9 +71,9 @@ if [ "${REMOTE_USER}" == "" ]; then
     exit 1
 fi
 
-BCONFIG="$BCONFIG $*"
+CONFIG="$CONFIG $*"
 
-if [ "${BCONFIG}" == "" ]; then
+if [ "${CONFIG}" == "" ]; then
     echo $0", ERROR:"
     echo "Config is not defined."
     exit 1
@@ -85,7 +85,7 @@ JVM_OPTS=${JVM_OPTS}" -Dyardstick.bench"
 function cleanup() {
     pkill -9 -f "Dyardstick.bench"
 
-    IFS=',' read -ra hosts0 <<< "${BHOSTS}"
+    IFS=',' read -ra hosts0 <<< "${HOSTS}"
     for host_name in "${hosts0[@]}";
     do
         ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} pkill -9 -f "Dyardstick.bench"
@@ -102,17 +102,17 @@ CUR_DIR=$(pwd -P)
 
 cntr=0
 
-IFS=',' read -ra hosts0 <<< "${BHOSTS}"
+IFS=',' read -ra hosts0 <<< "${HOSTS}"
 for host_name in "${hosts0[@]}";
 do
     echo "<<<"
-    echo "<<< Starting config '"${BCONFIG}"' on "${host_name}" >>>"
+    echo "<<< Starting config '"${CONFIG}"' on "${host_name}" >>>"
     echo "<<<"
 
     file_log=${LOGS_DIR}"/"${cntr}"_"${host_name}".log"
 
     ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} "JVM_OPTS='${JVM_OPTS}'" "CP='${CP}'" "CUR_DIR='${CUR_DIR}'" \
-        ${SCRIPT_DIR}/benchmark-bootstrap.sh ${BCONFIG} "--config" ${CONFIG_INCLUDE} "--name" ${BSERVER} > ${file_log} 2>& 1 &
+        ${SCRIPT_DIR}/benchmark-bootstrap.sh ${CONFIG} "--config" ${CONFIG_INCLUDE} "--name" ${SERVER} > ${file_log} 2>& 1 &
 
     cntr=$((1 + $cntr))
 done

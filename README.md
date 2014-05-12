@@ -45,10 +45,10 @@ The following properties can be defined in benchmark properties file:
 * `BENCHMARK_DEFAULT_PROBES` - list of default probes
 * `BENCHMARK_PACKAGES` - packages where the specified benchmark is searched by reflection mechanism
 * `BENCHMARK_WRITER` - probe point writer class name
-* `BHOSTS` - comma-separated list of hosts where to start servers, one server per host
-* `BSERVER` - class name of the server to be started
-* `BDRIVER` - class name of the benchmark to be started
-* `BCONFIG` - benchmark configuration to be passed to the servers and to the benchmarks
+* `HOSTS` - comma-separated list of hosts where to start servers, one server per host
+* `SERVER` - class name of the server to be started
+* `DRIVER` - class name of the benchmark to be started
+* `CONFIG` - benchmark configuration to be passed to the servers and to the benchmarks
 
 The following properties can be defined in the benchmark configuration:
 

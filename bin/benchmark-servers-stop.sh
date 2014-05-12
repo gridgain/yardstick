@@ -50,9 +50,9 @@ if [ "${REMOTE_USER}" == "" ]; then
     REMOTE_USER=$(whoami)
 fi
 
-if [ "${BHOSTS}" == "" ]; then
+if [ "${HOSTS}" == "" ]; then
     echo $0", ERROR:"
-    echo "Benchmark hosts (BHOSTS) is not defined."
+    echo "Benchmark hosts (HOSTS) is not defined."
     exit 1
 fi
 
@@ -62,7 +62,7 @@ if [ "${REMOTE_USER}" == "" ]; then
     exit 1
 fi
 
-IFS=',' read -ra hosts0 <<< "${BHOSTS}"
+IFS=',' read -ra hosts0 <<< "${HOSTS}"
 for host_name in "${hosts0[@]}";
 do
     ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} pkill -9 -f "Dyardstick.bench"
