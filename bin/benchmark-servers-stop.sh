@@ -15,7 +15,7 @@
 #
 # Script that stops BenchmarkServer on remote machines.
 # This script expects first argument to be a path to run properties file which contains
-# the list of remote nodes to start server on, server class name and driver class name.
+# the list of remote nodes to start server on and the list of configurations.
 #
 
 # Define script directory.

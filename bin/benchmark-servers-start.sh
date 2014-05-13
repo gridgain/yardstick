@@ -15,7 +15,7 @@
 #
 # Script that starts BenchmarkServer on remote machines.
 # This script expects first argument to be a path to run properties file which contains
-# the list of remote nodes to start server on, server class name and driver class name.
+# the list of remote nodes to start server on and the list of configurations.
 #
 
 # Define script directory.
@@ -50,9 +50,6 @@ if [ "${REMOTE_USER}" == "" ]; then
     REMOTE_USER=$(whoami)
 fi
 
-# Define logs directory.
-LOGS_DIR=${SCRIPT_DIR}/../logs
-
 if [ "${HOSTS}" == "" ]; then
     echo $0", ERROR:"
     echo "Benchmark hosts (HOSTS) is not defined."
@@ -65,7 +62,18 @@ if [ "${REMOTE_USER}" == "" ]; then
     exit 1
 fi
 
-CONFIG="$CONFIG $*"
+# Define logs directory.
+LOGS_DIR=${SCRIPT_DIR}/../logs
+
+if [ "${CONFIG}" == "" ]; then
+    IFS=',' read -ra cfg <<< "${CONFIGS}"
+
+    if [${#cfg[@]} -gt 0]; then
+        CONFIG=${cfg[0]}
+    fi
+else
+    CONFIG="$CONFIG $*"
+fi
 
 if [ "${CONFIG}" == "" ]; then
     echo $0", ERROR:"

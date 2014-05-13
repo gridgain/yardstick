@@ -13,7 +13,8 @@
 #    limitations under the License.
 
 #
-# Script that starts BenchmarkDriver on local machine.
+# Script that starts BenchmarkServers on remote machines, runs BenchmarkDriver and stops the servers on remote machines.
+# This procedure is performed for all configurations defined in run properties file.
 # This script expects first argument to be a path to run properties file which contains
 # the list of remote nodes to start server on and the list of configurations.
 #
@@ -35,8 +36,6 @@ if [ ! -f $CONFIG_INCLUDE ]; then
     exit 1
 fi
 
-shift
-
 CONFIG_TMP=`mktemp tmp.XXXXXXXX`
 
 cp $CONFIG_INCLUDE $CONFIG_TMP
@@ -45,29 +44,21 @@ chmod +x $CONFIG_TMP
 . $CONFIG_TMP
 rm $CONFIG_TMP
 
-if [ "${CONFIG}" == "" ]; then
-    IFS=',' read -ra cfg <<< "${CONFIGS}"
+IFS=',' read -ra configs0 <<< "${CONFIGS}"
+for cfg in "${configs0[@]}";
+do
+    export CONFIG=${cfg}
 
-    if [${#cfg[@]} -gt 0]; then
-        CONFIG=${cfg[0]}
-    fi
-else
-    CONFIG="$CONFIG $*"
-fi
+    /bin/bash ${SCRIPT_DIR}/benchmark-servers-start.sh ${CONFIG_INCLUDE}
 
-if [ "${CONFIG}" == "" ]; then
-    echo $0", ERROR:"
-    echo "Config is not defined."
-    exit 1
-fi
+    sleep 3s
 
-# JVM options.
-JVM_OPTS=${JVM_OPTS}" -Dyardstick.bench"
+    /bin/bash ${SCRIPT_DIR}/benchmark-run.sh ${CONFIG_INCLUDE}
 
-export CP
-export JVM_OPTS
-export MAIN_CLASS=org.yardstick.BenchmarkDriverStartUp
+    /bin/bash ${SCRIPT_DIR}/benchmark-servers-stop.sh ${CONFIG_INCLUDE}
 
-/bin/bash ${SCRIPT_DIR}/benchmark-bootstrap.sh ${CONFIG} "--config" ${CONFIG_INCLUDE}
+    sleep 1s
+done
 
-echo "Benchmark execution finished."
+
+
