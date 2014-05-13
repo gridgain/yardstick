@@ -48,7 +48,7 @@ rm $CONFIG_TMP
 if [ "${CONFIG}" == "" ]; then
     IFS=',' read -ra cfg <<< "${CONFIGS}"
 
-    if [${#cfg[@]} -gt 0]; then
+    if ((${#cfg[@]} > 0)); then
         CONFIG=${cfg[0]}
     fi
 else
