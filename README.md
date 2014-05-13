@@ -19,15 +19,17 @@ That's it, Yardstick benchmark will measure latency and other metrics for you.
 To run remote servers the following should be done:
 
 1. Prepare benchmark properties for the benchmark execution. These properties will contain list of remote servers
-to run benchmark on, optional username to log in on remote servers, class names for benchmark server and driver.
-2. Run `bin/benchmark-servers-start.sh` script with specified benchmark properties file.
+to run benchmark on, optional username to log in on remote servers, comma-separated list of run configurations.
+2. Run `bin/benchmark-servers-start.sh` script with specified benchmark properties file. The script will take the first
+configuration from the comma-separated list of configurations.
 
 For example:
 `bin/benchmark-servers-start.sh config/benchmark.properties`
 
 ### Starting benchmark
-After remote servers are started, the benchmark should be run. Procedure is almost the same - the only
-difference is that the `bin/benchmark-run.sh` script should be used.
+After remote servers are started, the benchmark driver should be run. Procedure is almost the same - the only
+difference is that the `bin/benchmark-run.sh` script should be used. The script will take the first
+configuration from the comma-separated list of configurations.
 
 For example:
 `bin/benchmark-run.sh config/benchmark.properties`
@@ -38,6 +40,12 @@ To stop remote servers after the benchmark finished his job `bin/benchmark-serve
 For example:
 `bin/benchmark-servers-stop.sh config/benchmark.properties`
 
+### Starting remote servers and a benchmark at once
+If there's need to run many benchmarks or some benchmark with different configurations then this can be done
+by using `bin/benchmark-run-all.sh` script. This script starts benchmark servers on remote machines, 
+runs benchmark driver and stops the servers on remote machines after the driver finished his job. 
+This procedure is performed for all configurations defined in run properties file.
+
 ### Properties and command line arguments
 
 The following properties can be defined in benchmark properties file:
@@ -46,7 +54,7 @@ The following properties can be defined in benchmark properties file:
 * `BENCHMARK_PACKAGES` - packages where the specified benchmark is searched by reflection mechanism
 * `BENCHMARK_WRITER` - probe point writer class name
 * `HOSTS` - comma-separated list of hosts where to start servers, one server per host
-* `CONFIG` - benchmark configuration to be passed to the servers and to the benchmarks
+* `CONFIGS` - comma-separated list of benchmark run configurations which are passed to the servers and to the benchmarks
 
 The following properties can be defined in the benchmark configuration:
 
