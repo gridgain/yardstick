@@ -44,6 +44,12 @@ chmod +x $CONFIG_TMP
 . $CONFIG_TMP
 rm $CONFIG_TMP
 
+if [ "${CONFIGS}" == "" ]; then
+    echo $0", ERROR:"
+    echo "Configs is not defined."
+    exit 1
+fi
+
 folder=results-$(date +"%Y-%m-%d_%H-%M-%S.%3N")
 
 IFS=',' read -ra configs0 <<< "${CONFIGS}"
