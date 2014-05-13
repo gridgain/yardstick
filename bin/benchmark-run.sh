@@ -61,7 +61,7 @@ if [ "${CONFIG}" == "" ]; then
     exit 1
 fi
 
-if [[ ${CONFIG} = *' -of '* ]] || [[ ${CONFIG} = *' --outputFolder '* ]]; then
+if [[ ${CONFIG} != *' -of '* ]] && [[ ${CONFIG} != *' --outputFolder '* ]]; then
     CONFIG = ${CONFIG} --outputFolder results-$(date +"%Y-%m-%d_%H-%M-%S.%3N")
 fi
 
