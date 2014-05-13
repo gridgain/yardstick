@@ -44,10 +44,18 @@ chmod +x $CONFIG_TMP
 . $CONFIG_TMP
 rm $CONFIG_TMP
 
+folder=results-$(date +"%Y-%m-%d_%H-%M-%S.%3N")
+
 IFS=',' read -ra configs0 <<< "${CONFIGS}"
 for cfg in "${configs0[@]}";
 do
-    export CONFIG=${cfg}
+    CONFIG=${cfg}
+
+    if [[ ${CONFIG} != *' -of '* ]] && [[ ${CONFIG} != *' --outputFolder '* ]]; then
+        CONFIG = ${CONFIG} --outputFolder ${folder}
+    fi
+
+    export CONFIG
 
     /bin/bash ${SCRIPT_DIR}/benchmark-servers-start.sh ${CONFIG_INCLUDE}
 

@@ -67,8 +67,10 @@ public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
         if (path != null) {
             folder = new File(path);
 
-            if (!folder.exists())
-                throw new IllegalStateException("Output folder does not exist: '" + path + "'.");
+            if (!folder.exists()) {
+                if (!folder.mkdirs())
+                    throw new IllegalStateException("Can not create folder: '" + folder.getAbsolutePath() + "'.");
+            }
         }
 
         String desc = cfg.description() == null || cfg.description().isEmpty() ? "" :
