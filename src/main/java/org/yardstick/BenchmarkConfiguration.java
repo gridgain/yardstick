@@ -320,8 +320,8 @@ public class BenchmarkConfiguration {
     /** {@inheritDoc} */
     @Override public String toString() {
         return "BenchmarkConfiguration [" +
-            "serverName='" + serverName + '\'' +
-            ", driverName='" + driverName + '\'' +
+            "driverName='" + driverName + '\'' +
+            ", serverName='" + serverName + '\'' +
             ", threads=" + threads +
             ", duration=" + duration +
             ", warmup=" + warmup +
