@@ -52,7 +52,7 @@ do
     CONFIG=${cfg}
 
     if [[ ${CONFIG} != *' -of '* ]] && [[ ${CONFIG} != *' --outputFolder '* ]]; then
-        CONFIG = ${CONFIG} --outputFolder ${folder}
+        CONFIG=${CONFIG}" --outputFolder "${folder}
     fi
 
     export CONFIG
