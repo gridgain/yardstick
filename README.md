@@ -62,9 +62,9 @@ The following properties can be defined in the benchmark configuration:
 * `--outputFolder` - output folder for benchmark results, current folder is used by default
 
 ## JFreeChart graphs
-Yardstick goes with the script `jfreechart-graph-plotter-run.sh` that builds JFreeChart graphs using probe points.
+Yardstick goes with the script `jfreechart-graph-gen.sh` that builds JFreeChart graphs using probe points.
 
-`jfreechart-graph-plotter-run.sh` script accepts the following arguments:
+`jfreechart-graph-gen.sh` script accepts the following arguments:
 
 * `--inputFolders` - comma-separated list of Input folders which contains folders with probe results files (required)
 * `--chartColumns` - number of columns that the charts are displayed in on the resulted page
