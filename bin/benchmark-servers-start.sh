@@ -90,7 +90,7 @@ function cleanup() {
     IFS=',' read -ra hosts0 <<< "${HOSTS}"
     for host_name in "${hosts0[@]}";
     do
-        ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} pkill -9 -f "Dyardstick.bench"
+        `ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} pkill -9 -f "Dyardstick.bench"`
     done
 }
 
