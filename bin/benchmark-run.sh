@@ -62,7 +62,7 @@ if [ "${CONFIG}" == "" ]; then
 fi
 
 if [[ ${CONFIG} != *' -of '* ]] && [[ ${CONFIG} != *' --outputFolder '* ]]; then
-    CONFIG=${CONFIG}" --outputFolder results_"$(date +"%Y-%m-%d_%H-%M-%S.%3N")
+    CONFIG=${CONFIG}" --outputFolder results_"$(date +"%Y-%m-%d_%H-%M-%S")
 fi
 
 # JVM options.

@@ -37,7 +37,7 @@ public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
     public static final String META_INFO_PREFIX = "**";
 
     /** */
-    public static final SimpleDateFormat FORMAT = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss.SSS");
+    public static final SimpleDateFormat FORMAT = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
 
     /** */
     private PrintWriter writer;
