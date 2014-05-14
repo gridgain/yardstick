@@ -15,7 +15,6 @@
 package org.yardstick.examples.echo;
 
 import org.yardstick.*;
-import org.yardstick.impl.util.*;
 
 import java.io.*;
 import java.net.*;

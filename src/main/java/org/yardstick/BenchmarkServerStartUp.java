@@ -15,7 +15,6 @@
 package org.yardstick;
 
 import org.yardstick.impl.*;
-import org.yardstick.impl.util.*;
 
 /**
  * Benchmark server startup class.

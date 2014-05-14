@@ -12,16 +12,17 @@
  limitations under the License.
  */
 
-package org.yardstick.impl.util;
+package org.yardstick;
 
 import com.beust.jcommander.*;
-import org.yardstick.*;
 
 /**
- * Utils.
+ * Benchmark utility methods.
  */
 public class BenchmarkUtils {
     /**
+     * Initializes instance of {@code JCommander}.
+     *
      * @param a Arguments.
      * @param args Custom arguments that should be filled with parsed arguments.
      * @param programName Program name.
@@ -63,18 +64,17 @@ public class BenchmarkUtils {
     }
 
     /** */
-    @SuppressWarnings("UnusedDeclaration")
     private static class CompositeParameters {
         @ParametersDelegate
-        /** */
         private BenchmarkConfiguration cfg = new BenchmarkConfiguration();
 
         @ParametersDelegate
-        /** */
         private Object benchmarkArgs;
     }
 
-    /** */
+    /**
+     * Ensure static class.
+     */
     private BenchmarkUtils() {
         // No-op.
     }
