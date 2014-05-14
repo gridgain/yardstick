@@ -120,6 +120,9 @@ public class JFreeChartGraphPlotter {
             }
         }
 
+        if (res.isEmpty())
+            return;
+
         StringBuilder outFolSuf = new StringBuilder();
 
         for (String f : folders) {
@@ -190,14 +193,6 @@ public class JFreeChartGraphPlotter {
 
         File parentFolderToWrite = new File(parent, parentFolderName);
 
-        if (!parentFolderToWrite.exists()) {
-            if (!parentFolderToWrite.mkdir()) {
-                System.out.println("Can not create folder '" + parentFolderToWrite.getAbsolutePath() + "'.");
-
-                return;
-            }
-        }
-
         int idx = -1;
 
         while (true) {
@@ -245,7 +240,7 @@ public class JFreeChartGraphPlotter {
             File folderToWrite = new File(parentFolderToWrite, folName);
 
             if (!folderToWrite.exists()) {
-                if (!folderToWrite.mkdir()) {
+                if (!folderToWrite.mkdirs()) {
                     System.out.println("Can not create folder '" + folderToWrite.getAbsolutePath() + "'.");
 
                     continue;
