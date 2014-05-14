@@ -76,8 +76,8 @@ Yardstick goes with the script `jfreechart-graph-gen.sh` that builds JFreeChart 
 
 * `--inputFolders` - comma-separated list of Input folders which contains folders with probe results files (required)
 * `--chartColumns` - number of columns that the charts are displayed in on the resulted page
-* `--compoundChart` - mode in which the same probe metrics are displayed on one chart. For example,
-throughput plots from different benchmark runs are displayed on one chart.
+* `--generationMode` - mode that defines the way how different benchmark runs are compared with each other,
+STANDARD mode is used by default
 
 As a result the script produces 'png' images with graphs and html pages where all graphs belonging to the one test run
 are located.

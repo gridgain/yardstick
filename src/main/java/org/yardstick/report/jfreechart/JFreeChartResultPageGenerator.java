@@ -255,6 +255,7 @@ public class JFreeChartResultPageGenerator {
             writeLine(bw, "</script>");
 
             System.out.println("Html file is generated: " + outFile.getAbsolutePath());
+            System.out.println();
         }
         catch (Exception e) {
             System.out.println("Exception is raised during file '" + outFile + "' processing.");

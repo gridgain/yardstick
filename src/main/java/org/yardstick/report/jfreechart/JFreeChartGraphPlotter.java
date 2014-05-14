@@ -28,10 +28,12 @@ import org.yardstick.writers.*;
 
 import java.awt.*;
 import java.io.*;
+import java.text.*;
 import java.util.*;
 import java.util.List;
 
 import static java.awt.Color.*;
+import static org.yardstick.report.jfreechart.JFreeChartGenerationMode.*;
 import static org.yardstick.writers.BenchmarkProbePointCsvWriter.*;
 
 /**
@@ -81,83 +83,280 @@ public class JFreeChartGraphPlotter {
             }
         }
 
-        if (args.compoundChart()) {
-            String date = BenchmarkProbePointCsvWriter.FORMAT.format(System.currentTimeMillis());
+        JFreeChartGenerationMode mode = args.generationMode();
 
-            String parent = inFolders[0].getParent() == null ? inFolders[0].getName() : inFolders[0].getParent();
+        if (mode == COMPOUND)
+            processCompoundMode(inFolders, args);
+        else if (mode == COMPARISON)
+            processComparisonMode(inFolders, args);
+        else if (mode == STANDARD || mode == null)
+            processStandardMode(inFolders, args);
+        else
+            throw new IllegalStateException("Unknown generation mode: " + args.generationMode() + ".");
+    }
 
-            File folderToWrite = new File(parent + File.separator + date + "_compound_results");
+    /**
+     * @param inFolders Input folders.
+     * @param args Arguments.
+     * @throws Exception If failed.
+     */
+    private static void processCompoundMode(File[] inFolders, JFreeChartGraphPlotterArguments args) throws Exception {
+        Map<String, List<File>> res = new HashMap<>();
+
+        for (File inFolder : inFolders) {
+            Map<String, List<File>> map = files(inFolder);
+
+            mergeMaps(res, map);
+        }
+
+        Set<String> folders = new HashSet<>();
+
+        for (List<File> files : res.values()) {
+            for (File file : files) {
+                File par = file.getParentFile();
+
+                if (par != null)
+                    folders.add(par.getName());
+            }
+        }
+
+        StringBuilder outFolSuf = new StringBuilder();
+
+        for (String f : folders) {
+            String s = parseTime(f);
+
+            if (!s.isEmpty())
+                outFolSuf.append(s).append('_');
+        }
+
+        if (outFolSuf.length() > 0)
+            outFolSuf.delete(outFolSuf.length() - 1, outFolSuf.length());
+
+        String parent = inFolders[0].getParent() == null ? inFolders[0].getName() : inFolders[0].getParent();
+
+        String parentFolderName = COMPOUND.name().toLowerCase() + "_results_" + outFolSuf.toString();
+
+        if (parentFolderName.length() > 255)
+            parentFolderName = parentFolderName.substring(0, 255);
+
+        File folderToWrite = new File(parent, parentFolderName);
+
+        if (!folderToWrite.exists()) {
+            if (!folderToWrite.mkdir()) {
+                System.out.println("Can not create folder '" + folderToWrite.getAbsolutePath() + "'.");
+
+                return;
+            }
+        }
+
+        processFilesPerProbe(res, folderToWrite, args);
+    }
+
+    /**
+     * @param inFolders Input folders.
+     * @param args Arguments.
+     * @throws Exception If failed.
+     */
+    private static void processComparisonMode(File[] inFolders, JFreeChartGraphPlotterArguments args) throws Exception {
+        Collection<File[]> foldersToCompare = new ArrayList<>();
+
+        StringBuilder outParentFolSuf = new StringBuilder();
+
+        for (File inFolder : inFolders) {
+            File[] dirs = inFolder.listFiles();
+
+            if (dirs == null || dirs.length == 0)
+                continue;
+
+            foldersToCompare.add(dirs);
+
+            String fName = inFolder.getName();
+
+            String s = fName.startsWith("results_") ? fName.replace("results_", "") : "";
+
+            if (!s.isEmpty())
+                outParentFolSuf.append(s).append('_');
+        }
+
+        if (outParentFolSuf.length() > 0)
+            outParentFolSuf.delete(outParentFolSuf.length() - 1, outParentFolSuf.length());
+
+        String parent = inFolders[0].getParent() == null ? inFolders[0].getName() : inFolders[0].getParent();
+
+        String parentFolderName = COMPARISON.name().toLowerCase() + "_results_" + outParentFolSuf.toString();
+
+        if (parentFolderName.length() > 255)
+            parentFolderName = parentFolderName.substring(0, 255);
+
+        File parentFolderToWrite = new File(parent, parentFolderName);
+
+        if (!parentFolderToWrite.exists()) {
+            if (!parentFolderToWrite.mkdir()) {
+                System.out.println("Can not create folder '" + parentFolderToWrite.getAbsolutePath() + "'.");
+
+                return;
+            }
+        }
+
+        int idx = -1;
+
+        while (true) {
+            idx++;
+
+            boolean filesExist = false;
+
+            Map<String, List<File>> res = new HashMap<>();
+
+            StringBuilder outFolSuf = new StringBuilder();
+
+            for (File[] files : foldersToCompare) {
+                if (files.length <= idx)
+                    continue;
+
+                filesExist = true;
+
+                File f = files[idx];
+
+                if (f.isDirectory()) {
+                    Map<String, List<File>> map = files(f);
+
+                    mergeMaps(res, map);
+
+                    String s = parseTime(f.getName());
+
+                    if (!s.isEmpty())
+                        outFolSuf.append(s).append('_');
+                }
+            }
+
+            if (!filesExist)
+                break;
+
+            if (outFolSuf.length() > 0)
+                outFolSuf.delete(outFolSuf.length() - 1, outFolSuf.length());
+
+            String idxPrefix = idx < 9 ? "00" : idx < 99 ? "0" : "";
+
+            String folName = idxPrefix + (idx + 1) + '_' + outFolSuf.toString();
+
+            if (folName.length() > 255)
+                folName = folName.substring(0, 255);
+
+            File folderToWrite = new File(parentFolderToWrite, folName);
 
             if (!folderToWrite.exists()) {
                 if (!folderToWrite.mkdir()) {
                     System.out.println("Can not create folder '" + folderToWrite.getAbsolutePath() + "'.");
 
-                    return;
+                    continue;
                 }
             }
 
-            Map<String, List<File>> res = new HashMap<>();
+            processFilesPerProbe(res, folderToWrite, args);
+        }
+    }
 
-            for (File inFolder : inFolders) {
-                Map<String, List<File>> map = files(inFolder);
-
-                for (Map.Entry<String, List<File>> entry : map.entrySet()) {
-                    List<File> list = res.get(entry.getKey());
-
-                    if (list == null) {
-                        list = new ArrayList<>();
-
-                        res.put(entry.getKey(), list);
-                    }
-
-                    list.addAll(entry.getValue());
-                }
-            }
-
+    /**
+     * @param inFolders Input folders.
+     * @param args Arguments.
+     * @throws Exception If failed.
+     */
+    private static void processStandardMode(File[] inFolders, JFreeChartGraphPlotterArguments args) throws Exception {
+        for (File inFolder : inFolders) {
             Map<String, List<JFreeChartPlotInfo>> infoMap = new HashMap<>();
 
-            for (Map.Entry<String, List<File>> entry : res.entrySet()) {
-                Collection<List<PlotData>> plots = new ArrayList<>(entry.getValue().size());
-
-                for (File file : entry.getValue()) {
+            for (List<File> files : files(inFolder).values()) {
+                for (File file : files) {
                     System.out.println("Processing file '" + file + "'.");
 
                     try {
-                        plots.add(readData(file));
-                    } catch (Exception e) {
+                        List<PlotData> plotData = readData(file);
+
+                        processPlots(file.getParentFile(), Collections.singleton(plotData), infoMap);
+                    }
+                    catch (Exception e) {
                         System.out.println("Exception is raised during file '" + file + "' processing.");
 
                         e.printStackTrace();
                     }
                 }
-
-                processPlots(folderToWrite, plots, infoMap);
             }
 
-            JFreeChartResultPageGenerator.generate(folderToWrite, args, infoMap);
+            JFreeChartResultPageGenerator.generate(inFolder, args, infoMap);
         }
-        else {
-            for (File inFolder : inFolders) {
-                Map<String, List<JFreeChartPlotInfo>> infoMap = new HashMap<>();
+    }
 
-                for (List<File> files : files(inFolder).values()) {
-                    for (File file : files) {
-                        System.out.println("Processing file '" + file + "'.");
+    /**
+     * @param res Resulted map.
+     * @param folderToWrite Folder to write results to.
+     * @param args Arguments.
+     * @throws Exception If failed.
+     */
+    private static void processFilesPerProbe(Map<String, List<File>> res, File folderToWrite,
+        JFreeChartGraphPlotterArguments args) throws Exception {
+        Map<String, List<JFreeChartPlotInfo>> infoMap = new HashMap<>();
 
-                        try {
-                            List<PlotData> plotData = readData(file);
+        for (Map.Entry<String, List<File>> entry : res.entrySet()) {
+            Collection<List<PlotData>> plots = new ArrayList<>(entry.getValue().size());
 
-                            processPlots(file.getParentFile(), Collections.singleton(plotData), infoMap);
-                        } catch (Exception e) {
-                            System.out.println("Exception is raised during file '" + file + "' processing.");
+            for (File file : entry.getValue()) {
+                System.out.println("Processing file '" + file + "'.");
 
-                            e.printStackTrace();
-                        }
-                    }
+                try {
+                    plots.add(readData(file));
                 }
+                catch (Exception e) {
+                    System.out.println("Exception is raised during file '" + file + "' processing.");
 
-                JFreeChartResultPageGenerator.generate(inFolder, args, infoMap);
+                    e.printStackTrace();
+                }
             }
+
+            processPlots(folderToWrite, plots, infoMap);
+        }
+
+        if (!infoMap.isEmpty())
+            JFreeChartResultPageGenerator.generate(folderToWrite, args, infoMap);
+    }
+
+    /**
+     * @param fName Folder name.
+     * @return Substring containing benchmark time.
+     */
+    private static String parseTime(String fName) {
+        int i = fName.indexOf('_', fName.indexOf('_') + 1);
+
+        if (i != -1) {
+            try {
+                String time = fName.substring(0, i);
+
+                BenchmarkProbePointCsvWriter.FORMAT.parse(time);
+
+                return time;
+            }
+            catch (ParseException ignored) {
+                return "";
+            }
+        }
+
+        return "";
+    }
+
+    /**
+     * @param res Resulted map.
+     * @param map Map to merge.
+     */
+    private static void mergeMaps(Map<String, List<File>> res, Map<String, List<File>> map) {
+        for (Map.Entry<String, List<File>> entry : map.entrySet()) {
+            List<File> list = res.get(entry.getKey());
+
+            if (list == null) {
+                list = new ArrayList<>();
+
+                res.put(entry.getKey(), list);
+            }
+
+            list.addAll(entry.getValue());
         }
     }
 

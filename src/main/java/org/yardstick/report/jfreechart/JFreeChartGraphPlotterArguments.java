@@ -36,9 +36,9 @@ public class JFreeChartGraphPlotterArguments {
         description = "Number of columns that the charts are displayed in on the resulted page")
     private int chartCols = 3;
 
-    @Parameter(names = {"-cm", "--compoundChart"},
-        description = "Mode in which the same probe metrics are displayed on one chart")
-    private boolean compoundChart;
+    @Parameter(names = {"-gm", "--generationMode"},
+        description = "Mode that defines the way how different benchmark runs are compared with each other")
+    private JFreeChartGenerationMode genMode;
 
     /**
      * @return List of input folders.
@@ -62,9 +62,9 @@ public class JFreeChartGraphPlotterArguments {
     }
 
     /**
-     * @return Compound chart.
+     * @return Generation mode.
      */
-    public boolean compoundChart() {
-        return compoundChart;
+    public JFreeChartGenerationMode generationMode() {
+        return genMode;
     }
 }
