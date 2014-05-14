@@ -2,6 +2,7 @@
 Yardstick is a framework for benchmarks writing. The framework goes with a default set of probes that collect some
 metrics during benchmark execution, for example the probe that measures throughput and latency, the probe that gathers
 'vmstat' statistics and etc. As a result Yardstick produces files with probe points.
+See [Yardstick GridGain](https://github.com/gridgain/yardstick-gridgain) as an example of Yardstick framework usage.
 
 ## How to write your own benchmark using Yardstick
 There are two main interfaces: BenchmarkServer and BenchmarkDriver that should be implemented.
