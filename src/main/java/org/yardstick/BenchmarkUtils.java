@@ -63,6 +63,16 @@ public class BenchmarkUtils {
         return sb.toString();
     }
 
+    /**
+     * Fix folder name if needed.
+     *
+     * @param fName Folder name.
+     * @return Fixed folder name.
+     */
+    public static String fixFolderName(String fName) {
+        return fName.length() > 255 ? fName.substring(0, 255) : fName;
+    }
+
     /** */
     private static class CompositeParameters {
         @ParametersDelegate

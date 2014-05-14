@@ -23,7 +23,6 @@ import org.jfree.chart.renderer.xy.*;
 import org.jfree.chart.title.*;
 import org.jfree.data.xy.*;
 import org.jfree.ui.*;
-import org.yardstick.*;
 import org.yardstick.writers.*;
 
 import java.awt.*;
@@ -33,6 +32,7 @@ import java.util.*;
 import java.util.List;
 
 import static java.awt.Color.*;
+import static org.yardstick.BenchmarkUtils.*;
 import static org.yardstick.report.jfreechart.JFreeChartGenerationMode.*;
 import static org.yardstick.writers.BenchmarkProbePointCsvWriter.*;
 
@@ -54,7 +54,7 @@ public class JFreeChartGraphPlotter {
     public static void main(String[] cmdArgs) throws Exception {
         JFreeChartGraphPlotterArguments args = new JFreeChartGraphPlotterArguments();
 
-        JCommander jCommander = BenchmarkUtils.jcommander(cmdArgs, args, "<graph-plotter>");
+        JCommander jCommander = jcommander(cmdArgs, args, "<graph-plotter>");
 
         if (args.help()) {
             jCommander.usage();
@@ -139,8 +139,7 @@ public class JFreeChartGraphPlotter {
 
         String parentFolderName = COMPOUND.name().toLowerCase() + "_results_" + outFolSuf.toString();
 
-        if (parentFolderName.length() > 255)
-            parentFolderName = parentFolderName.substring(0, 255);
+        parentFolderName = fixFolderName(parentFolderName);
 
         File folderToWrite = new File(parent, parentFolderName);
 
@@ -188,8 +187,7 @@ public class JFreeChartGraphPlotter {
 
         String parentFolderName = COMPARISON.name().toLowerCase() + "_results_" + outParentFolSuf.toString();
 
-        if (parentFolderName.length() > 255)
-            parentFolderName = parentFolderName.substring(0, 255);
+        parentFolderName = fixFolderName(parentFolderName);
 
         File parentFolderToWrite = new File(parent, parentFolderName);
 
