@@ -130,10 +130,11 @@ public class DStatProbe implements BenchmarkProbe {
 
     /** {@inheritDoc} */
     @Override public Collection<String> metaInfo() {
-        return Arrays.asList("Time, ms", "Memory Used", "Memory Buffered", "Memory Cached", "Memory Free",
-            "CPU User", "CPU System", "CPU Idle", "CPU Wait", "CPU Hardware Interrupts", "CPU Software Interrupts",
-            "Disk Read", "Disk Write", "Network Receive", "Network Send",
-            "Page In", "Page Out", "System Interrupts", "System Context Switches");
+        return Arrays.asList("Time, msec", "Memory Used, KB", "Memory Buffered, KB", "Memory Cached, KB",
+            "Memory Free, KB", "CPU User, %", "CPU System, %", "CPU Idle, %", "CPU Wait, %",
+            "CPU Hardware Interrupts", "CPU Software Interrupts",
+            "Disk Read, B", "Disk Write, B", "Network Receive, B", "Network Send, B",
+            "Page In, B", "Page Out, B", "System Interrupts, per sec", "System Context Switches, per sec");
     }
 
     /** {@inheritDoc} */

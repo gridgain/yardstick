@@ -94,7 +94,7 @@ public class ThroughputLatencyProbe implements BenchmarkExecutionAwareProbe {
 
     /** {@inheritDoc} */
     @Override public Collection<String> metaInfo() {
-        return Arrays.asList("Time, ms", "Operations/sec", "Latency, nsec");
+        return Arrays.asList("Time, msec", "Operations/sec", "Latency, nsec");
     }
 
     /** {@inheritDoc} */
