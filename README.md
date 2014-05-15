@@ -27,6 +27,8 @@ configuration from the comma-separated list of configurations.
 For example:
 `bin/benchmark-servers-start.sh config/benchmark.properties`
 
+Remote servers logs can be found in `logs` folder.
+
 ### Starting benchmark
 After remote servers are started, the benchmark driver should be run. Procedure is almost the same - the only
 difference is that the `bin/benchmark-run.sh` script should be used. The script will take the first
@@ -71,15 +73,29 @@ The following properties can be defined in the benchmark configuration:
 * `-sh` or `--shutdown` - flag indicating whether to invoke shutdown hook or not
 * `-of <path>` or `--outputFolder <path>` - output folder for benchmark results, current folder is used by default
 
+For example if we need to run EchoServer server on localhost and EchoServerBenchmark benchmark on localhost, 
+the test should be 20 seconds then the following configuration should be specified in run properties file:
+
+* `HOSTS=localhost`
+* `CONFIGS="--duration 20 -sn EchoServer -dn EchoServerBenchmark"`
+
 ## JFreeChart graphs
 Yardstick goes with the script `jfreechart-graph-gen.sh` that builds JFreeChart graphs using probe points.
 
 `jfreechart-graph-gen.sh` script accepts the following arguments:
 
-* `--inputFolders` - comma-separated list of Input folders which contains folders with probe results files (required)
-* `--chartColumns` - number of columns that the charts are displayed in on the resulted page
-* `--generationMode` - mode that defines the way how different benchmark runs are compared with each other,
-STANDARD mode is used by default
+* `-i <list>` or `--inputFolders <list>` - comma-separated list of input folders which contains folders 
+with probe results files (required)
+* `-cc <num>` or `--chartColumns <num>` - number of columns that the charts are displayed in on the resulted page
+* `-gm <mode>` or `--generationMode <mode>` - mode that defines the way how different benchmark runs are compared 
+with each other
+
+Generation modes:
+
+* `STANDARD` - all benchmark runs are separate. Every chart contains one graph. It's default mode
+* `COMPARISON` - in this mode benchmark runs from one folder are compared with benchmark runs from another folder, 
+first with first, second with second etc. Many graphs are displayed on one chart
+* `COMPOUND` - in this mode all benchmark runs are compared with each other. Many graphs are displayed on one chart
 
 As a result the script produces 'png' images with graphs and html pages where all graphs belonging to the one test run
 are located.

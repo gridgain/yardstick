@@ -27,7 +27,7 @@ public class JFreeChartGraphPlotterArguments {
 
     /** */
     @Parameter(names = {"-i", "--inputFolders"},
-        description = "Comma-separated list of Input folders which contains folders with probe results files (required)")
+        description = "Comma-separated list of input folders which contains folders with probe results files (required)")
     private String inputFolders;
 
     /** */
