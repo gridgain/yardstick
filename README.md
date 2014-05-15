@@ -69,7 +69,7 @@ The following properties can be defined in the benchmark configuration:
 * `-d <time>` or `--duration <time>` - test duration, in seconds
 * `-w <time>` or `--warmup <time>` - warmup time, in seconds
 * `-sh` or `--shutdown` - flag indicating whether to invoke shutdown hook or not
-* `-of <folder>` or `--outputFolder <folder>` - output folder for benchmark results, current folder is used by default
+* `-of <path>` or `--outputFolder <path>` - output folder for benchmark results, current folder is used by default
 
 ## JFreeChart graphs
 Yardstick goes with the script `jfreechart-graph-gen.sh` that builds JFreeChart graphs using probe points.
