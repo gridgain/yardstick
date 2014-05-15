@@ -24,17 +24,14 @@ import java.util.*;
  */
 public class BenchmarkConfiguration {
     /** */
-    @SuppressWarnings({"UnusedDeclaration", "FieldCanBeLocal"})
-    @Parameter(names = {"-c", "--config"}, description = "Framework configuration file path")
+    @Parameter(names = {"-cfg", "--config"}, description = "Framework configuration file path")
     private String propsFileName = "config/benchmark.properties";
 
     /** */
-    @SuppressWarnings("UnusedDeclaration")
     @Parameter(names = {"-dn", "--driverName"}, description = "Benchmark driver name (required)")
     private String driverName;
 
     /** */
-    @SuppressWarnings("UnusedDeclaration")
     @Parameter(names = {"-sn", "--serverName"}, description = "Benchmark server name (required)")
     private String serverName;
 
@@ -43,14 +40,11 @@ public class BenchmarkConfiguration {
     private List<String> packages = Collections.emptyList();
 
     /** */
-    @Parameter(names = {"--probes"}, description = "Comma separated list of probes for benchmarks")
+    @Parameter(names = {"-pr", "--probes"}, description = "Comma separated list of probes for benchmarks")
     private List<String> dfltProbeClsNames = Collections.emptyList();
 
-    /** Default probes. */
-    private List<BenchmarkProbe> dfltProbes = Collections.emptyList();
-
     /** Probe writer class name. */
-    @Parameter(names = {"--writer"}, description = "Probe point writer class name")
+    @Parameter(names = {"wr", "--writer"}, description = "Probe point writer class name")
     private String probeWriter;
 
     /** */
@@ -74,9 +68,11 @@ public class BenchmarkConfiguration {
     private String outputFolder;
 
     /** */
-    @SuppressWarnings("UnusedDeclaration")
     @Parameter(names = { "-h", "--help" }, description = "Print help message", help = true, hidden = true)
     private boolean help;
+
+    /** Default probes. */
+    private List<BenchmarkProbe> dfltProbes = Collections.emptyList();
 
     /** Non-parsed command line arguments. */
     private String[] cmdArgs;
@@ -90,7 +86,7 @@ public class BenchmarkConfiguration {
     /** Error writer. */
     private PrintStream errorWriter;
 
-    /** */
+    /** Description. */
     private String description;
 
     /**

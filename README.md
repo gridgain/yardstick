@@ -59,16 +59,17 @@ The following properties can be defined in benchmark properties file:
 
 The following properties can be defined in the benchmark configuration:
 
-* `--config <path>` - framework configuration file path
-* `--name <name>` - benchmark name (required)
-* `--packages <list>` - comma separated list of packages for benchmarks
-* `--probes <list>` - comma separated list of probes for benchmarks
-* `--writer <name>` - Probe point writer class name
-* `--threads <num>` - thread count (set to 'cpus * 2')
-* `--duration <time>` - test duration, in seconds
-* `--warmup <time>` - warmup time, in seconds
-* `--shutdown` - flag indicating whether to invoke shutdown hook or not
-* `--outputFolder` - output folder for benchmark results, current folder is used by default
+* `-cfg <path>` or `--config <path>` - framework configuration file path
+* `-dn <name>` or `--driverName <name>` - driver name (required for the driver)
+* `-sn <name>` or `--serverName <name>` - server name (required for the server)
+* `-p <list>` or `--packages <list>` - comma separated list of packages for benchmarks
+* `-pr <list>` or `--probes <list>` - comma separated list of probes for benchmarks
+* `-wr <name>` or `--writer <name>` - probe point writer class name
+* `-t <num>` or `--threads <num>` - thread count (set to 'cpus * 2')
+* `-d <time>` or `--duration <time>` - test duration, in seconds
+* `-w <time>` or `--warmup <time>` - warmup time, in seconds
+* `-sh` or `--shutdown` - flag indicating whether to invoke shutdown hook or not
+* `-of <folder>` or `--outputFolder <folder>` - output folder for benchmark results, current folder is used by default
 
 ## JFreeChart graphs
 Yardstick goes with the script `jfreechart-graph-gen.sh` that builds JFreeChart graphs using probe points.
