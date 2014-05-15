@@ -31,7 +31,6 @@ public class JFreeChartGraphPlotterArguments {
     private String inputFolders;
 
     /** */
-    @SuppressWarnings("FieldCanBeLocal")
     @Parameter(names = {"-cc", "--chartColumns"},
         description = "Number of columns that the charts are displayed in on the resulted page")
     private int chartCols = 3;
