@@ -113,7 +113,9 @@ The easiest way to get started with Yardstick in your project is to use Maven de
 
 You can copy and paste this snippet into your Maven POM file. Make sure to replace version with the one you need.
 
-Copy and paste one more code snippet to add the scripts that run Yardstick benchmarks to your project:
+Yardstick is shipped with scripts that run servers and drivers, these scripts can be used for your benchmarks.
+In order to have them just unzip `yardstick-resources.zip` maven artifact.
+Also this can be done by copying and pasting the following code snippet to the POM file:
 
 ```xml
 <build>
@@ -146,7 +148,8 @@ Copy and paste one more code snippet to add the scripts that run Yardstick bench
 </build>
 ```
 
-The scripts will be unpacked to `bin` folder by command `mvn package`.
+The scripts will be unpacked to `bin` folder by command `mvn package`. See how it's done in 
+[Yardstick GridGain](https://github.com/gridgain/yardstick-gridgain).
 
 ## Issues
 Use GitHub [issues](https://github.com/gridgain/yardstick/issues) to file bugs.
