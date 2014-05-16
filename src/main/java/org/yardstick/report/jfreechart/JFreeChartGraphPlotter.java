@@ -135,7 +135,7 @@ public class JFreeChartGraphPlotter {
         if (outFolSuf.length() > 0)
             outFolSuf.delete(outFolSuf.length() - 1, outFolSuf.length());
 
-        String parent = inFolders[0].getParent() == null ? inFolders[0].getName() : inFolders[0].getParent();
+        String parent = outputFolder(inFolders);
 
         String parentFolderName = "results_" + COMPOUND.name().toLowerCase() + '_' + outFolSuf.toString();
 
@@ -183,7 +183,7 @@ public class JFreeChartGraphPlotter {
         if (outParentFolSuf.length() > 0)
             outParentFolSuf.delete(outParentFolSuf.length() - 1, outParentFolSuf.length());
 
-        String parent = inFolders[0].getParent() == null ? inFolders[0].getName() : inFolders[0].getParent();
+        String parent = outputFolder(inFolders);
 
         String parentFolderName = "results_" + COMPARISON.name().toLowerCase() + '_' + outParentFolSuf.toString();
 
@@ -608,6 +608,15 @@ public class JFreeChartGraphPlotter {
 
             return data;
         }
+    }
+
+    /**
+     * @param inFolders Input folders.
+     * @return Output folder name.
+     */
+    private static String outputFolder(File[] inFolders) {
+        return inFolders.length != 1 ? null :
+            inFolders[0].getParent() == null ? inFolders[0].getName() : inFolders[0].getParent();
     }
 
     /**
