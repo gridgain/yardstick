@@ -15,7 +15,7 @@
 #
 # Script that starts BenchmarkServers on remote machines, runs BenchmarkDriver and stops the servers on remote machines.
 # This procedure is performed for all configurations defined in run properties file.
-# This script expects first argument to be a path to run properties file which contains
+# This script expects the argument to be a path to run properties file which contains
 # the list of remote nodes to start server on and the list of configurations.
 #
 
@@ -24,15 +24,23 @@ SCRIPT_DIR=$(cd $(dirname "$0"); pwd)
 
 CONFIG_INCLUDE=$1
 
+if [ "${CONFIG_INCLUDE}" == "-h" ] || [ "${CONFIG_INCLUDE}" == "--help" ]; then
+    echo "Usage: benchmark-run-all.sh [PROPERTIES_FILE_PATH]"
+    echo
+    echo "Script that starts BenchmarkServers on remote machines, runs BenchmarkDriver and stops the servers on remote machines."
+    echo "This procedure is performed for all configurations defined in run properties file."
+    echo "This script expects the argument to be a path to run properties file which contains the list of remote nodes to start server on and the list of configurations."
+    exit 1
+fi
+
 if [ "${CONFIG_INCLUDE}" == "" ]; then
     CONFIG_INCLUDE=${SCRIPT_DIR}/../config/benchmark.properties
     echo "Properties file is not defined, using default one: 'config/benchmark.properties'."
-    echo
 fi
 
 if [ ! -f $CONFIG_INCLUDE ]; then
-    echo $0", ERROR:"
-    echo "Configuration file not found."
+    echo "ERROR: Properties file is not found."
+    echo "Type \"--help\" for usage."
     exit 1
 fi
 
@@ -45,8 +53,8 @@ chmod +x $CONFIG_TMP
 rm $CONFIG_TMP
 
 if [ "${CONFIGS}" == "" ]; then
-    echo $0", ERROR:"
-    echo "Configs is not defined."
+    echo "ERROR: Configurations (CONFIGS) are not defined in properties file."
+    echo "Type \"--help\" for usage."
     exit 1
 fi
 

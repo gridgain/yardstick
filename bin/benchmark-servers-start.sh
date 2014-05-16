@@ -14,7 +14,7 @@
 
 #
 # Script that starts BenchmarkServer on remote machines.
-# This script expects first argument to be a path to run properties file which contains
+# This script expects the argument to be a path to run properties file which contains
 # the list of remote nodes to start server on and the list of configurations.
 #
 
@@ -23,15 +23,23 @@ SCRIPT_DIR=$(cd $(dirname "$0"); pwd)
 
 CONFIG_INCLUDE=$1
 
+if [ "${CONFIG_INCLUDE}" == "-h" ] || [ "${CONFIG_INCLUDE}" == "--help" ]; then
+    echo "Usage: benchmark-servers-start.sh [PROPERTIES_FILE_PATH]"
+    echo
+    echo "Script that starts BenchmarkServer on remote machines."
+    echo "This script expects the argument to be a path to run properties file which contains"
+    echo "the list of remote nodes to start server on and the list of configurations."
+    exit 1
+fi
+
 if [ "${CONFIG_INCLUDE}" == "" ]; then
     CONFIG_INCLUDE=${SCRIPT_DIR}/../config/benchmark.properties
     echo "Properties file is not defined, using default one: 'config/benchmark.properties'."
-    echo
 fi
 
 if [ ! -f $CONFIG_INCLUDE ]; then
-    echo $0", ERROR:"
-    echo "Configuration file not found."
+    echo "ERROR: Properties file is not found."
+    echo "Type \"--help\" for usage."
     exit 1
 fi
 
@@ -51,14 +59,14 @@ if [ "${REMOTE_USER}" == "" ]; then
 fi
 
 if [ "${HOSTS}" == "" ]; then
-    echo $0", ERROR:"
-    echo "Benchmark hosts (HOSTS) is not defined."
+    echo "ERROR: Benchmark hosts (HOSTS) is not defined in properties file."
+    echo "Type \"--help\" for usage."
     exit 1
 fi
 
 if [ "${REMOTE_USER}" == "" ]; then
-    echo $0", ERROR:"
-    echo "Remote user (REMOTE_USER) is not defined."
+    echo "ERROR: Remote user (REMOTE_USER) is not defined in properties file."
+    echo "Type \"--help\" for usage."
     exit 1
 fi
 
@@ -76,8 +84,8 @@ else
 fi
 
 if [ "${CONFIG}" == "" ]; then
-    echo $0", ERROR:"
-    echo "Config is not defined."
+    echo "ERROR: Configurations (CONFIGS) are not defined in properties file."
+    echo "Type \"--help\" for usage."
     exit 1
 fi
 
