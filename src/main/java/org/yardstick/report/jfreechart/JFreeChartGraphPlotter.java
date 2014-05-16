@@ -137,7 +137,7 @@ public class JFreeChartGraphPlotter {
 
         String parent = inFolders[0].getParent() == null ? inFolders[0].getName() : inFolders[0].getParent();
 
-        String parentFolderName = COMPOUND.name().toLowerCase() + "_results_" + outFolSuf.toString();
+        String parentFolderName = "results_" + COMPOUND.name().toLowerCase() + '_' + outFolSuf.toString();
 
         parentFolderName = fixFolderName(parentFolderName);
 
@@ -185,7 +185,7 @@ public class JFreeChartGraphPlotter {
 
         String parent = inFolders[0].getParent() == null ? inFolders[0].getName() : inFolders[0].getParent();
 
-        String parentFolderName = COMPARISON.name().toLowerCase() + "_results_" + outParentFolSuf.toString();
+        String parentFolderName = "results_" + COMPARISON.name().toLowerCase() + '_' + outParentFolSuf.toString();
 
         parentFolderName = fixFolderName(parentFolderName);
 
@@ -200,8 +200,6 @@ public class JFreeChartGraphPlotter {
 
             Map<String, List<File>> res = new HashMap<>();
 
-            StringBuilder outFolSuf = new StringBuilder();
-
             for (File[] files : foldersToCompare) {
                 if (files.length <= idx)
                     continue;
@@ -214,26 +212,17 @@ public class JFreeChartGraphPlotter {
                     Map<String, List<File>> map = files(f);
 
                     mergeMaps(res, map);
-
-                    String s = parseTime(f.getName());
-
-                    if (!s.isEmpty())
-                        outFolSuf.append(s).append('_');
                 }
             }
 
             if (!filesExist)
                 break;
 
-            if (outFolSuf.length() > 0)
-                outFolSuf.delete(outFolSuf.length() - 1, outFolSuf.length());
-
             String idxPrefix = idx < 9 ? "00" : idx < 99 ? "0" : "";
 
-            String folName = idxPrefix + (idx + 1) + '_' + outFolSuf.toString();
+            String folName = idxPrefix + (idx + 1);
 
-            if (folName.length() > 255)
-                folName = folName.substring(0, 255);
+            folName = fixFolderName(folName);
 
             File folderToWrite = new File(parentFolderToWrite, folName);
 
