@@ -25,9 +25,9 @@ SCRIPT_DIR=$(cd $(dirname "$0"); pwd)
 CONFIG_INCLUDE=$1
 
 if [ "${CONFIG_INCLUDE}" == "" ]; then
-    echo $0", ERROR:"
-    echo "Configuration file should be the first script argument."
-    exit 1
+    CONFIG_INCLUDE=${SCRIPT_DIR}/../config/benchmark.properties
+    echo "Properties file is not defined, using default one: 'config/benchmark.properties'."
+    echo
 fi
 
 if [ ! -f $CONFIG_INCLUDE ]; then
