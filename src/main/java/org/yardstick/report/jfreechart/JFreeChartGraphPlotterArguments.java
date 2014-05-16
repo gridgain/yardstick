@@ -19,7 +19,7 @@ import com.beust.jcommander.*;
 /**
  * Graph plotter arguments.
  */
-@SuppressWarnings("UnusedDeclaration")
+@SuppressWarnings({"UnusedDeclaration", "FieldCanBeLocal"})
 public class JFreeChartGraphPlotterArguments {
     /** */
     @Parameter(names = {"-h", "--help"}, description = "Print help message", help = true, hidden = true)
@@ -36,7 +36,12 @@ public class JFreeChartGraphPlotterArguments {
     private int chartCols = 3;
 
     @Parameter(names = {"-gm", "--generationMode"},
-        description = "Mode that defines the way how different benchmark runs are compared with each other")
+        description = "Mode that defines the way how different benchmark runs are compared with each other: " +
+                "'STANDARD' - all benchmark runs are separate. Every chart contains one graph. It's default mode. " +
+                "'COMPARISON' - in this mode benchmark runs from one folder are compared with benchmark runs from " +
+                "another folder, first with first, second with second etc. Many graphs are displayed on one chart. " +
+                "'COMPOUND' - in this mode all benchmark runs are compared with each other. " +
+                "Many graphs are displayed on one chart")
     private JFreeChartGenerationMode genMode;
 
     /**
