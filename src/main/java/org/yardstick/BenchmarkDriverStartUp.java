@@ -46,7 +46,7 @@ public class BenchmarkDriverStartUp {
             name = name.trim();
 
         if (name == null || name.isEmpty()) {
-            cfg.output().println("Driver class name is not specified.");
+            cfg.output().println("ERROR: Driver class name is not specified.");
 
             return;
         }
@@ -67,7 +67,7 @@ public class BenchmarkDriverStartUp {
             Collection<BenchmarkProbe> probes = drv.probes();
 
             if (probes == null || probes.isEmpty()) {
-                cfg.output().println("No probes provided by benchmark driver (stopping benchmark): " + name);
+                cfg.output().println("ERROR: No probes provided by benchmark driver (stopping benchmark): " + name);
 
                 return;
             }
@@ -81,7 +81,7 @@ public class BenchmarkDriverStartUp {
                             runner.cancel();
                         }
                         catch (Exception e) {
-                            e.printStackTrace(cfg.error());
+                            e.printStackTrace(cfg.output());
                         }
                     }
                 });
@@ -91,7 +91,7 @@ public class BenchmarkDriverStartUp {
             runner.runBenchmark();
         }
         else {
-            cfg.output().println("Could not find runner class name in classpath: " + name);
+            cfg.output().println("ERROR: Could not find runner class name in classpath: " + name);
             cfg.output().println("Make sure class name is specified correctly and corresponding package is added " +
                 "to -p argument list.");
         }

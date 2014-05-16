@@ -160,9 +160,9 @@ public class BenchmarkRunner {
         /** {@inheritDoc} */
         @Override public void run() {
             if (err != null) {
-                cfg.output().println("Shutting down benchmark driver to to unexpected exception: ");
+                cfg.output().println("ERROR: Shutting down benchmark driver to to unexpected exception: ");
 
-                err.printStackTrace(cfg.error());
+                err.printStackTrace(cfg.output());
             }
 
             try {
@@ -174,9 +174,9 @@ public class BenchmarkRunner {
                 probeSet.stop();
             }
             catch (Exception e) {
-                cfg.output().println("Failed to gracefully shutdown benchmark runner.");
+                cfg.output().println("ERROR: Failed to gracefully shutdown benchmark runner.");
 
-                e.printStackTrace(cfg.error());
+                e.printStackTrace(cfg.output());
             }
         }
     }

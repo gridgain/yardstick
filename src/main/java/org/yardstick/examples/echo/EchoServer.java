@@ -52,14 +52,14 @@ public class EchoServer implements BenchmarkServer {
                                         out.write(b);
                                 }
                                 catch (IOException e) {
-                                    e.printStackTrace(cfg.error());
+                                    e.printStackTrace(cfg.output());
                                 }
                                 finally {
                                     try {
                                         sock.close();
                                     }
                                     catch (IOException e) {
-                                        e.printStackTrace(cfg.error());
+                                        e.printStackTrace(cfg.output());
                                     }
                                 }
                             }
@@ -71,7 +71,7 @@ public class EchoServer implements BenchmarkServer {
                     }
                 }
                 catch (IOException e) {
-                    e.printStackTrace(cfg.error());
+                    e.printStackTrace(cfg.output());
                 }
             }
         });

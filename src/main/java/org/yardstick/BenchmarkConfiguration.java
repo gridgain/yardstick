@@ -22,6 +22,7 @@ import java.util.*;
 /**
  * Input arguments for benchmarks.
  */
+@SuppressWarnings("UnusedDeclaration")
 public class BenchmarkConfiguration {
     /** */
     @Parameter(names = {"-cfg", "--config"}, description = "Framework configuration file path")
@@ -82,9 +83,6 @@ public class BenchmarkConfiguration {
 
     /** Output writer. */
     private PrintStream outputWriter;
-
-    /** Error writer. */
-    private PrintStream errorWriter;
 
     /** Description. */
     private String description;
@@ -216,20 +214,6 @@ public class BenchmarkConfiguration {
     }
 
     /**
-     * @return Error writer.
-     */
-    public PrintStream error() {
-        return errorWriter;
-    }
-
-    /**
-     * @param errorWriter Error writer.
-     */
-    public void error(PrintStream errorWriter) {
-        this.errorWriter = errorWriter;
-    }
-
-    /**
      * @return Command line arguments list.
      */
     public String[] commandLineArguments() {
@@ -331,7 +315,6 @@ public class BenchmarkConfiguration {
             ", shutdownHook=" + shutdownHook +
             ", outputFolder=" + outputFolder +
             ", outputWriter=" + outputWriter +
-            ", errorWriter=" + errorWriter +
             ']';
     }
 }

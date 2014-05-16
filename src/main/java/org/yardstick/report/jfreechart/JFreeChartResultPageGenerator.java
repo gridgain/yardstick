@@ -258,7 +258,7 @@ public class JFreeChartResultPageGenerator {
             System.out.println();
         }
         catch (Exception e) {
-            System.out.println("Exception is raised during file '" + outFile + "' processing.");
+            System.out.println("ERROR: Exception is raised during file '" + outFile + "' processing.");
 
             e.printStackTrace();
         }

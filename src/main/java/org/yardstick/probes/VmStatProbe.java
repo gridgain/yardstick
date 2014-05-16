@@ -114,7 +114,8 @@ public class VmStatProbe implements BenchmarkProbe {
             cfg.output().println(this.getClass().getSimpleName() + " is started. Command: '" + execCmd + "'.");
         }
         catch (Exception e) {
-            cfg.error().println("Can not start '" + execCmd + "' process due to exception: '" + e.getMessage() + "'.");
+            cfg.output().println("ERROR: Can not start '" + execCmd + "' process due to exception: '" +
+                e.getMessage() + "'.");
         }
     }
 

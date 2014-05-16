@@ -63,7 +63,7 @@ public class JFreeChartGraphPlotter {
         }
 
         if (args.inputFolders() == null) {
-            System.out.println("Input folders are not defined.");
+            System.out.println("ERROR: Input folders are not defined.");
 
             return;
         }
@@ -77,7 +77,7 @@ public class JFreeChartGraphPlotter {
 
         for (File inFolder : inFolders) {
             if (!inFolder.exists()) {
-                System.out.println("Folder '" + inFolder.getAbsolutePath() + "' does not exist.");
+                System.out.println("ERROR: Folder '" + inFolder.getAbsolutePath() + "' does not exist.");
 
                 return;
             }
@@ -145,7 +145,7 @@ public class JFreeChartGraphPlotter {
 
         if (!folderToWrite.exists()) {
             if (!folderToWrite.mkdir()) {
-                System.out.println("Can not create folder '" + folderToWrite.getAbsolutePath() + "'.");
+                System.out.println("ERROR: Can not create folder '" + folderToWrite.getAbsolutePath() + "'.");
 
                 return;
             }
@@ -228,7 +228,7 @@ public class JFreeChartGraphPlotter {
 
             if (!folderToWrite.exists()) {
                 if (!folderToWrite.mkdirs()) {
-                    System.out.println("Can not create folder '" + folderToWrite.getAbsolutePath() + "'.");
+                    System.out.println("ERROR: Can not create folder '" + folderToWrite.getAbsolutePath() + "'.");
 
                     continue;
                 }
@@ -257,7 +257,7 @@ public class JFreeChartGraphPlotter {
                         processPlots(file.getParentFile(), Collections.singleton(plotData), infoMap);
                     }
                     catch (Exception e) {
-                        System.out.println("Exception is raised during file '" + file + "' processing.");
+                        System.out.println("ERROR: Exception is raised during file '" + file + "' processing.");
 
                         e.printStackTrace();
                     }
@@ -288,7 +288,7 @@ public class JFreeChartGraphPlotter {
                     plots.add(readData(file));
                 }
                 catch (Exception e) {
-                    System.out.println("Exception is raised during file '" + file + "' processing.");
+                    System.out.println("ERROR: Exception is raised during file '" + file + "' processing.");
 
                     e.printStackTrace();
                 }
