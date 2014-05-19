@@ -14,10 +14,11 @@
 
 package org.yardstick.report.jfreechart;
 
-import org.yardstick.writers.*;
+import org.yardstick.writers.BenchmarkProbePointCsvWriter;
 
 import java.io.*;
-import java.text.*;
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.*;
 
 import static org.yardstick.report.jfreechart.JFreeChartGraphPlotter.*;
@@ -26,15 +27,23 @@ import static org.yardstick.report.jfreechart.JFreeChartGraphPlotter.*;
  * Generates html pages with resulted graphs built by JFreeChart framework.
  */
 public class JFreeChartResultPageGenerator {
+
+    public static final NumberFormat NUMBER_INSTANCE = NumberFormat.getNumberInstance();
+
+    static {
+        NUMBER_INSTANCE.setMaximumFractionDigits(2);
+        NUMBER_INSTANCE.setMinimumFractionDigits(2);
+    }
+
     /**
      * Generates a page containing all charts that belong to one test run.
      *
      * @param inFolder Input folder.
-     * @param args Arguments.
-     * @param infoMap Map with additional plot info.
+     * @param args     Arguments.
+     * @param infoMap  Map with additional plot info.
      */
     public static void generate(File inFolder, JFreeChartGraphPlotterArguments args,
-        Map<String, List<JFreeChartPlotInfo>> infoMap) {
+                                Map<String, List<JFreeChartPlotInfo>> infoMap) {
         for (File folder : folders(inFolder)) {
             Map<String, List<File>> files = files(folder.listFiles());
 
@@ -48,8 +57,7 @@ public class JFreeChartResultPageGenerator {
             if (i != -1) {
                 try {
                     testTime = BenchmarkProbePointCsvWriter.FORMAT.parse(folder.getName().substring(0, i));
-                }
-                catch (ParseException ignored) {
+                } catch (ParseException ignored) {
                     // No-op.
                 }
             }
@@ -111,7 +119,8 @@ public class JFreeChartResultPageGenerator {
         }
 
         Comparator<File> comp = new Comparator<File>() {
-            @Override public int compare(File o1, File o2) {
+            @Override
+            public int compare(File o1, File o2) {
                 return o1.getName().compareTo(o2.getName());
             }
         };
@@ -124,26 +133,33 @@ public class JFreeChartResultPageGenerator {
     }
 
     /**
-     * @param testTime Test time.
-     * @param files Files.
+     * @param testTime  Test time.
+     * @param fileMap   Files.
      * @param outFolder Output folder.
-     * @param args Arguments.
-     * @param infoMap Map with additional plot info.
+     * @param args      Arguments.
+     * @param infoMap   Map with additional plot info.
      */
-    private static void generateHtml(Date testTime, Map<String, List<File>> files, File outFolder,
-        JFreeChartGraphPlotterArguments args, Map<String, List<JFreeChartPlotInfo>> infoMap) {
+    private static void generateHtml(Date testTime, Map<String, List<File>> fileMap, File outFolder,
+                                     JFreeChartGraphPlotterArguments args, Map<String, List<JFreeChartPlotInfo>> infoMap) {
         File outFile = new File(outFolder, "Results.html");
 
         try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outFile)))) {
-            writeLine(bw, "<html>");
+            writeLine(bw, "<!DOCTYPE html>");
+            writeLine(bw, "<html lang=\"en\">");
             writeLine(bw, "<head>");
+            writeLine(bw, "<meta charset=\"utf-8\">");
+            writeLine(bw, "<meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">");
+            writeLine(bw, "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">");
+            writeLine(bw, "<link rel=\"stylesheet\" href=\"http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css\">");
+            writeLine(bw, "<link rel=\"stylesheet\" href=\"http://netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css\">");
             writeLine(bw, "</head>");
             writeLine(bw, "<body>");
 
-            writeLine(bw, "<h1>Results" + (testTime == null ? "" : " on " + testTime) + "</h1>");
-            writeLine(bw, "<br>");
+            writeLine(bw, "<div class=\"container-fluid\">");
+            writeLine(bw, "<h1>Results" + (testTime == null ? "" : "<small> on " + testTime + "</small>") + "</h1>");
+            //writeLine(bw, "<hr/>");
 
-            Iterator<List<File>> iter = files.values().iterator();
+            Iterator<List<File>> iter = fileMap.values().iterator();
 
             if (iter.hasNext()) {
                 File f = iter.next().get(0);
@@ -151,110 +167,87 @@ public class JFreeChartResultPageGenerator {
                 List<JFreeChartPlotInfo> list = infoMap.get(f.getAbsolutePath());
 
                 if (list != null) {
+
+                    writeLine(bw, "<table class=\"table\" style=\"width:auto;\">");
+                    writeLine(bw, "<thead><tr><th>label 1</th><th>label 2</th></tr></thead>");
+                    writeLine(bw, "<tbody>");
+
                     for (JFreeChartPlotInfo info : list) {
-                        writeLine(bw, "<table>");
                         writeLine(bw, "<tr>");
-                        writeLine(bw, "<td width=\"15\" style=\"border: 1 solid\" bgcolor=\"" + info.color() + "\"></td>");
+                        writeLine(bw, "<td><i style=\"color:#" + info.color() + ";\" class=\"fa fa-square\"></i></td>");
                         writeLine(bw, "<td>" + info.name() + "</td>");
                         writeLine(bw, "</tr>");
-                        writeLine(bw, "</table>");
                     }
+
+                    writeLine(bw, "</tbody>");
+                    writeLine(bw, "</table>");
                 }
             }
 
-            int cnt = 0;
 
-            for (Map.Entry<String, List<File>> entry : files.entrySet()) {
-                writeLine(bw, "<h2>" + entry.getKey() + "</h2>");
-                writeLine(bw, "<table>");
-                writeLine(bw, "<tr>");
+            for (Map.Entry<String, List<File>> entry : fileMap.entrySet()) {
+                final List<File> files = entry.getValue();
+                final int columnCount = args.chartColumns();
 
-                int imgInRow = 0;
+                writeLine(bw, "<div class=\"panel panel-default\">");
+                writeLine(bw, "<div class=\"panel-heading\"><h2 class=\"panel-title\">" + entry.getKey() + "</h2></div>");
+                writeLine(bw, "<div class=\"panel-body\">");
 
-                for (File file : entry.getValue()) {
-                    if (imgInRow != 0 && imgInRow % args.chartColumns() == 0) {
-                        writeLine(bw, "</tr>");
-                        writeLine(bw, "</table>");
-                        writeLine(bw, "<table>");
-                        writeLine(bw, "<br>");
+                for (int start = 0; start < files.size(); start += columnCount) {
+                    int end = Math.min(start + columnCount, files.size());
+
+                    List<File> sublist = files.subList(start, end);
+
+                    writeLine(bw, "<div class=\"row\">");
+                    for (File file : sublist) {
+                        writeLine(bw, "<div class=\"col-md-3\">");
+                        writeLine(bw, "<a href=\"#\"><img src=\"" + file.getName() + "\" class=\"img-thumbnail\"/></a>");
+
+                        writeLine(bw, "<table class=\"table table-condensed\">");
+                        writeLine(bw, "<thead>");
                         writeLine(bw, "<tr>");
-                    }
+                        writeLine(bw, "<th></th>");
+                        writeLine(bw, "<th>Avg</th>");
+                        writeLine(bw, "<th>Min</th>");
+                        writeLine(bw, "<th>Max</th>");
+                        writeLine(bw, "<th>SD</th>");
+                        writeLine(bw, "</tr>");
+                        writeLine(bw, "</thead>");
+                        writeLine(bw, "<tbody>");
 
-                    writeLine(bw, "<td>");
-                    writeLine(bw, "<table>");
-                    writeLine(bw, "<tr>");
-                    writeLine(bw, "<td>");
+                        List<JFreeChartPlotInfo> list = infoMap.get(file.getAbsolutePath());
 
-                    int id1 = cnt;
-                    int id2 = cnt + 1;
+                        if (list != null) {
+                            for (JFreeChartPlotInfo info : list) {
+                                writeLine(bw, "<tr>");
 
-                    writeLine(bw, "<a href=\"javascript:showCloseLevel('id" + id2 + "', 'id" +
-                        id1 + "')\"><img src=\"" + file.getName() + "\" id=\"id" +
-                        id1 + "\" width=\"400\" height=\"200\"/></a>");
-                    writeLine(bw, "<a href=\"javascript:showCloseLevel('id" + id1 + "', 'id" +
-                        id2 + "')\"><img src=\"" + file.getName() + "\" id=\"id" +
-                        id2 + "\" style=\"display:none\"/></a>");
-                    writeLine(bw, "</td>");
-                    writeLine(bw, "</tr>");
-                    writeLine(bw, "<tr>");
-                    writeLine(bw, "<td>");
+                                writeLine(bw, "<td><i style=\"color:#" + info.color() + ";\" class=\"fa fa-square\"></i></td>");
+                                writeValueToTable(bw, info.average());
+                                writeValueToTable(bw, info.minimum());
+                                writeValueToTable(bw, info.maximum());
+                                writeValueToTable(bw, info.standardDeviation());
 
-                    writeLine(bw, "<table id=\"id" + id1 + "_table\" border=\"1\" " +
-                        "style=\"border:1 solid;border-collapse:collapse;font-size:10\" align=\"right\">");
-                    writeLine(bw, "<tr>");
-                    writeLine(bw, "<th></th>");
-                    writeLine(bw, "<th>Avg</th>");
-                    writeLine(bw, "<th>Min</th>");
-                    writeLine(bw, "<th>Max</th>");
-                    writeLine(bw, "<th>Std Deviation</th>");
-                    writeLine(bw, "</tr>");
-
-                    List<JFreeChartPlotInfo> list = infoMap.get(file.getAbsolutePath());
-
-                    if (list != null) {
-                        for (JFreeChartPlotInfo info : list) {
-                            writeLine(bw, "<tr>");
-
-                            writeLine(bw, "<td width=\"15\" style=\"border: 1\" bgcolor=\"" + info.color() + "\"></td>");
-                            writeValueToTable(bw, info.average());
-                            writeValueToTable(bw, info.minimum());
-                            writeValueToTable(bw, info.maximum());
-                            writeValueToTable(bw, info.standardDeviation());
-
-                            writeLine(bw, "</tr>");
+                                writeLine(bw, "</tr>");
+                            }
                         }
+
+                        writeLine(bw, "</tbody>");
+                        writeLine(bw, "</table>");
+                        writeLine(bw, "</div>");
                     }
 
-                    writeLine(bw, "</tr>");
-                    writeLine(bw, "</table>");
-
-                    writeLine(bw, "</td>");
-                    writeLine(bw, "</tr>");
-                    writeLine(bw, "</table>");
-                    writeLine(bw, "</td>");
-
-                    cnt += 2;
-
-                    imgInRow++;
+                    writeLine(bw, "</div>");
                 }
 
-                writeLine(bw, "</tr>");
-                writeLine(bw, "</table>");
+                writeLine(bw, "</div>");
+                writeLine(bw, "</div>");
+
             }
+
+            writeLine(bw, "</div>");
 
             writeLine(bw, "</body>");
             writeLine(bw, "</html>");
-            writeLine(bw, "<script type=\"text/javascript\">");
-            writeLine(bw, "function showCloseLevel(idOpen, idClose) {");
-            writeLine(bw, "    document.getElementById(idOpen).style.display = \"\";");
-            writeLine(bw, "    document.getElementById(idClose).style.display = \"none\";");
-            writeLine(bw, "    var el = document.getElementById(idClose + \"_table\");");
-            writeLine(bw, "    if (el != null)");
-            writeLine(bw, "        el.style.fontSize = \"18\";");
-            writeLine(bw, "    else");
-            writeLine(bw, "        document.getElementById(idOpen + \"_table\").style.fontSize = \"10\";");
-            writeLine(bw, "}");
-            writeLine(bw, "</script>");
 
             println("Html file is generated: " + outFile.getAbsolutePath());
             println("");
@@ -265,21 +258,41 @@ public class JFreeChartResultPageGenerator {
     }
 
     /**
-     * @param bw Buffered writer.
+     * @param bw  Buffered writer.
      * @param val Value.
      * @throws IOException If failed.
      */
     private static void writeValueToTable(BufferedWriter bw, double val) throws IOException {
-        writeLine(bw, "<td>" + String.format(Locale.US, "%.2f", val) + "</td>");
+        writeLine(bw, "<td class=\"text-right\">" + NUMBER_INSTANCE.format(val) + "</td>");
     }
 
     /**
-     * @param bw Buffered writer.
+     * @param bw   Buffered writer.
      * @param line Line.
      * @throws IOException If failed.
      */
     private static void writeLine(BufferedWriter bw, String line) throws IOException {
         bw.write(line);
         bw.newLine();
+    }
+
+    public static void main(String[] args) {
+
+        int rows = 0;
+
+        System.out.println(65 / 3);
+        System.out.println(65 % 3);
+
+        for (int i = 0; i < 10; i++) {
+
+            System.out.println("i = " + i + ", mod = " + i % 3);
+
+            if (i != 0 && i % 3 == 0) {
+                rows++;
+            }
+
+        }
+
+        System.out.println("rows " + rows);
     }
 }
