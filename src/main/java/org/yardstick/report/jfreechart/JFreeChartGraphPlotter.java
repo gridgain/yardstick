@@ -92,7 +92,7 @@ public class JFreeChartGraphPlotter {
         else if (mode == STANDARD || mode == null)
             processStandardMode(inFolders, args);
         else
-            throw new Exception("Unknown generation mode: " + args.generationMode());
+            errorHelp("Unknown generation mode: " + args.generationMode());
     }
 
     /**

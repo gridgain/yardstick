@@ -38,8 +38,8 @@ public class JFreeChartGraphPlotterArguments {
     @Parameter(names = {"-gm", "--generationMode"},
         description = "Graph generation mode for comparing benchmark results:\n\n" +
             "       STANDARD: all benchmark results are displayed on separate graphs.\n\n" +
-            "       COMPARISON: benchmark results from multiple runs are displayed together.\n\n" +
-            "       COMPOUND:    all benchmark results are displayed in one graph.\n")
+            "       COMPARISON: benchmarks from multiple folders (comma separated) are paired together.\n\n" +
+            "       COMPOUND: benchmarks from multiple folders (comma separated) are shown together.\n")
     private JFreeChartGenerationMode genMode = JFreeChartGenerationMode.COMPOUND;
 
     /**
