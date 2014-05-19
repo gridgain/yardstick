@@ -71,7 +71,7 @@ public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
 
             if (!folder.exists()) {
                 if (!folder.mkdirs())
-                    throw new IllegalStateException("Can not create folder: '" + folder.getAbsolutePath() + "'.");
+                    throw new IllegalStateException("Can not create folder: " + folder.getAbsolutePath() + "");
             }
         }
 
@@ -86,7 +86,7 @@ public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
 
         if (!outPath.exists()) {
             if (!outPath.mkdir())
-                throw new IllegalStateException("Can not create folder: '" + outPath.getAbsolutePath() + "'.");
+                throw new IllegalStateException("Can not create folder: " + outPath.getAbsolutePath() + "");
         }
     }
 
@@ -99,8 +99,7 @@ public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
 
             writer = new PrintWriter(new OutputStreamWriter(new FileOutputStream(f)));
 
-            cfg.output().println(probe.getClass().getSimpleName() +
-                " results will be saved to '" + f.getAbsolutePath() + "'.");
+            println(probe.getClass().getSimpleName() + " results will be saved to: " + f.getAbsolutePath());
 
             println("--Probe dump file for probe: " + probe + " (" + probe.getClass() + ")");
             println("--Created " + new Date(startTime));

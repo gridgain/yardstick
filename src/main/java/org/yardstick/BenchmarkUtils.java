@@ -64,6 +64,41 @@ public class BenchmarkUtils {
     }
 
     /**
+     * Prints message.
+     *
+     * @param cfg Benchmark configuration.
+     * @param msg Message.
+     */
+    public static void println(BenchmarkConfiguration cfg, String msg) {
+        cfg.output().println(msg);
+    }
+
+    /**
+     * Prints error and help.
+     *
+     * @param cfg Benchmark configuration.
+     * @param msg Error message.
+     */
+    public static void errorHelp(BenchmarkConfiguration cfg, String msg) {
+        cfg.error().println("ERROR: " + msg);
+        cfg.error().println("Type '--help' for usage.");
+    }
+
+    /**
+     * Prints error and help.
+     *
+     * @param cfg Benchmark configuration.
+     * @param msg Error message.
+     * @param t Throwable, possibly {@code null}.
+     */
+    public static void errorHelp(BenchmarkConfiguration cfg, String msg, Throwable t) {
+        errorHelp(cfg, msg);
+
+        if (t != null)
+            t.printStackTrace(cfg.error());
+    }
+
+    /**
      * Fix folder name if needed.
      *
      * @param fName Folder name.

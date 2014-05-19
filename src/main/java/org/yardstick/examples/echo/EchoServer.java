@@ -19,6 +19,8 @@ import org.yardstick.*;
 import java.io.*;
 import java.net.*;
 
+import static org.yardstick.BenchmarkUtils.*;
+
 /**
  * Echo server.
  */
@@ -52,14 +54,14 @@ public class EchoServer implements BenchmarkServer {
                                         out.write(b);
                                 }
                                 catch (IOException e) {
-                                    e.printStackTrace(cfg.error());
+                                    errorHelp(cfg, "Exception is raised.", e);
                                 }
                                 finally {
                                     try {
                                         sock.close();
                                     }
                                     catch (IOException e) {
-                                        e.printStackTrace(cfg.error());
+                                        errorHelp(cfg, "Exception is raised.", e);
                                     }
                                 }
                             }
@@ -71,7 +73,7 @@ public class EchoServer implements BenchmarkServer {
                     }
                 }
                 catch (IOException e) {
-                    e.printStackTrace(cfg.error());
+                    errorHelp(cfg, "Exception is raised.", e);
                 }
             }
         });

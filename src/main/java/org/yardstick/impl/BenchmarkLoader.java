@@ -21,6 +21,8 @@ import java.io.*;
 import java.lang.reflect.*;
 import java.util.*;
 
+import static org.yardstick.BenchmarkUtils.*;
+
 /**
  * Benchmarks loader.
  */
@@ -50,7 +52,7 @@ public class BenchmarkLoader {
             props.load(is);
         }
         catch (FileNotFoundException ignore) {
-            cfg.output().println("Framework configuration file was not found: " + cfg.propertiesFileName());
+            println(cfg, "Framework configuration file was not found: " + cfg.propertiesFileName());
         }
 
         // Try init packages first.
@@ -130,7 +132,7 @@ public class BenchmarkLoader {
             if (probe != null)
                 probes.add(probe);
             else
-                cfg.output().println("Failed to load probe: " + probeClsName);
+                println(cfg, "Failed to load probe: " + probeClsName);
         }
 
         cfg.defaultProbes(probes);
@@ -169,10 +171,10 @@ public class BenchmarkLoader {
         }
 
         if (duplicates != null) {
-            cfg.output().println("Duplicate simple class names detected (use fully-qualified names for execution): ");
+            println(cfg, "Duplicate simple class names detected (use fully-qualified names for execution): ");
 
             for (String duplicate : duplicates)
-                cfg.output().println("\t" + duplicate);
+                println(cfg, "\t" + duplicate);
         }
 
         String fqName = simpleNames.get(name);

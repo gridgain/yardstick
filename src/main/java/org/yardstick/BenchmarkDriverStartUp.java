@@ -18,6 +18,8 @@ import org.yardstick.impl.*;
 
 import java.util.*;
 
+import static org.yardstick.BenchmarkUtils.*;
+
 /**
  * Benchmark driver startup class.
  */
@@ -27,9 +29,6 @@ public class BenchmarkDriverStartUp {
      * @throws Exception If failed.
      */
     public static void main(String[] cmdArgs) throws Exception {
-        System.out.println("For help use '--help' or '-h' options");
-        System.out.println();
-
         final BenchmarkConfiguration cfg = new BenchmarkConfiguration();
 
         cfg.commandLineArguments(cmdArgs);
@@ -46,7 +45,7 @@ public class BenchmarkDriverStartUp {
             name = name.trim();
 
         if (name == null || name.isEmpty()) {
-            cfg.error().println("ERROR: Driver class name is not specified.");
+            errorHelp(cfg, "Driver class name is not specified.");
 
             return;
         }
@@ -55,7 +54,7 @@ public class BenchmarkDriverStartUp {
 
         if ((drv = ldr.loadBenchmarkClass(BenchmarkDriver.class, name)) != null) {
             if (cfg.help()) {
-                cfg.output().println(drv.usage());
+                println(cfg, drv.usage());
 
                 return;
             }
@@ -67,7 +66,7 @@ public class BenchmarkDriverStartUp {
             Collection<BenchmarkProbe> probes = drv.probes();
 
             if (probes == null || probes.isEmpty()) {
-                cfg.error().println("ERROR: No probes provided by benchmark driver (stopping benchmark): " + name);
+                errorHelp(cfg, "No probes provided by benchmark driver (stopping benchmark): " + name);
 
                 return;
             }
@@ -81,7 +80,7 @@ public class BenchmarkDriverStartUp {
                             runner.cancel();
                         }
                         catch (Exception e) {
-                            e.printStackTrace(cfg.error());
+                            errorHelp(cfg, "Exception is raised during runner cancellation.", e);
                         }
                     }
                 });
@@ -91,8 +90,8 @@ public class BenchmarkDriverStartUp {
             runner.runBenchmark();
         }
         else {
-            cfg.error().println("ERROR: Could not find runner class name in classpath: " + name);
-            cfg.error().println("Make sure class name is specified correctly and corresponding package is added " +
+            errorHelp(cfg, "Could not find runner class name in classpath: " + name +
+                ".\nMake sure class name is specified correctly and corresponding package is added " +
                 "to -p argument list.");
         }
     }

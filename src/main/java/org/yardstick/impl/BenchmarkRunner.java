@@ -19,6 +19,8 @@ import org.yardstick.*;
 import java.util.*;
 import java.util.concurrent.atomic.*;
 
+import static org.yardstick.BenchmarkUtils.*;
+
 /**
  * Benchmark runner. Starts benchmarking threads, manages lifecycle.
  */
@@ -159,11 +161,8 @@ public class BenchmarkRunner {
     private class ShutdownThread extends Thread {
         /** {@inheritDoc} */
         @Override public void run() {
-            if (err != null) {
-                cfg.error().println("ERROR: Shutting down benchmark driver to unexpected exception: ");
-
-                err.printStackTrace(cfg.error());
-            }
+            if (err != null)
+                errorHelp(cfg, "Shutting down benchmark driver to unexpected exception.", err);
 
             try {
                 for (Thread t : threads)
@@ -174,9 +173,7 @@ public class BenchmarkRunner {
                 probeSet.stop();
             }
             catch (Exception e) {
-                cfg.error().println("ERROR: Failed to gracefully shutdown benchmark runner.");
-
-                e.printStackTrace(cfg.error());
+                errorHelp(cfg, "Failed to gracefully shutdown benchmark runner.", err);
             }
         }
     }

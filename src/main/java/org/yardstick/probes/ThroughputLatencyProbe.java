@@ -18,6 +18,8 @@ import org.yardstick.*;
 
 import java.util.*;
 
+import static org.yardstick.BenchmarkUtils.*;
+
 /**
 * Probe that calculates throughput and average latency.
 */
@@ -79,7 +81,7 @@ public class ThroughputLatencyProbe implements BenchmarkExecutionAwareProbe {
 
         collectingThread.start();
 
-        cfg.output().println(ThroughputLatencyProbe.class.getSimpleName() + " is started.");
+        println(cfg, ThroughputLatencyProbe.class.getSimpleName() + " is started.");
     }
 
     /** {@inheritDoc} */
@@ -88,7 +90,7 @@ public class ThroughputLatencyProbe implements BenchmarkExecutionAwareProbe {
             collectingThread.interrupt();
             collectingThread.join();
 
-            cfg.output().println(ThroughputLatencyProbe.class.getSimpleName() + " is stopped.");
+            println(cfg, ThroughputLatencyProbe.class.getSimpleName() + " is stopped.");
         }
     }
 

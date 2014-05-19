@@ -19,6 +19,8 @@ import org.yardstick.writers.*;
 
 import java.util.*;
 
+import static org.yardstick.BenchmarkUtils.*;
+
 /**
  * Set of configured benchmark probes.
  */
@@ -68,7 +70,7 @@ public class BenchmarkProbeSet {
         String writerClsName = cfg.probeWriterClassName();
 
         if (writerClsName == null) {
-            cfg.output().println("Probe writer is not configured, using default CSV writer.");
+            println(cfg, "Probe writer is not configured, using default CSV writer.");
 
             writerClsName = BenchmarkProbePointCsvWriter.class.getName();
         }
@@ -82,7 +84,7 @@ public class BenchmarkProbeSet {
 
             if (writer == null) {
                 if (warn) {
-                    cfg.output().println("Failed to load writer class (will use default CSV writer): " + writerClsName);
+                    println(cfg, "Failed to load writer class (will use default CSV writer): " + writerClsName);
 
                     warn = false;
                 }
@@ -127,7 +129,7 @@ public class BenchmarkProbeSet {
                                     writer.writePoints(probe, points);
                                 }
                                 catch (Exception e) {
-                                    e.printStackTrace(cfg.error());
+                                    errorHelp(cfg, "Exception is raised during point write.", e);
                                 }
                             }
                         }
@@ -142,11 +144,9 @@ public class BenchmarkProbeSet {
                             entry.getValue().close();
                         }
                         catch (Exception e) {
-                            cfg.error().println("ERROR: Failed to gracefully close probe writer " +
+                            errorHelp(cfg, "Failed to gracefully close probe writer " +
                                 "[probe=" + entry.getKey() + ", writer=" + entry.getValue() +
-                                ", err=" + e.getMessage() + ']');
-
-                            e.printStackTrace(cfg.error());
+                                ", err=" + e.getMessage() + ']', e);
                         }
                     }
                 }
@@ -209,10 +209,7 @@ public class BenchmarkProbeSet {
                 probe.stop();
             }
             catch (Exception e) {
-                cfg.error().println("ERROR: Failed to gracefully stop probe [probe=" + probe + ", err=" +
-                    e.getMessage() + ']');
-
-                e.printStackTrace(cfg.error());
+                errorHelp(cfg, "Failed to gracefully stop probe [probe=" + probe + ", err=" + e.getMessage() + ']', e);
             }
         }
     }
