@@ -117,7 +117,6 @@
                 <artifactId>maven-assembly-plugin</artifactId>
                 <configuration>
                     <classifier>resources</classifier>
-                    <outputDirectory>${basedir}</outputDirectory>
                     <descriptors>
                         <descriptor>src/main/assembly/resources.xml</descriptor>
                     </descriptors>
@@ -129,6 +128,52 @@
                         <goals>
                             <goal>single</goal>
                         </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sign-and-deploy-file</goal>
+                        </goals>
+                        <configuration>
+                            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+                            <pomFile>pom.xml</pomFile>
+                            <repositoryId>sonatype-nexus-staging</repositoryId>
+                            <file>yardstick-${version}.jar</file>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
