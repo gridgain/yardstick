@@ -39,6 +39,9 @@ public class EchoServerBenchmark extends BenchmarkDriverAdapter {
         super.setUp(cfg);
 
         BenchmarkUtils.jcommander(cfg.commandLineArguments(), args, "<echo-driver>");
+
+        // Check if EchoServer is up.
+        createSocket(args);
     }
 
     /** {@inheritDoc} */
@@ -99,12 +102,30 @@ public class EchoServerBenchmark extends BenchmarkDriverAdapter {
         Socket sock = sockMap.get(Thread.currentThread());
 
         if (sock == null) {
-            Socket old = sockMap.putIfAbsent(Thread.currentThread(), sock = new Socket(args.host(), args.port()));
+            sock = createSocket(args);
+
+            Socket old = sockMap.putIfAbsent(Thread.currentThread(), sock);
 
             if (old != null)
                 sock = old;
         }
 
         return sock;
+    }
+
+    /**
+     * Creates socket.
+     *
+     * @param args Arguments.
+     * @return Created socket.
+     * @throws Exception If failed.
+     */
+    private static Socket createSocket(EchoServerBenchmarkArguments args) throws Exception {
+        try {
+            return new Socket(args.host(), args.port());
+        }
+        catch (IOException e) {
+            throw new Exception("Can not connect to EchoServer, is server running?", e);
+        }
     }
 }
