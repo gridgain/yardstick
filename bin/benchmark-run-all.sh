@@ -27,9 +27,7 @@ CONFIG_INCLUDE=$1
 if [ "${CONFIG_INCLUDE}" == "-h" ] || [ "${CONFIG_INCLUDE}" == "--help" ]; then
     echo "Usage: benchmark-run-all.sh [PROPERTIES_FILE_PATH]"
     echo
-    echo "Script that starts BenchmarkServers on remote machines, runs BenchmarkDriver and stops the servers on remote machines."
-    echo "This procedure is performed for all configurations defined in run properties file."
-    echo "This script expects the argument to be a path to run properties file which contains the list of remote nodes to start server on and the list of configurations."
+    echo "Script that executes BenchmarkDriver locally and BenchmarkServers on remote machines."
     exit 1
 fi
 
