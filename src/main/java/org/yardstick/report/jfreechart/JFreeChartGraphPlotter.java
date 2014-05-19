@@ -94,6 +94,11 @@ public class JFreeChartGraphPlotter {
             else
                 errorHelp("Unknown generation mode: " + args.generationMode());
         }
+        catch (ParameterException e) {
+            errorHelp("Invalid benchmark parameter.");
+
+            e.printStackTrace();
+        }
         catch (Exception e) {
             errorHelp("Failed to execute benchmark.");
 
