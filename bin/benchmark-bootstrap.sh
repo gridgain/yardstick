@@ -24,6 +24,7 @@ fi
 
 if [ "${MAIN_CLASS}" == "" ]; then
     echo "ERROR: Java class is not defined."
+    echo "Type \"--help\" for usage."
     exit 1
 fi
 
