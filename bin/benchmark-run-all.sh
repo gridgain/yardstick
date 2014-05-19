@@ -33,11 +33,11 @@ fi
 
 if [ "${CONFIG_INCLUDE}" == "" ]; then
     CONFIG_INCLUDE=${SCRIPT_DIR}/../config/benchmark.properties
-    echo "Properties file is not defined, using default one: 'config/benchmark.properties'."
+    echo "Using default properties file: config/benchmark.properties"
 fi
 
 if [ ! -f $CONFIG_INCLUDE ]; then
-    echo "ERROR: Properties file is not found."
+    echo "ERROR: Properties file not found."
     echo "Type \"--help\" for usage."
     exit 1
 fi

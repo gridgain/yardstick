@@ -27,14 +27,12 @@ if [ "${CONFIG_INCLUDE}" == "-h" ] || [ "${CONFIG_INCLUDE}" == "--help" ]; then
     echo "Usage: benchmark-servers-start.sh [PROPERTIES_FILE_PATH]"
     echo
     echo "Script that starts BenchmarkServer on remote machines."
-    echo "This script expects the argument to be a path to run properties file which contains"
-    echo "the list of remote nodes to start server on and the list of configurations."
     exit 1
 fi
 
 if [ "${CONFIG_INCLUDE}" == "" ]; then
     CONFIG_INCLUDE=${SCRIPT_DIR}/../config/benchmark.properties
-    echo "Properties file is not defined, using default one: 'config/benchmark.properties'."
+    echo "Using default property file: config/benchmark.properties"
 fi
 
 if [ ! -f $CONFIG_INCLUDE ]; then
