@@ -127,7 +127,7 @@ public class BenchmarkProbeSet {
                                     writer.writePoints(probe, points);
                                 }
                                 catch (Exception e) {
-                                    e.printStackTrace(cfg.output());
+                                    e.printStackTrace(cfg.error());
                                 }
                             }
                         }
@@ -142,11 +142,11 @@ public class BenchmarkProbeSet {
                             entry.getValue().close();
                         }
                         catch (Exception e) {
-                            cfg.output().println("ERROR: Failed to gracefully close probe writer " +
+                            cfg.error().println("ERROR: Failed to gracefully close probe writer " +
                                 "[probe=" + entry.getKey() + ", writer=" + entry.getValue() +
                                 ", err=" + e.getMessage() + ']');
 
-                            e.printStackTrace(cfg.output());
+                            e.printStackTrace(cfg.error());
                         }
                     }
                 }
@@ -209,10 +209,10 @@ public class BenchmarkProbeSet {
                 probe.stop();
             }
             catch (Exception e) {
-                cfg.output().println("ERROR: Failed to gracefully stop probe [probe=" + probe + ", err=" +
+                cfg.error().println("ERROR: Failed to gracefully stop probe [probe=" + probe + ", err=" +
                     e.getMessage() + ']');
 
-                e.printStackTrace(cfg.output());
+                e.printStackTrace(cfg.error());
             }
         }
     }

@@ -41,6 +41,9 @@ public class BenchmarkLoader {
         if (cfg.output() == null)
             cfg.output(System.out);
 
+        if (cfg.error() == null)
+            cfg.error(System.err);
+
         Properties props = new Properties();
 
         try (FileInputStream is = new FileInputStream(cfg.propertiesFileName())) {

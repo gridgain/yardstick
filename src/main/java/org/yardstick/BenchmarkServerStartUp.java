@@ -44,7 +44,7 @@ public class BenchmarkServerStartUp {
             name = name.trim();
 
         if (name == null || name.isEmpty()) {
-            cfg.output().println("ERROR: Server class name is not specified.");
+            cfg.error().println("ERROR: Server class name is not specified.");
 
             return;
         }
@@ -69,15 +69,15 @@ public class BenchmarkServerStartUp {
                             srv0.stop();
                         }
                         catch (Exception e) {
-                            e.printStackTrace(cfg.output());
+                            e.printStackTrace(cfg.error());
                         }
                     }
                 });
             }
         }
         else {
-            cfg.output().println("ERROR: Could not find runner class name in classpath: " + name);
-            cfg.output().println("Make sure class name is specified correctly and corresponding package is added " +
+            cfg.error().println("ERROR: Could not find runner class name in classpath: " + name);
+            cfg.error().println("Make sure class name is specified correctly and corresponding package is added " +
                 "to -p argument list.");
         }
     }

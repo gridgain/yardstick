@@ -114,7 +114,7 @@ public class VmStatProbe implements BenchmarkProbe {
             cfg.output().println(this.getClass().getSimpleName() + " is started. Command: '" + execCmd + "'.");
         }
         catch (Exception e) {
-            cfg.output().println("ERROR: Can not start '" + execCmd + "' process due to exception: '" +
+            cfg.error().println("ERROR: Can not start '" + execCmd + "' process due to exception: '" +
                 e.getMessage() + "'.");
         }
     }
@@ -169,7 +169,7 @@ public class VmStatProbe implements BenchmarkProbe {
             Matcher m = HEADER_LINE.matcher(line);
 
             if (!m.matches())
-                cfg.output().println("ERROR: Header line does not match expected header " +
+                cfg.error().println("ERROR: Header line does not match expected header " +
                     "[exp=" + HEADER_LINE + ", act=" + line + "].");
         }
         else {
@@ -192,12 +192,12 @@ public class VmStatProbe implements BenchmarkProbe {
                     collectPoint(pnt);
                 }
                 catch (NumberFormatException e) {
-                    cfg.output().println("ERROR: Can't parse line '" + line + "' due to exception: '" +
+                    cfg.error().println("ERROR: Can't parse line '" + line + "' due to exception: '" +
                         e.getMessage() + "'.");
                 }
             }
             else
-                cfg.output().println("ERROR: Can't parse line: '" + line + "'.");
+                cfg.error().println("ERROR: Can't parse line: '" + line + "'.");
         }
     }
 
