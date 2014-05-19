@@ -63,7 +63,7 @@ public class JFreeChartGraphPlotter {
         }
 
         if (args.inputFolders() == null) {
-            System.out.println("ERROR: Input folders are not defined.");
+            errorHelp("ERROR: Input folders are not defined.");
 
             return;
         }
@@ -77,7 +77,7 @@ public class JFreeChartGraphPlotter {
 
         for (File inFolder : inFolders) {
             if (!inFolder.exists()) {
-                System.out.println("ERROR: Folder '" + inFolder.getAbsolutePath() + "' does not exist.");
+                errorHelp("ERROR: Folder does not exist: " + inFolder.getAbsolutePath());
 
                 return;
             }
@@ -92,7 +92,7 @@ public class JFreeChartGraphPlotter {
         else if (mode == STANDARD || mode == null)
             processStandardMode(inFolders, args);
         else
-            throw new IllegalStateException("Unknown generation mode: " + args.generationMode() + ".");
+            throw new Exception("Unknown generation mode: " + args.generationMode());
     }
 
     /**
@@ -145,7 +145,7 @@ public class JFreeChartGraphPlotter {
 
         if (!folderToWrite.exists()) {
             if (!folderToWrite.mkdir()) {
-                System.out.println("ERROR: Can not create folder '" + folderToWrite.getAbsolutePath() + "'.");
+                errorHelp("ERROR: Can not create folder '" + folderToWrite.getAbsolutePath() + "'.");
 
                 return;
             }
@@ -227,11 +227,8 @@ public class JFreeChartGraphPlotter {
             File folderToWrite = new File(parentFolderToWrite, folName);
 
             if (!folderToWrite.exists()) {
-                if (!folderToWrite.mkdirs()) {
-                    System.out.println("ERROR: Can not create folder '" + folderToWrite.getAbsolutePath() + "'.");
-
-                    continue;
-                }
+                if (!folderToWrite.mkdirs())
+                    throw new Exception("ERROR: Can not create folder '" + folderToWrite.getAbsolutePath());
             }
 
             processFilesPerProbe(res, folderToWrite, args);
@@ -249,7 +246,7 @@ public class JFreeChartGraphPlotter {
 
             for (List<File> files : files(inFolder).values()) {
                 for (File file : files) {
-                    System.out.println("Processing file '" + file + "'.");
+                    println("Processing file: " + file.getAbsolutePath());
 
                     try {
                         List<PlotData> plotData = readData(file);
@@ -257,9 +254,8 @@ public class JFreeChartGraphPlotter {
                         processPlots(file.getParentFile(), Collections.singleton(plotData), infoMap);
                     }
                     catch (Exception e) {
-                        System.out.println("ERROR: Exception is raised during file '" + file + "' processing.");
-
-                        e.printStackTrace();
+                        error("ERROR: Exception is raised while processing file (will skip): " +
+                            file.getAbsolutePath(), e);
                     }
                 }
             }
@@ -282,15 +278,13 @@ public class JFreeChartGraphPlotter {
             Collection<List<PlotData>> plots = new ArrayList<>(entry.getValue().size());
 
             for (File file : entry.getValue()) {
-                System.out.println("Processing file '" + file + "'.");
+                println("Processing file: " + file.getAbsolutePath());
 
                 try {
                     plots.add(readData(file));
                 }
                 catch (Exception e) {
-                    System.out.println("ERROR: Exception is raised during file '" + file + "' processing.");
-
-                    e.printStackTrace();
+                    error("ERROR: Exception is raised while processing file (will skip): " + file.getAbsolutePath(), e);
                 }
             }
 
@@ -380,7 +374,7 @@ public class JFreeChartGraphPlotter {
             return;
 
         if (!file.canRead()) {
-            System.out.println("File '" + file + "' can not be read.");
+            errorHelp("File can not be read: " + file.getAbsolutePath());
 
             return;
         }
@@ -492,7 +486,7 @@ public class JFreeChartGraphPlotter {
 
             infoMap.put(res.getAbsolutePath(), infoList);
 
-            System.out.println("Resulted chart is saved to file '" + res.getAbsolutePath() + "'.");
+            println("Resulted chart is saved to file: " + res.getAbsolutePath());
         }
 
         System.out.println();
@@ -571,7 +565,7 @@ public class JFreeChartGraphPlotter {
                     int plotNum = split.length - 1;
 
                     if (plotNum < 1)
-                        throw new Exception("Invalid data file.");
+                        throw new Exception("Invalid data file: " + file.getAbsolutePath());
 
                     String xAxisLabel = metaInfo == null || metaInfo.length == 0 ? "" : metaInfo[0].replace("\"", "");
 
@@ -617,6 +611,38 @@ public class JFreeChartGraphPlotter {
     private static String outputFolder(File[] inFolders) {
         return inFolders.length != 1 ? null :
             inFolders[0].getParent() == null ? inFolders[0].getName() : inFolders[0].getParent();
+    }
+
+    /**
+     * Prints message.
+     *
+     * @param msg Message.
+     */
+    private static void println(String msg) {
+        System.out.println(msg);
+    }
+
+    /**
+     * Prints error.
+     *
+     * @param msg Error message.
+     * @param t Throwable, possibly {@code null}.
+     */
+    private static void error(String msg, Throwable t) {
+        System.err.println(msg);
+
+        if (t != null)
+            t.printStackTrace();
+    }
+
+    /**
+     * Prints error and help.
+     *
+     * @param msg Error message.
+     */
+    private static void errorHelp(String msg) {
+        System.err.println(msg);
+        System.err.println("Type '--help' for usage.");
     }
 
     /**
