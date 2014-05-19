@@ -49,50 +49,56 @@ public class JFreeChartGraphPlotter {
 
     /**
      * @param cmdArgs Arguments.
-     * @throws Exception If failed.
      */
-    public static void main(String[] cmdArgs) throws Exception {
-        JFreeChartGraphPlotterArguments args = new JFreeChartGraphPlotterArguments();
+    public static void main(String[] cmdArgs) {
+        try {
+            JFreeChartGraphPlotterArguments args = new JFreeChartGraphPlotterArguments();
 
-        JCommander jCommander = jcommander(cmdArgs, args, "<graph-plotter>");
+            JCommander jCommander = jcommander(cmdArgs, args, "<graph-plotter>");
 
-        if (args.help()) {
-            jCommander.usage();
-
-            return;
-        }
-
-        if (args.inputFolders() == null) {
-            errorHelp("ERROR: Input folders are not defined.");
-
-            return;
-        }
-
-        String[] inFoldersAsString = args.inputFolders().split(",");
-
-        File[] inFolders = new File[inFoldersAsString.length];
-
-        for (int i = 0; i < inFoldersAsString.length; i++)
-            inFolders[i] = new File(inFoldersAsString[i]).getAbsoluteFile();
-
-        for (File inFolder : inFolders) {
-            if (!inFolder.exists()) {
-                errorHelp("ERROR: Folder does not exist: " + inFolder.getAbsolutePath());
+            if (args.help()) {
+                jCommander.usage();
 
                 return;
             }
+
+            if (args.inputFolders() == null) {
+                errorHelp("ERROR: Input folders are not defined.");
+
+                return;
+            }
+
+            String[] inFoldersAsString = args.inputFolders().split(",");
+
+            File[] inFolders = new File[inFoldersAsString.length];
+
+            for (int i = 0; i < inFoldersAsString.length; i++)
+                inFolders[i] = new File(inFoldersAsString[i]).getAbsoluteFile();
+
+            for (File inFolder : inFolders) {
+                if (!inFolder.exists()) {
+                    errorHelp("ERROR: Folder does not exist: " + inFolder.getAbsolutePath());
+
+                    return;
+                }
+            }
+
+            JFreeChartGenerationMode mode = args.generationMode();
+
+            if (mode == COMPOUND)
+                processCompoundMode(inFolders, args);
+            else if (mode == COMPARISON)
+                processComparisonMode(inFolders, args);
+            else if (mode == STANDARD || mode == null)
+                processStandardMode(inFolders, args);
+            else
+                errorHelp("Unknown generation mode: " + args.generationMode());
         }
+        catch (Exception e) {
+            errorHelp("Failed to execute benchmark.");
 
-        JFreeChartGenerationMode mode = args.generationMode();
-
-        if (mode == COMPOUND)
-            processCompoundMode(inFolders, args);
-        else if (mode == COMPARISON)
-            processComparisonMode(inFolders, args);
-        else if (mode == STANDARD || mode == null)
-            processStandardMode(inFolders, args);
-        else
-            errorHelp("Unknown generation mode: " + args.generationMode());
+            e.printStackTrace();
+        }
     }
 
     /**
