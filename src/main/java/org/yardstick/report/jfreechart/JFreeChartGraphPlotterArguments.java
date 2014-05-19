@@ -40,7 +40,7 @@ public class JFreeChartGraphPlotterArguments {
             "       STANDARD: all benchmark results are displayed on separate graphs.\n\n" +
             "       COMPARISON: benchmark results from multiple runs are displayed together.\n\n" +
             "       COMPOUND:    all benchmark results are displayed in one graph.\n")
-    private JFreeChartGenerationMode genMode;
+    private JFreeChartGenerationMode genMode = JFreeChartGenerationMode.COMPOUND;
 
     /**
      * @return List of input folders.
