@@ -19,18 +19,17 @@ package org.yardstick.report.jfreechart;
  */
 public enum JFreeChartGenerationMode {
     /**
-     * All benchmark runs are separate. Every chart contains one graph. It's default mode.
+     * All benchmark results are displayed on separate graphs.
      */
     STANDARD,
 
     /**
-     * In this mode benchmark runs from one folder are compared with benchmark runs from another folder,
-     * first with first, second with second etc. Many graphs are displayed on one chart.
+     * Benchmarks from multiple folders (space separated) are paired together.
      */
     COMPARISON,
 
     /**
-     * In this mode all benchmark runs are compared with each other. Many graphs are displayed on one chart.
+     * Benchmarks from multiple folders (space separated) are shown together.
      */
     COMPOUND
 }

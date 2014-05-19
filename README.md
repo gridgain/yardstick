@@ -84,7 +84,7 @@ Yardstick goes with the script `jfreechart-graph-gen.sh` that builds JFreeChart 
 
 `jfreechart-graph-gen.sh` script accepts the following arguments:
 
-* `-i <list>` or `--inputFolders <list>` - comma-separated list of input folders which contains folders 
+* `-i <list>` or `--inputFolders <list>` - space separated list of input folders which contains folders 
 with probe results files (required)
 * `-cc <num>` or `--chartColumns <num>` - number of columns that the charts are displayed in on the resulted page
 * `-gm <mode>` or `--generationMode <mode>` - mode that defines the way how different benchmark runs are compared 
@@ -92,10 +92,9 @@ with each other
 
 Generation modes:
 
-* `STANDARD` - all benchmark runs are separate. Every chart contains one graph. It's default mode
-* `COMPARISON` - in this mode benchmark runs from one folder are compared with benchmark runs from another folder, 
-first with first, second with second etc. Many graphs are displayed on one chart
-* `COMPOUND` - in this mode all benchmark runs are compared with each other. Many graphs are displayed on one chart
+* `STANDARD` - all benchmark results are displayed on separate graphs
+* `COMPARISON` - benchmarks from multiple folders (space separated) are paired together
+* `COMPOUND` - benchmarks from multiple folders (space separated) are shown together, it's a default mode
 
 As a result the script produces 'png' images with graphs and html pages where all graphs belonging to the one test run
 are located.

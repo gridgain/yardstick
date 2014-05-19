@@ -16,6 +16,8 @@ package org.yardstick.report.jfreechart;
 
 import com.beust.jcommander.*;
 
+import java.util.*;
+
 /**
  * Graph plotter arguments.
  */
@@ -26,9 +28,9 @@ public class JFreeChartGraphPlotterArguments {
     private boolean help;
 
     /** */
-    @Parameter(names = {"-i", "--inputFolders"},
-        description = "Comma-separated list of input folders which contains folders with probe results files (required)")
-    private String inputFolders;
+    @Parameter(names = {"-i", "--inputFolders"}, variableArity = true,
+        description = "Space-separated list of input folders which contains folders with probe results files (required)")
+    private List<String> inputFolders = new ArrayList<>();
 
     /** */
     @Parameter(names = {"-cc", "--chartColumns"},
@@ -38,14 +40,14 @@ public class JFreeChartGraphPlotterArguments {
     @Parameter(names = {"-gm", "--generationMode"},
         description = "Graph generation mode for comparing benchmark results:\n\n" +
             "       STANDARD: all benchmark results are displayed on separate graphs.\n\n" +
-            "       COMPARISON: benchmarks from multiple folders (comma separated) are paired together.\n\n" +
-            "       COMPOUND: benchmarks from multiple folders (comma separated) are shown together.\n")
+            "       COMPARISON: benchmarks from multiple folders (space separated) are paired together.\n\n" +
+            "       COMPOUND: benchmarks from multiple folders (space separated) are shown together.\n")
     private JFreeChartGenerationMode genMode = JFreeChartGenerationMode.COMPOUND;
 
     /**
      * @return List of input folders.
      */
-    public String inputFolders() {
+    public List<String> inputFolders() {
         return inputFolders;
     }
 

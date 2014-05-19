@@ -62,18 +62,18 @@ public class JFreeChartGraphPlotter {
                 return;
             }
 
-            if (args.inputFolders() == null) {
+            if (args.inputFolders().isEmpty()) {
                 errorHelp("Input folders are not defined.");
 
                 return;
             }
 
-            String[] inFoldersAsString = args.inputFolders().split(",");
+            List<String> inFoldersAsString = args.inputFolders();
 
-            File[] inFolders = new File[inFoldersAsString.length];
+            List<File> inFolders = new ArrayList<>(inFoldersAsString.size());
 
-            for (int i = 0; i < inFoldersAsString.length; i++)
-                inFolders[i] = new File(inFoldersAsString[i]).getAbsoluteFile();
+            for (String folderAsString : inFoldersAsString)
+                inFolders.add(new File(folderAsString).getAbsoluteFile());
 
             for (File inFolder : inFolders) {
                 if (!inFolder.exists()) {
@@ -107,7 +107,7 @@ public class JFreeChartGraphPlotter {
      * @param args Arguments.
      * @throws Exception If failed.
      */
-    private static void processCompoundMode(File[] inFolders, JFreeChartGraphPlotterArguments args) throws Exception {
+    private static void processCompoundMode(List<File> inFolders, JFreeChartGraphPlotterArguments args) throws Exception {
         Map<String, List<File>> res = new HashMap<>();
 
         for (File inFolder : inFolders) {
@@ -163,7 +163,7 @@ public class JFreeChartGraphPlotter {
      * @param args Arguments.
      * @throws Exception If failed.
      */
-    private static void processComparisonMode(File[] inFolders, JFreeChartGraphPlotterArguments args) throws Exception {
+    private static void processComparisonMode(List<File> inFolders, JFreeChartGraphPlotterArguments args) throws Exception {
         Collection<File[]> foldersToCompare = new ArrayList<>();
 
         StringBuilder outParentFolSuf = new StringBuilder();
@@ -244,7 +244,7 @@ public class JFreeChartGraphPlotter {
      * @param args Arguments.
      * @throws Exception If failed.
      */
-    private static void processStandardMode(File[] inFolders, JFreeChartGraphPlotterArguments args) throws Exception {
+    private static void processStandardMode(List<File> inFolders, JFreeChartGraphPlotterArguments args) throws Exception {
         for (File inFolder : inFolders) {
             Map<String, List<JFreeChartPlotInfo>> infoMap = new HashMap<>();
 
@@ -611,9 +611,9 @@ public class JFreeChartGraphPlotter {
      * @param inFolders Input folders.
      * @return Output folder name.
      */
-    private static String outputFolder(File[] inFolders) {
-        return inFolders.length != 1 ? null :
-            inFolders[0].getParent() == null ? inFolders[0].getName() : inFolders[0].getParent();
+    private static String outputFolder(List<File> inFolders) {
+        return inFolders.size() != 1 ? null :
+            inFolders.get(0).getParent() == null ? inFolders.get(0).getName() : inFolders.get(0).getParent();
     }
 
     /**
