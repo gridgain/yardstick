@@ -20,6 +20,8 @@ import java.io.*;
 import java.text.*;
 import java.util.*;
 
+import static org.yardstick.report.jfreechart.JFreeChartGraphPlotter.*;
+
 /**
  * Generates html pages with resulted graphs built by JFreeChart framework.
  */
@@ -92,7 +94,7 @@ public class JFreeChartResultPageGenerator {
             String[] tokens = file.getName().split("_");
 
             if (tokens.length < 3) {
-                System.out.println("Incorrect file name: '" + file.getName() + "'.");
+                errorHelp("Incorrect file name: " + file.getAbsolutePath());
 
                 continue;
             }
@@ -254,13 +256,11 @@ public class JFreeChartResultPageGenerator {
             writeLine(bw, "}");
             writeLine(bw, "</script>");
 
-            System.out.println("Html file is generated: " + outFile.getAbsolutePath());
-            System.out.println();
+            println("Html file is generated: " + outFile.getAbsolutePath());
+            println("");
         }
         catch (Exception e) {
-            System.out.println("ERROR: Exception is raised during file '" + outFile + "' processing.");
-
-            e.printStackTrace();
+            errorHelp("Exception is raised during file processing: " + outFile.getAbsolutePath(), e);
         }
     }
 

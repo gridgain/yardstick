@@ -63,7 +63,7 @@ public class JFreeChartGraphPlotter {
             }
 
             if (args.inputFolders() == null) {
-                errorHelp("ERROR: Input folders are not defined.");
+                errorHelp("Input folders are not defined.");
 
                 return;
             }
@@ -77,7 +77,7 @@ public class JFreeChartGraphPlotter {
 
             for (File inFolder : inFolders) {
                 if (!inFolder.exists()) {
-                    errorHelp("ERROR: Folder does not exist: " + inFolder.getAbsolutePath());
+                    errorHelp("Folder does not exist: " + inFolder.getAbsolutePath());
 
                     return;
                 }
@@ -89,20 +89,16 @@ public class JFreeChartGraphPlotter {
                 processCompoundMode(inFolders, args);
             else if (mode == COMPARISON)
                 processComparisonMode(inFolders, args);
-            else if (mode == STANDARD || mode == null)
+            else if (mode == STANDARD)
                 processStandardMode(inFolders, args);
             else
                 errorHelp("Unknown generation mode: " + args.generationMode());
         }
         catch (ParameterException e) {
-            errorHelp("Invalid benchmark parameter.");
-
-            e.printStackTrace();
+            errorHelp("Invalid parameter.", e);
         }
         catch (Exception e) {
-            errorHelp("Failed to execute benchmark.");
-
-            e.printStackTrace();
+            errorHelp("Failed to execute graph generator.", e);
         }
     }
 
@@ -155,11 +151,8 @@ public class JFreeChartGraphPlotter {
         File folderToWrite = new File(parent, parentFolderName);
 
         if (!folderToWrite.exists()) {
-            if (!folderToWrite.mkdir()) {
-                errorHelp("ERROR: Can not create folder '" + folderToWrite.getAbsolutePath() + "'.");
-
-                return;
-            }
+            if (!folderToWrite.mkdir())
+                throwException("Can not create folder: " + folderToWrite.getAbsolutePath());
         }
 
         processFilesPerProbe(res, folderToWrite, args);
@@ -239,7 +232,7 @@ public class JFreeChartGraphPlotter {
 
             if (!folderToWrite.exists()) {
                 if (!folderToWrite.mkdirs())
-                    throw new Exception("ERROR: Can not create folder '" + folderToWrite.getAbsolutePath());
+                    throwException("Can not create folder: " + folderToWrite.getAbsolutePath());
             }
 
             processFilesPerProbe(res, folderToWrite, args);
@@ -265,8 +258,7 @@ public class JFreeChartGraphPlotter {
                         processPlots(file.getParentFile(), Collections.singleton(plotData), infoMap);
                     }
                     catch (Exception e) {
-                        error("ERROR: Exception is raised while processing file (will skip): " +
-                            file.getAbsolutePath(), e);
+                        errorHelp("Exception is raised while processing file (will skip): " + file.getAbsolutePath(), e);
                     }
                 }
             }
@@ -295,7 +287,7 @@ public class JFreeChartGraphPlotter {
                     plots.add(readData(file));
                 }
                 catch (Exception e) {
-                    error("ERROR: Exception is raised while processing file (will skip): " + file.getAbsolutePath(), e);
+                    errorHelp("Exception is raised while processing file (will skip): " + file.getAbsolutePath(), e);
                 }
             }
 
@@ -576,7 +568,7 @@ public class JFreeChartGraphPlotter {
                     int plotNum = split.length - 1;
 
                     if (plotNum < 1)
-                        throw new Exception("Invalid data file: " + file.getAbsolutePath());
+                        throwException("Invalid data file: " + file.getAbsolutePath());
 
                     String xAxisLabel = metaInfo == null || metaInfo.length == 0 ? "" : metaInfo[0].replace("\"", "");
 
@@ -629,21 +621,18 @@ public class JFreeChartGraphPlotter {
      *
      * @param msg Message.
      */
-    private static void println(String msg) {
+    static void println(String msg) {
         System.out.println(msg);
     }
 
     /**
-     * Prints error.
+     * Throws exception.
      *
      * @param msg Error message.
-     * @param t Throwable, possibly {@code null}.
+     * @throws Exception that describes exceptional situation.
      */
-    private static void error(String msg, Throwable t) {
-        System.err.println(msg);
-
-        if (t != null)
-            t.printStackTrace();
+    private static void throwException(String msg) throws Exception {
+        throw new Exception("ERROR: " + msg);
     }
 
     /**
@@ -651,9 +640,22 @@ public class JFreeChartGraphPlotter {
      *
      * @param msg Error message.
      */
-    private static void errorHelp(String msg) {
-        System.err.println(msg);
+    static void errorHelp(String msg) {
+        System.err.println("ERROR: " + msg);
         System.err.println("Type '--help' for usage.");
+    }
+
+    /**
+     * Prints error and help.
+     *
+     * @param msg Error message.
+     * @param t Throwable, possibly {@code null}.
+     */
+    static void errorHelp(String msg, Throwable t) {
+        errorHelp(msg);
+
+        if (t != null)
+            t.printStackTrace();
     }
 
     /**
