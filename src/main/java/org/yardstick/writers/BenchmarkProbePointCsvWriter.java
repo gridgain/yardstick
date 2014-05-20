@@ -102,8 +102,8 @@ public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
 
             println("--Probe dump file for probe: " + probe + " (" + probe.getClass() + ")");
             println("--Created " + new Date(startTime));
-            println("--Benchmark config: " + cfg.toString());
-            println("--Description: " + (cfg.description() == null ? "" : cfg.description()));
+            println("--Benchmark config: " + removeUnwantedChars(cfg.toString()));
+            println("--Description: " + removeUnwantedChars(cfg.description() == null ? "" : cfg.description()));
 
             if (probe.metaInfo() != null && probe.metaInfo().size() > 0) {
                 int i = 0;
@@ -161,6 +161,14 @@ public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
 
         if (dupToOutput)
             BenchmarkUtils.println(cfg, s);
+    }
+
+    /**
+     * @param val String.
+     * @return String with removed chars.
+     */
+    private static String removeUnwantedChars(String val) {
+        return val.replaceAll("\n|\t|\r|\f", "");
     }
 
     /**
