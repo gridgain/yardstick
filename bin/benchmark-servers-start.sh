@@ -32,7 +32,7 @@ fi
 
 if [ "${CONFIG_INCLUDE}" == "" ]; then
     CONFIG_INCLUDE=${SCRIPT_DIR}/../config/benchmark.properties
-    echo "Using default property file: config/benchmark.properties"
+    echo "Using default properties file: config/benchmark.properties"
 fi
 
 if [ ! -f $CONFIG_INCLUDE ]; then
@@ -106,7 +106,7 @@ if [ ! -d "${LOGS_DIR}" ]; then
     mkdir -p ${LOGS_DIR}
 fi
 
-CUR_DIR=$(pwd -P)
+CUR_DIR=$(pwd)
 
 cntr=0
 

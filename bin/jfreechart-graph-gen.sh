@@ -66,7 +66,7 @@ checkJava
 
 ARGS=$*
 
-CP="${SCRIPT_DIR}/../libs/*:${SCRIPT_DIR}/../yardstick-1.0.0.jar"
+CP="${SCRIPT_DIR}/../libs/*"
 
 #
 # JVM options. See http://java.sun.com/javase/technologies/hotspot/vmoptions.jsp for more details.

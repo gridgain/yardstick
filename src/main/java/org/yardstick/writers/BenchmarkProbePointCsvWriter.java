@@ -20,8 +20,6 @@ import java.io.*;
 import java.text.*;
 import java.util.*;
 
-import static org.yardstick.BenchmarkUtils.*;
-
 /**
  * CSV probe point writer.
  */
@@ -80,7 +78,7 @@ public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
 
         String subFolderName = FORMAT.format(new Date(startTime)) + '_' + cfg.driverName() + desc;
 
-        subFolderName = fixFolderName(subFolderName);
+        subFolderName = BenchmarkUtils.fixFolderName(subFolderName);
 
         outPath = folder == null ? new File(subFolderName) : new File(folder, subFolderName);
 
@@ -99,12 +97,13 @@ public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
 
             writer = new PrintWriter(new OutputStreamWriter(new FileOutputStream(f)));
 
-            println(probe.getClass().getSimpleName() + " results will be saved to: " + f.getAbsolutePath());
+            BenchmarkUtils.println(cfg,
+                probe.getClass().getSimpleName() + " results will be saved to: " + f.getAbsolutePath());
 
             println("--Probe dump file for probe: " + probe + " (" + probe.getClass() + ")");
             println("--Created " + new Date(startTime));
-            println("--Benchmark config: " + cfg.toString());
-            println("--Description: " + (cfg.description() == null ? "" : cfg.description()));
+            println("--Benchmark config: " + removeUnwantedChars(cfg.toString()));
+            println("--Description: " + removeUnwantedChars(cfg.description() == null ? "" : cfg.description()));
 
             if (probe.metaInfo() != null && probe.metaInfo().size() > 0) {
                 int i = 0;
@@ -161,7 +160,15 @@ public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
         writer.println(s);
 
         if (dupToOutput)
-            cfg.output().println(s);
+            BenchmarkUtils.println(cfg, s);
+    }
+
+    /**
+     * @param val String.
+     * @return String with removed chars.
+     */
+    private static String removeUnwantedChars(String val) {
+        return val.replaceAll("\n|\t|\r|\f", "");
     }
 
     /**
