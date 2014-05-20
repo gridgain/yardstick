@@ -93,11 +93,29 @@ with each other
 Generation modes:
 
 * `STANDARD` - all benchmark results are displayed on separate graphs
+
+    Example: `bin/jfreechart-graph-gen.sh -i results_2014-05-20_03-19-21 results_2014-05-20_03-20-35 -gm STANDARD`
+
+    Output: images with graphs and Results.html file are generated for every benchmark run from the folders above, 
+the generated files are located in the benchmark run folder, near probe results files 
+
+
 * `COMPARISON` - benchmarks from multiple folders (space separated) are paired together
+
+    Example: `bin/jfreechart-graph-gen.sh -i results_2014-05-20_03-19-21 results_2014-05-20_03-20-35 -gm COMPARISON`
+
+    Output: folder `results_comparison_2014-05-20_03-19-21_2014-05-20_03-20-35` is created, it contains the list of folders
+with images and Results.html file. In this mode the first benchmark run from the first input folder is compared with
+the first benchmark run from the second input folder, the second run with the second run and etc. 
+ 
+
+
 * `COMPOUND` - benchmarks from multiple folders (space separated) are shown together, it's a default mode
 
-As a result the script produces 'png' images with graphs and html pages where all graphs belonging to the one test run
-are located.
+    Example: `bin/jfreechart-graph-gen.sh -i results_2014-05-20_03-19-21 results_2014-05-20_03-20-35 -gm COMPOUND`
+
+    Output: folder `results_compound_2014-05-20_03-19-21_2014-05-20_03-20-35` is created, it contains images with graphs 
+and Results.html. All benchmarks results will be displayed on one graph
 
 ## Maven Install
 The easiest way to get started with Yardstick in your project is to use Maven dependency management:
