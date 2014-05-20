@@ -21,7 +21,7 @@
     <groupId>org.yardstick</groupId>
     <artifactId>yardstick</artifactId>
     <name>Yardstick</name>
-    <version>1.0.0</version>
+    <version>0.5.0</version>
 
     <url>https://github.com/gridgain/yardstick</url>
     <description>Framework for benchmarks writing.</description>
@@ -163,6 +163,9 @@
                             <pomFile>pom.xml</pomFile>
                             <repositoryId>sonatype-nexus-staging</repositoryId>
                             <file>yardstick-${version}.jar</file>
+                            <gpgArguments>
+                                <argument>--no-tty</argument>
+                            </gpgArguments>
                         </configuration>
                     </execution>
                 </executions>
