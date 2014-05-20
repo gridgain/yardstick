@@ -32,7 +32,7 @@ fi
 
 if [ "${CONFIG_INCLUDE}" == "" ]; then
     CONFIG_INCLUDE=${SCRIPT_DIR}/../config/benchmark.properties
-    echo "Using default property file: config/benchmark.properties"
+    echo "Using default properties file: config/benchmark.properties"
 fi
 
 if [ ! -f $CONFIG_INCLUDE ]; then
