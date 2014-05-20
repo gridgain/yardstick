@@ -66,7 +66,7 @@ checkJava
 
 ARGS=$*
 
-CP="${SCRIPT_DIR}/../libs/*"
+CP=":${SCRIPT_DIR}/../libs/*"
 
 #
 # JVM options. See http://java.sun.com/javase/technologies/hotspot/vmoptions.jsp for more details.
