@@ -40,19 +40,9 @@
 
     <developers>
         <developer>
-            <id>nivanov</id>
-            <name>Nikita Ivanov</name>
-            <email>nivanov@gridgain.com</email>
-        </developer>
-        <developer>
-            <id>dsetrakyan</id>
-            <name>Dmitriy Setrakyan</name>
-            <email>dsetrakyan@gridgain.com</email>
-        </developer>
-        <developer>
-            <id>yzhdanov</id>
-            <name>Yakov Zhdanov</name>
-            <email>yzhdanov@gridgain.com</email>
+            <id>gridgain</id>
+            <name>GridGain</name>
+            <email>mvncentral@gridgain.com</email>
         </developer>
     </developers>
 
