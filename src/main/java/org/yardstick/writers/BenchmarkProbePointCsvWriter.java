@@ -46,6 +46,9 @@ public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
     private BenchmarkConfiguration cfg;
 
     /** */
+    private BenchmarkDriver drv;
+
+    /** */
     private long startTime;
 
     /** */
@@ -55,8 +58,9 @@ public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
     private File outPath;
 
     /** {@inheritDoc} */
-    @Override public void start(BenchmarkConfiguration cfg, long startTime) {
+    @Override public void start(BenchmarkDriver drv, BenchmarkConfiguration cfg, long startTime) {
         this.cfg = cfg;
+        this.drv = drv;
         this.startTime = startTime;
         this.dupToOutput = duplicateToOutput(cfg);
 
@@ -73,8 +77,8 @@ public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
             }
         }
 
-        String desc = cfg.description() == null || cfg.description().isEmpty() ? "" :
-            '_' + cfg.description().replaceAll(",|\\\\|/|\\||%|:|<|>|\\*|\\?|\"|\\s", "_").replaceAll("_+", "_");
+        String desc = drv.description() == null || drv.description().isEmpty() ? "" :
+            '_' + drv.description().replaceAll(",|\\\\|/|\\||%|:|<|>|\\*|\\?|\"|\\s", "_").replaceAll("_+", "_");
 
         String subFolderName = FORMAT.format(new Date(startTime)) + '_' + cfg.driverName() + desc;
 
@@ -103,7 +107,7 @@ public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
             println("--Probe dump file for probe: " + probe + " (" + probe.getClass() + ")");
             println("--Created " + new Date(startTime));
             println("--Benchmark config: " + removeUnwantedChars(cfg.toString()));
-            println("--Description: " + removeUnwantedChars(cfg.description() == null ? "" : cfg.description()));
+            println("--Description: " + removeUnwantedChars(drv.description() == null ? "" : drv.description()));
 
             if (probe.metaInfo() != null && probe.metaInfo().size() > 0) {
                 int i = 0;
@@ -167,7 +171,7 @@ public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
      * @param val String.
      * @return String with removed chars.
      */
-    private static String removeUnwantedChars(String val) {
+    private String removeUnwantedChars(String val) {
         return val.replaceAll("\n|\t|\r|\f", "");
     }
 
@@ -175,7 +179,7 @@ public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
      * @param cfg Config.
      * @return Flat indicating whether to duplicate to output or not.
      */
-    private static boolean duplicateToOutput(BenchmarkConfiguration cfg) {
+    private boolean duplicateToOutput(BenchmarkConfiguration cfg) {
         try {
             return Boolean.parseBoolean(cfg.customProperties().get(DUPLICATE_TO_OUTPUT));
         }

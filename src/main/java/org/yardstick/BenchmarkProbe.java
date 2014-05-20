@@ -23,10 +23,11 @@ public interface BenchmarkProbe {
     /**
      * Starts probe execution.
      *
-     * @param cfg Benchmark context.
+     * @param drv Benchmark driver.
+     * @param cfg Benchmark configuration.
      * @throws Exception If start failed.
      */
-    public void start(BenchmarkConfiguration cfg) throws Exception;
+    public void start(BenchmarkDriver drv, BenchmarkConfiguration cfg) throws Exception;
 
     /**
      * Stops probe execution.

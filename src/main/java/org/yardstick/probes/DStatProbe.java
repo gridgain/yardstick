@@ -91,7 +91,7 @@ public class DStatProbe implements BenchmarkProbe {
     private Collection<BenchmarkProbePoint> collected = new ArrayList<>();
 
     /** {@inheritDoc} */
-    @Override public void start(BenchmarkConfiguration cfg) throws Exception {
+    @Override public void start(BenchmarkDriver drv, BenchmarkConfiguration cfg) throws Exception {
         this.cfg = cfg;
 
         BenchmarkClosure<String> c = new BenchmarkClosure<String>() {

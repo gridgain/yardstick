@@ -61,8 +61,6 @@ public class BenchmarkDriverStartUp {
 
             drv.setUp(cfg);
 
-            cfg.description(drv.description());
-
             Collection<BenchmarkProbe> probes = drv.probes();
 
             if (probes == null || probes.isEmpty()) {
@@ -71,7 +69,7 @@ public class BenchmarkDriverStartUp {
                 return;
             }
 
-            final BenchmarkRunner runner = new BenchmarkRunner(cfg, drv, new BenchmarkProbeSet(cfg, probes, ldr));
+            final BenchmarkRunner runner = new BenchmarkRunner(cfg, drv, new BenchmarkProbeSet(drv, cfg, probes, ldr));
 
             if (cfg.shutdownHook()) {
                 Runtime.getRuntime().addShutdownHook(new Thread() {

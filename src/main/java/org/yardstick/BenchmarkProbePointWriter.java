@@ -23,10 +23,11 @@ public interface BenchmarkProbePointWriter extends AutoCloseable {
     /**
      * Writer preparation and all resource initialization should be done here.
      *
+     * @param drv Benchmark driver.
      * @param cfg Benchmark configuration.
      * @param startTime Time when writers are initialized.
      */
-    public void start(BenchmarkConfiguration cfg, long startTime);
+    public void start(BenchmarkDriver drv, BenchmarkConfiguration cfg, long startTime);
 
     /**
      * Writes collection of collected points to target.

@@ -87,9 +87,6 @@ public class BenchmarkConfiguration {
     /** Error writer. */
     private PrintStream errorWriter;
 
-    /** Description. */
-    private String description;
-
     /**
      * @return Properties file name.
      */
@@ -287,20 +284,6 @@ public class BenchmarkConfiguration {
     }
 
     /**
-     * @return Description.
-     */
-    public String description() {
-        return description;
-    }
-
-    /**
-     * @param description Description.
-     */
-    public void description(String description) {
-        this.description = description;
-    }
-
-    /**
      * @return Output folder.
      */
     public String outputFolder() {
@@ -310,7 +293,7 @@ public class BenchmarkConfiguration {
     /**
      * @return Description.
      */
-    public String parametersToString() {
+    public String description() {
         return "-t=" + threads + "_-d=" + duration + "_-w=" + warmup;
     }
 

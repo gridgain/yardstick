@@ -24,7 +24,7 @@ import java.util.concurrent.atomic.*;
 /**
  * Echo server benchmark. This benchmark has client and server counterparts.
  */
-public class EchoServerBenchmark extends BenchmarkDriverAdapter {
+public class EchoBenchmark extends BenchmarkDriverAdapter {
     /** Counter. */
     private final AtomicInteger cntr = new AtomicInteger();
 
@@ -32,7 +32,7 @@ public class EchoServerBenchmark extends BenchmarkDriverAdapter {
     private final ConcurrentMap<Thread, Socket> sockMap = new ConcurrentHashMap<>();
 
     /** Arguments. */
-    private final EchoServerBenchmarkArguments args = new EchoServerBenchmarkArguments();
+    private final EchoBenchmarkArguments args = new EchoBenchmarkArguments();
 
     /** {@inheritDoc} */
     @Override public void setUp(BenchmarkConfiguration cfg) throws Exception {
@@ -98,7 +98,7 @@ public class EchoServerBenchmark extends BenchmarkDriverAdapter {
      * @return Socket for this thread.
      * @throws Exception If failed.
      */
-    private Socket socket(EchoServerBenchmarkArguments args) throws Exception {
+    private Socket socket(EchoBenchmarkArguments args) throws Exception {
         Socket sock = sockMap.get(Thread.currentThread());
 
         if (sock == null) {
@@ -120,7 +120,7 @@ public class EchoServerBenchmark extends BenchmarkDriverAdapter {
      * @return Created socket.
      * @throws Exception If failed.
      */
-    private static Socket createSocket(EchoServerBenchmarkArguments args) throws Exception {
+    private static Socket createSocket(EchoBenchmarkArguments args) throws Exception {
         try {
             return new Socket(args.localBind(), args.port());
         }

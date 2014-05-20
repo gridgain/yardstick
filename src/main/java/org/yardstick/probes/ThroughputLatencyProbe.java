@@ -44,7 +44,7 @@ public class ThroughputLatencyProbe implements BenchmarkExecutionAwareProbe {
 
     /** {@inheritDoc} */
     @SuppressWarnings("BusyWait")
-    @Override public void start(BenchmarkConfiguration cfg) throws Exception {
+    @Override public void start(BenchmarkDriver drv, BenchmarkConfiguration cfg) throws Exception {
         this.cfg = cfg;
 
         agents = new ThreadAgent[cfg.threads()];

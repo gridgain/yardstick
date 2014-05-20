@@ -54,7 +54,7 @@ The following properties can be defined in benchmark properties file:
 * `REMOTE_USER` - SSH user for logging in to remote hosts
 * `CONFIGS` - comma-separated list of benchmark run configurations which are passed to the servers and to the benchmarks
 
-Example of `benchmark.properties` file
+Example of `benchmark.properties` file to run 2 instances of `EchoServer`
 
 	# List of default probes.
 	BENCHMARK_DEFAULT_PROBES=ThroughputLatencyProbe
@@ -66,17 +66,18 @@ Example of `benchmark.properties` file
 	# BENCHMARK_WRITER=
 
 	# Comma-separated list of remote hosts to run BenchmarkServers on.
+	# If same host is specified multiple times, then benchmark server will 
+	# be started on that host multiple times.
 	HOSTS=localhost,localhost
 	
 	# Remote username
 	# REMOTE_USER=
 
-	# Comma-separated list of benchmark driver configuration parameters.
+	# Comma-separated list of benchmark driver and server configuration parameters.
 	CONFIGS="\
-	--localBind localhost --duration 30 -t 2 -sn EchoServer -dn EchoServerBenchmark,\
-	--localBind localhost --duration 30 -t 4 -sn EchoServer -dn EchoServerBenchmark\
+	--localBind localhost --duration 30 -t 2 -sn EchoServer -dn EchoBenchmark,\
+	--localBind localhost --duration 30 -t 4 -sn EchoServer -dn EchoBenchmark\
 	"
-
 
 The following properties can be defined in the benchmark configuration:
 

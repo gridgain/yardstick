@@ -19,7 +19,7 @@ import com.beust.jcommander.*;
 /**
  * Echo server benchmark arguments.
  */
-public class EchoServerBenchmarkArguments {
+public class EchoBenchmarkArguments {
     /** Port echo server listens on. */
     @SuppressWarnings("FieldCanBeLocal")
     @Parameter(names = "--port", description = "Echo server port")

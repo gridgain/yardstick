@@ -43,6 +43,9 @@ public class BenchmarkProbeSet {
     /** Benchmark context. */
     private final BenchmarkConfiguration cfg;
 
+    /** Benchmark driver. */
+    private final BenchmarkDriver driver;
+
     /** Loader. */
     private final BenchmarkLoader ldr;
 
@@ -54,8 +57,9 @@ public class BenchmarkProbeSet {
      * @param probes Collection of probes.
      * @param ldr Loader.
      */
-    public BenchmarkProbeSet(BenchmarkConfiguration cfg, Collection<BenchmarkProbe> probes, BenchmarkLoader ldr) {
+    public BenchmarkProbeSet(BenchmarkDriver driver, BenchmarkConfiguration cfg, Collection<BenchmarkProbe> probes, BenchmarkLoader ldr) {
         this.cfg = cfg;
+        this.driver = driver;
         this.ldr = ldr;
         this.probes = probes;
         this.writers = new HashMap<>(probes.size());
@@ -97,12 +101,12 @@ public class BenchmarkProbeSet {
             if (probe instanceof BenchmarkExecutionAwareProbe)
                 execProbes.add((BenchmarkExecutionAwareProbe)probe);
 
-            writer.start(cfg, writersStartTime);
+            writer.start(driver, cfg, writersStartTime);
         }
 
         try {
             for (BenchmarkProbe probe : writers.keySet())
-                probe.start(cfg);
+                probe.start(driver, cfg);
         }
         catch (Exception e) {
             stopProbes();
