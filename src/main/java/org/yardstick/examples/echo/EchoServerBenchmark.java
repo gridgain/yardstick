@@ -83,7 +83,7 @@ public class EchoServerBenchmark extends BenchmarkDriverAdapter {
 
     /** {@inheritDoc} */
     @Override public String description() {
-        return args.parametersToString() + '_' + super.description();
+        return args.description() + '_' + super.description();
     }
 
     /** {@inheritDoc} */
@@ -122,7 +122,7 @@ public class EchoServerBenchmark extends BenchmarkDriverAdapter {
      */
     private static Socket createSocket(EchoServerBenchmarkArguments args) throws Exception {
         try {
-            return new Socket(args.host(), args.port());
+            return new Socket(args.localBind(), args.port());
         }
         catch (IOException e) {
             throw new Exception("Can not connect to EchoServer, is server running?", e);

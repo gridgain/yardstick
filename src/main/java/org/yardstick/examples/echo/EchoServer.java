@@ -37,7 +37,7 @@ public class EchoServer implements BenchmarkServer {
 
         th = new Thread(new Runnable() {
             @Override public void run() {
-                try (ServerSocket srvrSock = new ServerSocket(args.port(), 50, InetAddress.getByName(args.host()))) {
+                try (ServerSocket srvrSock = new ServerSocket(args.port(), 50, InetAddress.getByName(args.localBind()))) {
                     while (!Thread.interrupted()) {
                         final Socket sock = srvrSock.accept();
 

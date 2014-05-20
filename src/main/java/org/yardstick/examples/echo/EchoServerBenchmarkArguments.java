@@ -25,10 +25,10 @@ public class EchoServerBenchmarkArguments {
     @Parameter(names = "--port", description = "Echo server port")
     private int port = 54321;
 
-    /** Port echo server listens on. */
+    /** Local address the server listens on. */
     @SuppressWarnings("FieldCanBeLocal")
-    @Parameter(names = "--host", description = "Echo server port")
-    private String host = "127.0.0.1";
+    @Parameter(names = "--localBind", description = "Echo server local bind address")
+    private String localbind = "127.0.0.1";
 
     /**
      * @return Client flag.
@@ -40,22 +40,22 @@ public class EchoServerBenchmarkArguments {
     /**
      * @return Local host.
      */
-    public String host() {
-        return host;
+    public String localBind() {
+        return localbind;
     }
 
     /**
      * @return Description.
      */
-    public String parametersToString() {
-        return "--host=" + host + "_--port=" + port;
+    public String description() {
+        return "--localBind=" + localbind + "_--port=" + port;
     }
 
     /** {@inheritDoc} */
     @Override public String toString() {
         return "EchoServerBenchmarkArguments [" +
             "port=" + port +
-            ", host='" + host + '\'' +
+            ", localBind='" + localbind + '\'' +
             ']';
     }
 }
