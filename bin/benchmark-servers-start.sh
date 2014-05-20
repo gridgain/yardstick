@@ -106,7 +106,7 @@ if [ ! -d "${LOGS_DIR}" ]; then
     mkdir -p ${LOGS_DIR}
 fi
 
-CUR_DIR=$(pwd -P)
+CUR_DIR=$(pwd)
 
 cntr=0
 
