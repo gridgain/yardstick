@@ -155,7 +155,7 @@ public class JFreeChartGraphPlotter {
                 throwException("Can not create folder: " + folderToWrite.getAbsolutePath());
         }
 
-        processFilesPerProbe(res, folderToWrite, args);
+        processFilesPerProbe(res, folderToWrite, args, COMPOUND);
     }
 
     /**
@@ -235,7 +235,7 @@ public class JFreeChartGraphPlotter {
                     throwException("Can not create folder: " + folderToWrite.getAbsolutePath());
             }
 
-            processFilesPerProbe(res, folderToWrite, args);
+            processFilesPerProbe(res, folderToWrite, args, COMPARISON);
         }
     }
 
@@ -255,7 +255,7 @@ public class JFreeChartGraphPlotter {
                     try {
                         List<PlotData> plotData = readData(file);
 
-                        processPlots(file.getParentFile(), Collections.singleton(plotData), infoMap);
+                        processPlots(file.getParentFile(), Collections.singleton(plotData), infoMap, STANDARD);
                     }
                     catch (Exception e) {
                         errorHelp("Exception is raised while processing file (will skip): " + file.getAbsolutePath(), e);
@@ -271,10 +271,11 @@ public class JFreeChartGraphPlotter {
      * @param res Resulted map.
      * @param folderToWrite Folder to write results to.
      * @param args Arguments.
+     * @param mode Generation mode.
      * @throws Exception If failed.
      */
     private static void processFilesPerProbe(Map<String, List<File>> res, File folderToWrite,
-        JFreeChartGraphPlotterArguments args) throws Exception {
+        JFreeChartGraphPlotterArguments args, JFreeChartGenerationMode mode) throws Exception {
         Map<String, List<JFreeChartPlotInfo>> infoMap = new HashMap<>();
 
         for (Map.Entry<String, List<File>> entry : res.entrySet()) {
@@ -291,7 +292,7 @@ public class JFreeChartGraphPlotter {
                 }
             }
 
-            processPlots(folderToWrite, plots, infoMap);
+            processPlots(folderToWrite, plots, infoMap, mode);
         }
 
         if (!infoMap.isEmpty())
@@ -399,10 +400,11 @@ public class JFreeChartGraphPlotter {
      * @param folderToWrite Folder to write the resulted charts.
      * @param plots Collections of plots.
      * @param infoMap Map with additional plot info.
+     * @param mode Generation mode.
      * @throws Exception If failed.
      */
     private static void processPlots(File folderToWrite, Collection<List<PlotData>> plots,
-        Map<String, List<JFreeChartPlotInfo>> infoMap) throws Exception {
+        Map<String, List<JFreeChartPlotInfo>> infoMap, JFreeChartGenerationMode mode) throws Exception {
         ChartRenderingInfo info = new ChartRenderingInfo(new StandardEntityCollection());
 
         XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer(true, false);
@@ -432,7 +434,7 @@ public class JFreeChartGraphPlotter {
                 yAxisLabel = plotData.yAxisLabel;
                 plotName = plotData.plotName();
 
-                infoList.add(info(plotData.series()));
+                infoList.add(info(plotData.series(), mode));
             }
 
             if (infoList.isEmpty())
@@ -497,9 +499,10 @@ public class JFreeChartGraphPlotter {
 
     /**
      * @param series Plot series.
+     * @param mode Generation mode.
      * @return Graph info.
      */
-    private static JFreeChartPlotInfo info(PlotSeries series) {
+    private static JFreeChartPlotInfo info(PlotSeries series, JFreeChartGenerationMode mode) {
         double sum = 0;
         double min = Long.MAX_VALUE;
         double max = Long.MIN_VALUE;
@@ -509,7 +512,7 @@ public class JFreeChartGraphPlotter {
         if (len == 1) {
             double val = series.data[1][0];
 
-            return new JFreeChartPlotInfo(series.seriesName, val, val, val, 0);
+            return new JFreeChartPlotInfo(series.seriesName, val, val, val, 0, mode);
         }
 
         for (int i = 0; i < len; i++) {
@@ -534,7 +537,7 @@ public class JFreeChartGraphPlotter {
 
         double stdDiv = Math.sqrt(s / (len - 1));
 
-        return new JFreeChartPlotInfo(series.seriesName, avg, min, max, stdDiv);
+        return new JFreeChartPlotInfo(series.seriesName, avg, min, max, stdDiv, mode);
     }
 
     /**

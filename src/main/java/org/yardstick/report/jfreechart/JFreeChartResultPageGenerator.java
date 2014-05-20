@@ -14,22 +14,23 @@
 
 package org.yardstick.report.jfreechart;
 
-import org.yardstick.writers.BenchmarkProbePointCsvWriter;
+import org.yardstick.writers.*;
 
 import java.io.*;
-import java.text.NumberFormat;
-import java.text.ParseException;
+import java.text.*;
 import java.util.*;
 
+import static org.yardstick.report.jfreechart.JFreeChartGenerationMode.*;
 import static org.yardstick.report.jfreechart.JFreeChartGraphPlotter.*;
 
 /**
  * Generates html pages with resulted graphs built by JFreeChart framework.
  */
 public class JFreeChartResultPageGenerator {
-
+    /** */
     public static final NumberFormat NUMBER_INSTANCE = NumberFormat.getNumberInstance();
 
+    /** */
     static {
         NUMBER_INSTANCE.setMaximumFractionDigits(2);
         NUMBER_INSTANCE.setMinimumFractionDigits(2);
@@ -39,11 +40,11 @@ public class JFreeChartResultPageGenerator {
      * Generates a page containing all charts that belong to one test run.
      *
      * @param inFolder Input folder.
-     * @param args     Arguments.
-     * @param infoMap  Map with additional plot info.
+     * @param args Arguments.
+     * @param infoMap Map with additional plot info.
      */
     public static void generate(File inFolder, JFreeChartGraphPlotterArguments args,
-                                Map<String, List<JFreeChartPlotInfo>> infoMap) {
+        Map<String, List<JFreeChartPlotInfo>> infoMap) {
         for (File folder : folders(inFolder)) {
             Map<String, List<File>> files = files(folder.listFiles());
 
@@ -57,7 +58,8 @@ public class JFreeChartResultPageGenerator {
             if (i != -1) {
                 try {
                     testTime = BenchmarkProbePointCsvWriter.FORMAT.parse(folder.getName().substring(0, i));
-                } catch (ParseException ignored) {
+                }
+                catch (ParseException ignored) {
                     // No-op.
                 }
             }
@@ -119,8 +121,7 @@ public class JFreeChartResultPageGenerator {
         }
 
         Comparator<File> comp = new Comparator<File>() {
-            @Override
-            public int compare(File o1, File o2) {
+            @Override public int compare(File o1, File o2) {
                 return o1.getName().compareTo(o2.getName());
             }
         };
@@ -133,14 +134,14 @@ public class JFreeChartResultPageGenerator {
     }
 
     /**
-     * @param testTime  Test time.
-     * @param fileMap   Files.
+     * @param testTime Test time.
+     * @param fileMap Files.
      * @param outFolder Output folder.
-     * @param args      Arguments.
-     * @param infoMap   Map with additional plot info.
+     * @param args Arguments.
+     * @param infoMap Map with additional plot info.
      */
     private static void generateHtml(Date testTime, Map<String, List<File>> fileMap, File outFolder,
-                                     JFreeChartGraphPlotterArguments args, Map<String, List<JFreeChartPlotInfo>> infoMap) {
+        JFreeChartGraphPlotterArguments args, Map<String, List<JFreeChartPlotInfo>> infoMap) {
         File outFile = new File(outFolder, "Results.html");
 
         try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outFile)))) {
@@ -150,14 +151,25 @@ public class JFreeChartResultPageGenerator {
             writeLine(bw, "<meta charset=\"utf-8\">");
             writeLine(bw, "<meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">");
             writeLine(bw, "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">");
-            writeLine(bw, "<link rel=\"stylesheet\" href=\"http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css\">");
-            writeLine(bw, "<link rel=\"stylesheet\" href=\"http://netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css\">");
+            writeLine(bw, "<link rel=\"stylesheet\" " +
+                "href=\"http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css\">");
+            writeLine(bw, "<link rel=\"stylesheet\" " +
+                "href=\"http://netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css\">");
+            writeLine(bw, "<link rel=\"stylesheet\" href=\"http://roman10.net/web/popup/styles/modal-window.css\" />");
+            writeLine(bw, "<script type=\"text/javascript\" language=\"javascript\" " +
+                "src=\"http://roman10.net/web/popup/scripts/jquery-1.3.2.min.js\"></script>");
+            writeLine(bw, "<script type=\"text/javascript\" language=\"javascript\" " +
+                "src=\"http://roman10.net/web/popup/scripts/modal-window.min.js\"></script>");
             writeLine(bw, "</head>");
             writeLine(bw, "<body>");
 
             writeLine(bw, "<div class=\"container-fluid\">");
-            writeLine(bw, "<h1>Results" + (testTime == null ? "" : "<small> on " + testTime + "</small>") + "</h1>");
-            //writeLine(bw, "<hr/>");
+            writeLine(bw, "<h1>Yardstick</h1>");
+
+            JFreeChartGenerationMode mode = generationMode(fileMap, infoMap);
+
+            writeLine(bw, "<h1>Benchmark " + (mode == null || mode == STANDARD ? "" : mode.name().toLowerCase() + ' ') +
+                "results" + (testTime == null ? "" : "<small> on " + testTime + "</small>") + "</h1>");
 
             Iterator<List<File>> iter = fileMap.values().iterator();
 
@@ -167,9 +179,8 @@ public class JFreeChartResultPageGenerator {
                 List<JFreeChartPlotInfo> list = infoMap.get(f.getAbsolutePath());
 
                 if (list != null) {
-
                     writeLine(bw, "<table class=\"table\" style=\"width:auto;\">");
-                    writeLine(bw, "<thead><tr><th>label 1</th><th>label 2</th></tr></thead>");
+                    writeLine(bw, "<thead><tr><th>Color</th><th>Benchmark</th></tr></thead>");
                     writeLine(bw, "<tbody>");
 
                     for (JFreeChartPlotInfo info : list) {
@@ -184,10 +195,10 @@ public class JFreeChartResultPageGenerator {
                 }
             }
 
-
             for (Map.Entry<String, List<File>> entry : fileMap.entrySet()) {
-                final List<File> files = entry.getValue();
-                final int columnCount = args.chartColumns();
+                List<File> files = entry.getValue();
+
+                int columnCount = args.chartColumns();
 
                 writeLine(bw, "<div class=\"panel panel-default\">");
                 writeLine(bw, "<div class=\"panel-heading\"><h2 class=\"panel-title\">" + entry.getKey() + "</h2></div>");
@@ -199,9 +210,12 @@ public class JFreeChartResultPageGenerator {
                     List<File> sublist = files.subList(start, end);
 
                     writeLine(bw, "<div class=\"row\">");
+
                     for (File file : sublist) {
                         writeLine(bw, "<div class=\"col-md-3\">");
-                        writeLine(bw, "<a href=\"#\"><img src=\"" + file.getName() + "\" class=\"img-thumbnail\"/></a>");
+                        writeLine(bw, "<a href=\"" + file.getName() +
+                            "\" onclick=\"$(this).modal({width:820, height:420}).open(); return false;\"><img src=\"" +
+                            file.getName() + "\" class=\"img-thumbnail\"/></a>");
 
                         writeLine(bw, "<table class=\"table table-condensed\">");
                         writeLine(bw, "<thead>");
@@ -221,7 +235,8 @@ public class JFreeChartResultPageGenerator {
                             for (JFreeChartPlotInfo info : list) {
                                 writeLine(bw, "<tr>");
 
-                                writeLine(bw, "<td><i style=\"color:#" + info.color() + ";\" class=\"fa fa-square\"></i></td>");
+                                writeLine(bw, "<td><i style=\"color:#" + info.color() +
+                                    ";\" class=\"fa fa-square\"></i></td>");
                                 writeValueToTable(bw, info.average());
                                 writeValueToTable(bw, info.minimum());
                                 writeValueToTable(bw, info.maximum());
@@ -241,7 +256,6 @@ public class JFreeChartResultPageGenerator {
 
                 writeLine(bw, "</div>");
                 writeLine(bw, "</div>");
-
             }
 
             writeLine(bw, "</div>");
@@ -258,7 +272,28 @@ public class JFreeChartResultPageGenerator {
     }
 
     /**
-     * @param bw  Buffered writer.
+     * @param fileMap File map.
+     * @param infoMap Info map.
+     * @return Generation mode.
+     */
+    private static JFreeChartGenerationMode generationMode(Map<String, List<File>> fileMap, Map<String,
+        List<JFreeChartPlotInfo>> infoMap) {
+        Iterator<List<File>> iter = fileMap.values().iterator();
+
+        if (iter.hasNext()) {
+            File f = iter.next().get(0);
+
+            List<JFreeChartPlotInfo> list = infoMap.get(f.getAbsolutePath());
+
+            if (list != null && !list.isEmpty())
+                return list.get(0).mode();
+        }
+
+        return null;
+    }
+
+    /**
+     * @param bw Buffered writer.
      * @param val Value.
      * @throws IOException If failed.
      */
@@ -267,32 +302,12 @@ public class JFreeChartResultPageGenerator {
     }
 
     /**
-     * @param bw   Buffered writer.
+     * @param bw Buffered writer.
      * @param line Line.
      * @throws IOException If failed.
      */
     private static void writeLine(BufferedWriter bw, String line) throws IOException {
         bw.write(line);
         bw.newLine();
-    }
-
-    public static void main(String[] args) {
-
-        int rows = 0;
-
-        System.out.println(65 / 3);
-        System.out.println(65 % 3);
-
-        for (int i = 0; i < 10; i++) {
-
-            System.out.println("i = " + i + ", mod = " + i % 3);
-
-            if (i != 0 && i % 3 == 0) {
-                rows++;
-            }
-
-        }
-
-        System.out.println("rows " + rows);
     }
 }

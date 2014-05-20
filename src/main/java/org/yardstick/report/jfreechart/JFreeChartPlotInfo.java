@@ -36,19 +36,25 @@ public class JFreeChartPlotInfo {
     /** */
     private String color;
 
+    /** */
+    private JFreeChartGenerationMode mode;
+
     /**
      * @param name Plot name.
      * @param avg Average.
      * @param min Minimum.
      * @param max Maximum.
      * @param stdDiv Standard deviation.
+     * @param mode Mode.
      */
-    public JFreeChartPlotInfo(String name, double avg, double min, double max, double stdDiv) {
+    public JFreeChartPlotInfo(String name, double avg, double min, double max, double stdDiv,
+        JFreeChartGenerationMode mode) {
         this.name = name;
         this.avg = avg;
         this.min = min;
         this.max = max;
         this.stdDiv = stdDiv;
+        this.mode = mode;
     }
 
     /**
@@ -98,5 +104,19 @@ public class JFreeChartPlotInfo {
      */
     public void color(String color) {
         this.color = color;
+    }
+
+    /**
+     * @return Generation mode.
+     */
+    public JFreeChartGenerationMode mode() {
+        return mode;
+    }
+
+    /**
+     * @param mode Generation mode.
+     */
+    public void mode(JFreeChartGenerationMode mode) {
+        this.mode = mode;
     }
 }
