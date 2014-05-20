@@ -163,6 +163,9 @@
                             <pomFile>pom.xml</pomFile>
                             <repositoryId>sonatype-nexus-staging</repositoryId>
                             <file>yardstick-${version}.jar</file>
+                            <gpgArguments>
+                                <argument>--no-tty</argument>
+                            </gpgArguments>
                         </configuration>
                     </execution>
                 </executions>
