@@ -46,6 +46,17 @@
         </developer>
     </developers>
 
+    <distributionManagement>
+        <snapshotRepository>
+            <id>sonatype-nexus-snapshots</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+        </snapshotRepository>
+        <repository>
+            <id>sonatype-nexus-staging</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.7</maven.compiler.source>
@@ -156,13 +167,9 @@
                         <id>sign-artifacts</id>
                         <phase>verify</phase>
                         <goals>
-                            <goal>sign-and-deploy-file</goal>
+                            <goal>sign</goal>
                         </goals>
                         <configuration>
-                            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-                            <pomFile>pom.xml</pomFile>
-                            <repositoryId>sonatype-nexus-staging</repositoryId>
-                            <file>libs/yardstick-${version}.jar</file>
                             <gpgArguments>
                                 <argument>--no-tty</argument>
                             </gpgArguments>
