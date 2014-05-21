@@ -75,7 +75,7 @@ public class BenchmarkServerStartUp {
             }
         }
         else {
-            errorHelp(cfg, "Could not find runner class name in classpath: " + name +
+            errorHelp(cfg, "Could not find benchmark server class name in classpath: " + name +
                 ".\nMake sure class name is specified correctly and corresponding package is added " +
                 "to -p argument list.");
         }
