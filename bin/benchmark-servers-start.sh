@@ -113,9 +113,7 @@ cntr=0
 IFS=',' read -ra hosts0 <<< "${HOSTS}"
 for host_name in "${hosts0[@]}";
 do
-    echo "<<<"
     echo "<<< Starting config '"${CONFIG}"' on "${host_name}" >>>"
-    echo "<<<"
 
     file_log=${LOGS_DIR}"/"${cntr}"_"${host_name}".log"
 
