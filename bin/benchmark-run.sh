@@ -21,26 +21,103 @@
 # Define script directory.
 SCRIPT_DIR=$(cd $(dirname "$0"); pwd)
 
+check_help() {
+    [ "${ARG}" == "-h" ] || [ "${ARG}" == "--help" ]
+}
+
+check_driver_help() {
+    [ "${ARG}" == "-hd" ] || [ "${ARG}" == "--help-driver" ]
+}
+
+help() {
+    check_config
+
+    echo "Usage: benchmark-run.sh [--help] [properties-file-name]"
+    echo "Script that starts BenchmarkDriver on local machine."
+    echo
+
+    CONFIG_TMP=`mktemp tmp.XXXXXXXX`
+
+    cp $CONFIG_INCLUDE $CONFIG_TMP
+    chmod +x $CONFIG_TMP
+
+    . $CONFIG_TMP
+    rm $CONFIG_TMP
+
+    if [ "${CONFIGS}" != "" ]; then
+        echo "Benchmark drivers:"
+
+        IFS=',' read -ra configs0 <<< "${CONFIGS}"
+        for cfg in "${configs0[@]}";
+        do
+            s=`echo ${cfg} | grep -o '\-dn \+\w* *'`
+            echo "    "${s/\-dn /}
+        done
+
+        echo
+        echo "See 'benchmark-run.sh --help-driver <benchamrk-driver-name>' for more information on a specific benchmark driver."
+    fi
+}                                   	
+
+check_config() {
+    if [ "${CONFIG_INCLUDE}" == "" ]; then
+        CONFIG_INCLUDE=${SCRIPT_DIR}/../config/benchmark.properties
+        echo "Using default properties file: config/benchmark.properties"
+    fi
+
+    if [ ! -f $CONFIG_INCLUDE ]; then
+        echo "ERROR: Properties file is not found: "${CONFIG_INCLUDE}
+        echo "Type \"--help\" for usage."
+        exit 1
+    fi
+}
+
+run_driver_help() {
+    export MAIN_CLASS=org.yardstick.BenchmarkDriverStartUp
+
+    /bin/bash ${SCRIPT_DIR}/benchmark-bootstrap.sh "-dn "${DRIVER_NAME}" --help"
+}
+
+ARG=$1
+
+if check_driver_help; then
+    DRIVER_NAME=$2
+
+    if [ "${DRIVER_NAME}" == "" ]; then 
+        echo "Benchmark driver name is not defined to get help of."
+        echo "Type \"--help\" for usage."
+
+        exit 1
+    fi   
+
+    echo ${DRIVER_NAME}
+
+    run_driver_help
+
+    exit 1
+fi
+
+if check_help; then
+    CONFIG_INCLUDE=$2
+
+    help
+
+    exit 1
+else
+   ARG=$2
+
+   if check_help; then
+       CONFIG_INCLUDE=$1
+ 
+       help
+
+       exit 1
+   fi
+fi
+
 CONFIG_INCLUDE=$1
 
-if [ "${CONFIG_INCLUDE}" == "-h" ] || [ "${CONFIG_INCLUDE}" == "--help" ]; then
-    echo "Usage: benchmark-run.sh [PROPERTIES_FILE_PATH]"
-    echo "Script that starts BenchmarkDriver on local machine."
-    exit 1
-fi
-
-if [ "${CONFIG_INCLUDE}" == "" ]; then
-    CONFIG_INCLUDE=${SCRIPT_DIR}/../config/benchmark.properties
-    echo "Using default properties file: config/benchmark.properties"
-fi
-
-if [ ! -f $CONFIG_INCLUDE ]; then
-    echo "ERROR: Properties file is not found."
-    echo "Type \"--help\" for usage."
-    exit 1
-fi
-
-shift
+check_config
 
 CONFIG_TMP=`mktemp tmp.XXXXXXXX`
 
@@ -56,8 +133,6 @@ if [ "${CONFIG}" == "" ]; then
     if ((${#cfg[@]} > 0)); then
         CONFIG=${cfg[0]}
     fi
-else
-    CONFIG="$CONFIG $*"
 fi
 
 if [ "${CONFIG}" == "" ]; then
