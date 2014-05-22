@@ -23,7 +23,7 @@ This script will automatically restart benchmark driver and remote servers for e
 
 At the end of the run, you can generate graphs by executing `bin/jfreechart-graph-gen.sh` script with folders that contain benchmark results.
 
-    $ bin/jfreechart-graph-gen.sh -i results_2014-05-16_00-28-01,results_2014-05-15_18-38-14
+    $ bin/jfreechart-graph-gen.sh -i results_2014-05-16_00-28-01 results_2014-05-15_18-38-14
 
 
 ### Starting Remote Servers
