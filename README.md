@@ -99,7 +99,7 @@ the test should be 20 seconds then the following configuration should be specifi
 * `HOSTS=localhost`
 * `CONFIGS="--duration 20 -sn EchoServer -dn EchoServerBenchmark"`
 
-## JFreeChart graphs
+## JFreeChart Graphs
 Yardstick goes with the script `jfreechart-graph-gen.sh` that builds JFreeChart graphs using probe points.
 
 `jfreechart-graph-gen.sh` script accepts the following arguments:
