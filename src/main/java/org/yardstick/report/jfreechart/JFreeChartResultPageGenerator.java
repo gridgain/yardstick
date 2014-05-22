@@ -166,8 +166,12 @@ public class JFreeChartResultPageGenerator {
 
             JFreeChartGenerationMode mode = generationMode(fileMap, infoMap);
 
-            writeLine(bw, "<h2>Benchmark " + (mode == null || mode == STANDARD ? "" : mode.name().toLowerCase() + ' ') +
-                "results" + (testTime == null ? "" : "<small> on " + testTime + "</small>") + "</h2>");
+            String modeAsString = mode == null || mode == STANDARD ? "" :
+                mode.name().charAt(0) + mode.name().substring(1, mode.name().length()).toLowerCase() + ' ';
+
+            String timeAsString = testTime == null ? "" : "<small> on " + testTime + "</small>";
+
+            writeLine(bw, "<h2>Benchmark " + modeAsString + "Results" + timeAsString + "</h2>");
 
             Iterator<List<File>> iter = fileMap.values().iterator();
 

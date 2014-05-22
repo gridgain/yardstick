@@ -24,12 +24,12 @@ public enum JFreeChartGenerationMode {
     STANDARD,
 
     /**
-     * Benchmarks from multiple folders (space separated) are paired together.
+     * Benchmarks from multiple folders (space-separated) are paired together.
      */
     COMPARISON,
 
     /**
-     * Benchmarks from multiple folders (space separated) are shown together.
+     * Benchmarks from multiple folders (space-separated) are shown together.
      */
     COMPOUND
 }

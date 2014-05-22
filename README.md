@@ -1,40 +1,54 @@
 # Yardstick
-Yardstick is a framework for writing benchmarks. Specifically it helps with writing benchmarks for clustered or otherwise distributed systems.
+Yardstick is a framework for writing benchmarks. Specifically it helps with writing benchmarks for clustered 
+or otherwise distributed systems.
 
-The framework comes with a default set of probes that collect various metrics during benchmark execution. Probes can be turned on or off in configuration. You can use a probe  for measuring throughput and latency, or a probe that gathers `vmstat` statistics, etc... At the end of benchmark execution, Yardstick automatically produces files with probe points.
+The framework comes with a default set of probes that collect various metrics during benchmark execution. 
+Probes can be turned on or off in configuration. You can use a probe for measuring throughput and latency, 
+or a probe that gathers `vmstat` statistics, etc... At the end of benchmark execution, 
+Yardstick automatically produces files with probe points.
 
 See [Yardstick GridGain](https://github.com/gridgain/yardstick-gridgain) as an example of Yardstick framework usage.
 
 ## Creating Yardstick Benchmarks
 There are two main interfaces that need to be implemented, `BenchmarkServer` and `BenchmarkDriver`: 
+
 * `BenchmarkDriver` is an instance of the benchmark that performs some operation that needs to be tested. 
 * `BenchmarkServer` is the remote server that the BenchmarkDriver communicates with.
 
-You can benchmark any distributed operation with Yardstick. For example, if you want to measure message processing time in your application, then you can put message sending logic into `BenchmarkDriver`, and message processing logic to one or more remote `BenchmarkServers`.
+You can benchmark any distributed operation with Yardstick. For example, if you want to measure message processing time 
+in your application, then you can put message sending logic into `BenchmarkDriver`, and message processing logic 
+to one or more remote `BenchmarkServers`.
 
-It is as simple as this. Yardstick will measure throughput, latency, and other metrics for you automatically and produce nice graphs at the end.
+It is as simple as this. Yardstick will measure throughput, latency, and other metrics for you automatically and 
+produce nice graphs at the end.
 
 ## Running Yardstick Benchmarks
-The easiest way to run benchmarks is by executing `bin/benchmark-run-all.sh` script which will automatically start benchmark driver and remote servers base based on the properties file passed in (`config/benchmark.properties` used by default):
+The easiest way to run benchmarks is by executing `bin/benchmark-run-all.sh` script which will automatically start 
+benchmark driver and remote servers base based on the properties file passed in 
+(`config/benchmark.properties` used by default):
 
 	$ bin/benchmark-run-all.sh config/benchmark.properties
 	
-This script will automatically restart benchmark driver and remote servers for every benchmark configuration provided in `config/benchmark.properties` file.
+This script will automatically restart benchmark driver and remote servers for every benchmark configuration provided 
+in `config/benchmark.properties` file.
 
-At the end of the run, you can generate graphs by executing `bin/jfreechart-graph-gen.sh` script with folders that contain benchmark results.
+At the end of the run, you can generate graphs by executing `bin/jfreechart-graph-gen.sh` script with folders that 
+contain benchmark results.
 
-	$ bin/jfreechart-graph-gen.sh -i results_2014-05-16_00-28-01,results_2014-05-15_18-38-14
+	$ bin/jfreechart-graph-gen.sh -i results_2014-05-16_00-28-01 results_2014-05-15_18-38-14
 
 
 ### Starting Remote Servers
-If you do not wish to run `bin/benchmark-run-all.sh` script and prefer to have more control over starting and stopping remote servers, you can use `benchmark-servers-start.sh` script directly.
+If you do not wish to run `bin/benchmark-run-all.sh` script and prefer to have more control over starting and stopping 
+remote servers, you can use `benchmark-servers-start.sh` script directly.
 
 	$ bin/benchmark-servers-start.sh config/benchmark.properties
 
 **Remote Server Log Files** are stored in the `logs` folder.
 
 ### Starting Benchmark Driver
-Again, if you do not wish to run `bin/benchmark-run-all.sh` script, you can start benchmark driver directly by executing `benchmark-run.sh` script.
+Again, if you do not wish to run `bin/benchmark-run-all.sh` script, you can start benchmark driver directly 
+by executing `benchmark-run.sh` script.
 
 	$ bin/benchmark-run.sh config/benchmark.properties
 
@@ -70,7 +84,7 @@ Example of `benchmark.properties` file to run 2 instances of `EchoServer`
 	# be started on that host multiple times.
 	HOSTS=localhost,localhost
 	
-	# Remote username
+	# Remote username.
 	# REMOTE_USER=
 
 	# Comma-separated list of benchmark driver and server configuration parameters.
@@ -93,18 +107,12 @@ The following properties can be defined in the benchmark configuration:
 * `-sh` or `--shutdown` - flag indicating whether to invoke shutdown hook or not
 * `-of <path>` or `--outputFolder <path>` - output folder for benchmark results, current folder is used by default
 
-For example if we need to run EchoServer server on localhost and EchoServerBenchmark benchmark on localhost, 
-the test should be 20 seconds then the following configuration should be specified in run properties file:
-
-* `HOSTS=localhost`
-* `CONFIGS="--duration 20 -sn EchoServer -dn EchoServerBenchmark"`
-
 ## JFreeChart graphs
 Yardstick goes with the script `jfreechart-graph-gen.sh` that builds JFreeChart graphs using probe points.
 
 `jfreechart-graph-gen.sh` script accepts the following arguments:
 
-* `-i <list>` or `--inputFolders <list>` - space separated list of input folders which contains folders 
+* `-i <list>` or `--inputFolders <list>` - space-separated list of input folders which contains folders 
 with probe results files (required)
 * `-cc <num>` or `--chartColumns <num>` - number of columns that the charts are displayed in on the resulted page
 * `-gm <mode>` or `--generationMode <mode>` - mode that defines the way how different benchmark runs are compared 
