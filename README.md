@@ -121,13 +121,13 @@ Generation modes:
 * `COMPARISON` - Benchmarks from multiple folders are paired together.  In this mode 2 or more results folders are compared in such way that benchmark 1 from result 1 will be compared with benchmark 1 from result 2, same for benchmark 2, 3 and so on.
 
 ```
-   bin/jfreechart-graph-gen.sh -gm COMPARISON -i results_2014-05-20_03-19-21 results_2014-05-20_03-20-35`
+   bin/jfreechart-graph-gen.sh -gm COMPARISON -i results_2014-05-20_03-19-21 results_2014-05-20_03-20-35
 ```
 
 * `COMPOUND` - Benchmarks from multiple folders (space separated) are shown together on the same graph. This is default mode.
 
 ```
-   bin/jfreechart-graph-gen.sh -gm COMPOUND -i results_2014-05-20_03-19-21 results_2014-05-20_03-20-35`
+   bin/jfreechart-graph-gen.sh -gm COMPOUND -i results_2014-05-20_03-19-21 results_2014-05-20_03-20-35
 ```
 
 ## Maven Install
