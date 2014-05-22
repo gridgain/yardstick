@@ -18,7 +18,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.yardstick</groupId>
+    <groupId>org.yardstickframework</groupId>
     <artifactId>yardstick</artifactId>
     <name>Yardstick</name>
     <version>0.5.0</version>
