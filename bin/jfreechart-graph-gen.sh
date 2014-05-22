@@ -90,6 +90,6 @@ if [ "${ENABLE_ASSERTIONS}" = "1" ]; then
     JVM_OPTS="${JVM_OPTS} -ea"
 fi
 
-MAIN_CLASS=org.yardstick.report.jfreechart.JFreeChartGraphPlotter
+MAIN_CLASS=org.yardstickframework.report.jfreechart.JFreeChartGraphPlotter
 
 "$JAVA" ${JVM_OPTS} -cp ${CP} ${MAIN_CLASS} ${ARGS}

@@ -75,7 +75,7 @@ JVM_OPTS=${JVM_OPTS}" -Dyardstick.bench"
 
 export CP
 export JVM_OPTS
-export MAIN_CLASS=org.yardstick.BenchmarkDriverStartUp
+export MAIN_CLASS=org.yardstickframework.BenchmarkDriverStartUp
 
 /bin/bash ${SCRIPT_DIR}/benchmark-bootstrap.sh ${CONFIG} "--config" ${CONFIG_INCLUDE}
 
