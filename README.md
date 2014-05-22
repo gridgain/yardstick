@@ -112,30 +112,17 @@ with each other
 
 Generation modes:
 
-* `STANDARD` - all benchmark results are displayed on separate graphs
+* `STANDARD` - All benchmark results are displayed on separate graphs. Graphs are generated in the benchmark run folder.
 
-    Example: `bin/jfreechart-graph-gen.sh -i results_2014-05-20_03-19-21 results_2014-05-20_03-20-35 -gm STANDARD`
+	`bin/jfreechart-graph-gen.sh -gm STANDARD -i results_2014-05-20_03-19-21`
 
-    Output: images with graphs and Results.html file are generated for every benchmark run from the folders above, 
-the generated files are located in the benchmark run folder, near probe results files 
+* `COMPARISON` - Benchmarks from multiple folders are paired together.  In this mode 2 or more results folders are compared in such way that benchmark 1 from result 1 will be compared with benchmark 1 from result 2, same for benchmark 2, 3 and so on.
 
+    `bin/jfreechart-graph-gen.sh -gm COMPARISON -i results_2014-05-20_03-19-21 results_2014-05-20_03-20-35`
 
-* `COMPARISON` - benchmarks from multiple folders (space separated) are paired together
+* `COMPOUND` - Benchmarks from multiple folders (space separated) are shown together on the same graph. This is default mode.
 
-    Example: `bin/jfreechart-graph-gen.sh -i results_2014-05-20_03-19-21 results_2014-05-20_03-20-35 -gm COMPARISON`
-
-    Output: folder `results_comparison_2014-05-20_03-19-21_2014-05-20_03-20-35` is created, it contains the list of folders
-with images and Results.html file. In this mode the first benchmark run from the first input folder is compared with
-the first benchmark run from the second input folder, the second run with the second run and etc. 
- 
-
-
-* `COMPOUND` - benchmarks from multiple folders (space separated) are shown together, it's a default mode
-
-    Example: `bin/jfreechart-graph-gen.sh -i results_2014-05-20_03-19-21 results_2014-05-20_03-20-35 -gm COMPOUND`
-
-    Output: folder `results_compound_2014-05-20_03-19-21_2014-05-20_03-20-35` is created, it contains images with graphs 
-and Results.html. All benchmarks results will be displayed on one graph
+    `bin/jfreechart-graph-gen.sh -gm COMPOUND -i results_2014-05-20_03-19-21 results_2014-05-20_03-20-35`
 
 ## Maven Install
 The easiest way to get started with Yardstick in your project is to use Maven dependency management:
@@ -144,15 +131,12 @@ The easiest way to get started with Yardstick in your project is to use Maven de
 <dependency>
     <groupId>org.yardstick</groupId>
     <artifactId>yardstick</artifactId>
-    <version>${yardstick.version}</version>
+    <version>RELEASE</version>
 </dependency>
 ```
 
-You can copy and paste this snippet into your Maven POM file. Make sure to replace version with the one you need.
-
-Yardstick is shipped with scripts that run servers and drivers, these scripts can be used for your benchmarks.
-In order to have them just unzip `yardstick-resources.zip` maven artifact.
-Also this can be done by copying and pasting the following code snippet to the POM file:
+Yardstick is shipped with scripts that run servers and drivers, these scripts can be used for your benchmarks. In order to have them, just unzip `yardstick-resources.zip` maven artifact. Also this can be done by copying and pasting the following code snippet to your benchmark project POM file (see how it's done in 
+[Yardstick GridGain](https://github.com/gridgain/yardstick-gridgain)).
 
 ```xml
 <build>
@@ -171,7 +155,7 @@ Also this can be done by copying and pasting the following code snippet to the P
                             <artifactItem>
                                 <groupId>org.yardstick</groupId>
                                 <artifactId>yardstick</artifactId>
-                                <version>${yardstick.version}</version>
+                                <version>RELEASE</version>
                                 <type>zip</type>
                                 <classifier>resources</classifier>
                                 <outputDirectory>${basedir}</outputDirectory>
@@ -185,11 +169,8 @@ Also this can be done by copying and pasting the following code snippet to the P
 </build>
 ```
 
-The scripts will be unpacked to `bin` folder by command `mvn package`. See how it's done in 
-[Yardstick GridGain](https://github.com/gridgain/yardstick-gridgain).
-
 ## Issues
 Use GitHub [issues](https://github.com/gridgain/yardstick/issues) to file bugs.
 
 ## License
-Yardstick is available under [Apache 2.0](http://www.apache.org/licenses/LICENSE-2.0.html) license.
+Yardstick is available under [Apache 2.0](http://www.apache.org/licenses/LICENSE-2.0.html) Open Source license.
