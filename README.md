@@ -27,22 +27,22 @@ The easiest way to run benchmarks is by executing `bin/benchmark-run-all.sh` scr
 benchmark driver and remote servers base based on the properties file passed in 
 (`config/benchmark.properties` used by default):
 
-	$ bin/benchmark-run-all.sh config/benchmark.properties
-	
+    $ bin/benchmark-run-all.sh config/benchmark.properties
+    
 This script will automatically restart benchmark driver and remote servers for every benchmark configuration provided 
 in `config/benchmark.properties` file.
 
 At the end of the run, you can generate graphs by executing `bin/jfreechart-graph-gen.sh` script with folders that 
 contain benchmark results.
 
-	$ bin/jfreechart-graph-gen.sh -i results_2014-05-16_00-28-01 results_2014-05-15_18-38-14
+    $ bin/jfreechart-graph-gen.sh -i results_2014-05-16_00-28-01 results_2014-05-15_18-38-14
 
 
 ### Starting Remote Servers
 If you do not wish to run `bin/benchmark-run-all.sh` script and prefer to have more control over starting and stopping 
 remote servers, you can use `benchmark-servers-start.sh` script directly.
 
-	$ bin/benchmark-servers-start.sh config/benchmark.properties
+    $ bin/benchmark-servers-start.sh config/benchmark.properties
 
 **Remote Server Log Files** are stored in the `logs` folder.
 
@@ -50,12 +50,12 @@ remote servers, you can use `benchmark-servers-start.sh` script directly.
 Again, if you do not wish to run `bin/benchmark-run-all.sh` script, you can start benchmark driver directly 
 by executing `benchmark-run.sh` script.
 
-	$ bin/benchmark-run.sh config/benchmark.properties
+    $ bin/benchmark-run.sh config/benchmark.properties
 
 ### Stopping Remote Servers
 To stop remote servers after the benchmark is finished, you can execute `benchmark-servers-stop.sh` script.
 
-	$ bin/benchmark-servers-stop.sh config/benchmark.properties
+    $ bin/benchmark-servers-stop.sh config/benchmark.properties
 
 ### Properties And Command Line Arguments
 
@@ -70,28 +70,28 @@ The following properties can be defined in benchmark properties file:
 
 Example of `benchmark.properties` file to run 2 instances of `EchoServer`
 
-	# List of default probes.
-	BENCHMARK_DEFAULT_PROBES=ThroughputLatencyProbe
+    # List of default probes.
+    BENCHMARK_DEFAULT_PROBES=ThroughputLatencyProbe
 
-	# Packages where the specified benchmark is searched by reflection mechanism.
-	BENCHMARK_PACKAGES=org.yardstick
+    # Packages where the specified benchmark is searched by reflection mechanism.
+    BENCHMARK_PACKAGES=org.yardstick
 
-	# Probe point writer class name.
-	# BENCHMARK_WRITER=
+    # Probe point writer class name.
+    # BENCHMARK_WRITER=
 
-	# Comma-separated list of remote hosts to run BenchmarkServers on.
-	# If same host is specified multiple times, then benchmark server will 
-	# be started on that host multiple times.
-	HOSTS=localhost,localhost
-	
-	# Remote username.
-	# REMOTE_USER=
+    # Comma-separated list of remote hosts to run BenchmarkServers on.
+    # If same host is specified multiple times, then benchmark server will 
+    # be started on that host multiple times.
+    HOSTS=localhost,localhost
+    
+    # Remote username.
+    # REMOTE_USER=
 
-	# Comma-separated list of benchmark driver and server configuration parameters.
-	CONFIGS="\
-	--localBind localhost --duration 30 -t 2 -sn EchoServer -dn EchoBenchmark,\
-	--localBind localhost --duration 30 -t 4 -sn EchoServer -dn EchoBenchmark\
-	"
+    # Comma-separated list of benchmark driver and server configuration parameters.
+    CONFIGS="\
+    --localBind localhost --duration 30 -t 2 -sn EchoServer -dn EchoBenchmark,\
+    --localBind localhost --duration 30 -t 4 -sn EchoServer -dn EchoBenchmark\
+    "
 
 The following properties can be defined in the benchmark configuration:
 
@@ -122,7 +122,7 @@ Generation modes:
 
 * `STANDARD` - All benchmark results are displayed on separate graphs. Graphs are generated in the benchmark run folder.
 
-	`bin/jfreechart-graph-gen.sh -gm STANDARD -i results_2014-05-20_03-19-21`
+    `bin/jfreechart-graph-gen.sh -gm STANDARD -i results_2014-05-20_03-19-21`
 
 * `COMPARISON` - Benchmarks from multiple folders are paired together.  In this mode 2 or more results folders are compared in such way that benchmark 1 from result 1 will be compared with benchmark 1 from result 2, same for benchmark 2, 3 and so on.
 
