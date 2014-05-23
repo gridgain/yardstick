@@ -74,7 +74,7 @@ public class BenchmarkProbeSet {
         String writerClsName = cfg.probeWriterClassName();
 
         if (writerClsName == null) {
-            println(cfg, "Probe writer is not configured, using default CSV writer.");
+            println(cfg, "Probe writer is not configured (using default CSV writer)");
 
             writerClsName = BenchmarkProbePointCsvWriter.class.getName();
         }

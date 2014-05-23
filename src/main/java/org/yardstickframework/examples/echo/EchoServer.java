@@ -93,7 +93,7 @@ public class EchoServer implements BenchmarkServer {
 
         for (int port = args.port(); port < args.port() + 10; port++) {
             try {
-                return new ServerSocket(args.port(), 50, InetAddress.getByName(args.localBind()));
+                return new ServerSocket(port, 50, InetAddress.getByName(args.localBind()));
             }
             catch (UnknownHostException e) {
                 throw e;
