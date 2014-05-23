@@ -5,6 +5,11 @@ The framework comes with a default set of probes that collect various metrics du
 
 See [Yardstick GridGain](https://github.com/gridgain/yardstick-gridgain) as an example of Yardstick framework usage.
 
+## Screenshots
+![Generated Graph](http://www.gridgain.org/images/yardstick/yardstick-compound.png)
+### Click on individual graphs to Zoom In
+![Generated Graph](http://www.gridgain.org/images/yardstick/yardstick-compound-magnified.png)
+
 ## Creating Yardstick Benchmarks
 There are two main interfaces that need to be implemented, `BenchmarkServer` and `BenchmarkDriver`: 
 * `BenchmarkDriver` is an instance of the benchmark that performs some operation that needs to be tested. 
@@ -13,6 +18,11 @@ There are two main interfaces that need to be implemented, `BenchmarkServer` and
 You can benchmark any distributed operation with Yardstick. For example, if you want to measure message processing time in your application, then you can put message sending logic into `BenchmarkDriver`, and message processing logic to one or more remote `BenchmarkServers`.
 
 It is as simple as this. Yardstick will measure throughput, latency, and other metrics for you automatically and produce nice graphs at the end.
+
+## Examples
+You can find Yardstick benchmark examples in
+* `org.yardstickframework.examples` package
+* [Yardstick GridGain Benchmark Repository](https://github.com/gridgain/yardstick-gridgain)
 
 ## Running Yardstick Benchmarks
 The easiest way to run benchmarks is by executing `bin/benchmark-run-all.sh` script which will automatically start benchmark driver and remote servers base based on the properties file passed in (`config/benchmark.properties` used by default):
