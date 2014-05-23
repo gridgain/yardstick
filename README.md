@@ -11,6 +11,11 @@ See <a href="https://github.com/gridgain/yardstick-gridgain" target="_blank">Yar
 ### Click on individual graphs to Zoom In
 ![Generated Graph](http://www.gridgain.org/images/yardstick/yardstick-compound-magnified.png)
 
+## Available Probes
+1. `ThroughputLatencyProbe` - measures throughput and latency
+2. `DStatProbe` - collects information provided by Linux/Unix ‘dstat’ command, such as various network, CPU, or memory metrics
+3. `VmStatProbe` - collects information provided by Linux/Unix ‘vmstat’ command (which is a subset of ‘dstat’ command), such as various network, CPU, or memory metrics
+
 ## Creating Yardstick Benchmarks
 There are two main interfaces that need to be implemented, `BenchmarkServer` and `BenchmarkDriver`: 
 * `BenchmarkDriver` is an instance of the benchmark that performs some operation that needs to be tested. 
