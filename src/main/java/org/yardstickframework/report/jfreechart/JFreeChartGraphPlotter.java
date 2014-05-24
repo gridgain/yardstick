@@ -452,7 +452,7 @@ public class JFreeChartGraphPlotter {
 
             AxisSpace as = new AxisSpace();
 
-            as.add(150, RectangleEdge.LEFT);
+            as.add(100, RectangleEdge.LEFT);
 
             XYPlot plot = (XYPlot)chart.getPlot();
 
@@ -487,7 +487,7 @@ public class JFreeChartGraphPlotter {
 
             File res = new File(folderToWrite, plotName + ".png");
 
-            ChartUtilities.saveChartAsPNG(res, chart, 800, 400, info);
+            ChartUtilities.saveChartAsPNG(res, chart, 1000, 500, info);
 
             infoMap.put(res.getAbsolutePath(), infoList);
 
