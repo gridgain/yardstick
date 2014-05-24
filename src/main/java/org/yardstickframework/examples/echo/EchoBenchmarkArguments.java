@@ -48,7 +48,7 @@ public class EchoBenchmarkArguments {
      * @return Description.
      */
     public String description() {
-        return "--localBind=" + localbind + "_--port=" + port;
+        return "--localBind=" + localbind + "--port=" + port;
     }
 
     /** {@inheritDoc} */

@@ -136,7 +136,7 @@ public class JFreeChartGraphPlotter {
             String s = parseTime(f);
 
             if (!s.isEmpty())
-                outFolSuf.append(s).append('_');
+                outFolSuf.append(s).append('-');
         }
 
         if (outFolSuf.length() > 0)
@@ -144,7 +144,7 @@ public class JFreeChartGraphPlotter {
 
         String parent = outputFolder(inFolders);
 
-        String parentFolderName = "results_" + COMPOUND.name().toLowerCase() + '_' + outFolSuf.toString();
+        String parentFolderName = "results-" + COMPOUND.name().toLowerCase() + '-' + outFolSuf.toString();
 
         parentFolderName = fixFolderName(parentFolderName);
 
@@ -178,10 +178,10 @@ public class JFreeChartGraphPlotter {
 
             String fName = inFolder.getName();
 
-            String s = fName.startsWith("results_") ? fName.replace("results_", "") : "";
+            String s = fName.startsWith("results-") ? fName.replace("results-", "") : "";
 
             if (!s.isEmpty())
-                outParentFolSuf.append(s).append('_');
+                outParentFolSuf.append(s).append('-');
         }
 
         if (outParentFolSuf.length() > 0)
@@ -189,7 +189,7 @@ public class JFreeChartGraphPlotter {
 
         String parent = outputFolder(inFolders);
 
-        String parentFolderName = "results_" + COMPARISON.name().toLowerCase() + '_' + outParentFolSuf.toString();
+        String parentFolderName = "results-" + COMPARISON.name().toLowerCase() + '-' + outParentFolSuf.toString();
 
         parentFolderName = fixFolderName(parentFolderName);
 
@@ -304,7 +304,7 @@ public class JFreeChartGraphPlotter {
      * @return Substring containing benchmark time.
      */
     private static String parseTime(String fName) {
-        int i = fName.indexOf('_', fName.indexOf('_') + 1);
+        int i = fName.indexOf('-', fName.indexOf('-') + 1);
 
         if (i != -1) {
             try {

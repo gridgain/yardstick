@@ -56,7 +56,7 @@ if [ "${CONFIGS}" == "" ]; then
     exit 1
 fi
 
-folder=results_$(date +"%Y-%m-%d_%H-%M-%S")
+folder=results-$(date +"%Y%m%d-%H%M%S")
 
 IFS=',' read -ra configs0 <<< "${CONFIGS}"
 for cfg in "${configs0[@]}";

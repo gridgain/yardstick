@@ -294,7 +294,7 @@ public class BenchmarkConfiguration {
      * @return Description.
      */
     public String description() {
-        return "-t=" + threads + "_-d=" + duration + "_-w=" + warmup;
+        return "-t=" + threads + "-d=" + duration + "-w=" + warmup;
     }
 
     /** {@inheritDoc} */

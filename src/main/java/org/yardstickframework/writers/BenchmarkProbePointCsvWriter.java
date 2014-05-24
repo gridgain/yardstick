@@ -37,7 +37,7 @@ public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
     public static final String META_INFO_PREFIX = "**";
 
     /** */
-    public static final SimpleDateFormat FORMAT = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
+    public static final SimpleDateFormat FORMAT = new SimpleDateFormat("yyyyMMdd-HHmmss");
 
     /** */
     private PrintWriter writer;
@@ -77,10 +77,12 @@ public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
             }
         }
 
-        String desc = drv.description() == null || drv.description().isEmpty() ? "" :
-            '_' + drv.description().replaceAll(",|\\\\|/|\\||%|:|<|>|\\*|\\?|\"|\\s", "_").replaceAll("_+", "_");
+        String desc = drv.description() == null ? "" : drv.description();
 
-        String subFolderName = FORMAT.format(new Date(startTime)) + '_' + cfg.driverName() + desc;
+        desc = ('-' + desc.replaceAll("-+", "-").replaceAll(",|\\\\|/|\\||%|:|<|>|\\*|\\?|\"|\\s", "-")).
+            replaceAll("-+", "-");
+
+        String subFolderName = FORMAT.format(new Date(startTime)) + '-' + cfg.driverName() + desc;
 
         subFolderName = BenchmarkUtils.fixFolderName(subFolderName);
 
@@ -102,7 +104,7 @@ public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
             writer = new PrintWriter(new OutputStreamWriter(new FileOutputStream(f)));
 
             BenchmarkUtils.println(cfg,
-                probe.getClass().getSimpleName() + " results will be saved to: " + f.getAbsolutePath());
+                probe.getClass().getSimpleName() + " results will be saved to: " + outPath);
 
             println("--Probe dump file for probe: " + probe + " (" + probe.getClass() + ")");
             println("--Created " + new Date(startTime));
