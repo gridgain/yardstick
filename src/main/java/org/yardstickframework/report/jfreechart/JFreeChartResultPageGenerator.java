@@ -275,10 +275,10 @@ public class JFreeChartResultPageGenerator {
         writeLine(bw, "<thead>");
         writeLine(bw, "<tr>");
         writeLine(bw, "<th></th>");
-        writeLine(bw, "<th>Avg</th>");
-        writeLine(bw, "<th>Min</th>");
-        writeLine(bw, "<th>Max</th>");
-        writeLine(bw, "<th>SD</th>");
+        writeLine(bw, "<th class=\"text-left\">Avg</th>");
+        writeLine(bw, "<th class=\"text-left\">Min</th>");
+        writeLine(bw, "<th class=\"text-left\">Max</th>");
+        writeLine(bw, "<th class=\"text-left\">SD</th>");
         writeLine(bw, "</tr>");
         writeLine(bw, "</thead>");
         writeLine(bw, "<tbody>");
@@ -330,7 +330,7 @@ public class JFreeChartResultPageGenerator {
      * @throws IOException If failed.
      */
     private static void writeValueToTable(BufferedWriter bw, double val) throws IOException {
-        writeLine(bw, "<td class=\"text-right\">" + NUMBER_INSTANCE.format(val) + "</td>");
+        writeLine(bw, "<td class=\"text-left\">" + NUMBER_INSTANCE.format(val) + "</td>");
     }
 
     /**
