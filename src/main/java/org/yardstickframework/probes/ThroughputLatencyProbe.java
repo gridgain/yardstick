@@ -17,6 +17,7 @@ package org.yardstickframework.probes;
 import org.yardstickframework.*;
 
 import java.util.*;
+import java.util.concurrent.*;
 
 import static org.yardstickframework.BenchmarkUtils.*;
 
@@ -65,7 +66,8 @@ public class ThroughputLatencyProbe implements BenchmarkExecutionAwareProbe {
 
                         double latency = collector.execCnt == 0 ? 0 : (double)collector.totalLatency / collector.execCnt;
 
-                        BenchmarkProbePoint pnt = new BenchmarkProbePoint(System.currentTimeMillis(),
+                        BenchmarkProbePoint pnt = new BenchmarkProbePoint(
+                            TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()),
                             new double[] {collector.execCnt, latency});
 
                         collectPoint(pnt);
@@ -96,7 +98,7 @@ public class ThroughputLatencyProbe implements BenchmarkExecutionAwareProbe {
 
     /** {@inheritDoc} */
     @Override public Collection<String> metaInfo() {
-        return Arrays.asList("Time, msec", "Operations/sec", "Latency, nsec");
+        return Arrays.asList("Time, sec", "Operations/sec", "Latency, nsec");
     }
 
     /** {@inheritDoc} */

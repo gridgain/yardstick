@@ -18,6 +18,7 @@ import org.yardstickframework.*;
 import org.yardstickframework.impl.util.*;
 
 import java.util.*;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
 import java.util.regex.*;
 
@@ -131,7 +132,7 @@ public class VmStatProbe implements BenchmarkProbe {
 
     /** {@inheritDoc} */
     @Override public Collection<String> metaInfo() {
-        return Arrays.asList("Time, msec", "Processes Waiting For Run Time", "Processes In Uninterruptible Sleep",
+        return Arrays.asList("Time, sec", "Processes Waiting For Run Time", "Processes In Uninterruptible Sleep",
             "Memory Used, KB", "Memory Free, KB", "Memory Buffered, KB", "Memory Cached, KB",
             "Memory Swapped In From Disk, per sec", "Memory Swapped To Disk, per sec",
             "IO Blocks Received, blocks/sec", "IO Blocks Sent, blocks/sec",
@@ -178,7 +179,8 @@ public class VmStatProbe implements BenchmarkProbe {
 
             if (m.matches()) {
                 try {
-                    BenchmarkProbePoint pnt = new BenchmarkProbePoint(System.currentTimeMillis(),
+                    BenchmarkProbePoint pnt = new BenchmarkProbePoint(
+                        TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()),
                         new double[] {
                             parseValue(m.group(1)), parseValue(m.group(2)),
                             parseValue(m.group(3)), parseValue(m.group(4)),

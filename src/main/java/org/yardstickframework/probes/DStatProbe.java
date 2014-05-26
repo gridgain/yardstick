@@ -13,6 +13,7 @@ import org.yardstickframework.*;
 import org.yardstickframework.impl.util.*;
 
 import java.util.*;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
 import java.util.regex.*;
 
@@ -132,7 +133,7 @@ public class DStatProbe implements BenchmarkProbe {
 
     /** {@inheritDoc} */
     @Override public Collection<String> metaInfo() {
-        return Arrays.asList("Time, msec", "Memory Used, KB", "Memory Buffered, KB", "Memory Cached, KB",
+        return Arrays.asList("Time, sec", "Memory Used, KB", "Memory Buffered, KB", "Memory Cached, KB",
             "Memory Free, KB", "CPU User, %", "CPU System, %", "CPU Idle, %", "CPU Wait, %",
             "CPU Hardware Interrupts", "CPU Software Interrupts",
             "Disk Read, B", "Disk Write, B", "Network Receive, B", "Network Send, B",
@@ -178,7 +179,8 @@ public class DStatProbe implements BenchmarkProbe {
 
             if (m.matches()) {
                 try {
-                    BenchmarkProbePoint pnt = new BenchmarkProbePoint(System.currentTimeMillis(),
+                    BenchmarkProbePoint pnt = new BenchmarkProbePoint(
+                        TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()),
                         new double[] {
                             parseValueWithUnit(m.group(1)) / 1024, parseValueWithUnit(m.group(2)) / 1024,
                             parseValueWithUnit(m.group(3)) / 1024, parseValueWithUnit(m.group(4)) / 1024,
