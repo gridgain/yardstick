@@ -452,7 +452,7 @@ public class JFreeChartGraphPlotter {
 
             AxisSpace as = new AxisSpace();
 
-            as.add(100, RectangleEdge.LEFT);
+            as.add(150, RectangleEdge.LEFT);
 
             XYPlot plot = (XYPlot)chart.getPlot();
 
