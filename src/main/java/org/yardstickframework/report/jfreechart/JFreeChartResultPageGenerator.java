@@ -221,7 +221,7 @@ public class JFreeChartResultPageGenerator {
                     writeLine(bw, "<div class=\"row\">");
 
                     for (File file : sublist) {
-                        writeLine(bw, "<div class=\"col-md-3\">");
+                        writeLine(bw, "<div class=\"col-md-4\">");
                         writeLine(bw, "<a data-toggle=\"modal\" data-target=\"#" + id + "\" href=\"#\"><img src=\"" +
                             file.getName() + "\" class=\"img-thumbnail\"/></a>");
 
