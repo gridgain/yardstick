@@ -7,9 +7,9 @@ The framework comes with a default set of probes that collect various metrics du
 See <a href="https://github.com/gridgain/yardstick-gridgain" target="_blank">Yardstick GridGain Benchmarks</a> as an example of Yardstick framework usage.
 
 ## Screenshots
-![Generated Graph](http://www.gridgain.org/images/yardstick/yardstick-compound1.png)
+![Generated Graph](http://www.gridgain.org/images/yardstick/yardstick-compound.png)
 ### Click on individual graphs to Zoom In
-![Generated Graph](http://www.gridgain.org/images/yardstick/yardstick-compound-magnified1.png)
+![Generated Graph](http://www.gridgain.org/images/yardstick/yardstick-compound-magnified.png)
 
 ## Available Probes
 1. `ThroughputLatencyProbe` - measures throughput and latency
