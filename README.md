@@ -21,7 +21,7 @@ There are two main interfaces that need to be implemented, `BenchmarkServer` and
 * `BenchmarkDriver` is an instance of the benchmark that performs some operation that needs to be tested. 
 * `BenchmarkServer` is the remote server that the BenchmarkDriver communicates with.
 
-You can benchmark any distributed operation with Yardstick. For example, if you want to measure message processing time in your application, then you can put message sending logic into `BenchmarkDriver`, and message processing logic to one or more remote `BenchmarkServers`.
+You can benchmark any distributed operation with Yardstick. For example, if you have to measure message processing time in your application, then you can put message sending logic into `BenchmarkDriver`, and message processing logic to one or more remote `BenchmarkServers`.
 
 It is as simple as this. Yardstick will measure throughput, latency, and other metrics for you automatically and produce nice graphs at the end.
 
