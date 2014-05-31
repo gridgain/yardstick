@@ -85,7 +85,7 @@ public class BenchmarkUtils {
      * @param msg Message.
      */
     public static void println(String msg, File f) {
-        String name = f.getParent() == null ? "" : f.getParentFile().getName() + "/" + f.getName();
+        String name = f.getParent() == null ? "" : f.getParentFile().getName() + File.separator + f.getName();
 
         System.out.println(DATE_FMT.format(new Date()) + "<yardstick> " + msg + name);
     }
