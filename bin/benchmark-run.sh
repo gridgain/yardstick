@@ -66,7 +66,7 @@ if [ "${CONFIG}" == "" ]; then
     exit 1
 fi
 
-if [[ ${CONFIG} != *' -of '* ]] && [[ ${CONFIG} != *' --outputFolder '* ]]; then
+if [[ ${CONFIG} != *'-of '* ]] && [[ ${CONFIG} != *'--outputFolder '* ]]; then
     folder=results-$(date +"%Y%m%d-%H%M%S")
 
     CONFIG="--outputFolder ${folder} ${CONFIG}"

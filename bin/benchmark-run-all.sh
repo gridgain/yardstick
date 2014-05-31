@@ -63,7 +63,7 @@ for cfg in "${configs0[@]}";
 do
     CONFIG=${cfg}
 
-    if [[ ${CONFIG} != *' -of '* ]] && [[ ${CONFIG} != *' --outputFolder '* ]]; then
+    if [[ ${CONFIG} != *'-of '* ]] && [[ ${CONFIG} != *'--outputFolder '* ]]; then
         CONFIG="--outputFolder ${folder} ${CONFIG}"
 
         echo "config=${CONFIG}"
