@@ -150,8 +150,6 @@ public class JFreeChartResultPageGenerator {
         for (List<File> list : res.values())
             Collections.sort(list, fileComp);
 
-        System.out.println(res.keySet());
-
         return res;
     }
 
