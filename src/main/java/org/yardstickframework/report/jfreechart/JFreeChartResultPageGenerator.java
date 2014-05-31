@@ -14,6 +14,7 @@
 
 package org.yardstickframework.report.jfreechart;
 
+import org.yardstickframework.probes.*;
 import org.yardstickframework.writers.*;
 
 import java.io.*;
@@ -95,7 +96,26 @@ public class JFreeChartResultPageGenerator {
      * @return Map of files.
      */
     private static Map<String, List<File>> files(File[] files) {
-        Map<String, List<File>> res = new HashMap<>();
+        Map<String, List<File>> res = new TreeMap<>(new Comparator<String>() {
+            @Override public int compare(String s1, String s2) {
+                String probe1 = s1.trim().toLowerCase();
+                String probe2 = s2.trim().toLowerCase();
+
+                if (probe1.equals(probe2))
+                    return 0;
+
+                // Put throughput-latency probe always first.
+                String throughputLatency = ThroughputLatencyProbe.class.getSimpleName().toLowerCase();
+
+                if (probe1.equals(throughputLatency))
+                    return -1;
+
+                if (probe2.equals(throughputLatency))
+                    return 1;
+
+                return probe1.compareTo(probe2);
+            }
+        });
 
         for (File file : files) {
             if (!file.getName().endsWith(".png"))
@@ -120,7 +140,7 @@ public class JFreeChartResultPageGenerator {
             list.add(file);
         }
 
-        Comparator<File> comp = new Comparator<File>() {
+        Comparator<File> fileComp = new Comparator<File>() {
             @Override public int compare(File o1, File o2) {
                 return o1.getName().compareTo(o2.getName());
             }
@@ -128,7 +148,9 @@ public class JFreeChartResultPageGenerator {
 
         // Sort files to have them always in the same order.
         for (List<File> list : res.values())
-            Collections.sort(list, comp);
+            Collections.sort(list, fileComp);
+
+        System.out.println(res.keySet());
 
         return res;
     }
