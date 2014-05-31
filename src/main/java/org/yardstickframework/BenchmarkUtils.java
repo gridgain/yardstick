@@ -16,10 +16,16 @@ package org.yardstickframework;
 
 import com.beust.jcommander.*;
 
+import java.text.*;
+import java.util.*;
+
 /**
  * Benchmark utility methods.
  */
 public class BenchmarkUtils {
+    /** Date format. */
+    private static final SimpleDateFormat DATE_FMT = new SimpleDateFormat("<HH:mm:ss>");
+
     /**
      * Initializes instance of {@code JCommander}.
      *
@@ -70,7 +76,7 @@ public class BenchmarkUtils {
      * @param msg Message.
      */
     public static void println(BenchmarkConfiguration cfg, String msg) {
-        cfg.output().println(msg);
+        cfg.output().println(DATE_FMT.format(new Date()) + "<yardstick> " + msg);
     }
 
     /**

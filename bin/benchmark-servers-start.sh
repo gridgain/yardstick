@@ -113,7 +113,9 @@ cntr=0
 IFS=',' read -ra hosts0 <<< "${HOSTS}"
 for host_name in "${hosts0[@]}";
 do
-    echo "<<< Starting config '"${CONFIG}"' on "${host_name}" >>>"
+    suffix=`echo "${CONFIG}" | tail -c 80 | sed 's/ *$//g'`
+
+    echo "<"$(date +"%H:%M:%S")"><yardstick> Starting config '..."${suffix}"' on "${host_name}""
 
     file_log=${LOGS_DIR}"/"${cntr}"_"${host_name}".log"
 

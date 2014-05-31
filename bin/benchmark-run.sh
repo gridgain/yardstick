@@ -67,7 +67,9 @@ if [ "${CONFIG}" == "" ]; then
 fi
 
 if [[ ${CONFIG} != *' -of '* ]] && [[ ${CONFIG} != *' --outputFolder '* ]]; then
-    CONFIG=${CONFIG}" --outputFolder results_"$(date +"%Y-%m-%d_%H-%M-%S")
+    folder=results-$(date +"%Y%m%d-%H%M%S")
+
+    CONFIG="--outputFolder ${folder} ${CONFIG}"
 fi
 
 # JVM options.
@@ -79,4 +81,4 @@ export MAIN_CLASS=org.yardstickframework.BenchmarkDriverStartUp
 
 /bin/bash ${SCRIPT_DIR}/benchmark-bootstrap.sh ${CONFIG} "--config" ${CONFIG_INCLUDE}
 
-echo "Benchmark execution finished."
+echo "<"$(date +"%H:%M:%S")"><yardstick> Benchmark execution finished."

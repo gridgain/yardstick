@@ -33,6 +33,9 @@ public class BenchmarkDriverStartUp {
 
         cfg.commandLineArguments(cmdArgs);
 
+        // TODO: remove
+        System.out.println("cmdArgs=" + Arrays.toString(cmdArgs));
+
         BenchmarkUtils.jcommander(cmdArgs, cfg, "<benchmark-runner>");
 
         BenchmarkLoader ldr = new BenchmarkLoader();
