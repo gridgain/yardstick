@@ -21,8 +21,9 @@ import java.io.*;
 import java.text.*;
 import java.util.*;
 
+import static org.yardstickframework.BenchmarkUtils.*;
 import static org.yardstickframework.report.jfreechart.JFreeChartGenerationMode.*;
-import static org.yardstickframework.report.jfreechart.JFreeChartGraphPlotter.*;
+import static org.yardstickframework.report.jfreechart.JFreeChartGraphPlotter.errorHelp;
 
 /**
  * Generates html pages with resulted graphs built by JFreeChart framework.
@@ -281,9 +282,9 @@ public class JFreeChartResultPageGenerator {
             writeLine(bw, "</body>");
             writeLine(bw, "</html>");
 
-            println("Html file is generated: " + outFile.getAbsolutePath());
-            println("");
-        } catch (Exception e) {
+            println("Html file is generated: ", outFile);
+        }
+        catch (Exception e) {
             errorHelp("Exception is raised during file processing: " + outFile.getAbsolutePath(), e);
         }
     }

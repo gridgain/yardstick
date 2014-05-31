@@ -16,6 +16,7 @@ package org.yardstickframework;
 
 import com.beust.jcommander.*;
 
+import java.io.*;
 import java.text.*;
 import java.util.*;
 
@@ -67,6 +68,26 @@ public class BenchmarkUtils {
         jCommander.usage(sb);
 
         return sb.toString();
+    }
+
+    /**
+     * Prints message.
+     *
+     * @param msg Message.
+     */
+    public static void println(String msg) {
+        System.out.println(DATE_FMT.format(new Date()) + "<yardstick> " + msg);
+    }
+
+    /**
+     * Prints message.
+     *
+     * @param msg Message.
+     */
+    public static void println(String msg, File f) {
+        String name = f.getParent() == null ? "" : f.getParentFile().getName() + "/" + f.getName();
+
+        System.out.println(DATE_FMT.format(new Date()) + "<yardstick> " + msg + name);
     }
 
     /**

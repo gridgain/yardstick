@@ -238,7 +238,7 @@ public class JFreeChartGraphPlotter {
 
             for (List<File> files : files(inFolder).values()) {
                 for (File file : files) {
-                    println("Processing file: " + file.getAbsolutePath());
+                    // println("Processing file: " + file.getName());
 
                     try {
                         List<PlotData> plotData = readData(file);
@@ -270,7 +270,7 @@ public class JFreeChartGraphPlotter {
             Collection<List<PlotData>> plots = new ArrayList<>(entry.getValue().size());
 
             for (File file : entry.getValue()) {
-                println("Processing file: " + file.getAbsolutePath());
+                // println("Processing file: " + file.getName());
 
                 try {
                     plots.add(readData(file));
@@ -479,10 +479,8 @@ public class JFreeChartGraphPlotter {
 
             infoMap.put(res.getAbsolutePath(), infoList);
 
-            println("Resulted chart is saved to file: " + res.getAbsolutePath());
+            println("Chart is saved to file: ", res);
         }
-
-        System.out.println();
     }
 
     /**
@@ -605,15 +603,6 @@ public class JFreeChartGraphPlotter {
     private static String outputFolder(List<File> inFolders) {
         return inFolders.size() != 1 ? null :
             inFolders.get(0).getParent() == null ? inFolders.get(0).getName() : inFolders.get(0).getParent();
-    }
-
-    /**
-     * Prints message.
-     *
-     * @param msg Message.
-     */
-    static void println(String msg) {
-        System.out.println(msg);
     }
 
     /**

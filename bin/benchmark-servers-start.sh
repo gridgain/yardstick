@@ -32,7 +32,7 @@ fi
 
 if [ "${CONFIG_INCLUDE}" == "" ]; then
     CONFIG_INCLUDE=${SCRIPT_DIR}/../config/benchmark.properties
-    echo "Using default properties file: config/benchmark.properties"
+    echo "<"$(date +"%H:%M:%S")"><yardstick> Using default properties file: config/benchmark.properties"
 fi
 
 if [ ! -f $CONFIG_INCLUDE ]; then
@@ -113,7 +113,7 @@ cntr=0
 IFS=',' read -ra hosts0 <<< "${HOSTS}"
 for host_name in "${hosts0[@]}";
 do
-    suffix=`echo "${CONFIG}" | tail -c 80 | sed 's/ *$//g'`
+    suffix=`echo "${CONFIG}" | tail -c 60 | sed 's/ *$//g'`
 
     echo "<"$(date +"%H:%M:%S")"><yardstick> Starting config '..."${suffix}"' on "${host_name}""
 

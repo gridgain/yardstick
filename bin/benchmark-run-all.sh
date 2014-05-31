@@ -33,7 +33,7 @@ fi
 
 if [ "${CONFIG_INCLUDE}" == "" ]; then
     CONFIG_INCLUDE=${SCRIPT_DIR}/../config/benchmark.properties
-    echo "Using default properties file: config/benchmark.properties"
+    echo "<"$(date +"%H:%M:%S")"><yardstick> Using default properties file: config/benchmark.properties"
 fi
 
 if [ ! -f $CONFIG_INCLUDE ]; then
@@ -65,8 +65,6 @@ do
 
     if [[ ${CONFIG} != *'-of '* ]] && [[ ${CONFIG} != *'--outputFolder '* ]]; then
         CONFIG="--outputFolder ${folder} ${CONFIG}"
-
-        echo "config=${CONFIG}"
     fi
 
     export CONFIG
