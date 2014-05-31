@@ -103,9 +103,6 @@ public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
 
             writer = new PrintWriter(new OutputStreamWriter(new FileOutputStream(f)));
 
-            // TODO: remove
-            System.out.println("output path: " + outPath);
-
             String parent = outPath.getParent() == null ? outPath.getPath() : outPath.getParent();
 
             BenchmarkUtils.println(cfg,
