@@ -116,35 +116,23 @@ public class JFreeChartGraphPlotter {
             mergeMaps(res, map);
         }
 
-        Set<String> folders = new HashSet<>();
-
-        for (List<File> files : res.values()) {
-            for (File file : files) {
-                File par = file.getParentFile();
-
-                if (par != null)
-                    folders.add(par.getName());
-            }
-        }
-
         if (res.isEmpty())
             return;
 
-        StringBuilder outFolSuf = new StringBuilder();
+        String outFolder = "";
 
-        for (String f : folders) {
-            String s = parseTime(f);
+        for (File f : inFolders) {
+            String name = f.getName();
 
-            if (!s.isEmpty())
-                outFolSuf.append(s).append('-');
+            if (name.startsWith("results-"))
+                outFolder += '-' + name.substring("results-".length());
+            else
+                outFolder += '-' + name;
         }
-
-        if (outFolSuf.length() > 0)
-            outFolSuf.delete(outFolSuf.length() - 1, outFolSuf.length());
 
         String parent = outputFolder(inFolders);
 
-        String parentFolderName = "results-" + COMPOUND.name().toLowerCase() + '-' + outFolSuf.toString();
+        String parentFolderName = "results-" + COMPOUND.name().toLowerCase() + outFolder;
 
         parentFolderName = fixFolderName(parentFolderName);
 
