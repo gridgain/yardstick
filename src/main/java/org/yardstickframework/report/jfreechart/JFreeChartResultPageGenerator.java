@@ -183,7 +183,7 @@ public class JFreeChartResultPageGenerator {
             writeLine(bw, "<body>");
 
             writeLine(bw, "<div class=\"container-fluid\">");
-            writeLine(bw, "<h1>Yardstick</h1>");
+            writeLine(bw, "<img src=\"http://www.gridgain.org/images/yardstick/yardstick-logo-no-background-200x85px-rgb.png\"/>");
 
             JFreeChartGenerationMode mode = generationMode(fileMap, infoMap);
 
@@ -192,7 +192,7 @@ public class JFreeChartResultPageGenerator {
 
             String timeAsString = testTime == null ? "" : "<small> on " + testTime + "</small>";
 
-            writeLine(bw, "<h2>Benchmark " + modeAsString + "Results" + timeAsString + "</h2>");
+            writeLine(bw, "<h3>Benchmark " + modeAsString + "Results" + timeAsString + "</h3>");
 
             Iterator<List<File>> iter = fileMap.values().iterator();
 
