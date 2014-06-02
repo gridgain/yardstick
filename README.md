@@ -1,3 +1,4 @@
+![Yardstick Logo](http://www.gridgain.org/images/yardstick/yardstick-logo-100px-rgb.png) 
 # Yardstick - Benchmarking Framework
 Yardstick is a framework for writing benchmarks. Specifically it helps with writing benchmarks for clustered or otherwise distributed systems.
 
