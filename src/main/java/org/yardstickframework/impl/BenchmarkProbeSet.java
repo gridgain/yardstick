@@ -52,6 +52,9 @@ public class BenchmarkProbeSet {
     /** Flag indicating whether warmup is finished or not. */
     private volatile boolean warmupFinished;
 
+    /** Flag indicating whether benchmark time is over or not. */
+    private volatile boolean finished;
+
     /**
      * @param cfg Context.
      * @param probes Collection of probes.
@@ -137,6 +140,9 @@ public class BenchmarkProbeSet {
                                 }
                             }
                         }
+
+                        if (finished)
+                            break;
                     }
                 }
                 catch (InterruptedException ignore) {
@@ -189,6 +195,13 @@ public class BenchmarkProbeSet {
      */
     public void onWarmupFinished() {
         warmupFinished = true;
+    }
+
+    /**
+     * Benchmark time is over callback.
+     */
+    public void onFinished() {
+        finished = true;
     }
 
     /**

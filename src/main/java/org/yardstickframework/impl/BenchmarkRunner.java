@@ -104,8 +104,11 @@ public class BenchmarkRunner {
                                 reset = false;
                             }
 
-                            if (elapsed > totalDuration)
+                            if (elapsed > totalDuration) {
+                                probeSet.onFinished();
+
                                 break;
+                            }
                         }
 
                         // Either interrupted, or cancelled.
