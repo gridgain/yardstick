@@ -132,7 +132,7 @@ public class BenchmarkUtils {
      * @return Fixed folder name.
      */
     public static String fixFolderName(String fName) {
-        return fName.length() > 255 ? fName.substring(0, 255) : fName;
+        return fName.length() > 200 ? fName.substring(0, 200) : fName;
     }
 
     /** */
