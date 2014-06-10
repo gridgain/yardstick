@@ -61,6 +61,13 @@ public class BenchmarkProcessLauncher {
     }
 
     /**
+     * @return Process.
+     */
+    public Process process() {
+        return proc;
+    }
+
+    /**
      * @param wait {@code True} to wait for the process to finish, {@code false} otherwise.
      * @throws Exception If failed.
      */
