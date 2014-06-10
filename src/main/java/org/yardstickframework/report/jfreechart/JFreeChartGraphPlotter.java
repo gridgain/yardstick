@@ -23,7 +23,6 @@ import org.jfree.chart.renderer.xy.*;
 import org.jfree.chart.title.*;
 import org.jfree.data.xy.*;
 import org.jfree.ui.*;
-import org.yardstickframework.writers.*;
 
 import java.awt.*;
 import java.io.*;
@@ -40,6 +39,9 @@ import static org.yardstickframework.writers.BenchmarkProbePointCsvWriter.*;
  * JFreeChart graph plotter.
  */
 public class JFreeChartGraphPlotter {
+    /** */
+    private static final SimpleDateFormat FORMAT = new SimpleDateFormat("yyyyMMdd");
+
     /** */
     private static final String INPUT_FILE_EXTENSION = ".csv";
 
@@ -119,20 +121,9 @@ public class JFreeChartGraphPlotter {
         if (res.isEmpty())
             return;
 
-        String outFolder = "";
-
-        for (File f : inFolders) {
-            String name = f.getName();
-
-            if (name.startsWith("results-"))
-                outFolder += '-' + name.substring("results-".length());
-            else
-                outFolder += '-' + name;
-        }
-
         String parent = outputFolder(inFolders);
 
-        String parentFolderName = "results-" + COMPOUND.name().toLowerCase() + outFolder;
+        String parentFolderName = "results-" + COMPOUND.name().toLowerCase() + '-' + FORMAT.format(new Date());
 
         parentFolderName = fixFolderName(parentFolderName);
 
@@ -154,8 +145,6 @@ public class JFreeChartGraphPlotter {
     private static void processComparisonMode(List<File> inFolders, JFreeChartGraphPlotterArguments args) throws Exception {
         Collection<File[]> foldersToCompare = new ArrayList<>();
 
-        StringBuilder outParentFolSuf = new StringBuilder();
-
         for (File inFolder : inFolders) {
             File[] dirs = inFolder.listFiles();
 
@@ -163,21 +152,11 @@ public class JFreeChartGraphPlotter {
                 continue;
 
             foldersToCompare.add(dirs);
-
-            String fName = inFolder.getName();
-
-            String s = fName.startsWith("results-") ? fName.replace("results-", "") : "";
-
-            if (!s.isEmpty())
-                outParentFolSuf.append(s).append('-');
         }
-
-        if (outParentFolSuf.length() > 0)
-            outParentFolSuf.delete(outParentFolSuf.length() - 1, outParentFolSuf.length());
 
         String parent = outputFolder(inFolders);
 
-        String parentFolderName = "results-" + COMPARISON.name().toLowerCase() + '-' + outParentFolSuf.toString();
+        String parentFolderName = "results-" + COMPARISON.name().toLowerCase() + '-' + FORMAT.format(new Date());
 
         parentFolderName = fixFolderName(parentFolderName);
 
@@ -285,29 +264,6 @@ public class JFreeChartGraphPlotter {
 
         if (!infoMap.isEmpty())
             JFreeChartResultPageGenerator.generate(folderToWrite, args, infoMap);
-    }
-
-    /**
-     * @param fName Folder name.
-     * @return Substring containing benchmark time.
-     */
-    private static String parseTime(String fName) {
-        int i = fName.indexOf('-', fName.indexOf('-') + 1);
-
-        if (i != -1) {
-            try {
-                String time = fName.substring(0, i);
-
-                BenchmarkProbePointCsvWriter.FORMAT.parse(time);
-
-                return time;
-            }
-            catch (ParseException ignored) {
-                return "";
-            }
-        }
-
-        return "";
     }
 
     /**
