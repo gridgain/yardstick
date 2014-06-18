@@ -203,18 +203,17 @@ public class JFreeChartResultPageGenerator {
 
                 if (list != null) {
                     writeLine(bw, "<table class=\"table\" style=\"width:auto;\">");
-                    writeLine(bw, "<thead><tr><th>Color</th><th>Benchmark</th><th>Config</th></tr></thead>");
+                    writeLine(bw, "<thead><tr><th>Color</th><th>Benchmark</th></tr></thead>");
                     writeLine(bw, "<tbody>");
 
                     for (JFreeChartPlotInfo info : list) {
-                        String[] arr = info.name().split("-");
+                        int i = info.name().indexOf('-', info.name().indexOf('-') + 1);
 
-                        String b = arr.length >= 2 ? arr[2] : "";
+                        String b = i == -1 ? info.name() : info.name().substring(i + 1);
 
                         writeLine(bw, "<tr>");
                         writeLine(bw, "<td><i style=\"color:#" + info.color() + ";\" class=\"fa fa-square\"></i></td>");
                         writeLine(bw, "<td>" + b + "</td>");
-                        writeLine(bw, "<td>" + info.name() + "</td>");
                         writeLine(bw, "</tr>");
                     }
 
