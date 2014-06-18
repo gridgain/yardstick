@@ -79,10 +79,11 @@ public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
 
         String desc = drv.description() == null ? "" : drv.description();
 
-        desc = ('-' + desc.replaceAll("-+", "-").replaceAll(",|\\\\|/|\\||%|:|<|>|\\*|\\?|\"|\\s", "-")).
-            replaceAll("-+", "-");
+        desc = desc.replaceAll("-+", "-").replaceAll(",|\\\\|/|\\||%|:|<|>|\\*|\\?|\"|\\s", "-");
 
-        String subFolderName = FORMAT.format(new Date(startTime)) + '-' + cfg.driverName() + desc;
+        desc = desc.charAt(0) == '-' ? desc : '-' + desc;
+
+        String subFolderName = FORMAT.format(new Date(startTime)) + desc;
 
         subFolderName = BenchmarkUtils.fixFolderName(subFolderName);
 

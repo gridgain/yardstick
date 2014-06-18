@@ -23,6 +23,7 @@ import org.jfree.chart.renderer.xy.*;
 import org.jfree.chart.title.*;
 import org.jfree.data.xy.*;
 import org.jfree.ui.*;
+import org.yardstickframework.writers.*;
 
 import java.awt.*;
 import java.io.*;
@@ -189,9 +190,19 @@ public class JFreeChartGraphPlotter {
             if (!filesExist)
                 break;
 
+            List<File> fList = res.values().iterator().next();
+
+            File parFile = fList == null || fList.isEmpty() ? null : fList.get(0).getParentFile();
+
+            String suffix = parFile == null ? "" : parFile.getName();
+
+            String time = parseTime(suffix);
+
+            suffix = time == null ? "" : suffix.substring(time.length());
+
             String idxPrefix = idx < 9 ? "00" : idx < 99 ? "0" : "";
 
-            String folName = idxPrefix + (idx + 1);
+            String folName = idxPrefix + (idx + 1) + suffix;
 
             folName = fixFolderName(folName);
 
@@ -550,6 +561,29 @@ public class JFreeChartGraphPlotter {
 
             return data;
         }
+    }
+
+    /**
+     * @param fName Folder name.
+     * @return Substring containing benchmark time.
+     */
+    private static String parseTime(String fName) {
+        int i = fName.indexOf('-', fName.indexOf('-') + 1);
+
+        if (i != -1) {
+            try {
+                String time = fName.substring(0, i);
+
+                BenchmarkProbePointCsvWriter.FORMAT.parse(time);
+
+                return time;
+            }
+            catch (ParseException ignored) {
+                return null;
+            }
+        }
+
+        return null;
     }
 
     /**

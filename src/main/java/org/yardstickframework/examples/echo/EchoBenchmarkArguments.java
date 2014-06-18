@@ -53,7 +53,7 @@ public class EchoBenchmarkArguments {
 
     /** {@inheritDoc} */
     @Override public String toString() {
-        return "EchoServerBenchmarkArguments [" +
+        return this.getClass().getSimpleName() + " [" +
             "port=" + port +
             ", localBind='" + localbind + '\'' +
             ']';

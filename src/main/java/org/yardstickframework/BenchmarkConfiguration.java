@@ -22,7 +22,7 @@ import java.util.*;
 /**
  * Input arguments for benchmarks.
  */
-@SuppressWarnings("UnusedDeclaration")
+@SuppressWarnings({"UnusedDeclaration", "FieldCanBeLocal"})
 public class BenchmarkConfiguration {
     /** */
     @Parameter(names = {"-cfg", "--config"}, description = "Framework configuration file path")
@@ -67,6 +67,10 @@ public class BenchmarkConfiguration {
     /** */
     @Parameter(names = {"-of", "--outputFolder"}, description = "Output folder for benchmark results")
     private String outputFolder;
+
+    /** */
+    @Parameter(names = {"-ds", "--description"}, description = "Benchmark run description")
+    private String desc = "";
 
     /** */
     @Parameter(names = { "-h", "--help" }, description = "Print help message", help = true, hidden = true)
@@ -294,12 +298,19 @@ public class BenchmarkConfiguration {
      * @return Description.
      */
     public String description() {
+        return desc;
+    }
+
+    /**
+     * @return Default description.
+     */
+    public String defaultDescription() {
         return "-t=" + threads + "-d=" + duration + "-w=" + warmup;
     }
 
     /** {@inheritDoc} */
     @Override public String toString() {
-        return "BenchmarkConfiguration [" +
+        return this.getClass().getSimpleName() + " [" +
             "driverName='" + driverName + '\'' +
             ", serverName='" + serverName + '\'' +
             ", threads=" + threads +
@@ -316,6 +327,7 @@ public class BenchmarkConfiguration {
             ", outputFolder=" + outputFolder +
             ", outputWriter=" + outputWriter +
             ", errorWriter=" + errorWriter +
+            ", desc=" + desc +
             ']';
     }
 }

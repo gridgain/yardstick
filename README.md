@@ -109,6 +109,7 @@ The following properties can be defined in the benchmark configuration:
 * `-w <time>` or `--warmup <time>` - warmup time, in seconds
 * `-sh` or `--shutdown` - flag indicating whether to invoke shutdown hook or not
 * `-of <path>` or `--outputFolder <path>` - output folder for benchmark results, current folder is used by default
+* `-ds <string>` or `--description <string>` - benchmark run description
 
 For example if we need to run EchoServer server on localhost and EchoServerBenchmark benchmark on localhost, 
 the test should be 20 seconds then the following configuration should be specified in run properties file:

@@ -40,7 +40,7 @@ public abstract class BenchmarkDriverAdapter implements BenchmarkDriver {
 
     /** {@inheritDoc} */
     @Override public String description() {
-        return cfg.description();
+        return cfg.description().isEmpty() ? cfg.driverName() + cfg.defaultDescription() : cfg.description();
     }
 
     /** {@inheritDoc} */
