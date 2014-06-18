@@ -144,7 +144,7 @@ public class JFreeChartGraphPlotter {
      * @throws Exception If failed.
      */
     private static void processComparisonMode(List<File> inFolders, JFreeChartGraphPlotterArguments args) throws Exception {
-        Collection<File[]> foldersToCompare = new ArrayList<>();
+        Collection<List<File>> foldersToCompare = new ArrayList<>();
 
         for (File inFolder : inFolders) {
             File[] dirs = inFolder.listFiles();
@@ -152,7 +152,17 @@ public class JFreeChartGraphPlotter {
             if (dirs == null || dirs.length == 0)
                 continue;
 
-            foldersToCompare.add(dirs);
+            List<File> files = Arrays.asList(dirs);
+
+            Comparator<File> fileComp = new Comparator<File>() {
+                @Override public int compare(File o1, File o2) {
+                    return o1.getName().compareTo(o2.getName());
+                }
+            };
+
+            Collections.sort(files, fileComp);
+
+            foldersToCompare.add(files);
         }
 
         String parent = outputFolder(inFolders);
@@ -172,13 +182,13 @@ public class JFreeChartGraphPlotter {
 
             Map<String, List<File>> res = new HashMap<>();
 
-            for (File[] files : foldersToCompare) {
-                if (files.length <= idx)
+            for (List<File> files : foldersToCompare) {
+                if (files.size() <= idx)
                     continue;
 
                 filesExist = true;
 
-                File f = files[idx];
+                File f = files.get(idx);
 
                 if (f.isDirectory()) {
                     Map<String, List<File>> map = files(f);
