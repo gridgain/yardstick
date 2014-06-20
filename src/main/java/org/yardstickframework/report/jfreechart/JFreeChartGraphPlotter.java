@@ -50,6 +50,13 @@ public class JFreeChartGraphPlotter {
     private static final Color[] PLOT_COLORS = {GREEN, BLUE, RED, ORANGE, CYAN, MAGENTA,
         new Color(255, 0, 137), new Color(163, 143, 255), new Color(76, 255, 153)};
 
+    /** */
+    static final Comparator<File> FILE_NAME_COMP = new Comparator<File>() {
+        @Override public int compare(File o1, File o2) {
+            return o1.getName().compareTo(o2.getName());
+        }
+    };
+
     /**
      * @param cmdArgs Arguments.
      */
@@ -154,13 +161,7 @@ public class JFreeChartGraphPlotter {
 
             List<File> files = Arrays.asList(dirs);
 
-            Comparator<File> fileComp = new Comparator<File>() {
-                @Override public int compare(File o1, File o2) {
-                    return o1.getName().compareTo(o2.getName());
-                }
-            };
-
-            Collections.sort(files, fileComp);
+            Collections.sort(files, FILE_NAME_COMP);
 
             foldersToCompare.add(files);
         }

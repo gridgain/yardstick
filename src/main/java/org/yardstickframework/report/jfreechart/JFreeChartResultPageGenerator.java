@@ -23,7 +23,7 @@ import java.util.*;
 
 import static org.yardstickframework.BenchmarkUtils.*;
 import static org.yardstickframework.report.jfreechart.JFreeChartGenerationMode.*;
-import static org.yardstickframework.report.jfreechart.JFreeChartGraphPlotter.errorHelp;
+import static org.yardstickframework.report.jfreechart.JFreeChartGraphPlotter.*;
 
 /**
  * Generates html pages with resulted graphs built by JFreeChart framework.
@@ -141,15 +141,9 @@ public class JFreeChartResultPageGenerator {
             list.add(file);
         }
 
-        Comparator<File> fileComp = new Comparator<File>() {
-            @Override public int compare(File o1, File o2) {
-                return o1.getName().compareTo(o2.getName());
-            }
-        };
-
         // Sort files to have them always in the same order.
         for (List<File> list : res.values())
-            Collections.sort(list, fileComp);
+            Collections.sort(list, FILE_NAME_COMP);
 
         return res;
     }
