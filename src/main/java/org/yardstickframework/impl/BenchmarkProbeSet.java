@@ -60,13 +60,19 @@ public class BenchmarkProbeSet {
      * @param probes Collection of probes.
      * @param ldr Loader.
      */
-    public BenchmarkProbeSet(BenchmarkDriver driver, BenchmarkConfiguration cfg, Collection<BenchmarkProbe> probes, BenchmarkLoader ldr) {
+    public BenchmarkProbeSet(
+        BenchmarkDriver driver,
+        BenchmarkConfiguration cfg,
+        Collection<BenchmarkProbe> probes,
+        BenchmarkLoader ldr
+    ) {
         this.cfg = cfg;
         this.driver = driver;
         this.ldr = ldr;
         this.probes = probes;
-        this.writers = new HashMap<>(probes.size());
-        this.execProbes = new ArrayList<>(probes.size());
+
+        writers = new HashMap<>(probes.size());
+        execProbes = new ArrayList<>(probes.size());
     }
 
     /**
@@ -127,6 +133,10 @@ public class BenchmarkProbeSet {
 
                         for (Map.Entry<BenchmarkProbe, BenchmarkProbePointWriter> entry : writers.entrySet()) {
                             BenchmarkProbe probe = entry.getKey();
+
+                            if (probe instanceof BenchmarkTotalsOnlyProbe)
+                                continue;
+
                             BenchmarkProbePointWriter writer = entry.getValue();
 
                             Collection<BenchmarkProbePoint> points = probe.points();
@@ -149,7 +159,22 @@ public class BenchmarkProbeSet {
                     // No-op.
                 }
                 finally {
+                    boolean warmupFinished0 = warmupFinished;
+
                     for (Map.Entry<BenchmarkProbe, BenchmarkProbePointWriter> entry : writers.entrySet()) {
+                        BenchmarkProbe probe = entry.getKey();
+
+                        if (warmupFinished0 && probe instanceof BenchmarkTotalsOnlyProbe) {
+                            BenchmarkProbePointWriter writer = entry.getValue();
+
+                            try {
+                                writer.writePoints(probe, probe.points());
+                            }
+                            catch (Exception e) {
+                                errorHelp(cfg, "Exception is raised during point write.", e);
+                            }
+                        }
+
                         try {
                             entry.getValue().close();
                         }
