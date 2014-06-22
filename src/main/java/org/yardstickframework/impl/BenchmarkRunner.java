@@ -176,7 +176,7 @@ public class BenchmarkRunner {
                 probeSet.stop();
             }
             catch (Exception e) {
-                errorHelp(cfg, "Failed to gracefully shutdown benchmark runner.", err);
+                errorHelp(cfg, "Failed to gracefully shutdown benchmark runner.", e);
             }
         }
     }
