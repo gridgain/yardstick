@@ -83,7 +83,7 @@ public class ThroughputLatencyProbe implements BenchmarkExecutionAwareProbe {
 
         collectingThread.start();
 
-        println(cfg, ThroughputLatencyProbe.class.getSimpleName() + " is started.");
+        println(cfg, getClass().getSimpleName() + " is started.");
     }
 
     /** {@inheritDoc} */
@@ -92,7 +92,7 @@ public class ThroughputLatencyProbe implements BenchmarkExecutionAwareProbe {
             collectingThread.interrupt();
             collectingThread.join();
 
-            println(cfg, ThroughputLatencyProbe.class.getSimpleName() + " is stopped.");
+            println(cfg, getClass().getSimpleName() + " is stopped.");
         }
     }
 

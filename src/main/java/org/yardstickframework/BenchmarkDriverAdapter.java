@@ -34,13 +34,8 @@ public abstract class BenchmarkDriverAdapter implements BenchmarkDriver {
     }
 
     /** {@inheritDoc} */
-    @Override public Collection<BenchmarkProbe> probes() {
-        return cfg.defaultProbes();
-    }
-
-    /** {@inheritDoc} */
     @Override public String description() {
-        return cfg.description().isEmpty() ? cfg.driverName() + cfg.defaultDescription() : cfg.description();
+        return cfg.description().isEmpty() ? getClass().getSimpleName() + cfg.defaultDescription() : cfg.description();
     }
 
     /** {@inheritDoc} */

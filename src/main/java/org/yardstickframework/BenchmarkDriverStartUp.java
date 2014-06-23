@@ -39,58 +39,84 @@ public class BenchmarkDriverStartUp {
 
         ldr.initialize(cfg);
 
-        String name = cfg.driverName();
+        String names = cfg.driverNames();
 
-        if (name != null)
-            name = name.trim();
+        if (names != null)
+            names = names.trim();
 
-        if (name == null || name.isEmpty()) {
-            errorHelp(cfg, "Driver class name is not specified.");
+        if (names == null || names.isEmpty()) {
+            errorHelp(cfg, "Driver class names are not specified.");
 
             return;
         }
 
-        BenchmarkDriver drv;
+        String[] namesArr = names.split(",");
 
-        if ((drv = ldr.loadBenchmarkClass(BenchmarkDriver.class, name)) != null) {
-            if (cfg.help()) {
-                println(cfg, drv.usage());
+        List<BenchmarkDriver> drivers = new ArrayList<>();
+
+        for (String name : namesArr) {
+            name = name.trim();
+
+            if (name.isEmpty())
+                continue;
+
+            BenchmarkDriver drv = ldr.loadClass(BenchmarkDriver.class, name);
+
+            if (drv == null) {
+                errorHelp(cfg, "Could not find benchmark driver class name in classpath: " + name +
+                    ".\nMake sure class name is specified correctly and corresponding package is added " +
+                    "to -p argument list.");
 
                 return;
             }
 
-            drv.setUp(cfg);
+            drivers.add(drv);
+        }
 
-            Collection<BenchmarkProbe> probes = drv.probes();
+        if (drivers.isEmpty()) {
+            errorHelp(cfg, "Drivers are not found.");
+
+            return;
+        }
+
+        if (cfg.help()) {
+            println(cfg, drivers.get(0).usage());
+
+            return;
+        }
+
+        List<BenchmarkProbeSet> probeSets = new ArrayList<>(drivers.size());
+
+        for (BenchmarkDriver drv : drivers) {
+            Collection<BenchmarkProbe> probes = ldr.loadProbes();
 
             if (probes == null || probes.isEmpty()) {
-                errorHelp(cfg, "No probes provided by benchmark driver (stopping benchmark): " + name);
+                errorHelp(cfg, "No probes provided by benchmark driver (stopping benchmark): " + names);
 
                 return;
             }
 
-            final BenchmarkRunner runner = new BenchmarkRunner(cfg, drv, new BenchmarkProbeSet(drv, cfg, probes, ldr));
+            probeSets.add(new BenchmarkProbeSet(drv, cfg, probes, ldr));
 
-            if (cfg.shutdownHook()) {
-                Runtime.getRuntime().addShutdownHook(new Thread() {
-                    @Override public void run() {
-                        try {
-                            runner.cancel();
-                        }
-                        catch (Exception e) {
-                            errorHelp(cfg, "Exception is raised during runner cancellation.", e);
-                        }
+            drv.setUp(cfg);
+        }
+
+        final BenchmarkRunner runner = new BenchmarkRunner(cfg, drivers, probeSets);
+
+        if (cfg.shutdownHook()) {
+            Runtime.getRuntime().addShutdownHook(new Thread() {
+                @Override public void run() {
+                    try {
+                        runner.cancel();
                     }
-                });
-            }
+                    catch (Exception e) {
+                        errorHelp(cfg, "Exception is raised during runner cancellation.", e);
+                    }
+                }
+            });
+        }
 
-            // Runner will shutdown driver.
-            runner.runBenchmark();
-        }
-        else {
-            errorHelp(cfg, "Could not find benchmark driver class name in classpath: " + name +
-                ".\nMake sure class name is specified correctly and corresponding package is added " +
-                "to -p argument list.");
-        }
+        // Runner will shutdown driver.
+        runner.runBenchmark();
     }
 }

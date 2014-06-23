@@ -40,7 +40,7 @@ public class BenchmarkProbeSet {
     /** Writer thread. */
     private Thread fileWriterThread;
 
-    /** Benchmark context. */
+    /** Benchmark configuration. */
     private final BenchmarkConfiguration cfg;
 
     /** Benchmark driver. */
@@ -56,7 +56,8 @@ public class BenchmarkProbeSet {
     private volatile boolean finished;
 
     /**
-     * @param cfg Context.
+     * @param driver Benchmark driver.
+     * @param cfg Configuration.
      * @param probes Collection of probes.
      * @param ldr Loader.
      */
@@ -87,7 +88,7 @@ public class BenchmarkProbeSet {
         long writersStartTime = System.currentTimeMillis();
 
         for (BenchmarkProbe probe : probes) {
-            BenchmarkProbePointWriter writer = ldr.loadBenchmarkClass(BenchmarkProbePointWriter.class, writerClsName);
+            BenchmarkProbePointWriter writer = ldr.loadClass(BenchmarkProbePointWriter.class, writerClsName);
 
             if (writer == null) {
                 if (warn) {

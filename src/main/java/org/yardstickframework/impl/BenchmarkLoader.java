@@ -27,7 +27,7 @@ import static org.yardstickframework.BenchmarkUtils.*;
  * Benchmarks loader.
  */
 public class BenchmarkLoader {
-    /** Benchmark context. */
+    /** Benchmark configuration. */
     private BenchmarkConfiguration cfg;
 
     /** */
@@ -122,12 +122,20 @@ public class BenchmarkLoader {
         }
 
         cfg.customProperties(customProps);
+    }
 
+    /**
+     * Loads benchmark probes.
+     *
+     * @return Loaded probes.
+     * @throws Exception If failed.
+     */
+    public Collection<BenchmarkProbe> loadProbes() throws Exception {
         // Init probes.
         List<BenchmarkProbe> probes = new ArrayList<>(cfg.defaultProbeClassNames().size());
 
         for (String probeClsName : cfg.defaultProbeClassNames()) {
-            BenchmarkProbe probe = loadBenchmarkClass(BenchmarkProbe.class, probeClsName);
+            BenchmarkProbe probe = loadClass(BenchmarkProbe.class, probeClsName);
 
             if (probe != null)
                 probes.add(probe);
@@ -135,27 +143,27 @@ public class BenchmarkLoader {
                 println(cfg, "Failed to load probe: " + probeClsName);
         }
 
-        cfg.defaultProbes(probes);
+        return probes;
     }
 
     /**
-     * Loads specified benchmark class.
+     * Loads specified class.
      *
      * @param cls Class to load.
      * @param name Simple or fully-qualified class name to load.
-     * @return Loaded benchmark.
-     * @throws Exception If benchmark could not be loaded.
+     * @return Loaded class.
+     * @throws Exception If class could not be loaded.
      */
-    public <T> T loadBenchmarkClass(Class<T> cls, String name) throws Exception {
-        Collection<Class<? extends T>> benchmarks = refs.getSubTypesOf(cls);
+    public <T> T loadClass(Class<T> cls, String name) throws Exception {
+        Collection<Class<? extends T>> classes = refs.getSubTypesOf(cls);
 
-        Map<String, String> simpleNames = new HashMap<>(benchmarks.size());
+        Map<String, String> simpleNames = new HashMap<>(classes.size());
 
-        Map<String, Class<? extends T>> fqNames = new HashMap<>(benchmarks.size());
+        Map<String, Class<? extends T>> fqNames = new HashMap<>(classes.size());
 
         List<String> duplicates = null;
 
-        for (Class<? extends T> c : benchmarks) {
+        for (Class<? extends T> c : classes) {
             if (!Modifier.isAbstract(c.getModifiers())) {
                 if (!simpleNames.containsKey(c.getSimpleName()))
                     simpleNames.put(c.getSimpleName(), c.getName());

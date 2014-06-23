@@ -14,8 +14,6 @@
 
 package org.yardstickframework;
 
-import java.util.*;
-
 /**
  * Benchmark driver.
  */
@@ -43,13 +41,6 @@ public interface BenchmarkDriver {
      * @throws Exception If failed.
      */
     public void tearDown() throws Exception;
-
-    /**
-     * Gets collection of custom probes that this benchmark provides.
-     *
-     * @return Collection of custom probes or {@code null} if set of default probes should be used.
-     */
-    public Collection<BenchmarkProbe> probes();
 
     /**
      * Gets benchmark description.

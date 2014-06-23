@@ -29,7 +29,7 @@ public class BenchmarkConfiguration {
     private String propsFileName = "config/benchmark.properties";
 
     /** */
-    @Parameter(names = {"-dn", "--driverName"}, description = "Benchmark driver name (required)")
+    @Parameter(names = {"-dn", "--driverNames"}, description = "Comma-separated list of Benchmark driver names (required)")
     private String driverName;
 
     /** */
@@ -76,9 +76,6 @@ public class BenchmarkConfiguration {
     @Parameter(names = { "-h", "--help" }, description = "Print help message", help = true, hidden = true)
     private boolean help;
 
-    /** Default probes. */
-    private List<BenchmarkProbe> dfltProbes = Collections.emptyList();
-
     /** Non-parsed command line arguments. */
     private String[] cmdArgs;
 
@@ -113,9 +110,9 @@ public class BenchmarkConfiguration {
     }
 
     /**
-     * @return Benchmark driver name.
+     * @return Benchmark driver names.
      */
-    public String driverName() {
+    public String driverNames() {
         return driverName;
     }
 
@@ -260,20 +257,6 @@ public class BenchmarkConfiguration {
     }
 
     /**
-     * @return List of default probes.
-     */
-    public List<BenchmarkProbe> defaultProbes() {
-        return dfltProbes;
-    }
-
-    /**
-     * @param dfltProbes List of default probes.
-     */
-    public void defaultProbes(List<BenchmarkProbe> dfltProbes) {
-        this.dfltProbes = dfltProbes;
-    }
-
-    /**
      * @return Probe writer class name.
      */
     public String probeWriterClassName() {
@@ -311,14 +294,13 @@ public class BenchmarkConfiguration {
     /** {@inheritDoc} */
     @Override public String toString() {
         return this.getClass().getSimpleName() + " [" +
-            "driverName='" + driverName + '\'' +
+            "driverNames='" + driverName + '\'' +
             ", serverName='" + serverName + '\'' +
             ", threads=" + threads +
             ", duration=" + duration +
             ", warmup=" + warmup +
             ", dfltProbeClsNames=" + dfltProbeClsNames +
             ", propsFileName='" + propsFileName + '\'' +
-            ", dfltProbes=" + dfltProbes +
             ", packages=" + packages +
             ", cmdArgs=" + Arrays.toString(cmdArgs) +
             ", probeWriter='" + probeWriter + '\'' +

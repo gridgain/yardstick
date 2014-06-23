@@ -28,8 +28,8 @@ public class BenchmarkRunner {
     /** Benchmark arguments. */
     private final BenchmarkConfiguration cfg;
 
-    /** Benchmark driver. */
-    private final BenchmarkDriver drv;
+    /** Benchmark drivers. */
+    private final List<BenchmarkDriver> drivers;
 
     /** Cancelled flag. */
     private volatile boolean cancelled;
@@ -40,22 +40,22 @@ public class BenchmarkRunner {
     /** Started threads. */
     private volatile Collection<Thread> threads;
 
-    /** Probes. */
-    private final BenchmarkProbeSet probeSet;
+    /** List of probes. */
+    private final List<BenchmarkProbeSet> probeSets;
 
     /** Execution error. */
     private volatile Throwable err;
 
     /**
      * @param cfg Benchmark arguments.
-     * @param drv Driver.
-     * @param probeSet Probe set.
+     * @param drivers Drivers.
+     * @param probeSets Probe sets.
      */
-    public BenchmarkRunner(BenchmarkConfiguration cfg, BenchmarkDriver drv, BenchmarkProbeSet probeSet) {
+    public BenchmarkRunner(BenchmarkConfiguration cfg, List<BenchmarkDriver> drivers, List<BenchmarkProbeSet> probeSets) {
         this.cfg = cfg;
-        this.drv = drv;
+        this.drivers = drivers;
 
-        this.probeSet = probeSet;
+        this.probeSets = probeSets;
     }
 
     /**
@@ -70,22 +70,33 @@ public class BenchmarkRunner {
 
         final AtomicInteger finished = new AtomicInteger(0);
 
-        probeSet.start();
+        for (BenchmarkProbeSet probeSet : probeSets)
+            probeSet.start();
 
         final long testStart = System.currentTimeMillis();
 
         for (int i = 0; i < threadNum; i++) {
             final int threadIdx = i;
 
+            final long totalDuration = cfg.duration() + cfg.warmup();
+
             threads.add(new Thread(new Runnable() {
                 @Override public void run() {
                     try {
-                        long totalDuration = cfg.duration() + cfg.warmup();
-
                         // To avoid CAS on each benchmark iteration.
                         boolean reset = true;
 
+                        Random rand = new Random();
+
+                        int len = drivers.size();
+
                         while (!cancelled && !Thread.currentThread().isInterrupted()) {
+                            int idx = len == 1 ? 0 : rand.nextInt(len);
+
+                            BenchmarkDriver drv = drivers.get(idx);
+
+                            BenchmarkProbeSet probeSet = probeSets.get(idx);
+
                             probeSet.onBeforeExecute(threadIdx);
 
                             // Execute benchmark code.
@@ -98,14 +109,17 @@ public class BenchmarkRunner {
                             long elapsed = (now - testStart) / 1_000;
 
                             if (reset && elapsed > cfg.warmup()) {
-                                if (warmupFinished.compareAndSet(false, true))
-                                    probeSet.onWarmupFinished();
+                                if (warmupFinished.compareAndSet(false, true)) {
+                                    for (BenchmarkProbeSet set : probeSets)
+                                        set.onWarmupFinished();
+                                }
 
                                 reset = false;
                             }
 
                             if (elapsed > totalDuration) {
-                                probeSet.onFinished();
+                                for (BenchmarkProbeSet set : probeSets)
+                                    set.onFinished();
 
                                 break;
                             }
@@ -171,9 +185,10 @@ public class BenchmarkRunner {
                 for (Thread t : threads)
                     t.join();
 
-                drv.tearDown();
-
-                probeSet.stop();
+                for (int i = 0; i < drivers.size(); i++) {
+                    drivers.get(i).tearDown();
+                    probeSets.get(i).stop();
+                }
             }
             catch (Exception e) {
                 errorHelp(cfg, "Failed to gracefully shutdown benchmark runner.", e);
