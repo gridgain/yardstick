@@ -47,8 +47,9 @@ public class JFreeChartGraphPlotter {
     private static final String INPUT_FILE_EXTENSION = ".csv";
 
     /** */
-    private static final Color[] PLOT_COLORS = {GREEN, BLUE, RED, ORANGE, CYAN, MAGENTA,
-        new Color(255, 0, 137), new Color(163, 143, 255), new Color(76, 255, 153)};
+    private static final Color[] PLOT_COLORS = {new Color(39, 174, 96), new Color(41, 128, 185),
+        new Color(192, 57, 43), new Color(142, 68, 173), new Color(44, 62, 80), new Color(243, 156, 18),
+        new Color(211, 84, 0), new Color(127, 140, 141), new Color(22, 160, 133)};
 
     /** */
     static final Comparator<File> FILE_NAME_COMP = new Comparator<File>() {
@@ -442,7 +443,7 @@ public class JFreeChartGraphPlotter {
 
             ValueAxis axis = plot.getRangeAxis();
 
-            Font font = new Font(axis.getTickLabelFont().getName(), Font.BOLD, axis.getTickLabelFont().getSize() + 3);
+            Font font = new Font("Helvetica,Arial,sans-serif", Font.BOLD, axis.getTickLabelFont().getSize() + 5);
 
             axis.setTickLabelFont(font);
             axis.setLabelFont(font);
