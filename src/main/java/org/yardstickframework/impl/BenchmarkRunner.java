@@ -29,7 +29,7 @@ public class BenchmarkRunner {
     private final BenchmarkConfiguration cfg;
 
     /** Benchmark drivers. */
-    private final List<BenchmarkDriver> drivers;
+    private final BenchmarkDriver[] drivers;
 
     /** Cancelled flag. */
     private volatile boolean cancelled;
@@ -40,8 +40,11 @@ public class BenchmarkRunner {
     /** Started threads. */
     private volatile Collection<Thread> threads;
 
-    /** List of probes. */
-    private final List<BenchmarkProbeSet> probeSets;
+    /** List of probe sets. */
+    private final BenchmarkProbeSet[] probeSets;
+
+    /** List of weights. */
+    private final int[] weights;
 
     /** Execution error. */
     private volatile Throwable err;
@@ -50,12 +53,14 @@ public class BenchmarkRunner {
      * @param cfg Benchmark arguments.
      * @param drivers Drivers.
      * @param probeSets Probe sets.
+     * @param weights Driver run weights.
      */
-    public BenchmarkRunner(BenchmarkConfiguration cfg, List<BenchmarkDriver> drivers, List<BenchmarkProbeSet> probeSets) {
+    public BenchmarkRunner(BenchmarkConfiguration cfg, BenchmarkDriver[] drivers,
+        BenchmarkProbeSet[] probeSets, int[] weights) {
         this.cfg = cfg;
         this.drivers = drivers;
-
         this.probeSets = probeSets;
+        this.weights = weights;
     }
 
     /**
@@ -75,10 +80,10 @@ public class BenchmarkRunner {
 
         final long testStart = System.currentTimeMillis();
 
+        final long totalDuration = cfg.duration() + cfg.warmup();
+
         for (int i = 0; i < threadNum; i++) {
             final int threadIdx = i;
-
-            final long totalDuration = cfg.duration() + cfg.warmup();
 
             threads.add(new Thread(new Runnable() {
                 @Override public void run() {
@@ -88,14 +93,17 @@ public class BenchmarkRunner {
 
                         Random rand = new Random();
 
-                        int len = drivers.size();
+                        int sumWeight = 0;
+
+                        for (Integer w : weights)
+                            sumWeight += w;
 
                         while (!cancelled && !Thread.currentThread().isInterrupted()) {
-                            int idx = len == 1 ? 0 : rand.nextInt(len);
+                            int idx = driverIndex(rand, sumWeight);
 
-                            BenchmarkDriver drv = drivers.get(idx);
+                            BenchmarkDriver drv = drivers[idx];
 
-                            BenchmarkProbeSet probeSet = probeSets.get(idx);
+                            BenchmarkProbeSet probeSet = probeSets[idx];
 
                             probeSet.onBeforeExecute(threadIdx);
 
@@ -142,6 +150,31 @@ public class BenchmarkRunner {
     }
 
     /**
+     * @param rand Random.
+     * @return Driver index.
+     * @throws Exception If failed.
+     */
+    private int driverIndex(Random rand, int sumWeight) throws Exception {
+        int len = weights.length;
+
+        if (len == 1)
+            return 1;
+
+        int w = rand.nextInt(sumWeight);
+
+        int sum = 0;
+
+        for (int i = 0; i < len; i++) {
+            sum += weights[i];
+
+            if (sum > w)
+                return i;
+        }
+
+        throw new Exception("Can not reach here.");
+    }
+
+    /**
      *
      */
     public void cancel() {
@@ -185,9 +218,9 @@ public class BenchmarkRunner {
                 for (Thread t : threads)
                     t.join();
 
-                for (int i = 0; i < drivers.size(); i++) {
-                    drivers.get(i).tearDown();
-                    probeSets.get(i).stop();
+                for (int i = 0; i < drivers.length; i++) {
+                    drivers[i].tearDown();
+                    probeSets[i].stop();
                 }
             }
             catch (Exception e) {

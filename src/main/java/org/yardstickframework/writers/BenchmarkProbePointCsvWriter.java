@@ -85,12 +85,15 @@ public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
 
         String subFolderName = FORMAT.format(new Date(startTime)) + desc;
 
+        subFolderName = cfg.driverNames().contains(",") ?
+            drv.getClass().getSimpleName() + File.separator + subFolderName : subFolderName;
+
         subFolderName = BenchmarkUtils.fixFolderName(subFolderName);
 
         outPath = folder == null ? new File(subFolderName) : new File(folder, subFolderName);
 
         if (!outPath.exists()) {
-            if (!outPath.mkdir())
+            if (!outPath.mkdirs())
                 throw new IllegalStateException("Can not create folder: " + outPath.getAbsolutePath() + "");
         }
     }

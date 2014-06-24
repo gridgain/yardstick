@@ -54,11 +54,27 @@ public class BenchmarkDriverStartUp {
 
         List<BenchmarkDriver> drivers = new ArrayList<>();
 
-        for (String name : namesArr) {
-            name = name.trim();
+        List<Integer> weights = new ArrayList<>();
 
-            if (name.isEmpty())
+        for (String nameWithWeight : namesArr) {
+            nameWithWeight = nameWithWeight.trim();
+
+            if (nameWithWeight.isEmpty())
                 continue;
+
+            String[] tokens = nameWithWeight.split(":");
+
+            String name = tokens[0].trim();
+
+            String weight = tokens.length == 1 ? "1" : tokens[1].trim();
+
+            try {
+                weights.add(Integer.parseInt(weight));
+            } catch (NumberFormatException e) {
+                errorHelp(cfg, "Can not parse driver run weight [driver=" + name + ", weight=" + weight + "]");
+
+                return;
+            }
 
             BenchmarkDriver drv = ldr.loadClass(BenchmarkDriver.class, name);
 
@@ -85,9 +101,9 @@ public class BenchmarkDriverStartUp {
             return;
         }
 
-        List<BenchmarkProbeSet> probeSets = new ArrayList<>(drivers.size());
+        BenchmarkProbeSet[] probeSets = new BenchmarkProbeSet[drivers.size()];
 
-        for (BenchmarkDriver drv : drivers) {
+        for (int i = 0; i < drivers.size(); i++) {
             Collection<BenchmarkProbe> probes = ldr.loadProbes();
 
             if (probes == null || probes.isEmpty()) {
@@ -96,12 +112,20 @@ public class BenchmarkDriverStartUp {
                 return;
             }
 
-            probeSets.add(new BenchmarkProbeSet(drv, cfg, probes, ldr));
+            BenchmarkDriver drv = drivers.get(i);
+
+            probeSets[i] = new BenchmarkProbeSet(drv, cfg, probes, ldr);
 
             drv.setUp(cfg);
         }
 
-        final BenchmarkRunner runner = new BenchmarkRunner(cfg, drivers, probeSets);
+        int[] weights0 = new int[weights.size()];
+
+        for (int i = 0; i < weights.size(); i++)
+            weights0[i] = weights.get(i);
+
+        final BenchmarkRunner runner = new BenchmarkRunner(cfg, drivers.toArray(new BenchmarkDriver[drivers.size()]),
+            probeSets, weights0);
 
         if (cfg.shutdownHook()) {
             Runtime.getRuntime().addShutdownHook(new Thread() {
