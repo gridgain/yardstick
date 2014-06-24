@@ -159,7 +159,12 @@ public class JFreeChartGraphPlotter {
             if (dirs == null || dirs.length == 0)
                 continue;
 
-            List<File> files = Arrays.asList(dirs);
+            List<File> files = new ArrayList<>(Arrays.asList(dirs));
+
+            for (int i = 0; i < files.size(); i++) {
+                if (!files.get(i).isDirectory())
+                    files.remove(i);
+            }
 
             Collections.sort(files, FILE_NAME_COMP);
 
