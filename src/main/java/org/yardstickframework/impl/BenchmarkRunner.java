@@ -85,8 +85,6 @@ public class BenchmarkRunner {
 
         final long totalDuration = cfg.duration() + cfg.warmup();
 
-        final CountDownLatch barrierActionFinished = new CountDownLatch(1);
-
         final CyclicBarrier barrier = new CyclicBarrier(threadNum, new Runnable() {
             @Override public void run() {
                 for (BenchmarkDriver drv : drivers)
@@ -94,8 +92,6 @@ public class BenchmarkRunner {
 
                 for (BenchmarkProbeSet set : probeSets)
                     set.onWarmupFinished();
-
-                barrierActionFinished.countDown();
             }
         });
 
@@ -127,14 +123,16 @@ public class BenchmarkRunner {
                             probeSet.onBeforeExecute(threadIdx);
 
                             // Execute benchmark code.
-                            if (!drv.test(ctx)) {
+                            boolean res = drv.test(ctx);
+
+                            probeSet.onAfterExecute(threadIdx);
+
+                            if (!res) {
                                 for (BenchmarkProbeSet set : probeSets)
                                     set.onFinished();
 
                                 break;
                             }
-
-                            probeSet.onAfterExecute(threadIdx);
 
                             long now = System.currentTimeMillis();
 
@@ -142,8 +140,6 @@ public class BenchmarkRunner {
 
                             if (reset && elapsed > cfg.warmup()) {
                                 barrier.await();
-
-                                barrierActionFinished.await();
 
                                 reset = false;
                             }

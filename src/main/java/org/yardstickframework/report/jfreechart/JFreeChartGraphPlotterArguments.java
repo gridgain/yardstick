@@ -46,7 +46,7 @@ public class JFreeChartGraphPlotterArguments {
     private JFreeChartGenerationMode genMode = JFreeChartGenerationMode.COMPOUND;
 
     /** */
-    @Parameter(names = {"-sp", "--summaryPlotMode"},
+    @Parameter(names = {"-spm", "--summaryPlotMode"},
         description = "Mode in which the summary plot is added to the generated chart in COMPARISON and COMPOUND modes")
     private boolean summaryPlotMode;
 
