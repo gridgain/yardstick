@@ -17,6 +17,7 @@ package org.yardstickframework.impl;
 import org.yardstickframework.*;
 
 import java.util.*;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
 
 import static org.yardstickframework.BenchmarkUtils.*;
@@ -71,8 +72,6 @@ public class BenchmarkRunner {
 
         threads = new ArrayList<>(threadNum);
 
-        final AtomicBoolean warmupFinished = new AtomicBoolean(false);
-
         final AtomicInteger finished = new AtomicInteger(0);
 
         for (BenchmarkProbeSet probeSet : probeSets)
@@ -81,6 +80,20 @@ public class BenchmarkRunner {
         final long testStart = System.currentTimeMillis();
 
         final long totalDuration = cfg.duration() + cfg.warmup();
+
+        final CountDownLatch barrierActionFinished = new CountDownLatch(1);
+
+        final CyclicBarrier barrier = new CyclicBarrier(threadNum, new Runnable() {
+            @Override public void run() {
+                for (BenchmarkDriver drv : drivers)
+                    drv.onWarmupFinished();
+
+                for (BenchmarkProbeSet set : probeSets)
+                    set.onWarmupFinished();
+
+                barrierActionFinished.countDown();
+            }
+        });
 
         for (int i = 0; i < threadNum; i++) {
             final int threadIdx = i;
@@ -98,6 +111,8 @@ public class BenchmarkRunner {
                         for (Integer w : weights)
                             sumWeight += w;
 
+                        Map<Object, Object> ctx = new HashMap<>();
+
                         while (!cancelled && !Thread.currentThread().isInterrupted()) {
                             int idx = driverIndex(rand, sumWeight);
 
@@ -108,7 +123,12 @@ public class BenchmarkRunner {
                             probeSet.onBeforeExecute(threadIdx);
 
                             // Execute benchmark code.
-                            drv.test();
+                            if (!drv.test(ctx)) {
+                                for (BenchmarkProbeSet set : probeSets)
+                                    set.onFinished();
+
+                                break;
+                            }
 
                             probeSet.onAfterExecute(threadIdx);
 
@@ -117,10 +137,9 @@ public class BenchmarkRunner {
                             long elapsed = (now - testStart) / 1_000;
 
                             if (reset && elapsed > cfg.warmup()) {
-                                if (warmupFinished.compareAndSet(false, true)) {
-                                    for (BenchmarkProbeSet set : probeSets)
-                                        set.onWarmupFinished();
-                                }
+                                barrier.await();
+
+                                barrierActionFinished.await();
 
                                 reset = false;
                             }
