@@ -107,10 +107,19 @@ public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
 
             writer = new PrintWriter(new OutputStreamWriter(new FileOutputStream(f)));
 
-            String parent = outPath.getParent() == null ? outPath.getPath() : outPath.getParent();
+            String parent;
 
-            BenchmarkUtils.println(cfg,
-                probe.getClass().getSimpleName() + " results will be saved to: " + parent);
+            // Multiple drivers.
+            if (cfg.driverNames().contains(",")) {
+                File outPath0 = outPath.getParentFile();
+
+                parent = outPath0.getParent() == null ? outPath0.getPath() + File.separator + outPath :
+                    outPath0.getParent() + File.separator + outPath0;
+            }
+            else
+                parent = outPath.getParent() == null ? outPath.getPath() : outPath.getParent();
+
+            BenchmarkUtils.println(cfg, probe.getClass().getSimpleName() + " results will be saved to: " + parent);
 
             println("--Probe dump file for probe: " + probe + " (" + probe.getClass() + ")");
             println("--Created " + new Date(startTime));
