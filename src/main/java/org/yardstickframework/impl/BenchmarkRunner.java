@@ -151,6 +151,7 @@ public class BenchmarkRunner {
 
     /**
      * @param rand Random.
+     * @param sumWeight Sum of weights.
      * @return Driver index.
      * @throws Exception If failed.
      */
@@ -158,7 +159,7 @@ public class BenchmarkRunner {
         int len = weights.length;
 
         if (len == 1)
-            return 1;
+            return 0;
 
         int w = rand.nextInt(sumWeight);
 
