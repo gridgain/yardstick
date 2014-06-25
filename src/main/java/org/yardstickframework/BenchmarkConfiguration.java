@@ -30,7 +30,7 @@ public class BenchmarkConfiguration {
 
     /** */
     @Parameter(names = {"-dn", "--driverNames"}, variableArity = true,
-        description = "Comma-separated list of Benchmark driver names (required)")
+        description = "Space-separated list of Benchmark driver names (required)")
     private List<String> driverNames;
 
     /** */

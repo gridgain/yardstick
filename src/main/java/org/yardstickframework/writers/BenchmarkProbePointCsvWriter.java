@@ -62,7 +62,8 @@ public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
         this.cfg = cfg;
         this.drv = drv;
         this.startTime = startTime;
-        this.dupToOutput = duplicateToOutput(cfg);
+
+        dupToOutput = duplicateToOutput(cfg);
 
         String path = cfg.outputFolder();
 
@@ -73,7 +74,7 @@ public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
 
             if (!folder.exists()) {
                 if (!folder.mkdirs())
-                    throw new IllegalStateException("Can not create folder: " + folder.getAbsolutePath() + "");
+                    throw new IllegalStateException("Can not create folder: " + folder.getAbsolutePath());
             }
         }
 
@@ -94,7 +95,7 @@ public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
 
         if (!outPath.exists()) {
             if (!outPath.mkdirs())
-                throw new IllegalStateException("Can not create folder: " + outPath.getAbsolutePath() + "");
+                throw new IllegalStateException("Can not create folder: " + outPath.getAbsolutePath());
         }
     }
 
@@ -125,10 +126,10 @@ public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
             println("--Benchmark config: " + removeUnwantedChars(cfg.toString()));
             println("--Description: " + removeUnwantedChars(drv.description() == null ? "" : drv.description()));
 
-            if (probe.metaInfo() != null && probe.metaInfo().size() > 0) {
-                int i = 0;
-
+            if (probe.metaInfo() != null && !probe.metaInfo().isEmpty()) {
                 print(META_INFO_PREFIX);
+
+                int i = 0;
 
                 for (String metaInfo : probe.metaInfo())
                     print("\"" + metaInfo + "\"" + (++i == probe.metaInfo().size() ? "" : META_INFO_SEPARATOR));

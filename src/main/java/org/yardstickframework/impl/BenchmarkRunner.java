@@ -56,8 +56,12 @@ public class BenchmarkRunner {
      * @param probeSets Probe sets.
      * @param weights Driver run weights.
      */
-    public BenchmarkRunner(BenchmarkConfiguration cfg, BenchmarkDriver[] drivers,
-        BenchmarkProbeSet[] probeSets, int[] weights) {
+    public BenchmarkRunner(
+        BenchmarkConfiguration cfg,
+        BenchmarkDriver[] drivers,
+        BenchmarkProbeSet[] probeSets,
+        int[] weights
+    ) {
         this.cfg = cfg;
         this.drivers = drivers;
         this.probeSets = probeSets;
@@ -101,9 +105,6 @@ public class BenchmarkRunner {
             threads.add(new Thread(new Runnable() {
                 @Override public void run() {
                     try {
-                        // To avoid CAS on each benchmark iteration.
-                        boolean reset = true;
-
                         Random rand = new Random();
 
                         int sumWeight = 0;
@@ -112,6 +113,9 @@ public class BenchmarkRunner {
                             sumWeight += w;
 
                         Map<Object, Object> ctx = new HashMap<>();
+
+                        // To avoid CAS on each benchmark iteration.
+                        boolean reset = true;
 
                         while (!cancelled && !Thread.currentThread().isInterrupted()) {
                             int idx = driverIndex(rand, sumWeight);
