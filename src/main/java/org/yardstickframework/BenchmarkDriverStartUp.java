@@ -39,10 +39,7 @@ public class BenchmarkDriverStartUp {
 
         ldr.initialize(cfg);
 
-        String names = cfg.driverNames();
-
-        if (names != null)
-            names = names.trim();
+        List<String> names = cfg.driverNames();
 
         if (names == null || names.isEmpty()) {
             errorHelp(cfg, "Driver class names are not specified.");
@@ -50,15 +47,13 @@ public class BenchmarkDriverStartUp {
             return;
         }
 
-        String[] namesArr = names.split(",");
-
         List<BenchmarkDriver> drivers = new ArrayList<>();
 
         List<Integer> weights = new ArrayList<>();
 
         Set<String> driverNames = new HashSet<>();
 
-        for (String nameWithWeight : namesArr) {
+        for (String nameWithWeight : names) {
             nameWithWeight = nameWithWeight.trim();
 
             if (nameWithWeight.isEmpty())

@@ -29,8 +29,9 @@ public class BenchmarkConfiguration {
     private String propsFileName = "config/benchmark.properties";
 
     /** */
-    @Parameter(names = {"-dn", "--driverNames"}, description = "Comma-separated list of Benchmark driver names (required)")
-    private String driverName;
+    @Parameter(names = {"-dn", "--driverNames"}, variableArity = true,
+        description = "Comma-separated list of Benchmark driver names (required)")
+    private List<String> driverNames;
 
     /** */
     @Parameter(names = {"-sn", "--serverName"}, description = "Benchmark server name (required)")
@@ -112,8 +113,8 @@ public class BenchmarkConfiguration {
     /**
      * @return Benchmark driver names.
      */
-    public String driverNames() {
-        return driverName;
+    public List<String> driverNames() {
+        return driverNames;
     }
 
     /**
@@ -294,7 +295,7 @@ public class BenchmarkConfiguration {
     /** {@inheritDoc} */
     @Override public String toString() {
         return this.getClass().getSimpleName() + " [" +
-            "driverNames='" + driverName + '\'' +
+            "driverNames='" + driverNames + '\'' +
             ", serverName='" + serverName + '\'' +
             ", threads=" + threads +
             ", duration=" + duration +

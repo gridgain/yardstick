@@ -85,7 +85,7 @@ public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
 
         String subFolderName = FORMAT.format(new Date(startTime)) + desc;
 
-        subFolderName = cfg.driverNames().contains(",") ?
+        subFolderName = cfg.driverNames().size() > 1 ?
             drv.getClass().getSimpleName() + File.separator + subFolderName : subFolderName;
 
         subFolderName = BenchmarkUtils.fixFolderName(subFolderName);
@@ -110,7 +110,7 @@ public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
             String parent;
 
             // Multiple drivers.
-            if (cfg.driverNames().contains(",")) {
+            if (cfg.driverNames().size() > 1) {
                 File outPath0 = outPath.getParentFile();
 
                 parent = outPath0.getParent() == null ? outPath.getPath() :

@@ -99,8 +99,8 @@ Example of `benchmark.properties` file to run 2 instances of `EchoServer`
 The following properties can be defined in the benchmark configuration:
 
 * `-cfg <path>` or `--config <path>` - framework configuration file path
-* `-dn <name>` or `--driverNames <name>` - comma-separated list of driver names (required for the driver), 
-optionally a weight can be added to the driver name, for example `EchoBenchmark:3,NewEchoBenchmark:7`, 
+* `-dn <name>` or `--driverNames <name>` - space-separated list of driver names (required for the driver), 
+optionally a weight can be added to the driver name, for example `EchoBenchmark:3 NewEchoBenchmark:7`, 
 so `EchoBenchmark` will be run 30% of benchmark time, NewEchoBenchmark will be run 70%
 * `-sn <name>` or `--serverName <name>` - server name (required for the server)
 * `-p <list>` or `--packages <list>` - comma separated list of packages for benchmarks
