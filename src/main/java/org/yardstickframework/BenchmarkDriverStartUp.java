@@ -56,6 +56,8 @@ public class BenchmarkDriverStartUp {
 
         List<Integer> weights = new ArrayList<>();
 
+        Set<String> driverNames = new HashSet<>();
+
         for (String nameWithWeight : namesArr) {
             nameWithWeight = nameWithWeight.trim();
 
@@ -87,10 +89,18 @@ public class BenchmarkDriverStartUp {
             }
 
             drivers.add(drv);
+
+            driverNames.add(name);
         }
 
         if (drivers.isEmpty()) {
             errorHelp(cfg, "Drivers are not found.");
+
+            return;
+        }
+
+        if (driverNames.size() < drivers.size()) {
+            errorHelp(cfg, "Multiple drivers with the same name are found.");
 
             return;
         }
