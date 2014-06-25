@@ -113,7 +113,7 @@ public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
             if (cfg.driverNames().contains(",")) {
                 File outPath0 = outPath.getParentFile();
 
-                parent = outPath0.getParent() == null ? outPath0.getPath() + File.separator + outPath :
+                parent = outPath0.getParent() == null ? outPath.getPath() :
                     outPath0.getParent() + File.separator + outPath0;
             }
             else
