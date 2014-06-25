@@ -99,7 +99,9 @@ Example of `benchmark.properties` file to run 2 instances of `EchoServer`
 The following properties can be defined in the benchmark configuration:
 
 * `-cfg <path>` or `--config <path>` - framework configuration file path
-* `-dn <name>` or `--driverName <name>` - driver name (required for the driver)
+* `-dn <name>` or `--driverNames <name>` - comma-separated list of driver names (required for the driver), 
+optionally a weight can be added to the driver name, for example `EchoBenchmark:3,NewEchoBenchmark:7`, 
+so `EchoBenchmark` will be run 30% of benchmark time, NewEchoBenchmark will be run 70%
 * `-sn <name>` or `--serverName <name>` - server name (required for the server)
 * `-p <list>` or `--packages <list>` - comma separated list of packages for benchmarks
 * `-pr <list>` or `--probes <list>` - comma separated list of probes for benchmarks
@@ -127,6 +129,7 @@ with probe results files (required)
 * `-cc <num>` or `--chartColumns <num>` - number of columns that the charts are displayed in on the resulted page
 * `-gm <mode>` or `--generationMode <mode>` - mode that defines the way how different benchmark runs are compared 
 with each other
+* `-sp` or `--summaryPlotMode` - mode in which the summary plot is added to the generated chart in COMPARISON and COMPOUND modes
 
 Generation modes:
 

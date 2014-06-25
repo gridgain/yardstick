@@ -239,8 +239,6 @@ public class JFreeChartGraphPlotter {
 
             for (List<File> files : files(inFolder).values()) {
                 for (File file : files) {
-                    // println("Processing file: " + file.getName());
-
                     try {
                         List<PlotData> plotData = readData(file);
 
@@ -271,8 +269,6 @@ public class JFreeChartGraphPlotter {
             Collection<List<PlotData>> plots = new ArrayList<>(entry.getValue().size());
 
             for (File file : entry.getValue()) {
-                // println("Processing file: " + file.getName());
-
                 try {
                     plots.add(readData(file));
                 }
@@ -281,11 +277,86 @@ public class JFreeChartGraphPlotter {
                 }
             }
 
+            if (args.summaryPlotMode() && plots.size() > 1)
+                addSummaryPlot(plots);
+
             processPlots(folderToWrite, plots, infoMap, mode);
         }
 
         if (!infoMap.isEmpty())
             JFreeChartResultPageGenerator.generate(folderToWrite, args, infoMap);
+    }
+
+    /**
+     * @param plots Plots.
+     */
+    private static void addSummaryPlot(Collection<List<PlotData>> plots) {
+        int idx = -1;
+
+        List<PlotData> sumPlot = new ArrayList<>();
+
+        while (true) {
+            idx++;
+
+            PlotData sumPlotData = null;
+
+            for (List<PlotData> plotData0 : plots) {
+                if (plotData0.size() <= idx)
+                    continue;
+
+                PlotData plotData = plotData0.get(idx);
+
+                double[][] data = plotData.series().data;
+
+                if (sumPlotData == null) {
+                    PlotSeries sumSeries = new PlotSeries("Summary plot");
+
+                    sumSeries.data = new double[data.length][];
+
+                    sumPlotData = new PlotData(plotData.plotName(), sumSeries, plotData.xAxisLabel, plotData.yAxisLabel);
+                }
+
+                double[][] sumData = sumPlotData.series().data;
+
+                if (sumData[0] == null) {
+                    sumData[0] = copy(data[0]);
+                    sumData[1] = copy(data[1]);
+                }
+                else if (sumData[0].length <= data[0].length) {
+                    for (int i = 0; i < sumData[0].length; i++)
+                        sumData[1][i] += data[1][i];
+                }
+                else {
+                    double[] tmp = sumData[1];
+
+                    sumData[0] = copy(data[0]);
+                    sumData[1] = copy(data[1]);
+
+                    for (int i = 0; i < data[0].length; i++)
+                        sumData[1][i] += tmp[i];
+                }
+            }
+
+            if (sumPlotData == null)
+                break;
+            else
+                sumPlot.add(sumPlotData);
+        }
+
+        if (!sumPlot.isEmpty())
+            plots.add(sumPlot);
+    }
+
+    /**
+     * @param src Source array
+     * @return Copied array.
+     */
+    private static double[] copy(double[] src) {
+        double[] res = new double[src.length];
+
+        System.arraycopy(src, 0, res, 0, src.length);
+
+        return res;
     }
 
     /**
