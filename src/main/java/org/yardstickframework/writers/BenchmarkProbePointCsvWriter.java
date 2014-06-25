@@ -113,8 +113,7 @@ public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
             if (cfg.driverNames().size() > 1) {
                 File outPath0 = outPath.getParentFile();
 
-                parent = outPath0.getParent() == null ? outPath.getPath() :
-                    outPath0.getParent() + File.separator + outPath0;
+                parent = outPath0.getParent() == null ? outPath.getPath() : outPath0.getPath();
             }
             else
                 parent = outPath.getParent() == null ? outPath.getPath() : outPath.getParent();
