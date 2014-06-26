@@ -217,6 +217,16 @@ public class BenchmarkProbeSet {
     }
 
     /**
+     * Notifies probes to build a point. This method is invoked periodically with given interval.
+     *
+     * @param time Time of the point.
+     */
+    public void buildPoint(long time) {
+        for (BenchmarkProbe probe : probes)
+            probe.buildPoint(time);
+    }
+
+    /**
      * Warmup finished callback.
      */
     public void onWarmupFinished() {

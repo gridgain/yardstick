@@ -85,12 +85,12 @@ public class PercentileProbe implements BenchmarkExecutionAwareProbe, BenchmarkT
         for (int i = 0; i < agents.length; i++)
             agents[i] = new ThreadAgent();
 
-        println(cfg, PercentileProbe.class.getSimpleName() + " is started.");
+        println(cfg, getClass().getSimpleName() + " is started.");
     }
 
     /** {@inheritDoc} */
     @Override public void stop() throws Exception {
-        println(cfg, PercentileProbe.class.getSimpleName() + " is stopped.");
+        println(cfg, getClass().getSimpleName() + " is stopped.");
     }
 
     /** {@inheritDoc} */
@@ -120,10 +120,15 @@ public class PercentileProbe implements BenchmarkExecutionAwareProbe, BenchmarkT
         for (int i = 0; i < buckets.length; i++) {
             long cnt = buckets[i].get();
 
-            ret.add(new BenchmarkProbePoint((i + 1) * bucketInterval, new double[] {((double)cnt)/sum}));
+            ret.add(new BenchmarkProbePoint((i + 1) * bucketInterval, new double[] {((double)cnt) / sum}));
         }
 
         return ret;
+    }
+
+    /** {@inheritDoc} */
+    @Override public void buildPoint(long time) {
+        // No-op.
     }
 
     /** {@inheritDoc} */

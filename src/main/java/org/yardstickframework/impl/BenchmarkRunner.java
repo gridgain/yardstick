@@ -26,6 +26,12 @@ import static org.yardstickframework.BenchmarkUtils.*;
  * Benchmark runner. Starts benchmarking threads, manages lifecycle.
  */
 public class BenchmarkRunner {
+    /** */
+    public static final String INTERVAL = "BENCHMARK_BUILD_PROBE_POINT_INTERVAL";
+
+    /** */
+    public static final long DEFAULT_INTERVAL_IN_MSECS = 1_000;
+
     /** Benchmark arguments. */
     private final BenchmarkConfiguration cfg;
 
@@ -49,6 +55,9 @@ public class BenchmarkRunner {
 
     /** Execution error. */
     private volatile Throwable err;
+
+    /** Thread building probe points. */
+    private Thread buildingThread;
 
     /**
      * @param cfg Benchmark arguments.
@@ -80,6 +89,8 @@ public class BenchmarkRunner {
 
         for (BenchmarkProbeSet probeSet : probeSets)
             probeSet.start();
+
+        startBuildingThread();
 
         final long testStart = System.currentTimeMillis();
 
@@ -165,6 +176,31 @@ public class BenchmarkRunner {
             t.start();
     }
 
+    /** */
+    private void startBuildingThread() {
+        final long interval = interval(cfg);
+
+        buildingThread = new Thread() {
+            @Override public void run() {
+                try {
+                    while (!Thread.currentThread().isInterrupted()) {
+                        long time = System.currentTimeMillis();
+
+                        for (BenchmarkProbeSet probeSet : probeSets)
+                            probeSet.buildPoint(time);
+
+                        Thread.sleep(interval);
+                    }
+                }
+                catch (InterruptedException ignore) {
+                    // No-op.
+                }
+            }
+        };
+
+        buildingThread.start();
+    }
+
     /**
      * @param rand Random.
      * @param sumWeight Sum of weights.
@@ -235,6 +271,19 @@ public class BenchmarkRunner {
     }
 
     /**
+     * @param cfg Config.
+     * @return Interval.
+     */
+    private static long interval(BenchmarkConfiguration cfg) {
+        try {
+            return Long.parseLong(cfg.customProperties().get(INTERVAL));
+        }
+        catch (NumberFormatException | NullPointerException ignored) {
+            return DEFAULT_INTERVAL_IN_MSECS;
+        }
+    }
+
+    /**
      *
      */
     private class ShutdownThread extends Thread {
@@ -244,6 +293,11 @@ public class BenchmarkRunner {
                 errorHelp(cfg, "Shutting down benchmark driver to unexpected exception.", err);
 
             try {
+                if (buildingThread != null) {
+                    buildingThread.interrupt();
+                    buildingThread.join();
+                }
+
                 for (Thread t : threads)
                     t.join();
 
