@@ -85,6 +85,8 @@ public class BenchmarkRunner {
 
         final long totalDuration = cfg.duration() + cfg.warmup();
 
+        final int sumWeight = sumWeights();
+
         final CyclicBarrier barrier = new CyclicBarrier(threadNum, new Runnable() {
             @Override public void run() {
                 for (BenchmarkDriver drv : drivers)
@@ -102,11 +104,6 @@ public class BenchmarkRunner {
                 @Override public void run() {
                     try {
                         Random rand = new Random();
-
-                        int sumWeight = 0;
-
-                        for (Integer w : weights)
-                            sumWeight += w;
 
                         Map<Object, Object> ctx = new HashMap<>();
 
@@ -192,6 +189,18 @@ public class BenchmarkRunner {
         }
 
         throw new Exception("Can not reach here.");
+    }
+
+    /**
+     * @return Sum of weights.
+     */
+    private int sumWeights() {
+        int sumWeight = 0;
+
+        for (int w : weights)
+            sumWeight += w;
+
+        return sumWeight;
     }
 
     /**
