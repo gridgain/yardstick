@@ -18,6 +18,7 @@ import org.yardstickframework.*;
 import org.yardstickframework.writers.*;
 
 import java.util.*;
+import java.util.concurrent.*;
 
 import static org.yardstickframework.BenchmarkUtils.*;
 
@@ -49,8 +50,8 @@ public class BenchmarkProbeSet {
     /** Loader. */
     private final BenchmarkLoader ldr;
 
-    /** Flag indicating whether warmup is finished or not. */
-    private volatile boolean warmupFinished;
+    /** Latch indicating whether warmup is finished or not. */
+    private final CountDownLatch warmupFinished = new CountDownLatch(1);
 
     /** Flag indicating whether benchmark time is over or not. */
     private volatile boolean finished;
@@ -127,10 +128,10 @@ public class BenchmarkProbeSet {
         fileWriterThread = new Thread("probe-dump-thread") {
             @Override public void run() {
                 try {
+                    warmupFinished.await();
+
                     while (!Thread.currentThread().isInterrupted()) {
                         Thread.sleep(PROBE_DUMP_FREQ);
-
-                        boolean warmupFinished0 = warmupFinished;
 
                         for (Map.Entry<BenchmarkProbe, BenchmarkProbePointWriter> entry : writers.entrySet()) {
                             BenchmarkProbe probe = entry.getKey();
@@ -142,13 +143,11 @@ public class BenchmarkProbeSet {
 
                             Collection<BenchmarkProbePoint> points = probe.points();
 
-                            if (warmupFinished0) {
-                                try {
-                                    writer.writePoints(probe, points);
-                                }
-                                catch (Exception e) {
-                                    errorHelp(cfg, "Exception is raised during point write.", e);
-                                }
+                            try {
+                                writer.writePoints(probe, points);
+                            }
+                            catch (Exception e) {
+                                errorHelp(cfg, "Exception is raised during point write.", e);
                             }
                         }
 
@@ -160,12 +159,10 @@ public class BenchmarkProbeSet {
                     // No-op.
                 }
                 finally {
-                    boolean warmupFinished0 = warmupFinished;
-
                     for (Map.Entry<BenchmarkProbe, BenchmarkProbePointWriter> entry : writers.entrySet()) {
                         BenchmarkProbe probe = entry.getKey();
 
-                        if (warmupFinished0 && probe instanceof BenchmarkTotalsOnlyProbe) {
+                        if (probe instanceof BenchmarkTotalsOnlyProbe) {
                             BenchmarkProbePointWriter writer = entry.getValue();
 
                             try {
@@ -230,7 +227,16 @@ public class BenchmarkProbeSet {
      * Warmup finished callback.
      */
     public void onWarmupFinished() {
-        warmupFinished = true;
+        for (Map.Entry<BenchmarkProbe, BenchmarkProbePointWriter> entry : writers.entrySet()) {
+            BenchmarkProbe probe = entry.getKey();
+
+            if (probe instanceof BenchmarkTotalsOnlyProbe)
+                continue;
+
+            probe.points();
+        }
+
+        warmupFinished.countDown();
     }
 
     /**
