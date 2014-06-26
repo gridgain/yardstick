@@ -70,8 +70,9 @@ public class BenchmarkConfiguration {
     private String outputFolder;
 
     /** */
-    @Parameter(names = {"-ds", "--description"}, description = "Benchmark run description")
-    private String desc = "";
+    @Parameter(names = {"-ds", "--descriptions"}, variableArity = true,
+        description = "Space-separated list of benchmark run descriptions")
+    private List<String> descs;
 
     /** */
     @Parameter(names = { "-h", "--help" }, description = "Print help message", help = true, hidden = true)
@@ -279,10 +280,10 @@ public class BenchmarkConfiguration {
     }
 
     /**
-     * @return Description.
+     * @return Descriptions.
      */
-    public String description() {
-        return desc;
+    public List<String> descriptions() {
+        return descs;
     }
 
     /**
@@ -310,7 +311,7 @@ public class BenchmarkConfiguration {
             ", outputFolder=" + outputFolder +
             ", outputWriter=" + outputWriter +
             ", errorWriter=" + errorWriter +
-            ", desc=" + desc +
+            ", descriptions=" + descs +
             ']';
     }
 }

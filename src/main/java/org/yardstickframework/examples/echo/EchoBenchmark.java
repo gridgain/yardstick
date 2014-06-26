@@ -86,8 +86,10 @@ public class EchoBenchmark extends BenchmarkDriverAdapter {
 
     /** {@inheritDoc} */
     @Override public String description() {
-        return cfg.description().isEmpty() ?
-            getClass().getSimpleName() + args.description() + cfg.defaultDescription() : cfg.description();
+        String desc = BenchmarkUtils.description(cfg, this);
+
+        return desc.isEmpty() ?
+            getClass().getSimpleName() + args.description() + cfg.defaultDescription() : desc;
     }
 
     /** {@inheritDoc} */

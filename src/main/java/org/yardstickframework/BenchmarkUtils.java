@@ -127,13 +127,39 @@ public class BenchmarkUtils {
     }
 
     /**
-     * Fix folder name if needed.
+     * Fixes folder name if needed.
      *
      * @param fName Folder name.
      * @return Fixed folder name.
      */
     public static String fixFolderName(String fName) {
         return fName.length() > 200 ? fName.substring(0, 200) : fName;
+    }
+
+    /**
+     * Returns the description corresponding to the given benchmark driver.
+     *
+     * @param cfg Config.
+     * @param drv Driver.
+     * @return The description corresponding to the given benchmark driver.
+     */
+    public static String description(BenchmarkConfiguration cfg, BenchmarkDriver drv) {
+        if (cfg.driverNames() == null || cfg.driverNames().isEmpty() ||
+            cfg.descriptions() == null || cfg.descriptions().isEmpty())
+            return "";
+
+        String simpleName = drv.getClass().getSimpleName();
+
+        for (int i = 0; i < cfg.driverNames().size(); i++) {
+            if (simpleName.equals(cfg.driverNames().get(i).split(":")[0].trim())) {
+                if (i <= cfg.descriptions().size() - 1)
+                    return cfg.descriptions().get(i);
+
+                break;
+            }
+        }
+
+        return "";
     }
 
     /** */

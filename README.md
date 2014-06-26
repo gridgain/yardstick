@@ -99,7 +99,7 @@ Example of `benchmark.properties` file to run 2 instances of `EchoServer`
 The following properties can be defined in the benchmark configuration:
 
 * `-cfg <path>` or `--config <path>` - framework configuration file path
-* `-dn <name>` or `--driverNames <name>` - space-separated list of driver names (required for the driver), 
+* `-dn <list>` or `--driverNames <list>` - space-separated list of driver names (required for the driver), 
 optionally a weight can be added to the driver name, for example `EchoBenchmark:3 NewEchoBenchmark:7`, 
 so `EchoBenchmark` will be run 30% of benchmark time, NewEchoBenchmark will be run 70%
 * `-sn <name>` or `--serverName <name>` - server name (required for the server)
@@ -111,7 +111,8 @@ so `EchoBenchmark` will be run 30% of benchmark time, NewEchoBenchmark will be r
 * `-w <time>` or `--warmup <time>` - warmup time, in seconds
 * `-sh` or `--shutdown` - flag indicating whether to invoke shutdown hook or not
 * `-of <path>` or `--outputFolder <path>` - output folder for benchmark results, current folder is used by default
-* `-ds <string>` or `--description <string>` - benchmark run description
+* `-ds <list>` or `--descriptions <list>` - space-separated list of benchmark run descriptions, 
+the description with index 1 corresponds to the driver with index 1 and so on
 
 For example if we need to run EchoServer server on localhost and EchoServerBenchmark benchmark on localhost, 
 the test should be 20 seconds then the following configuration should be specified in run properties file:

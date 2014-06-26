@@ -33,7 +33,9 @@ public abstract class BenchmarkDriverAdapter implements BenchmarkDriver {
 
     /** {@inheritDoc} */
     @Override public String description() {
-        return cfg.description().isEmpty() ? getClass().getSimpleName() + cfg.defaultDescription() : cfg.description();
+        String desc = BenchmarkUtils.description(cfg, this);
+
+        return desc.isEmpty() ? getClass().getSimpleName() + cfg.defaultDescription() : desc;
     }
 
     /** {@inheritDoc} */
