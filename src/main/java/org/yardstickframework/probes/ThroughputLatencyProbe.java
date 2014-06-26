@@ -22,8 +22,8 @@ import java.util.concurrent.*;
 import static org.yardstickframework.BenchmarkUtils.*;
 
 /**
-* Probe that calculates throughput and average latency.
-*/
+ * Probe that calculates throughput and average latency.
+ */
 public class ThroughputLatencyProbe implements BenchmarkExecutionAwareProbe {
     /** Operations executed. */
     private ThreadAgent[] agents;

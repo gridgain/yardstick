@@ -24,8 +24,9 @@ import static java.util.concurrent.TimeUnit.*;
 import static org.yardstickframework.BenchmarkUtils.*;
 
 /**
-* Probe that calculates throughput and average latency.
-*/
+ * Probe that tracks the latency of each individual request and
+ * collects  the time frame bucket .
+ */
 public class PercentileProbe implements BenchmarkExecutionAwareProbe, BenchmarkTotalsOnlyProbe {
     /** */
     public static final String BUCKET_INTERVAL = "BENCHMARK_PROBE_PERCENTILE_BUCKET_INTERVAL";
@@ -62,9 +63,6 @@ public class PercentileProbe implements BenchmarkExecutionAwareProbe, BenchmarkT
 
     /** */
     private AtomicLong[] buckets;
-
-    /** */
-    private final AtomicBoolean pointsGuard = new AtomicBoolean();
 
     /** {@inheritDoc} */
     @SuppressWarnings("BusyWait")
@@ -107,9 +105,6 @@ public class PercentileProbe implements BenchmarkExecutionAwareProbe, BenchmarkT
 
     /** {@inheritDoc} */
     @Override public Collection<BenchmarkProbePoint> points() {
-        if (!pointsGuard.compareAndSet(false, true))
-            throw new IllegalStateException();
-
         Collection<BenchmarkProbePoint> ret = new ArrayList<>(bucketsCnt);
 
         long sum = 0;
@@ -118,7 +113,7 @@ public class PercentileProbe implements BenchmarkExecutionAwareProbe, BenchmarkT
             sum += b.get();
 
         for (int i = 0; i < buckets.length; i++) {
-            long cnt = buckets[i].get();
+            long cnt = buckets[i].getAndSet(0);
 
             ret.add(new BenchmarkProbePoint((i + 1) * bucketInterval, new double[] {((double)cnt) / sum}));
         }

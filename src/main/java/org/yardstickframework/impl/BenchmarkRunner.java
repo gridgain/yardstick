@@ -176,7 +176,9 @@ public class BenchmarkRunner {
             t.start();
     }
 
-    /** */
+    /**
+     *
+     */
     private void startBuildingThread() {
         final long interval = interval(cfg);
 
