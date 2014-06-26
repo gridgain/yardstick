@@ -230,9 +230,6 @@ public class BenchmarkProbeSet {
         for (Map.Entry<BenchmarkProbe, BenchmarkProbePointWriter> entry : writers.entrySet()) {
             BenchmarkProbe probe = entry.getKey();
 
-            if (probe instanceof BenchmarkTotalsOnlyProbe)
-                continue;
-
             probe.points();
         }
 
