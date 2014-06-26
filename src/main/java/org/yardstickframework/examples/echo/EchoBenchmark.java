@@ -18,6 +18,7 @@ import org.yardstickframework.*;
 
 import java.io.*;
 import java.net.*;
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
 
@@ -51,7 +52,7 @@ public class EchoBenchmark extends BenchmarkDriverAdapter {
     }
 
     /** {@inheritDoc} */
-    @Override public void test() throws Exception {
+    @Override public boolean test(Map<Object, Object> ctx) throws Exception {
         Socket sock = socket(args);
 
         String req = "ping-" + cntr.incrementAndGet();
@@ -79,12 +80,16 @@ public class EchoBenchmark extends BenchmarkDriverAdapter {
 
         if (!req.equals(res))
             throw new Exception("Invalid echo response [req=" + req + ", res=" + res + ']');
+
+        return true;
     }
 
     /** {@inheritDoc} */
     @Override public String description() {
-        return cfg.description().isEmpty() ?
-            cfg.driverName() + args.description() + cfg.defaultDescription() : cfg.description();
+        String desc = BenchmarkUtils.description(cfg, this);
+
+        return desc.isEmpty() ?
+            getClass().getSimpleName() + args.description() + cfg.defaultDescription() : desc;
     }
 
     /** {@inheritDoc} */

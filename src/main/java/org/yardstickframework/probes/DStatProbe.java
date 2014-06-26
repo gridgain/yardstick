@@ -120,7 +120,7 @@ public class DStatProbe implements BenchmarkProbe {
         try {
             proc.exec(cmdParams, Collections.<String, String>emptyMap(), c);
 
-            println(cfg, this.getClass().getSimpleName() + " is started. Command: '" + execCmd + "'");
+            println(cfg, getClass().getSimpleName() + " is started. Command: '" + execCmd + "'");
         }
         catch (Exception e) {
             errorHelp(cfg, "Can not start: '" + execCmd + "'.", e);
@@ -132,7 +132,7 @@ public class DStatProbe implements BenchmarkProbe {
         if (proc != null) {
             proc.shutdown(false);
 
-            println(cfg, this.getClass().getSimpleName() + " is stopped.");
+            println(cfg, getClass().getSimpleName() + " is stopped.");
         }
     }
 
@@ -152,6 +152,11 @@ public class DStatProbe implements BenchmarkProbe {
         collected = new ArrayList<>(ret.size() + 5);
 
         return ret;
+    }
+
+    /** {@inheritDoc} */
+    @Override public void buildPoint(long time) {
+        // No-op.
     }
 
     /**

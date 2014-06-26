@@ -37,12 +37,18 @@ public class JFreeChartGraphPlotterArguments {
         description = "Number of columns that the charts are displayed in on the resulted page")
     private int chartCols = 3;
 
+    /** */
     @Parameter(names = {"-gm", "--generationMode"},
         description = "Graph generation mode for comparing benchmark results:\n\n" +
             "       STANDARD: all benchmark results are displayed on separate graphs.\n\n" +
             "       COMPARISON: benchmarks from multiple folders (space-separated) are paired together.\n\n" +
             "       COMPOUND: benchmarks from multiple folders (space-separated) are shown together.\n")
     private JFreeChartGenerationMode genMode = JFreeChartGenerationMode.COMPOUND;
+
+    /** */
+    @Parameter(names = {"-spm", "--summaryPlotMode"},
+        description = "Mode in which the summary plot is added to the generated chart in COMPARISON and COMPOUND modes")
+    private boolean summaryPlotMode;
 
     /**
      * @return List of input folders.
@@ -70,5 +76,12 @@ public class JFreeChartGraphPlotterArguments {
      */
     public JFreeChartGenerationMode generationMode() {
         return genMode;
+    }
+
+    /**
+     * @return {@code True} if summary plot mode is on, {@code false} otherwise.
+     */
+    public boolean summaryPlotMode() {
+        return summaryPlotMode;
     }
 }

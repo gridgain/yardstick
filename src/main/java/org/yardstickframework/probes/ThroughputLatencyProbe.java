@@ -22,23 +22,17 @@ import java.util.concurrent.*;
 import static org.yardstickframework.BenchmarkUtils.*;
 
 /**
-* Probe that calculates throughput and average latency.
-*/
+ * Probe that calculates throughput and average latency.
+ */
 public class ThroughputLatencyProbe implements BenchmarkExecutionAwareProbe {
-    /** */
-    public static final String INTERVAL = "BENCHMARK_PROBE_THROUGHPUT_INTERVAL";
-
-    /** */
-    public static final long DEFAULT_INTERVAL_IN_MSECS = 1_000;
-
     /** Operations executed. */
     private ThreadAgent[] agents;
 
     /** Collected points. */
     private Collection<BenchmarkProbePoint> collected = new ArrayList<>();
 
-    /** Thread collecting probe points. */
-    private Thread collectingThread;
+    /** Service building probe points. */
+    private ExecutorService buildingService;
 
     /** */
     private BenchmarkConfiguration cfg;
@@ -53,46 +47,18 @@ public class ThroughputLatencyProbe implements BenchmarkExecutionAwareProbe {
         for (int i = 0; i < agents.length; i++)
             agents[i] = new ThreadAgent();
 
-        final long interval = interval(cfg);
+        buildingService = Executors.newSingleThreadExecutor();
 
-        collectingThread = new Thread() {
-            @Override public void run() {
-                try {
-                    while (!Thread.currentThread().isInterrupted()) {
-                        ThreadAgent collector = new ThreadAgent();
-
-                        for (ThreadAgent agent : agents)
-                            agent.collect(collector);
-
-                        double latency = collector.execCnt == 0 ? 0 : (double)collector.totalLatency / collector.execCnt;
-
-                        BenchmarkProbePoint pnt = new BenchmarkProbePoint(
-                            TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()),
-                            new double[] {collector.execCnt, latency});
-
-                        collectPoint(pnt);
-
-                        Thread.sleep(interval);
-                    }
-                }
-                catch (InterruptedException ignore) {
-                    // No-op, exit probe thread.
-                }
-            }
-        };
-
-        collectingThread.start();
-
-        println(cfg, ThroughputLatencyProbe.class.getSimpleName() + " is started.");
+        println(cfg, getClass().getSimpleName() + " is started.");
     }
 
     /** {@inheritDoc} */
     @Override public void stop() throws Exception {
-        if (collectingThread != null) {
-            collectingThread.interrupt();
-            collectingThread.join();
+        if (buildingService != null) {
+            buildingService.shutdown();
+            assert buildingService.awaitTermination(10, TimeUnit.SECONDS);
 
-            println(cfg, ThroughputLatencyProbe.class.getSimpleName() + " is stopped.");
+            println(cfg, getClass().getSimpleName() + " is stopped.");
         }
     }
 
@@ -110,6 +76,26 @@ public class ThroughputLatencyProbe implements BenchmarkExecutionAwareProbe {
         return ret;
     }
 
+    /** {@inheritDoc} */
+    @Override public void buildPoint(final long time) {
+        buildingService.execute(new Runnable() {
+            @Override public void run() {
+                ThreadAgent collector = new ThreadAgent();
+
+                for (ThreadAgent agent : agents)
+                    agent.collect(collector);
+
+                double latency = collector.execCnt == 0 ? 0 : (double)collector.totalLatency / collector.execCnt;
+
+                BenchmarkProbePoint pnt = new BenchmarkProbePoint(
+                    TimeUnit.MILLISECONDS.toSeconds(time),
+                    new double[] {collector.execCnt, latency});
+
+                collectPoint(pnt);
+            }
+        });
+    }
+
     /**
      * @param pnt Probe point.
      */
@@ -125,19 +111,6 @@ public class ThroughputLatencyProbe implements BenchmarkExecutionAwareProbe {
     /** {@inheritDoc} */
     @Override public void afterExecute(int threadIdx) {
         agents[threadIdx].afterExecute();
-    }
-
-    /**
-     * @param cfg Config.
-     * @return Interval.
-     */
-    private static long interval(BenchmarkConfiguration cfg) {
-        try {
-            return Long.parseLong(cfg.customProperties().get(INTERVAL));
-        }
-        catch (NumberFormatException | NullPointerException ignored) {
-            return DEFAULT_INTERVAL_IN_MSECS;
-        }
     }
 
     /**

@@ -17,6 +17,7 @@ package org.yardstickframework.impl;
 import org.yardstickframework.*;
 
 import java.util.*;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
 
 import static org.yardstickframework.BenchmarkUtils.*;
@@ -25,11 +26,17 @@ import static org.yardstickframework.BenchmarkUtils.*;
  * Benchmark runner. Starts benchmarking threads, manages lifecycle.
  */
 public class BenchmarkRunner {
+    /** */
+    public static final String INTERVAL = "BENCHMARK_BUILD_PROBE_POINT_INTERVAL";
+
+    /** */
+    public static final long DEFAULT_INTERVAL_IN_MSECS = 1_000;
+
     /** Benchmark arguments. */
     private final BenchmarkConfiguration cfg;
 
-    /** Benchmark driver. */
-    private final BenchmarkDriver drv;
+    /** Benchmark drivers. */
+    private final BenchmarkDriver[] drivers;
 
     /** Cancelled flag. */
     private volatile boolean cancelled;
@@ -40,22 +47,34 @@ public class BenchmarkRunner {
     /** Started threads. */
     private volatile Collection<Thread> threads;
 
-    /** Probes. */
-    private final BenchmarkProbeSet probeSet;
+    /** List of probe sets. */
+    private final BenchmarkProbeSet[] probeSets;
+
+    /** List of weights. */
+    private final int[] weights;
 
     /** Execution error. */
     private volatile Throwable err;
 
+    /** Thread building probe points. */
+    private Thread buildingThread;
+
     /**
      * @param cfg Benchmark arguments.
-     * @param drv Driver.
-     * @param probeSet Probe set.
+     * @param drivers Drivers.
+     * @param probeSets Probe sets.
+     * @param weights Driver run weights.
      */
-    public BenchmarkRunner(BenchmarkConfiguration cfg, BenchmarkDriver drv, BenchmarkProbeSet probeSet) {
+    public BenchmarkRunner(
+        BenchmarkConfiguration cfg,
+        BenchmarkDriver[] drivers,
+        BenchmarkProbeSet[] probeSets,
+        int[] weights
+    ) {
         this.cfg = cfg;
-        this.drv = drv;
-
-        this.probeSet = probeSet;
+        this.drivers = drivers;
+        this.probeSets = probeSets;
+        this.weights = weights;
     }
 
     /**
@@ -66,13 +85,28 @@ public class BenchmarkRunner {
 
         threads = new ArrayList<>(threadNum);
 
-        final AtomicBoolean warmupFinished = new AtomicBoolean(false);
-
         final AtomicInteger finished = new AtomicInteger(0);
 
-        probeSet.start();
+        for (BenchmarkProbeSet probeSet : probeSets)
+            probeSet.start();
+
+        startBuildingThread();
 
         final long testStart = System.currentTimeMillis();
+
+        final long totalDuration = cfg.duration() + cfg.warmup();
+
+        final int sumWeight = sumWeights();
+
+        final CyclicBarrier barrier = new CyclicBarrier(threadNum, new Runnable() {
+            @Override public void run() {
+                for (BenchmarkDriver drv : drivers)
+                    drv.onWarmupFinished();
+
+                for (BenchmarkProbeSet set : probeSets)
+                    set.onWarmupFinished();
+            }
+        });
 
         for (int i = 0; i < threadNum; i++) {
             final int threadIdx = i;
@@ -80,32 +114,47 @@ public class BenchmarkRunner {
             threads.add(new Thread(new Runnable() {
                 @Override public void run() {
                     try {
-                        long totalDuration = cfg.duration() + cfg.warmup();
+                        Random rand = new Random();
+
+                        Map<Object, Object> ctx = new HashMap<>();
 
                         // To avoid CAS on each benchmark iteration.
                         boolean reset = true;
 
                         while (!cancelled && !Thread.currentThread().isInterrupted()) {
+                            int idx = driverIndex(rand, sumWeight);
+
+                            BenchmarkDriver drv = drivers[idx];
+
+                            BenchmarkProbeSet probeSet = probeSets[idx];
+
                             probeSet.onBeforeExecute(threadIdx);
 
                             // Execute benchmark code.
-                            drv.test();
+                            boolean res = drv.test(ctx);
 
                             probeSet.onAfterExecute(threadIdx);
+
+                            if (!res) {
+                                for (BenchmarkProbeSet set : probeSets)
+                                    set.onFinished();
+
+                                break;
+                            }
 
                             long now = System.currentTimeMillis();
 
                             long elapsed = (now - testStart) / 1_000;
 
                             if (reset && elapsed > cfg.warmup()) {
-                                if (warmupFinished.compareAndSet(false, true))
-                                    probeSet.onWarmupFinished();
+                                barrier.await();
 
                                 reset = false;
                             }
 
                             if (elapsed > totalDuration) {
-                                probeSet.onFinished();
+                                for (BenchmarkProbeSet set : probeSets)
+                                    set.onFinished();
 
                                 break;
                             }
@@ -125,6 +174,71 @@ public class BenchmarkRunner {
 
         for (Thread t : threads)
             t.start();
+    }
+
+    /**
+     *
+     */
+    private void startBuildingThread() {
+        final long interval = interval(cfg);
+
+        buildingThread = new Thread() {
+            @Override public void run() {
+                try {
+                    while (!Thread.currentThread().isInterrupted()) {
+                        long time = System.currentTimeMillis();
+
+                        for (BenchmarkProbeSet probeSet : probeSets)
+                            probeSet.buildPoint(time);
+
+                        Thread.sleep(interval);
+                    }
+                }
+                catch (InterruptedException ignore) {
+                    // No-op.
+                }
+            }
+        };
+
+        buildingThread.start();
+    }
+
+    /**
+     * @param rand Random.
+     * @param sumWeight Sum of weights.
+     * @return Driver index.
+     * @throws Exception If failed.
+     */
+    private int driverIndex(Random rand, int sumWeight) throws Exception {
+        int len = weights.length;
+
+        if (len == 1)
+            return 0;
+
+        int w = rand.nextInt(sumWeight);
+
+        int sum = 0;
+
+        for (int i = 0; i < len; i++) {
+            sum += weights[i];
+
+            if (sum > w)
+                return i;
+        }
+
+        throw new Exception("Can not reach here.");
+    }
+
+    /**
+     * @return Sum of weights.
+     */
+    private int sumWeights() {
+        int sumWeight = 0;
+
+        for (int w : weights)
+            sumWeight += w;
+
+        return sumWeight;
     }
 
     /**
@@ -159,6 +273,19 @@ public class BenchmarkRunner {
     }
 
     /**
+     * @param cfg Config.
+     * @return Interval.
+     */
+    private static long interval(BenchmarkConfiguration cfg) {
+        try {
+            return Long.parseLong(cfg.customProperties().get(INTERVAL));
+        }
+        catch (NumberFormatException | NullPointerException ignored) {
+            return DEFAULT_INTERVAL_IN_MSECS;
+        }
+    }
+
+    /**
      *
      */
     private class ShutdownThread extends Thread {
@@ -168,12 +295,18 @@ public class BenchmarkRunner {
                 errorHelp(cfg, "Shutting down benchmark driver to unexpected exception.", err);
 
             try {
+                if (buildingThread != null) {
+                    buildingThread.interrupt();
+                    buildingThread.join();
+                }
+
                 for (Thread t : threads)
                     t.join();
 
-                drv.tearDown();
-
-                probeSet.stop();
+                for (int i = 0; i < drivers.length; i++) {
+                    drivers[i].tearDown();
+                    probeSets[i].stop();
+                }
             }
             catch (Exception e) {
                 errorHelp(cfg, "Failed to gracefully shutdown benchmark runner.", e);

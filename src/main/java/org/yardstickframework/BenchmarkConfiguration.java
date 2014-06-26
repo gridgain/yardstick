@@ -29,8 +29,9 @@ public class BenchmarkConfiguration {
     private String propsFileName = "config/benchmark.properties";
 
     /** */
-    @Parameter(names = {"-dn", "--driverName"}, description = "Benchmark driver name (required)")
-    private String driverName;
+    @Parameter(names = {"-dn", "--driverNames"}, variableArity = true,
+        description = "Space-separated list of Benchmark driver names (required)")
+    private List<String> driverNames;
 
     /** */
     @Parameter(names = {"-sn", "--serverName"}, description = "Benchmark server name (required)")
@@ -69,15 +70,13 @@ public class BenchmarkConfiguration {
     private String outputFolder;
 
     /** */
-    @Parameter(names = {"-ds", "--description"}, description = "Benchmark run description")
-    private String desc = "";
+    @Parameter(names = {"-ds", "--descriptions"}, variableArity = true,
+        description = "Space-separated list of benchmark run descriptions")
+    private List<String> descs;
 
     /** */
     @Parameter(names = { "-h", "--help" }, description = "Print help message", help = true, hidden = true)
     private boolean help;
-
-    /** Default probes. */
-    private List<BenchmarkProbe> dfltProbes = Collections.emptyList();
 
     /** Non-parsed command line arguments. */
     private String[] cmdArgs;
@@ -113,10 +112,10 @@ public class BenchmarkConfiguration {
     }
 
     /**
-     * @return Benchmark driver name.
+     * @return Benchmark driver names.
      */
-    public String driverName() {
-        return driverName;
+    public List<String> driverNames() {
+        return driverNames;
     }
 
     /**
@@ -260,20 +259,6 @@ public class BenchmarkConfiguration {
     }
 
     /**
-     * @return List of default probes.
-     */
-    public List<BenchmarkProbe> defaultProbes() {
-        return dfltProbes;
-    }
-
-    /**
-     * @param dfltProbes List of default probes.
-     */
-    public void defaultProbes(List<BenchmarkProbe> dfltProbes) {
-        this.dfltProbes = dfltProbes;
-    }
-
-    /**
      * @return Probe writer class name.
      */
     public String probeWriterClassName() {
@@ -295,10 +280,10 @@ public class BenchmarkConfiguration {
     }
 
     /**
-     * @return Description.
+     * @return Descriptions.
      */
-    public String description() {
-        return desc;
+    public List<String> descriptions() {
+        return descs;
     }
 
     /**
@@ -311,14 +296,13 @@ public class BenchmarkConfiguration {
     /** {@inheritDoc} */
     @Override public String toString() {
         return this.getClass().getSimpleName() + " [" +
-            "driverName='" + driverName + '\'' +
+            "driverNames='" + driverNames + '\'' +
             ", serverName='" + serverName + '\'' +
             ", threads=" + threads +
             ", duration=" + duration +
             ", warmup=" + warmup +
             ", dfltProbeClsNames=" + dfltProbeClsNames +
             ", propsFileName='" + propsFileName + '\'' +
-            ", dfltProbes=" + dfltProbes +
             ", packages=" + packages +
             ", cmdArgs=" + Arrays.toString(cmdArgs) +
             ", probeWriter='" + probeWriter + '\'' +
@@ -327,7 +311,7 @@ public class BenchmarkConfiguration {
             ", outputFolder=" + outputFolder +
             ", outputWriter=" + outputWriter +
             ", errorWriter=" + errorWriter +
-            ", desc=" + desc +
+            ", descriptions=" + descs +
             ']';
     }
 }

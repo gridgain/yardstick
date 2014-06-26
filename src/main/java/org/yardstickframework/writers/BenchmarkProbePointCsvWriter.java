@@ -62,7 +62,8 @@ public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
         this.cfg = cfg;
         this.drv = drv;
         this.startTime = startTime;
-        this.dupToOutput = duplicateToOutput(cfg);
+
+        dupToOutput = duplicateToOutput(cfg);
 
         String path = cfg.outputFolder();
 
@@ -73,7 +74,7 @@ public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
 
             if (!folder.exists()) {
                 if (!folder.mkdirs())
-                    throw new IllegalStateException("Can not create folder: " + folder.getAbsolutePath() + "");
+                    throw new IllegalStateException("Can not create folder: " + folder.getAbsolutePath());
             }
         }
 
@@ -85,13 +86,16 @@ public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
 
         String subFolderName = FORMAT.format(new Date(startTime)) + desc;
 
+        subFolderName = cfg.driverNames().size() > 1 ?
+            drv.getClass().getSimpleName() + File.separator + subFolderName : subFolderName;
+
         subFolderName = BenchmarkUtils.fixFolderName(subFolderName);
 
         outPath = folder == null ? new File(subFolderName) : new File(folder, subFolderName);
 
         if (!outPath.exists()) {
-            if (!outPath.mkdir())
-                throw new IllegalStateException("Can not create folder: " + outPath.getAbsolutePath() + "");
+            if (!outPath.mkdirs())
+                throw new IllegalStateException("Can not create folder: " + outPath.getAbsolutePath());
         }
     }
 
@@ -104,20 +108,28 @@ public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
 
             writer = new PrintWriter(new OutputStreamWriter(new FileOutputStream(f)));
 
-            String parent = outPath.getParent() == null ? outPath.getPath() : outPath.getParent();
+            String parent;
 
-            BenchmarkUtils.println(cfg,
-                probe.getClass().getSimpleName() + " results will be saved to: " + parent);
+            // Multiple drivers.
+            if (cfg.driverNames().size() > 1) {
+                File outPath0 = outPath.getParentFile();
+
+                parent = outPath0.getParent() == null ? outPath.getPath() : outPath0.getPath();
+            }
+            else
+                parent = outPath.getParent() == null ? outPath.getPath() : outPath.getParent();
+
+            BenchmarkUtils.println(cfg, probe.getClass().getSimpleName() + " results will be saved to: " + parent);
 
             println("--Probe dump file for probe: " + probe + " (" + probe.getClass() + ")");
             println("--Created " + new Date(startTime));
             println("--Benchmark config: " + removeUnwantedChars(cfg.toString()));
             println("--Description: " + removeUnwantedChars(drv.description() == null ? "" : drv.description()));
 
-            if (probe.metaInfo() != null && probe.metaInfo().size() > 0) {
-                int i = 0;
-
+            if (probe.metaInfo() != null && !probe.metaInfo().isEmpty()) {
                 print(META_INFO_PREFIX);
+
+                int i = 0;
 
                 for (String metaInfo : probe.metaInfo())
                     print("\"" + metaInfo + "\"" + (++i == probe.metaInfo().size() ? "" : META_INFO_SEPARATOR));

@@ -17,12 +17,14 @@ package org.yardstickframework;
 import java.util.*;
 
 /**
- * This probe should be asked for collected points before benchmark stop.
+ * Probe marked with this interface should be asked for collected points
+ * only when warm-up is finished and right before benchmark stops.
  */
 public interface BenchmarkTotalsOnlyProbe extends BenchmarkProbe {
     /**
      * Gets collection of the points gathered by the probe.
-     * This method should be called only once (e.g. before benchmark stops).
+     * This method should be called only when warm-up is finished
+     * and right before benchmark stops.
      *
      * @return Collection of points.
      * @throws IllegalStateException If called more than once.

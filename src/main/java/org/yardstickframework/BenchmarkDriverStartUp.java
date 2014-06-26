@@ -39,58 +39,114 @@ public class BenchmarkDriverStartUp {
 
         ldr.initialize(cfg);
 
-        String name = cfg.driverName();
+        List<String> names = cfg.driverNames();
 
-        if (name != null)
-            name = name.trim();
-
-        if (name == null || name.isEmpty()) {
-            errorHelp(cfg, "Driver class name is not specified.");
+        if (names == null || names.isEmpty()) {
+            errorHelp(cfg, "Driver class names are not specified.");
 
             return;
         }
 
-        BenchmarkDriver drv;
+        List<BenchmarkDriver> drivers = new ArrayList<>();
 
-        if ((drv = ldr.loadBenchmarkClass(BenchmarkDriver.class, name)) != null) {
-            if (cfg.help()) {
-                println(cfg, drv.usage());
+        List<Integer> weights = new ArrayList<>();
+
+        Set<String> driverNames = new HashSet<>();
+
+        for (String nameWithWeight : names) {
+            nameWithWeight = nameWithWeight.trim();
+
+            if (nameWithWeight.isEmpty())
+                continue;
+
+            String[] tokens = nameWithWeight.split(":");
+
+            String name = tokens[0].trim();
+
+            String weight = tokens.length == 1 ? "1" : tokens[1].trim();
+
+            try {
+                weights.add(Integer.parseInt(weight));
+            }
+            catch (NumberFormatException e) {
+                errorHelp(cfg, "Can not parse driver run weight [driver=" + name + ", weight=" + weight + "]");
 
                 return;
             }
 
-            drv.setUp(cfg);
+            BenchmarkDriver drv = ldr.loadClass(BenchmarkDriver.class, name);
 
-            Collection<BenchmarkProbe> probes = drv.probes();
+            if (drv == null) {
+                errorHelp(cfg, "Could not find benchmark driver class name in classpath: " + name +
+                    ".\nMake sure class name is specified correctly and corresponding package is added " +
+                    "to -p argument list.");
+
+                return;
+            }
+
+            drivers.add(drv);
+
+            driverNames.add(name);
+        }
+
+        if (drivers.isEmpty()) {
+            errorHelp(cfg, "Drivers are not found.");
+
+            return;
+        }
+
+        if (driverNames.size() < drivers.size()) {
+            errorHelp(cfg, "Multiple drivers with the same name are found.");
+
+            return;
+        }
+
+        if (cfg.help()) {
+            println(cfg, drivers.get(0).usage());
+
+            return;
+        }
+
+        BenchmarkProbeSet[] probeSets = new BenchmarkProbeSet[drivers.size()];
+
+        for (int i = 0; i < drivers.size(); i++) {
+            Collection<BenchmarkProbe> probes = ldr.loadProbes();
 
             if (probes == null || probes.isEmpty()) {
-                errorHelp(cfg, "No probes provided by benchmark driver (stopping benchmark): " + name);
+                errorHelp(cfg, "No probes provided by benchmark driver (stopping benchmark): " + names);
 
                 return;
             }
 
-            final BenchmarkRunner runner = new BenchmarkRunner(cfg, drv, new BenchmarkProbeSet(drv, cfg, probes, ldr));
+            BenchmarkDriver drv = drivers.get(i);
 
-            if (cfg.shutdownHook()) {
-                Runtime.getRuntime().addShutdownHook(new Thread() {
-                    @Override public void run() {
-                        try {
-                            runner.cancel();
-                        }
-                        catch (Exception e) {
-                            errorHelp(cfg, "Exception is raised during runner cancellation.", e);
-                        }
+            probeSets[i] = new BenchmarkProbeSet(drv, cfg, probes, ldr);
+
+            drv.setUp(cfg);
+        }
+
+        int[] weights0 = new int[weights.size()];
+
+        for (int i = 0; i < weights.size(); i++)
+            weights0[i] = weights.get(i);
+
+        final BenchmarkRunner runner = new BenchmarkRunner(cfg, drivers.toArray(new BenchmarkDriver[drivers.size()]),
+            probeSets, weights0);
+
+        if (cfg.shutdownHook()) {
+            Runtime.getRuntime().addShutdownHook(new Thread() {
+                @Override public void run() {
+                    try {
+                        runner.cancel();
                     }
-                });
-            }
+                    catch (Exception e) {
+                        errorHelp(cfg, "Exception is raised during runner cancellation.", e);
+                    }
+                }
+            });
+        }
 
-            // Runner will shutdown driver.
-            runner.runBenchmark();
-        }
-        else {
-            errorHelp(cfg, "Could not find benchmark driver class name in classpath: " + name +
-                ".\nMake sure class name is specified correctly and corresponding package is added " +
-                "to -p argument list.");
-        }
+        // Runner will shutdown driver.
+        runner.runBenchmark();
     }
 }

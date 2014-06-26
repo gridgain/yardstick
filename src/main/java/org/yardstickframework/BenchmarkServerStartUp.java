@@ -50,7 +50,7 @@ public class BenchmarkServerStartUp {
 
         BenchmarkServer srv;
 
-        if ((srv = ldr.loadBenchmarkClass(BenchmarkServer.class, name)) != null) {
+        if ((srv = ldr.loadClass(BenchmarkServer.class, name)) != null) {
             if (cfg.help()) {
                 println(cfg, srv.usage());
 

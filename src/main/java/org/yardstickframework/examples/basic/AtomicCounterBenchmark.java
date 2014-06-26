@@ -16,6 +16,7 @@ package org.yardstickframework.examples.basic;
 
 import org.yardstickframework.*;
 
+import java.util.*;
 import java.util.concurrent.atomic.*;
 
 /**
@@ -29,7 +30,9 @@ public class AtomicCounterBenchmark extends BenchmarkDriverAdapter {
     private final AtomicInteger cnt = new AtomicInteger();
 
     /** {@inheritDoc} */
-    @Override public void test() throws Exception {
+    @Override public boolean test(Map<Object, Object> ctx) throws Exception {
         cnt.incrementAndGet();
+
+        return true;
     }
 }

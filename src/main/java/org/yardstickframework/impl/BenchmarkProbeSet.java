@@ -18,6 +18,7 @@ import org.yardstickframework.*;
 import org.yardstickframework.writers.*;
 
 import java.util.*;
+import java.util.concurrent.*;
 
 import static org.yardstickframework.BenchmarkUtils.*;
 
@@ -40,7 +41,7 @@ public class BenchmarkProbeSet {
     /** Writer thread. */
     private Thread fileWriterThread;
 
-    /** Benchmark context. */
+    /** Benchmark configuration. */
     private final BenchmarkConfiguration cfg;
 
     /** Benchmark driver. */
@@ -49,14 +50,15 @@ public class BenchmarkProbeSet {
     /** Loader. */
     private final BenchmarkLoader ldr;
 
-    /** Flag indicating whether warmup is finished or not. */
-    private volatile boolean warmupFinished;
+    /** Latch indicating whether warmup is finished or not. */
+    private final CountDownLatch warmupFinished = new CountDownLatch(1);
 
     /** Flag indicating whether benchmark time is over or not. */
     private volatile boolean finished;
 
     /**
-     * @param cfg Context.
+     * @param driver Benchmark driver.
+     * @param cfg Configuration.
      * @param probes Collection of probes.
      * @param ldr Loader.
      */
@@ -93,7 +95,7 @@ public class BenchmarkProbeSet {
         long writersStartTime = System.currentTimeMillis();
 
         for (BenchmarkProbe probe : probes) {
-            BenchmarkProbePointWriter writer = ldr.loadBenchmarkClass(BenchmarkProbePointWriter.class, writerClsName);
+            BenchmarkProbePointWriter writer = ldr.loadClass(BenchmarkProbePointWriter.class, writerClsName);
 
             if (writer == null) {
                 if (warn) {
@@ -126,10 +128,10 @@ public class BenchmarkProbeSet {
         fileWriterThread = new Thread("probe-dump-thread") {
             @Override public void run() {
                 try {
+                    warmupFinished.await();
+
                     while (!Thread.currentThread().isInterrupted()) {
                         Thread.sleep(PROBE_DUMP_FREQ);
-
-                        boolean warmupFinished0 = warmupFinished;
 
                         for (Map.Entry<BenchmarkProbe, BenchmarkProbePointWriter> entry : writers.entrySet()) {
                             BenchmarkProbe probe = entry.getKey();
@@ -141,13 +143,11 @@ public class BenchmarkProbeSet {
 
                             Collection<BenchmarkProbePoint> points = probe.points();
 
-                            if (warmupFinished0) {
-                                try {
-                                    writer.writePoints(probe, points);
-                                }
-                                catch (Exception e) {
-                                    errorHelp(cfg, "Exception is raised during point write.", e);
-                                }
+                            try {
+                                writer.writePoints(probe, points);
+                            }
+                            catch (Exception e) {
+                                errorHelp(cfg, "Exception is raised during point write.", e);
                             }
                         }
 
@@ -159,12 +159,10 @@ public class BenchmarkProbeSet {
                     // No-op.
                 }
                 finally {
-                    boolean warmupFinished0 = warmupFinished;
-
                     for (Map.Entry<BenchmarkProbe, BenchmarkProbePointWriter> entry : writers.entrySet()) {
                         BenchmarkProbe probe = entry.getKey();
 
-                        if (warmupFinished0 && probe instanceof BenchmarkTotalsOnlyProbe) {
+                        if (probe instanceof BenchmarkTotalsOnlyProbe) {
                             BenchmarkProbePointWriter writer = entry.getValue();
 
                             try {
@@ -216,10 +214,26 @@ public class BenchmarkProbeSet {
     }
 
     /**
+     * Notifies probes to build a point. This method is invoked periodically with given interval.
+     *
+     * @param time Time of the point.
+     */
+    public void buildPoint(long time) {
+        for (BenchmarkProbe probe : probes)
+            probe.buildPoint(time);
+    }
+
+    /**
      * Warmup finished callback.
      */
     public void onWarmupFinished() {
-        warmupFinished = true;
+        for (Map.Entry<BenchmarkProbe, BenchmarkProbePointWriter> entry : writers.entrySet()) {
+            BenchmarkProbe probe = entry.getKey();
+
+            probe.points();
+        }
+
+        warmupFinished.countDown();
     }
 
     /**

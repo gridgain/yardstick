@@ -50,4 +50,11 @@ public interface BenchmarkProbe {
      * @return Collection of probe points.
      */
     public Collection<BenchmarkProbePoint> points();
+
+    /**
+     * Notifies the probe to build a point. This method is invoked periodically with given interval.
+     *
+     * @param time Time of the point.
+     */
+    public void buildPoint(long time);
 }

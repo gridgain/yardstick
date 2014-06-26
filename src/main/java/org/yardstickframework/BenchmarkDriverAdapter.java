@@ -14,8 +14,6 @@
 
 package org.yardstickframework;
 
-import java.util.*;
-
 /**
  * Convenient adapter for benchmark driver implementations.
  */
@@ -34,17 +32,19 @@ public abstract class BenchmarkDriverAdapter implements BenchmarkDriver {
     }
 
     /** {@inheritDoc} */
-    @Override public Collection<BenchmarkProbe> probes() {
-        return cfg.defaultProbes();
-    }
-
-    /** {@inheritDoc} */
     @Override public String description() {
-        return cfg.description().isEmpty() ? cfg.driverName() + cfg.defaultDescription() : cfg.description();
+        String desc = BenchmarkUtils.description(cfg, this);
+
+        return desc.isEmpty() ? getClass().getSimpleName() + cfg.defaultDescription() : desc;
     }
 
     /** {@inheritDoc} */
     @Override public String usage() {
         return BenchmarkUtils.usage(null);
+    }
+
+    /** {@inheritDoc} */
+    @Override public void onWarmupFinished() {
+        // No-op.
     }
 }
