@@ -207,7 +207,7 @@ public class JFreeChartGraphPlotter {
             if (!filesExist)
                 break;
 
-            List<File> fList = res.values().iterator().next();
+            List<File> fList = res.isEmpty() ? null : res.values().iterator().next();
 
             File parFile = fList == null || fList.isEmpty() ? null : fList.get(0).getParentFile();
 
