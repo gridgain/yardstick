@@ -64,16 +64,17 @@ do
     CONFIG=${cfg}
 
     if [[ ${CONFIG} != *'-of '* ]] && [[ ${CONFIG} != *'--outputFolder '* ]]; then
-        CONFIG="--outputFolder ${folder} ${CONFIG}"
+        OUTPUT_FOLDER="--outputFolder ${folder}"
     fi
 
     export CONFIG
+    export OUTPUT_FOLDER
 
     /bin/bash ${SCRIPT_DIR}/benchmark-servers-start.sh ${CONFIG_INCLUDE}
 
     sleep 3s
 
-    /bin/bash ${SCRIPT_DIR}/benchmark-run.sh ${CONFIG_INCLUDE}
+    /bin/bash ${SCRIPT_DIR}/benchmark-drivers-start.sh ${CONFIG_INCLUDE}
 
     /bin/bash ${SCRIPT_DIR}/benchmark-servers-stop.sh ${CONFIG_INCLUDE}
 

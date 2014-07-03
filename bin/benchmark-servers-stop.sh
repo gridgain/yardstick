@@ -56,8 +56,8 @@ if [ "${REMOTE_USER}" == "" ]; then
     REMOTE_USER=$(whoami)
 fi
 
-if [ "${HOSTS}" == "" ]; then
-    echo "ERROR: Benchmark hosts (HOSTS) is not defined in properties file."
+if [ "${SERVER_HOSTS}" == "" ]; then
+    echo "ERROR: Benchmark hosts (SERVER_HOSTS) is not defined in properties file."
     echo "Type \"--help\" for usage."
     exit 1
 fi
@@ -68,8 +68,8 @@ if [ "${REMOTE_USER}" == "" ]; then
     exit 1
 fi
 
-IFS=',' read -ra hosts0 <<< "${HOSTS}"
+IFS=',' read -ra hosts0 <<< "${SERVER_HOSTS}"
 for host_name in "${hosts0[@]}";
 do
-    `ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} pkill -9 -f "Dyardstick.bench"`
+    `ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} pkill -9 -f "Dyardstick.server"`
 done

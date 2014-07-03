@@ -68,7 +68,8 @@ The following properties can be defined in benchmark properties file:
 * `BENCHMARK_DEFAULT_PROBES` - list of default probes
 * `BENCHMARK_PACKAGES` - packages where the specified benchmark is searched by reflection mechanism
 * `BENCHMARK_WRITER` - probe point writer class name (by default CSV writer is used)
-* `HOSTS` - comma-separated list of IP addresses where servers should be started, one server per host
+* `SERVER_HOSTS` - comma-separated list of IP addresses where servers should be started, one server per host
+* `DRIVER_HOSTS` - comma-separated list of IP addresses where drivers should be started, one driver per host, if the property is not defined then the driver will be run on localhost
 * `REMOTE_USER` - SSH user for logging in to remote hosts
 * `CONFIGS` - comma-separated list of benchmark run configurations which are passed to the servers and to the benchmarks
 
@@ -86,7 +87,12 @@ Example of `benchmark.properties` file to run 2 instances of `EchoServer`
     # Comma-separated list of remote hosts to run BenchmarkServers on.
     # If same host is specified multiple times, then benchmark server will 
     # be started on that host multiple times.
-    HOSTS=localhost,localhost
+    SERVER_HOSTS=localhost,localhost    
+    
+    # Comma-separated list of remote hosts to run BenchmarkDrivers on.
+    # If same host is specified multiple times, then benchmark driver will 
+    # be started on that host multiple times.
+    DRIVER_HOSTS=localhost,localhost
     
     # Remote username
     # REMOTE_USER=
@@ -118,7 +124,7 @@ the description with index 1 corresponds to the driver with index 1 and so on
 For example if we need to run EchoServer server on localhost and EchoServerBenchmark benchmark on localhost, 
 the test should be 20 seconds then the following configuration should be specified in run properties file:
 
-* `HOSTS=localhost`
+* `SERVER_HOSTS=localhost`
 * `CONFIGS="--duration 20 -sn EchoServer -dn EchoServerBenchmark"`
 
 ## JFreeChart Graphs
