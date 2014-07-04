@@ -57,6 +57,7 @@ public class BenchmarkRunner {
     private volatile Throwable err;
 
     /** Thread building probe points. */
+    @SuppressWarnings("FieldAccessedSynchronizedAndUnsynchronized")
     private Thread buildingThread;
 
     /**
@@ -183,6 +184,7 @@ public class BenchmarkRunner {
         final long interval = interval(cfg);
 
         buildingThread = new Thread() {
+            @SuppressWarnings("BusyWait")
             @Override public void run() {
                 try {
                     while (!Thread.currentThread().isInterrupted()) {
