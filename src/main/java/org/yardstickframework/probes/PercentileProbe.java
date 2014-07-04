@@ -24,8 +24,7 @@ import static java.util.concurrent.TimeUnit.*;
 import static org.yardstickframework.BenchmarkUtils.*;
 
 /**
- * Probe that tracks the latency of each individual request and
- * collects  the time frame bucket .
+ * Probe that tracks the latency of each individual request and collects the time frame bucket.
  */
 public class PercentileProbe implements BenchmarkExecutionAwareProbe, BenchmarkTotalsOnlyProbe {
     /** */
@@ -38,10 +37,10 @@ public class PercentileProbe implements BenchmarkExecutionAwareProbe, BenchmarkT
     public static final String TIME_UNIT = "BENCHMARK_PROBE_PERCENTILE_TIME_UNIT";
 
     /** */
-    public static final long DEFAULT_BUCKET_INTERVAL = 200;
+    public static final long DEFAULT_BUCKET_INTERVAL = 100;
 
     /** */
-    public static final int DEFAULT_BUCKETS_CNT = 5_000;
+    public static final int DEFAULT_BUCKETS_CNT = 200;
 
     /** */
     public static final TimeUnit DEFAULT_TIME_UNIT = MICROSECONDS;

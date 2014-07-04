@@ -30,7 +30,7 @@ import static org.yardstickframework.report.jfreechart.JFreeChartGraphPlotter.*;
  */
 public class JFreeChartResultPageGenerator {
     /** */
-    public static final NumberFormat NUMBER_INSTANCE = NumberFormat.getNumberInstance();
+    public static final NumberFormat NUMBER_INSTANCE = NumberFormat.getNumberInstance(Locale.US);
 
     /** */
     static {
