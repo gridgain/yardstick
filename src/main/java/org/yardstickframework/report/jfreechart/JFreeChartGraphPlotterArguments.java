@@ -50,6 +50,11 @@ public class JFreeChartGraphPlotterArguments {
         description = "Mode in which the summary plot is added to the generated chart in COMPARISON and COMPOUND modes")
     private boolean summaryPlotMode;
 
+    /** */
+    @Parameter(names = {"-ssfm", "--summarySubfoldersMode"},
+        description = "Mode in which the plots built from probe results from the subfolders of the input folders are replaced with a summary plot")
+    private boolean summarySubfoldersMode;
+
     /**
      * @return List of input folders.
      */
@@ -83,5 +88,12 @@ public class JFreeChartGraphPlotterArguments {
      */
     public boolean summaryPlotMode() {
         return summaryPlotMode;
+    }
+
+    /**
+     * @return {@code True} if summary subfolders mode is on, {@code false} otherwise.
+     */
+    public boolean summarySubfoldersMode() {
+        return summarySubfoldersMode;
     }
 }

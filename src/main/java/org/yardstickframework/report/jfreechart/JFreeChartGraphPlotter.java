@@ -23,6 +23,7 @@ import org.jfree.chart.renderer.xy.*;
 import org.jfree.chart.title.*;
 import org.jfree.data.xy.*;
 import org.jfree.ui.*;
+import org.yardstickframework.probes.*;
 import org.yardstickframework.writers.*;
 
 import java.awt.*;
@@ -119,7 +120,7 @@ public class JFreeChartGraphPlotter {
      * @throws Exception If failed.
      */
     private static void processCompoundMode(List<File> inFolders, JFreeChartGraphPlotterArguments args) throws Exception {
-        Map<String, List<File>> res = new HashMap<>();
+        Map<String, List<List<File>>> res = new HashMap<>();
 
         for (File inFolder : inFolders) {
             Map<String, List<File>> map = files(inFolder);
@@ -187,7 +188,7 @@ public class JFreeChartGraphPlotter {
 
             boolean filesExist = false;
 
-            Map<String, List<File>> res = new HashMap<>();
+            Map<String, List<List<File>>> res = new HashMap<>();
 
             for (List<File> files : foldersToCompare) {
                 if (files.size() <= idx)
@@ -200,16 +201,17 @@ public class JFreeChartGraphPlotter {
                 if (f.isDirectory()) {
                     Map<String, List<File>> map = files(f);
 
-                    mergeMaps(res, map);
+                    if (!map.isEmpty())
+                        mergeMaps(res, map);
                 }
             }
 
             if (!filesExist)
                 break;
 
-            List<File> fList = res.isEmpty() ? null : res.values().iterator().next();
+            List<List<File>> fList = res.isEmpty() ? null : res.values().iterator().next();
 
-            File parFile = fList == null || fList.isEmpty() ? null : fList.get(0).getParentFile();
+            File parFile = fList == null || fList.isEmpty() ? null : fList.get(0).get(0).getParentFile();
 
             String suffix = parFile == null ? "" : parFile.getName();
 
@@ -253,14 +255,10 @@ public class JFreeChartGraphPlotter {
 
             for (List<File> files : files(inFolder).values()) {
                 for (File file : files) {
-                    try {
-                        List<PlotData> plotData = readData(file);
+                    List<PlotData> plotData = readData(file);
 
+                    if (!plotData.isEmpty())
                         processPlots(file.getParentFile(), Collections.singleton(plotData), infoMap, STANDARD);
-                    }
-                    catch (Exception e) {
-                        errorHelp("Exception is raised while processing file (will skip): " + file.getAbsolutePath(), e);
-                    }
                 }
             }
 
@@ -275,24 +273,65 @@ public class JFreeChartGraphPlotter {
      * @param mode Generation mode.
      * @throws Exception If failed.
      */
-    private static void processFilesPerProbe(Map<String, List<File>> res, File folderToWrite,
+    private static void processFilesPerProbe(Map<String, List<List<File>>> res, File folderToWrite,
         JFreeChartGraphPlotterArguments args, JFreeChartGenerationMode mode) throws Exception {
         Map<String, List<JFreeChartPlotInfo>> infoMap = new HashMap<>();
 
-        for (Map.Entry<String, List<File>> entry : res.entrySet()) {
+        for (Map.Entry<String, List<List<File>>> entry : res.entrySet()) {
             Collection<List<PlotData>> plots = new ArrayList<>(entry.getValue().size());
 
-            for (File file : entry.getValue()) {
-                try {
-                    plots.add(readData(file));
+            int inc = 0;
+
+            for (List<File> files : entry.getValue()) {
+                if (files.size() > 1 && args.summarySubfoldersMode()) {
+                    if (entry.getKey().equals(ThroughputLatencyProbe.class.getSimpleName() + INPUT_FILE_EXTENSION) ||
+                        entry.getKey().equals(PercentileProbe.class.getSimpleName() + INPUT_FILE_EXTENSION)) {
+                        Collection<List<PlotData>> plots0 = new ArrayList<>(entry.getValue().size());
+
+                        StringBuilder sb = new StringBuilder();
+
+                        for (File file : files) {
+                            List<PlotData> pd = readData(file);
+
+                            if (!pd.isEmpty())
+                                plots0.add(pd);
+
+                            sb.append(pd.get(0).series().seriesName).append(' ');
+                        }
+
+                        if (sb.length() > 0)
+                            sb.delete(sb.length() - 1, sb.length());
+
+                        List<PlotData> sumPlot = addSummaryPlot(plots0, "Summary plot " + inc++ + ": " + sb.toString());
+
+                        if (!sumPlot.isEmpty())
+                            plots.add(sumPlot);
+                    }
+                    else {
+                        List<PlotData> pd = readData(files.get(0));
+
+                        if (!pd.isEmpty())
+                            plots.add(pd);
+                    }
                 }
-                catch (Exception e) {
-                    errorHelp("Exception is raised while processing file (will skip): " + file.getAbsolutePath(), e);
+                else {
+                    for (File file : files) {
+                        List<PlotData> pd = readData(file);
+
+                        if (!pd.isEmpty())
+                            plots.add(pd);
+                    }
                 }
             }
 
-            if (args.summaryPlotMode() && plots.size() > 1)
-                addSummaryPlot(plots);
+            if (plots.size() > 1 && args.summaryPlotMode() &&
+                (entry.getKey().equals(ThroughputLatencyProbe.class.getSimpleName() + INPUT_FILE_EXTENSION) ||
+                entry.getKey().equals(PercentileProbe.class.getSimpleName() + INPUT_FILE_EXTENSION))) {
+                List<PlotData> sumPlot = addSummaryPlot(plots, "Summary plot");
+
+                if (!sumPlot.isEmpty())
+                    plots.add(sumPlot);
+            }
 
             processPlots(folderToWrite, plots, infoMap, mode);
         }
@@ -303,8 +342,10 @@ public class JFreeChartGraphPlotter {
 
     /**
      * @param plots Plots.
+     * @param plotName Plot name.
+     * @return Summary Plot.
      */
-    private static void addSummaryPlot(Collection<List<PlotData>> plots) {
+    private static List<PlotData> addSummaryPlot(Collection<List<PlotData>> plots, String plotName) {
         int idx = -1;
 
         List<PlotData> sumPlot = new ArrayList<>();
@@ -323,7 +364,7 @@ public class JFreeChartGraphPlotter {
                 double[][] data = plotData.series().data;
 
                 if (sumPlotData == null) {
-                    PlotSeries sumSeries = new PlotSeries("Summary plot");
+                    PlotSeries sumSeries = new PlotSeries(plotName);
 
                     sumSeries.data = new double[data.length][];
 
@@ -357,8 +398,7 @@ public class JFreeChartGraphPlotter {
                 sumPlot.add(sumPlotData);
         }
 
-        if (!sumPlot.isEmpty())
-            plots.add(sumPlot);
+        return sumPlot;
     }
 
     /**
@@ -377,9 +417,9 @@ public class JFreeChartGraphPlotter {
      * @param res Resulted map.
      * @param map Map to merge.
      */
-    private static void mergeMaps(Map<String, List<File>> res, Map<String, List<File>> map) {
+    private static void mergeMaps(Map<String, List<List<File>>> res, Map<String, List<File>> map) {
         for (Map.Entry<String, List<File>> entry : map.entrySet()) {
-            List<File> list = res.get(entry.getKey());
+            List<List<File>> list = res.get(entry.getKey());
 
             if (list == null) {
                 list = new ArrayList<>();
@@ -387,7 +427,7 @@ public class JFreeChartGraphPlotter {
                 res.put(entry.getKey(), list);
             }
 
-            list.addAll(entry.getValue());
+            list.add(entry.getValue());
         }
     }
 
@@ -602,7 +642,7 @@ public class JFreeChartGraphPlotter {
 
             String[] metaInfo = null;
 
-            for (String line; (line = br.readLine()) != null;) {
+            for (String line; (line = br.readLine()) != null; ) {
                 if (line.startsWith("--"))
                     continue;
 
@@ -656,6 +696,11 @@ public class JFreeChartGraphPlotter {
                 plotData.series().finish();
 
             return data;
+        }
+        catch (Exception e) {
+            errorHelp("Exception is raised while processing file (will skip): " + file.getAbsolutePath(), e);
+
+            return Collections.emptyList();
         }
     }
 
