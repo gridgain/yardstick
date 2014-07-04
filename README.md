@@ -120,6 +120,7 @@ so `EchoBenchmark` will be run 30% of benchmark time, NewEchoBenchmark will be r
 * `-of <path>` or `--outputFolder <path>` - output folder for benchmark results, current folder is used by default
 * `-ds <list>` or `--descriptions <list>` - space-separated list of benchmark run descriptions, 
 the description with index 1 corresponds to the driver with index 1 and so on
+* `-hn <name>` or `--hostName <name>` - host name where a benchmark driver is run
 
 For example if we need to run EchoServer server on localhost and EchoServerBenchmark benchmark on localhost, 
 the test should be 20 seconds then the following configuration should be specified in run properties file:

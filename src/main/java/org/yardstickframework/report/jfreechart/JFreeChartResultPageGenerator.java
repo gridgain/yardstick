@@ -201,9 +201,9 @@ public class JFreeChartResultPageGenerator {
                     writeLine(bw, "<tbody>");
 
                     for (JFreeChartPlotInfo info : list) {
-                        int i = info.name().indexOf('-', info.name().indexOf('-') + 1);
+                        String t = parseTime(info.name());
 
-                        String b = i == -1 ? info.name() : info.name().substring(i + 1);
+                        String b = t == null ? info.name() : info.name().substring(t.length() + 1);
 
                         writeLine(bw, "<tr>");
                         writeLine(bw, "<td><i style=\"color:#" + info.color() + ";\" class=\"fa fa-square\"></i></td>");

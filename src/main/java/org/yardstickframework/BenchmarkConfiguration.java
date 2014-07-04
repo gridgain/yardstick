@@ -75,6 +75,10 @@ public class BenchmarkConfiguration {
     private List<String> descs;
 
     /** */
+    @Parameter(names = {"-hn", "--hostName"}, description = "Host name where a benchmark driver is run")
+    private String hostName = "";
+
+    /** */
     @Parameter(names = { "-h", "--help" }, description = "Print help message", help = true, hidden = true)
     private boolean help;
 
@@ -287,6 +291,13 @@ public class BenchmarkConfiguration {
     }
 
     /**
+     * @return Host name.
+     */
+    public String hostName() {
+        return hostName;
+    }
+
+    /**
      * @return Default description.
      */
     public String defaultDescription() {
@@ -312,6 +323,7 @@ public class BenchmarkConfiguration {
             ", outputWriter=" + outputWriter +
             ", errorWriter=" + errorWriter +
             ", descriptions=" + descs +
+            ", hostName=" + hostName +
             ']';
     }
 }

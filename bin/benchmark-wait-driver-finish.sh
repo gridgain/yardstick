@@ -13,7 +13,7 @@
 #    limitations under the License.
 
 #
-# Script that waits for the drivers to finish.
+# Script that waits for a driver to finish.
 #
 
 while pgrep -f "Dyardstick.driver" > /dev/null 2>&1; do

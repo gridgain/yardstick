@@ -20,6 +20,8 @@ import java.io.*;
 import java.text.*;
 import java.util.*;
 
+import static org.yardstickframework.BenchmarkUtils.*;
+
 /**
  * CSV probe point writer.
  */
@@ -84,12 +86,25 @@ public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
 
         desc = desc.charAt(0) == '-' ? desc : '-' + desc;
 
-        String subFolderName = FORMAT.format(new Date(startTime)) + desc;
+        String subFolderName = FORMAT.format(new Date(startTime));
 
-        subFolderName = cfg.driverNames().size() > 1 ?
-            drv.getClass().getSimpleName() + File.separator + subFolderName : subFolderName;
+        String hostName = cfg.hostName().isEmpty() ? "" : '-' + cfg.hostName();
 
-        subFolderName = BenchmarkUtils.fixFolderName(subFolderName);
+        if (cfg.driverNames().size() > 1) {
+            StringBuilder sb = new StringBuilder();
+
+            for (String drvName : cfg.driverNames())
+                sb.append(drvName.split(WEIGHT_DELIMITER)[0].trim()).append('-');
+
+            if (sb.length() > 0)
+                sb.delete(sb.length() - 1, sb.length());
+
+            subFolderName = subFolderName + '-' + sb.toString() + File.separator + desc.substring(1) + hostName;
+        }
+        else
+            subFolderName += desc + hostName;
+
+        subFolderName = fixFolderName(subFolderName);
 
         outPath = folder == null ? new File(subFolderName) : new File(folder, subFolderName);
 

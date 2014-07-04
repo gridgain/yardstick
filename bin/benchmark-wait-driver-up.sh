@@ -13,23 +13,25 @@
 #    limitations under the License.
 
 #
-# Script that waits for the drivers to finish.
+# Script that waits for a driver to start.
 #
 
 i=1
 
-max_time=10
+max_count=20
 
-for (( ; i < ${max_time}; i++ )) do
+sleep_time=0.5
+
+for (( ; i < ${max_count}; i++ )) do
     if pgrep -f "Dyardstick.driver" > /dev/null 2>&1; then
         break
     else
-        sleep 1s
+        sleep ${sleep_time}
     fi
 done
 
-if ((${i} == ${max_time})); then
-    echo "ERROR: Driver process has not started on "${HOST_NAME}" during "${max_time}" seconds."
+if ((${i} == ${max_count})); then
+    echo "ERROR: Driver process has not started on "${HOST_NAME}" during "$(echo "${max_count}*${sleep_time}" | bc)" seconds."
     echo "Type \"--help\" for usage."
     exit 1
 fi

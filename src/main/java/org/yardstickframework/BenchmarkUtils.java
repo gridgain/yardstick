@@ -27,6 +27,9 @@ public class BenchmarkUtils {
     /** Date format. */
     private static final SimpleDateFormat DATE_FMT = new SimpleDateFormat("<HH:mm:ss>");
 
+    /** Weight delimiter. */
+    public static final String WEIGHT_DELIMITER = ":";
+
     /**
      * Initializes instance of {@code JCommander}.
      *
@@ -151,7 +154,7 @@ public class BenchmarkUtils {
         String simpleName = drv.getClass().getSimpleName();
 
         for (int i = 0; i < cfg.driverNames().size(); i++) {
-            if (simpleName.equals(cfg.driverNames().get(i).split(":")[0].trim())) {
+            if (simpleName.equals(cfg.driverNames().get(i).split(WEIGHT_DELIMITER)[0].trim())) {
                 if (i <= cfg.descriptions().size() - 1)
                     return cfg.descriptions().get(i);
 

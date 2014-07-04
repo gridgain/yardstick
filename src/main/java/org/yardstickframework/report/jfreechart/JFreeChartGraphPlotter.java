@@ -215,6 +215,14 @@ public class JFreeChartGraphPlotter {
 
             String time = parseTime(suffix);
 
+            if (time == null && parFile != null) {
+                parFile = parFile.getParentFile();
+
+                suffix = parFile == null ? "" : parFile.getName();
+
+                time = parseTime(suffix);
+            }
+
             suffix = time == null ? "" : suffix.substring(time.length());
 
             String idxPrefix = idx < 9 ? "00" : idx < 99 ? "0" : "";
@@ -655,7 +663,7 @@ public class JFreeChartGraphPlotter {
      * @param fName Folder name.
      * @return Substring containing benchmark time.
      */
-    private static String parseTime(String fName) {
+    static String parseTime(String fName) {
         int i = fName.indexOf('-', fName.indexOf('-') + 1);
 
         if (i != -1) {

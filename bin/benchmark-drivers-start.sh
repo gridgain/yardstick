@@ -120,11 +120,15 @@ for host_name in "${hosts0[@]}";
 do
     if ((${drvNum} > 1)); then
         outFol=${OUTPUT_FOLDER}"/"${cntr}"-"${host_name}
+
+        if [[ ${CONFIG} != *'-hn '* ]] && [[ ${CONFIG} != *'--hostName '* ]]; then
+            host_name0="--hostName ${host_name}"
+        fi
     else
         outFol=${OUTPUT_FOLDER}
     fi
 
-    cfg="${outFol} ${CONFIG}"
+    cfg="${outFol} ${host_name0} ${CONFIG}"
 
     suffix=`echo "${cfg}" | tail -c 60 | sed 's/ *$//g'`
 
