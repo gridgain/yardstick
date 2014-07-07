@@ -104,7 +104,10 @@ public class PercentileProbe implements BenchmarkExecutionAwareProbe, BenchmarkT
 
     /** {@inheritDoc} */
     @Override public Collection<BenchmarkProbePoint> points() {
-        Collection<BenchmarkProbePoint> ret = new ArrayList<>(bucketsCnt);
+        Collection<BenchmarkProbePoint> ret = new ArrayList<>(bucketsCnt + 1);
+
+        if (buckets.length > 0)
+            ret.add(new BenchmarkProbePoint(0, new double[] {0}));
 
         long sum = 0;
 
