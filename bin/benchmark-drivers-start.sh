@@ -140,7 +140,7 @@ do
         "MAIN_CLASS='org.yardstickframework.BenchmarkDriverStartUp'" "JVM_OPTS='${JVM_OPTS}'" "CP='${CP}'" "CUR_DIR='${CUR_DIR}'" \
         ${SCRIPT_DIR}/benchmark-bootstrap.sh ${cfg} "--config" ${CONFIG_INCLUDE} > ${file_log} 2>& 1 &
 
-    ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} ${SCRIPT_DIR}/benchmark-wait-driver-up.sh
+    ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} "HOST_NAME='${host_name}'" ${SCRIPT_DIR}/benchmark-wait-driver-up.sh
 
     echo "<"$(date +"%H:%M:%S")"><yardstick> Driver is started on "${host_name}
 
