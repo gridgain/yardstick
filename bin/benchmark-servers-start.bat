@@ -44,14 +44,96 @@ if not exist "%CONFIG_INCLUDE%" (
 
 shift
 
-set CONFIG_TMP=tmp.%RANDOM%
+set CONFIG_TMP=tmp.%RANDOM%.bat
 
 echo off > %CONFIG_TMP%
 
 type %CONFIG_INCLUDE% >> %CONFIG_TMP%
 
+call "%CONFIG_TMP%"
+
 del %CONFIG_TMP%
 
-echo SERVER_HOSTS=%SERVER_HOSTS%
+:: Define user to establish remote ssh session.
+if not defined REMOTE_USER (
+    for /f %%i in ('whoami') do set REMOTE_USER=%%i
+)
+
+if not defined SERVER_HOSTS (
+    echo ERROR: Benchmark hosts ^(SERVER_HOSTS^) is not defined in properties file.
+    echo Type \"--help\" for usage.
+    exit 1
+)
+
+if not defined REMOTE_USER (
+    echo ERROR: Remote user ^(REMOTE_USER^) is not defined in properties file.
+    echo Type \"--help\" for usage.
+    exit 1
+)
+
+if not defined CONFIG (
+    for /f "tokens=1 delims=," %%a in ("%CONFIGS%") do (
+        set CONFIG=%%a
+    )
+) else (
+    set CONFIG="%CONFIG% %*"
+)
+
+if not defined CONFIG (
+    echo ERROR: Configurations ^(CONFIGS^) are not defined in properties file.
+    echo Type \"--help\" for usage.
+    exit 1
+)
+
+:cleanup
+setlocal
+    for /f %%i in ('jps -lv ^| findstr "Dyardstick.server"') do ( taskkill /F /PID %%i > nul )
+
+::    for /F "delims==," %%i in ("%SERVER_HOSTS%") do (
+::        ssh -o PasswordAuthentication=no %REMOTE_USER%@%%i for /f %%i in ('jps -lv ^| findstr "Dyardstick.server"') do ( taskkill /F /PID %%i > nul )
+::    )
+endlocal
+
+:: todo: call cleanup on ctrl+C
+
+:: Define logs directory.
+set LOGS_DIR=%SCRIPT_DIR%\..\logs_servers
+
+if not exist "%LOGS_DIR%" (
+    mkdir %LOGS_DIR%
+)
+
+:: JVM options.
+set JVM_OPTS=%JVM_OPTS% -Dyardstick.server
+:: check custom jvm_opts
+
+set CUR_DIR=%cd%
+
+set cntr=0
+
+setlocal enabledelayedexpansion
+
+set srv_hosts=%SERVER_HOSTS%
+
+:loop.hosts.next
+for /f "tokens=1* delims=," %%a in ("%srv_hosts%") do (
+    set host_name=%%a
+
+    set srv_hosts=%%b
+
+    set suffix=%CONFIG%
+
+    echo ^<%TIME%^>^<yardstick^> Starting server config '...!suffix!' on !host_name!
+
+    set file_log=%LOGS_DIR%/!cntr!_!host_name!.log
+
+    ssh -o PasswordAuthentication=no %REMOTE_USER%@!host_name! "set MAIN_CLASS=org.yardstickframework.BenchmarkServerStartUp && %SCRIPT_DIR%\benchmark-bootstrap.bat %CONFIG% --config %CONFIG_INCLUDE% ^>^> !file_log! 2^>^&1"
+
+    set /a cntr+=1
+)
+
+if defined srv_hosts (
+    goto loop.hosts.next
+)
 
 echo Done
