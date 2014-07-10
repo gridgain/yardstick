@@ -11,16 +11,17 @@
 ::    limitations under the License.
 
 ::
-:: Script that starts BenchmarkServer on remote machines.
+:: Script that starts BenchmarkDriver or BenchmarkDriver.
 :: This script expects the argument to be a path to run properties file which contains
 :: the list of remote nodes to start server on and the list of configurations.
 ::
 
 @echo off
 
-:: Define script directory.
 set SCRIPT_DIR=%~dp0
 set SCRIPT_DIR=%SCRIPT_DIR:~0,-1%
+
+if defined CUR_DIR cd %CUR_DIR%
 
 set CONFIG_INCLUDE=%1
 
@@ -59,8 +60,8 @@ if not defined REMOTE_USER (
     for /f %%i in ('whoami') do set REMOTE_USER=%%i
 )
 
-if not defined SERVER_HOSTS (
-    echo ERROR: Benchmark hosts ^(SERVER_HOSTS^) is not defined in properties file.
+if not defined DRIVER_HOSTS (
+    echo ERROR: Benchmark hosts ^(DRIVER_HOSTS^) is not defined in properties file.
     echo Type \"--help\" for usage.
     exit 1
 )
@@ -85,16 +86,19 @@ if not defined CONFIG (
     exit 1
 )
 
-:: Kill servers if they exist.
-call %SCRIPT_DIR%\benchmark-servers-stop.bat
-
-:: todo: call cleanup on ctrl+C
+:: todo: cleanup
 
 :: Define logs directory.
 set LOGS_DIR=%SCRIPT_DIR%\..\logs_servers
 
 if not exist "%LOGS_DIR%" (
     mkdir %LOGS_DIR%
+)
+
+if not defined OUTPUT_FOLDER && "%CONFIG%"!="%CONFIG:-of =%" | "%CONFIG%"!="%CONFIG:--outputFolder =%" (
+    set folder=%TIME%
+
+    set OUTPUT_FOLDER=--outputFolder %folder%}
 )
 
 :: JVM options.
@@ -107,26 +111,61 @@ set cntr=0
 
 setlocal enabledelayedexpansion
 
-set srv_hosts=%SERVER_HOSTS%
+set drv_hosts=%DRIVER_HOSTS%
 
 :loop.hosts.next
-for /f "tokens=1* delims=," %%a in ("%srv_hosts%") do (
+for /f "tokens=1* delims=," %%a in ("%drv_hosts%") do (
     set host_name=%%a
 
-    set srv_hosts=%%b
+    set drv_hosts=%%b
 
-    echo ^<%TIME%^>^<yardstick^> Starting server config '%CONFIG%' on !host_name!
+    if defined %%b || !cntr! ghr 0 (
+        set outFol=%OUTPUT_FOLDER%/!cntr!-!host_name!
+
+        if "%CONFIG%"!="%CONFIG:-hn =%" && "%CONFIG%"!="%CONFIG:--hostName =%" (
+            set host_name0=--hostName !host_name!
+        )
+    ) else
+        set outFol=%OUTPUT_FOLDER%
+    )
+
+    set cfg=!outFol! !host_name0! %CONFIG%
+
+    echo ^<%TIME%^>^<yardstick^> Starting driver config '%CONFIG%' on !host_name!
 
     set file_log=%LOGS_DIR%\!cntr!_!host_name!.log
 
-    start /min ssh -o PasswordAuthentication=no %REMOTE_USER%@%host_name% ^
-        "set MAIN_CLASS=org.yardstickframework.BenchmarkServerStartUp && set JVM_OPTS=%JVM_OPTS% && set CP=%CP% && set CUR_DIR=%CUR_DIR% && %SCRIPT_DIR%\benchmark-bootstrap.bat %CONFIG% --config %CONFIG_INCLUDE% ^> !file_log! 2^>^&1"
+    start /min cmd /c ssh -o PasswordAuthentication=no %REMOTE_USER%@%host_name% ^
+        "set MAIN_CLASS=org.yardstickframework.BenchmarkDriverStartUp && set JVM_OPTS=%JVM_OPTS% && set CP=%CP% && set CUR_DIR=%CUR_DIR% && %SCRIPT_DIR%\benchmark-bootstrap.bat %CONFIG% --config %CONFIG_INCLUDE% ^> !file_log! 2^>^&1"
+
+    start /min cmd /c ssh -o PasswordAuthentication=no %REMOTE_USER%@%host_name% ^
+        "set HOST_NAME=!host_name! && %SCRIPT_DIR%\%benchmark-wait-driver-up.bat"
+
+    echo ^<%TIME%^>^<yardstick^> Driver is started on !host_name!
 
     set /a cntr+=1
 )
 
-if defined srv_hosts (
+if defined drv_hosts (
     goto loop.hosts.next
 )
 
-echo Done
+set drv_hosts=%DRIVER_HOSTS%
+
+:loop.hosts2.next
+for /f "tokens=1* delims=," %%a in ("%drv_hosts%") do (
+    set host_name=%%a
+
+    set drv_hosts=%%b
+
+    start /min cmd /c ssh -o PasswordAuthentication=no %REMOTE_USER%@%host_name% ^
+        "%SCRIPT_DIR%\%benchmark-wait-driver-finish.bat"
+
+    echo ^<%TIME%^>^<yardstick^> Driver is stopped on !host_name!
+
+    set /a cntr+=1
+)
+
+if defined drv_hosts (
+    goto loop.hosts2.next
+)

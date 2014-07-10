@@ -71,4 +71,4 @@ set ENABLE_ASSERTIONS="0"
 ::
 if %ENABLE_ASSERTIONS% == "1" set JVM_OPTS=%JVM_OPTS% -ea
 
-"%JAVA_HOME%\bin\java.exe" %JVM_OPTS% -cp "%CP%" %MAIN_CLASS% "%ARGS%"
+"%JAVA_HOME%\bin\java.exe" %JVM_OPTS% -cp %CP% %MAIN_CLASS% %ARGS%

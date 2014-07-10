@@ -11,7 +11,7 @@
 ::    limitations under the License.
 
 ::
-:: Script that starts BenchmarkServer on remote machines.
+:: Script that stops BenchmarkServer on remote machines.
 :: This script expects the argument to be a path to run properties file which contains
 :: the list of remote nodes to start server on and the list of configurations.
 ::
@@ -71,62 +71,6 @@ if not defined REMOTE_USER (
     exit 1
 )
 
-if not defined CONFIG (
-    for /f "tokens=1 delims=," %%a in ("%CONFIGS%") do (
-        set CONFIG=%%a
-    )
-) else (
-    set CONFIG="%CONFIG% %*"
-)
+for /f %%i in ('wmic process where (name^="java.exe" and commandline like "%%Dyardstick.server%%"^) get ProcessId ^| findstr [0-9]') do ( taskkill /F /PID %%i > nul )
 
-if not defined CONFIG (
-    echo ERROR: Configurations ^(CONFIGS^) are not defined in properties file.
-    echo Type \"--help\" for usage.
-    exit 1
-)
-
-:: Kill servers if they exist.
-call %SCRIPT_DIR%\benchmark-servers-stop.bat
-
-:: todo: call cleanup on ctrl+C
-
-:: Define logs directory.
-set LOGS_DIR=%SCRIPT_DIR%\..\logs_servers
-
-if not exist "%LOGS_DIR%" (
-    mkdir %LOGS_DIR%
-)
-
-:: JVM options.
-set JVM_OPTS=%JVM_OPTS% -Dyardstick.server
-:: check custom jvm_opts
-
-set CUR_DIR=%cd%
-
-set cntr=0
-
-setlocal enabledelayedexpansion
-
-set srv_hosts=%SERVER_HOSTS%
-
-:loop.hosts.next
-for /f "tokens=1* delims=," %%a in ("%srv_hosts%") do (
-    set host_name=%%a
-
-    set srv_hosts=%%b
-
-    echo ^<%TIME%^>^<yardstick^> Starting server config '%CONFIG%' on !host_name!
-
-    set file_log=%LOGS_DIR%\!cntr!_!host_name!.log
-
-    start /min ssh -o PasswordAuthentication=no %REMOTE_USER%@%host_name% ^
-        "set MAIN_CLASS=org.yardstickframework.BenchmarkServerStartUp && set JVM_OPTS=%JVM_OPTS% && set CP=%CP% && set CUR_DIR=%CUR_DIR% && %SCRIPT_DIR%\benchmark-bootstrap.bat %CONFIG% --config %CONFIG_INCLUDE% ^> !file_log! 2^>^&1"
-
-    set /a cntr+=1
-)
-
-if defined srv_hosts (
-    goto loop.hosts.next
-)
-
-echo Done
+:: todo: kill remote nodes

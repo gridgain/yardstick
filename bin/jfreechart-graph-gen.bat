@@ -65,4 +65,4 @@ if %ENABLE_ASSERTIONS% == "1" set JVM_OPTS=%JVM_OPTS% -ea
 
 set MAIN_CLASS=org.yardstickframework.report.jfreechart.JFreeChartGraphPlotter
 
-"%JAVA_HOME%\bin\java.exe" %JVM_OPTS% -cp "%CP%" %MAIN_CLASS% "%ARGS%"
+"%JAVA_HOME%\bin\java.exe" %JVM_OPTS% -cp %CP% %MAIN_CLASS% %ARGS%
