@@ -125,10 +125,11 @@ for /f "tokens=1* delims=," %%a in ("%drv_hosts%") do (
 
     set drv_hosts=%%b
 
-    if defined %%b set or=true
+    set or=false
+    if defined drv_hosts set or=true
     if !cntr! gtr 0 set or=true
 
-    if defined or (
+    if "!or!"=="true" (
         set outFol=%OUTPUT_FOLDER%\!cntr!-!host_name!
 
         if "x%CONFIG%"=="x%CONFIG:-hn =%" (
