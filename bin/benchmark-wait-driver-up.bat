@@ -24,23 +24,27 @@ set /a timeout=max_count * sleep_time
 
 setlocal enabledelayedexpansion
 
-for /l %%i in (1,1,%max_count%) do (
-    set cnt=%%i
+set /a cnt=0
 
-    "%JAVA_HOME%\bin\jps.exe" -lv | findstr "Dyardstick.driver" > nul
+:loop
 
-    if !ERRORLEVEL! equ 0 (
-        goto end
-    ) else (
-        timeout /t %sleep_time% > nul
-    )
+echo before
+
+for /f %%i in ('wmic process where (name^="java.exe" and commandline like "%%Dyardstick.driver%%"^) get ProcessId 2^>^&1 ^| findstr [0-9]') do (
+    goto end
 )
 
-:end
-
-if %cnt% == %max_count% (
+if !cnt! == %max_count% (
     echo ERROR: Driver process has not started on %HOST_NAME% during %timeout% seconds.
     echo Type \"--help\" for usage.
 
     exit 1
 )
+
+timeout /t %sleep_time% > nul
+
+set /a cnt+=1
+
+goto loop
+
+:end

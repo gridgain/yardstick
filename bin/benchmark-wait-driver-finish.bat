@@ -18,9 +18,8 @@
 
 :loop
 
-"%JAVA_HOME%\bin\jps.exe" -lv | findstr "Dyardstick.driver" > nul
-
-if %ERRORLEVEL% equ 0 (
+for /f %%i in ('wmic process where (name^="java.exe" and commandline like "%%Dyardstick.driver%%"^) get ProcessId 2^>^&1 ^| findstr [0-9]') do (
     timeout /t 1 > nul
+
     goto loop
 )

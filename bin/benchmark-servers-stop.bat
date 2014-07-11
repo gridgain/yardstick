@@ -33,7 +33,7 @@ if "%CONFIG_INCLUDE%"=="%CONFIG_INCLUDE:-h=%" || "%CONFIG_INCLUDE%"=="%CONFIG_IN
 
 if not defined CONFIG_INCLUDE (
     set CONFIG_INCLUDE=%SCRIPT_DIR%\..\config\benchmark.properties.win
-    echo ^<%TIME%^>^<yardstick^> Using default properties file: config/benchmark.properties.win
+    echo ^<%TIME%^>^<yardstick^> Using default properties file: config\benchmark.properties.win
 )
 
 if not exist "%CONFIG_INCLUDE%" (
@@ -71,6 +71,8 @@ if not defined REMOTE_USER (
     exit 1
 )
 
-for /f %%i in ('wmic process where (name^="java.exe" and commandline like "%%Dyardstick.server%%"^) get ProcessId ^| findstr [0-9]') do ( taskkill /F /PID %%i > nul )
+for /f %%i in ('wmic process where (name^="java.exe" and commandline like "%%Dyardstick.server%%"^) get ProcessId 2^>^&1 ^| findstr [0-9]') do (
+    taskkill /F /PID %%i > nul
+)
 
 :: todo: kill remote nodes

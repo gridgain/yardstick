@@ -33,7 +33,7 @@ if "%CONFIG_INCLUDE%"=="%CONFIG_INCLUDE:-h=%" || "%CONFIG_INCLUDE%"=="%CONFIG_IN
 
 if not defined CONFIG_INCLUDE (
     set CONFIG_INCLUDE=%SCRIPT_DIR%\..\config\benchmark.properties.win
-    echo ^<%TIME%^>^<yardstick^> Using default properties file: config/benchmark.properties.win
+    echo ^<%TIME%^>^<yardstick^> Using default properties file: config\benchmark.properties.win
 )
 
 if not exist "%CONFIG_INCLUDE%" (
@@ -119,8 +119,8 @@ for /f "tokens=1* delims=," %%a in ("%srv_hosts%") do (
 
     set file_log=%LOGS_DIR%\!cntr!_!host_name!.log
 
-    start /min ssh -o PasswordAuthentication=no %REMOTE_USER%@%host_name% ^
-        "set MAIN_CLASS=org.yardstickframework.BenchmarkServerStartUp && set JVM_OPTS=%JVM_OPTS% && set CP=%CP% && set CUR_DIR=%CUR_DIR% && %SCRIPT_DIR%\benchmark-bootstrap.bat %CONFIG% --config %CONFIG_INCLUDE% ^> !file_log! 2^>^&1"
+    start /min /low cmd /c ssh -o PasswordAuthentication=no %REMOTE_USER%@%host_name% ^
+        "set MAIN_CLASS=org.yardstickframework.BenchmarkServerStartUp && set JVM_OPTS=%JVM_OPTS% && set CP=%CP% && set CUR_DIR=%CUR_DIR% && %SCRIPT_DIR%\benchmark-bootstrap.bat %CONFIG% --config %CONFIG_INCLUDE% ^>^> !file_log! 2^>^&1"
 
     set /a cntr+=1
 )
@@ -128,5 +128,3 @@ for /f "tokens=1* delims=," %%a in ("%srv_hosts%") do (
 if defined srv_hosts (
     goto loop.hosts.next
 )
-
-echo Done

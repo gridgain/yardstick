@@ -34,7 +34,7 @@ if "%CONFIG_INCLUDE%"=="%CONFIG_INCLUDE:-h=%" || "%CONFIG_INCLUDE%"=="%CONFIG_IN
 
 if not defined CONFIG_INCLUDE (
     set CONFIG_INCLUDE=%SCRIPT_DIR%\..\config\benchmark.properties.win
-    echo ^<%TIME%^>^<yardstick^> Using default properties file: config/benchmark.properties.win
+    echo ^<%TIME%^>^<yardstick^> Using default properties file: config\benchmark.properties.win
 )
 
 if not exist "%CONFIG_INCLUDE%" (
@@ -89,16 +89,18 @@ if not defined CONFIG (
 :: todo: cleanup
 
 :: Define logs directory.
-set LOGS_DIR=%SCRIPT_DIR%\..\logs_servers
+set LOGS_DIR=%SCRIPT_DIR%\..\logs_drivers
 
 if not exist "%LOGS_DIR%" (
     mkdir %LOGS_DIR%
 )
 
-if not defined OUTPUT_FOLDER && "%CONFIG%"!="%CONFIG:-of =%" | "%CONFIG%"!="%CONFIG:--outputFolder =%" (
-    set folder=%TIME%
-
-    set OUTPUT_FOLDER=--outputFolder %folder%}
+if not defined OUTPUT_FOLDER (
+    if "x%CONFIG%"=="x%CONFIG:-of =%" (
+        if "x%CONFIG%"=="x%CONFIG:--outputFolder =%" (
+            set OUTPUT_FOLDER=--outputFolder results-%TIME%
+        )
+    )
 )
 
 :: JVM options.
@@ -119,13 +121,18 @@ for /f "tokens=1* delims=," %%a in ("%drv_hosts%") do (
 
     set drv_hosts=%%b
 
-    if defined %%b || !cntr! ghr 0 (
-        set outFol=%OUTPUT_FOLDER%/!cntr!-!host_name!
+    if defined %%b set or=true
+    if !cntr! gtr 0 set or=true
 
-        if "%CONFIG%"!="%CONFIG:-hn =%" && "%CONFIG%"!="%CONFIG:--hostName =%" (
-            set host_name0=--hostName !host_name!
+    if defined or (
+        set outFol=%OUTPUT_FOLDER%\!cntr!-!host_name!
+
+        if "x%CONFIG%"=="x%CONFIG:-hn =%" (
+            if "x%CONFIG%"=="x%CONFIG:--hostName =%" (
+                set host_name0=--hostName !host_name!
+            )
         )
-    ) else
+    ) else (
         set outFol=%OUTPUT_FOLDER%
     )
 
@@ -136,9 +143,9 @@ for /f "tokens=1* delims=," %%a in ("%drv_hosts%") do (
     set file_log=%LOGS_DIR%\!cntr!_!host_name!.log
 
     start /min cmd /c ssh -o PasswordAuthentication=no %REMOTE_USER%@%host_name% ^
-        "set MAIN_CLASS=org.yardstickframework.BenchmarkDriverStartUp && set JVM_OPTS=%JVM_OPTS% && set CP=%CP% && set CUR_DIR=%CUR_DIR% && %SCRIPT_DIR%\benchmark-bootstrap.bat %CONFIG% --config %CONFIG_INCLUDE% ^> !file_log! 2^>^&1"
+        "set MAIN_CLASS=org.yardstickframework.BenchmarkDriverStartUp && set JVM_OPTS=%JVM_OPTS% && set CP=%CP% && set CUR_DIR=%CUR_DIR% && %SCRIPT_DIR%\benchmark-bootstrap.bat %CONFIG% --config %CONFIG_INCLUDE% ^>^> !file_log! 2^>^&1"
 
-    start /min cmd /c ssh -o PasswordAuthentication=no %REMOTE_USER%@%host_name% ^
+    ssh -o PasswordAuthentication=no %REMOTE_USER%@%host_name% ^
         "set HOST_NAME=!host_name! && %SCRIPT_DIR%\%benchmark-wait-driver-up.bat"
 
     echo ^<%TIME%^>^<yardstick^> Driver is started on !host_name!
@@ -158,7 +165,7 @@ for /f "tokens=1* delims=," %%a in ("%drv_hosts%") do (
 
     set drv_hosts=%%b
 
-    start /min cmd /c ssh -o PasswordAuthentication=no %REMOTE_USER%@%host_name% ^
+    ssh -o PasswordAuthentication=no %REMOTE_USER%@%host_name% ^
         "%SCRIPT_DIR%\%benchmark-wait-driver-finish.bat"
 
     echo ^<%TIME%^>^<yardstick^> Driver is stopped on !host_name!
