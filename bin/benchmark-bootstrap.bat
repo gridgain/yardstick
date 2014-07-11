@@ -24,21 +24,21 @@ if defined CUR_DIR cd %CUR_DIR%
 if not defined MAIN_CLASS (
     echo ERROR: Java class is not defined.
     echo Type \"--help\" for usage.
-    exit 1
+    exit /b
 )
 
 if not defined JAVA_HOME (
     echo ERROR: JAVA_HOME environment variable is not found.
     echo Please point JAVA_HOME variable to location of JDK 1.7 or JDK 1.8.
     echo You can also download latest JDK at http://java.com/download
-    exit 1
+    exit /b
 )
 
 if not exist "%JAVA_HOME%\bin\java.exe" (
     echo ERROR: JAVA is not found in JAVA_HOME=$JAVA_HOME.
     echo Please point JAVA_HOME variable to installation of JDK 1.7 or JDK 1.8.
     echo You can also download latest JDK at http://java.com/download
-    exit 1
+    exit /b
 )
 
 "%JAVA_HOME%\bin\java.exe" -version 2>&1 | findstr "1\.[78]\." > nul
@@ -46,7 +46,7 @@ if not %ERRORLEVEL% equ 0 (
     echo ERROR: The version of JAVA installed in JAVA_HOME=$JAVA_HOME is incorrect.
     echo Please point JAVA_HOME variable to installation of JDK 1.7 or JDK 1.8.
     echo You can also download latest JDK at http://java.com/download
-    exit 1
+    exit /b
 )
 
 set ARGS=%*

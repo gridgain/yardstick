@@ -25,7 +25,6 @@ CONFIG_INCLUDE=$1
 
 if [ "${CONFIG_INCLUDE}" == "-h" ] || [ "${CONFIG_INCLUDE}" == "--help" ]; then
     echo "Usage: benchmark-servers-start.sh [PROPERTIES_FILE_PATH]"
-    echo
     echo "Script that starts BenchmarkServer on remote machines."
     exit 1
 fi

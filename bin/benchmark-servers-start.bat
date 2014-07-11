@@ -24,12 +24,20 @@ set SCRIPT_DIR=%SCRIPT_DIR:~0,-1%
 
 set CONFIG_INCLUDE=%1
 
-if "%CONFIG_INCLUDE%"=="%CONFIG_INCLUDE:-h=%" || "%CONFIG_INCLUDE%"=="%CONFIG_INCLUDE:--help=%" (
-    echo Usage: benchmark-servers-start.sh [PROPERTIES_FILE_PATH]
-    echo
+setlocal
+
+set or=false
+if "%CONFIG_INCLUDE%"=="-h" set or=true
+if "%CONFIG_INCLUDE%"=="--help" set or=true
+
+if "%or%"=="true" (
+    echo Usage: benchmark-servers-start.bat [PROPERTIES_FILE_PATH]
     echo Script that starts BenchmarkServer on remote machines.
-    exit 1
+
+    exit /b
 )
+
+endlocal
 
 if not defined CONFIG_INCLUDE (
     set CONFIG_INCLUDE=%SCRIPT_DIR%\..\config\benchmark.properties.win
@@ -39,7 +47,7 @@ if not defined CONFIG_INCLUDE (
 if not exist "%CONFIG_INCLUDE%" (
     echo ERROR: Properties file is not found.
     echo Type \"--help\" for usage.
-    exit 1
+    exit /b
 )
 
 shift
@@ -62,27 +70,25 @@ if not defined REMOTE_USER (
 if not defined SERVER_HOSTS (
     echo ERROR: Benchmark hosts ^(SERVER_HOSTS^) is not defined in properties file.
     echo Type \"--help\" for usage.
-    exit 1
+    exit /b
 )
 
 if not defined REMOTE_USER (
     echo ERROR: Remote user ^(REMOTE_USER^) is not defined in properties file.
     echo Type \"--help\" for usage.
-    exit 1
+    exit /b
 )
 
 if not defined CONFIG (
     for /f "tokens=1 delims=," %%a in ("%CONFIGS%") do (
         set CONFIG=%%a
     )
-) else (
-    set CONFIG="%CONFIG% %*"
 )
 
 if not defined CONFIG (
     echo ERROR: Configurations ^(CONFIGS^) are not defined in properties file.
     echo Type \"--help\" for usage.
-    exit 1
+    exit /b
 )
 
 :: Kill servers if they exist.

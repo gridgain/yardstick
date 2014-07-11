@@ -11,14 +11,14 @@
 ::    limitations under the License.
 
 ::
-:: Script that stops BenchmarkServer on remote machines.
+:: Script that starts BenchmarkServers on remote machines, runs BenchmarkDriver and stops the servers on remote machines.
+:: This procedure is performed for all configurations defined in run properties file.
 :: This script expects the argument to be a path to run properties file which contains
 :: the list of remote nodes to start server on and the list of configurations.
 ::
 
 @echo off
 
-:: Define script directory.
 set SCRIPT_DIR=%~dp0
 set SCRIPT_DIR=%SCRIPT_DIR:~0,-1%
 
@@ -31,8 +31,8 @@ if "%CONFIG_INCLUDE%"=="-h" set or=true
 if "%CONFIG_INCLUDE%"=="--help" set or=true
 
 if "%or%"=="true" (
-    echo Usage: benchmark-servers-stop.bat [PROPERTIES_FILE_PATH]
-    echo Script that stops BenchmarkServer on remote machines.
+    echo Usage: benchmark-run-all.bat [PROPERTIES_FILE_PATH]
+    echo Script that executes BenchmarkDriver locally and BenchmarkServers on remote machines.
 
     exit /b
 )
@@ -50,8 +50,6 @@ if not exist "%CONFIG_INCLUDE%" (
     exit /b
 )
 
-shift
-
 set CONFIG_TMP=tmp.%RANDOM%.bat
 
 echo off > %CONFIG_TMP%
@@ -62,25 +60,41 @@ call "%CONFIG_TMP%" > nul 2>&1
 
 del %CONFIG_TMP%
 
-:: Define user to establish remote ssh session.
-if not defined REMOTE_USER (
-    for /f %%i in ('whoami') do set REMOTE_USER=%%i
-)
-
-if not defined SERVER_HOSTS (
-    echo ERROR: Benchmark hosts ^(SERVER_HOSTS^) is not defined in properties file.
+if not defined CONFIGS (
+    echo ERROR: Configurations ^(CONFIGS^) are not defined in properties file.
     echo Type \"--help\" for usage.
     exit /b
 )
 
-if not defined REMOTE_USER (
-    echo ERROR: Remote user ^(REMOTE_USER^) is not defined in properties file.
-    echo Type \"--help\" for usage.
-    exit /b
+set folder=results-%time:~0,2%%time:~3,2%%time:~6,2%
+
+set cfgs=%CONFIGS%
+
+:loop.configs.next
+for /f "tokens=1* delims=," %%a in ("%cfgs%") do (
+    set CONFIG=%%a
+
+    set cfgs=%%b
+
+    if "x%CONFIG%"=="x%CONFIG:-of =%" (
+        if "x%CONFIG%"=="x%CONFIG:--outputFolder =%" (
+            set OUTPUT_FOLDER=--outputFolder %folder%
+        )
+    )
+
+    call %SCRIPT_DIR%\benchmark-servers-start.bat %CONFIG_INCLUDE%
+
+    :: Sleep.
+    ping 192.0.2.2 -n 3 -w 1000 > nul
+
+    call %SCRIPT_DIR%\benchmark-drivers-start.bat %CONFIG_INCLUDE%
+
+    call %SCRIPT_DIR%\benchmark-servers-stop.bat %CONFIG_INCLUDE%
+
+    :: Sleep.
+    ping 192.0.2.2 -n 1 -w 1000 > nul
 )
 
-for /f %%i in ('wmic process where (name^="java.exe" and commandline like "%%Dyardstick.server%%"^) get ProcessId 2^>^&1 ^| findstr [0-9]') do (
-    taskkill /F /PID %%i > nul
+if defined cfgs (
+    goto loop.configs.next
 )
-
-:: todo: kill remote nodes

@@ -26,7 +26,6 @@ CONFIG_INCLUDE=$1
 
 if [ "${CONFIG_INCLUDE}" == "-h" ] || [ "${CONFIG_INCLUDE}" == "--help" ]; then
     echo "Usage: benchmark-run-all.sh [PROPERTIES_FILE_PATH]"
-    echo
     echo "Script that executes BenchmarkDriver locally and BenchmarkServers on remote machines."
     exit 1
 fi

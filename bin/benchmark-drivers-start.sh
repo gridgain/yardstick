@@ -24,7 +24,7 @@ SCRIPT_DIR=$(cd $(dirname "$0"); pwd)
 CONFIG_INCLUDE=$1
 
 if [ "${CONFIG_INCLUDE}" == "-h" ] || [ "${CONFIG_INCLUDE}" == "--help" ]; then
-    echo "Usage: benchmark-run.sh [PROPERTIES_FILE_PATH]"
+    echo "Usage: benchmark-drivers-start.sh [PROPERTIES_FILE_PATH]"
     echo "Script that starts BenchmarkDriver on local machine."
     exit 1
 fi
