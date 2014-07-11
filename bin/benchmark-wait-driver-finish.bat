@@ -19,7 +19,8 @@
 :loop
 
 for /f %%i in ('wmic process where (name^="java.exe" and commandline like "%%Dyardstick.driver%%"^) get ProcessId 2^>^&1 ^| findstr [0-9]') do (
-    timeout /t 1 > nul
+    :: Sleep.
+    ping 192.0.2.2 -n 1 -w 1000 > nul
 
     goto loop
 )

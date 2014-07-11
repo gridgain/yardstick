@@ -16,11 +16,9 @@
 
 @echo off
 
-set max_count=10
+set max_count=20
 
-set sleep_time=1
-
-set /a timeout=max_count * sleep_time
+set timeout=10
 
 setlocal enabledelayedexpansion
 
@@ -28,23 +26,26 @@ set /a cnt=0
 
 :loop
 
-echo before
+for /f "skip=1" %%i in ('wmic process where (name^="java.exe" and commandline like "%%Dyardstick.driver%%"^) get ProcessId 2^>^&1') do (
+    echo %%i | findstr [0-9] > nul
 
-for /f %%i in ('wmic process where (name^="java.exe" and commandline like "%%Dyardstick.driver%%"^) get ProcessId 2^>^&1 ^| findstr [0-9]') do (
-    goto end
+    if not !errorlevel! equ 0  (
+        if !cnt! == %max_count% (
+            echo ERROR: Driver process has not started on %HOST_NAME% during %timeout% seconds.
+            echo Type \"--help\" for usage.
+
+            exit 1
+        )
+
+        :: Sleep.
+        ping 192.0.2.2 -n 1 -w 500 > nul
+
+        set /a cnt+=1
+
+        goto loop
+    ) else (
+        goto end
+    )
 )
-
-if !cnt! == %max_count% (
-    echo ERROR: Driver process has not started on %HOST_NAME% during %timeout% seconds.
-    echo Type \"--help\" for usage.
-
-    exit 1
-)
-
-timeout /t %sleep_time% > nul
-
-set /a cnt+=1
-
-goto loop
 
 :end

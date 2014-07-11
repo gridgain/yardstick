@@ -33,7 +33,7 @@ if "%CONFIG_INCLUDE%"=="%CONFIG_INCLUDE:-h=%" || "%CONFIG_INCLUDE%"=="%CONFIG_IN
 
 if not defined CONFIG_INCLUDE (
     set CONFIG_INCLUDE=%SCRIPT_DIR%\..\config\benchmark.properties.win
-    echo ^<%TIME%^>^<yardstick^> Using default properties file: config\benchmark.properties.win
+    echo ^<%time:~0,2%:%time:~3,2%:%time:~6,2%^>^<yardstick^> Using default properties file: config\benchmark.properties.win
 )
 
 if not exist "%CONFIG_INCLUDE%" (
@@ -50,7 +50,7 @@ echo off > %CONFIG_TMP%
 
 type %CONFIG_INCLUDE% >> %CONFIG_TMP%
 
-call "%CONFIG_TMP%"
+call "%CONFIG_TMP%" > nul 2>&1
 
 del %CONFIG_TMP%
 
@@ -115,7 +115,7 @@ for /f "tokens=1* delims=," %%a in ("%srv_hosts%") do (
 
     set srv_hosts=%%b
 
-    echo ^<%TIME%^>^<yardstick^> Starting server config '%CONFIG%' on !host_name!
+    echo ^<%time:~0,2%:%time:~3,2%:%time:~6,2%^>^<yardstick^> Starting server config '%CONFIG%' on !host_name!
 
     set file_log=%LOGS_DIR%\!cntr!_!host_name!.log
 
