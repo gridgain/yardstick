@@ -55,11 +55,9 @@ if [ "${CONFIGS}" == "" ]; then
     exit 1
 fi
 
-now=$(date +"%Y%m%d-%H%M%S")
+folder=results-$(date +"%Y%m%d-%H%M%S")
 
-folder=results-$now
-
-export LOGS_BASE=logs-${now}
+export LOGS_BASE=logs-$(date +"%Y%m%d-%H%M%S")
 
 if [ -z "$RESTART_SERVERS" ]; then
     /bin/bash ${SCRIPT_DIR}/benchmark-servers-start.sh ${CONFIG_INCLUDE}
