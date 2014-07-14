@@ -109,6 +109,8 @@ public class BenchmarkRunner {
             }
         });
 
+        final AtomicLong opsCnt = cfg.operationsCount() <= 0 ? null : new AtomicLong(cfg.operationsCount());
+
         for (int i = 0; i < threadNum; i++) {
             final int threadIdx = i;
 
@@ -151,9 +153,14 @@ public class BenchmarkRunner {
                                 barrier.await();
 
                                 reset = false;
+
+                                continue;
                             }
 
-                            if (elapsed > totalDuration) {
+                            if ((!reset &&
+                                cfg.operationsCount() > 0 &&
+                                opsCnt.incrementAndGet() >= cfg.operationsCount()) ||
+                                elapsed > totalDuration) {
                                 for (BenchmarkProbeSet set : probeSets)
                                     set.onFinished();
 
