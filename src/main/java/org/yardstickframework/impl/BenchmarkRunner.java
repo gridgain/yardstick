@@ -154,13 +154,26 @@ public class BenchmarkRunner {
 
                                 reset = false;
 
+                                System.out.println("Starting main test (warmup finished) " +
+                                    "[ts=" + now + ", date=" + new Date(now) + ']');
+
                                 continue;
                             }
 
-                            if ((!reset &&
-                                cfg.operationsCount() > 0 &&
-                                opsCnt.incrementAndGet() >= cfg.operationsCount()) ||
-                                elapsed > totalDuration) {
+                            if (cfg.operationsCount() > 0) {
+                                long ops = opsCnt.incrementAndGet();
+
+                                if (ops % 1000 == 0)
+                                    System.out.println("Finished iteration: " + ops);
+
+                                if (ops >= cfg.operationsCount()) {
+                                    for (BenchmarkProbeSet set : probeSets)
+                                        set.onFinished();
+
+                                    break;
+                                }
+                            }
+                            else if (elapsed > totalDuration) {
                                 for (BenchmarkProbeSet set : probeSets)
                                     set.onFinished();
 
@@ -275,6 +288,11 @@ public class BenchmarkRunner {
      */
     private synchronized void shutdown() {
         if (shutdownThread == null) {
+            long now = System.currentTimeMillis();
+
+            System.out.println("Finishing main test " +
+                "[ts=" + now + ", date=" + new Date(now) + ']');
+
             shutdownThread = new ShutdownThread();
 
             shutdownThread.start();
