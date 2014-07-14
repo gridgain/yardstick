@@ -62,6 +62,10 @@ public class BenchmarkConfiguration {
     private long warmup = 20;
 
     /** */
+    @Parameter(names = {"-ops", "--operations"}, description = "Operations (0 is infinite, default)")
+    private int opsCnt;
+
+    /** */
     @Parameter(names = {"-sh", "--shutdown"}, description = "Invoke shutdown hook")
     private boolean shutdownHook = true;
 
@@ -162,6 +166,20 @@ public class BenchmarkConfiguration {
      */
     public void duration(long duration) {
         this.duration = duration;
+    }
+
+    /**
+     * @return Operations count.
+     */
+    public int operationsCount() {
+        return opsCnt;
+    }
+
+    /**
+     * @param opsCnt
+     */
+    public void operationsCount(int opsCnt) {
+        this.opsCnt = opsCnt;
     }
 
     /**
