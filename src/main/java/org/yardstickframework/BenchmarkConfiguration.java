@@ -306,7 +306,7 @@ public class BenchmarkConfiguration {
 
     /** {@inheritDoc} */
     @Override public String toString() {
-        return this.getClass().getSimpleName() + " [" +
+        return getClass().getSimpleName() + " [" +
             "driverNames='" + driverNames + '\'' +
             ", serverName='" + serverName + '\'' +
             ", threads=" + threads +
