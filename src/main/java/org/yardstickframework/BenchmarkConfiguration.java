@@ -176,7 +176,7 @@ public class BenchmarkConfiguration {
     }
 
     /**
-     * @param opsCnt
+     * @param opsCnt Operations count.
      */
     public void operationsCount(int opsCnt) {
         this.opsCnt = opsCnt;
