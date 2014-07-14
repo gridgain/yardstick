@@ -59,6 +59,14 @@ now=$(date +"%Y%m%d-%H%M%S")
 
 folder=results-$now
 
+export LOGS_BASE=logs-${now}
+
+if [ -z "$RESTART_SERVERS" ]; then
+    /bin/bash ${SCRIPT_DIR}/benchmark-servers-start.sh ${CONFIG_INCLUDE}
+
+    sleep 3s
+fi
+
 IFS=',' read -ra configs0 <<< "${CONFIGS}"
 for cfg in "${configs0[@]}";
 do
@@ -70,18 +78,24 @@ do
 
     export CONFIG
     export OUTPUT_FOLDER
-    export LOGS_BASE=logs-${now}
 
-    /bin/bash ${SCRIPT_DIR}/benchmark-servers-start.sh ${CONFIG_INCLUDE}
+    if [ -n "$RESTART_SERVERS" ]; then
+        /bin/bash ${SCRIPT_DIR}/benchmark-servers-start.sh ${CONFIG_INCLUDE}
 
-    sleep 3s
+        sleep 3s
+    fi
 
     /bin/bash ${SCRIPT_DIR}/benchmark-drivers-start.sh ${CONFIG_INCLUDE}
 
+    if [ -n "$RESTART_SERVERS" ]; then
+        /bin/bash ${SCRIPT_DIR}/benchmark-servers-stop.sh ${CONFIG_INCLUDE}
+
+        sleep 1s
+    fi
+done
+
+if [ -z "$RESTART_SERVERS" ]; then
     /bin/bash ${SCRIPT_DIR}/benchmark-servers-stop.sh ${CONFIG_INCLUDE}
 
     sleep 1s
-done
-
-
-
+fi

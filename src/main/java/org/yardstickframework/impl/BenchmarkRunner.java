@@ -106,10 +106,12 @@ public class BenchmarkRunner {
 
                 for (BenchmarkProbeSet set : probeSets)
                     set.onWarmupFinished();
+
+                BenchmarkUtils.println("Starting main test (warmup finished).");
             }
         });
 
-        final AtomicLong opsCnt = cfg.operationsCount() <= 0 ? null : new AtomicLong(cfg.operationsCount());
+        final AtomicLong opsCnt = cfg.operationsCount() <= 0 ? null : new AtomicLong();
 
         for (int i = 0; i < threadNum; i++) {
             final int threadIdx = i;
@@ -154,17 +156,14 @@ public class BenchmarkRunner {
 
                                 reset = false;
 
-                                System.out.println("Starting main test (warmup finished) " +
-                                    "[ts=" + now + ", date=" + new Date(now) + ']');
-
                                 continue;
                             }
 
-                            if (cfg.operationsCount() > 0) {
+                            if (!reset && cfg.operationsCount() > 0) {
                                 long ops = opsCnt.incrementAndGet();
 
                                 if (ops % 1000 == 0)
-                                    System.out.println("Finished iteration: " + ops);
+                                    BenchmarkUtils.println("Finished iteration: " + ops);
 
                                 if (ops >= cfg.operationsCount()) {
                                     for (BenchmarkProbeSet set : probeSets)
@@ -173,7 +172,7 @@ public class BenchmarkRunner {
                                     break;
                                 }
                             }
-                            else if (elapsed > totalDuration) {
+                            else if (!reset && elapsed > totalDuration) {
                                 for (BenchmarkProbeSet set : probeSets)
                                     set.onFinished();
 
