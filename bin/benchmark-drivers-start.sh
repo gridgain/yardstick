@@ -94,7 +94,7 @@ function cleanup() {
 trap "cleanup; exit" SIGHUP SIGINT SIGTERM SIGQUIT SIGKILL
 
 # Define logs directory.
-LOGS_DIR=${SCRIPT_DIR}/../logs_drivers
+LOGS_DIR=${SCRIPT_DIR}/../${LOGS_BASE}/logs_drivers
 
 if [ ! -d "${LOGS_DIR}" ]; then
     mkdir -p ${LOGS_DIR}

@@ -93,7 +93,7 @@ if not defined CONFIG (
 :: todo: cleanup
 
 :: Define logs directory.
-set LOGS_DIR=%SCRIPT_DIR%\..\logs_drivers
+set LOGS_DIR=%SCRIPT_DIR%\..\%LOGS_BASE%\logs_drivers
 
 if not exist "%LOGS_DIR%" (
     mkdir %LOGS_DIR%

@@ -66,7 +66,8 @@ if not defined CONFIGS (
     exit /b
 )
 
-set folder=results-%time:~0,2%%time:~3,2%%time:~6,2%
+set now=%time:~0,2%%time:~3,2%%time:~6,2%
+set folder=results-%now%
 
 set cfgs=%CONFIGS%
 
@@ -81,6 +82,8 @@ for /f "tokens=1* delims=," %%a in ("%cfgs%") do (
             set OUTPUT_FOLDER=--outputFolder %folder%
         )
     )
+
+    set LOGS_BASE=logs-%now%
 
     call %SCRIPT_DIR%\benchmark-servers-start.bat %CONFIG_INCLUDE%
 

@@ -55,7 +55,9 @@ if [ "${CONFIGS}" == "" ]; then
     exit 1
 fi
 
-folder=results-$(date +"%Y%m%d-%H%M%S")
+now=$(date +"%Y%m%d-%H%M%S")
+
+folder=results-$now
 
 IFS=',' read -ra configs0 <<< "${CONFIGS}"
 for cfg in "${configs0[@]}";
@@ -68,6 +70,7 @@ do
 
     export CONFIG
     export OUTPUT_FOLDER
+    export LOGS_BASE=logs-${now}
 
     /bin/bash ${SCRIPT_DIR}/benchmark-servers-start.sh ${CONFIG_INCLUDE}
 

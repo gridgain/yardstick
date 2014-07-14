@@ -97,7 +97,7 @@ call %SCRIPT_DIR%\benchmark-servers-stop.bat
 :: todo: call cleanup on ctrl+C
 
 :: Define logs directory.
-set LOGS_DIR=%SCRIPT_DIR%\..\logs_servers
+set LOGS_DIR=%SCRIPT_DIR%\..\%LOGS_BASE%\logs_servers
 
 if not exist "%LOGS_DIR%" (
     mkdir %LOGS_DIR%
