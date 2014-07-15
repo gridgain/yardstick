@@ -55,6 +55,17 @@ public class BenchmarkLoader {
             println(cfg, "Framework configuration file was not found: " + cfg.propertiesFileName());
         }
 
+        String propsEnv = System.getenv("PROPS_ENV");
+
+        if (propsEnv != null) {
+            try (FileInputStream is = new FileInputStream(propsEnv)) {
+                props.load(is);
+            }
+            catch (FileNotFoundException ignore) {
+                println(cfg, "Benchmark configuration file pointed by PROPS_ENV was not found: " + propsEnv);
+            }
+        }
+
         // Try init packages first.
         if (props.getProperty("BENCHMARK_PACKAGES") != null) {
             if (cfg.packages().isEmpty()) {
@@ -132,7 +143,7 @@ public class BenchmarkLoader {
      */
     public Collection<BenchmarkProbe> loadProbes() throws Exception {
         // Init probes.
-        List<BenchmarkProbe> probes = new ArrayList<>(cfg.defaultProbeClassNames().size());
+        Collection<BenchmarkProbe> probes = new ArrayList<>(cfg.defaultProbeClassNames().size());
 
         for (String probeClsName : cfg.defaultProbeClassNames()) {
             BenchmarkProbe probe = loadClass(BenchmarkProbe.class, probeClsName);

@@ -98,4 +98,10 @@ if [ "${ENABLE_ASSERTIONS}" = "1" ]; then
     JVM_OPTS="${JVM_OPTS} -ea"
 fi
 
+if [ -z "$PROPS_ENV" ]; then
+    if [ "$PROPS_ENV0" != "" ]; then
+        export PROPS_ENV=$PROPS_ENV0
+    fi
+fi
+
 "$JAVA" ${JVM_OPTS} -cp ${CP} ${MAIN_CLASS} ${ARGS}

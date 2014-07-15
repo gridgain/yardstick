@@ -68,7 +68,7 @@ public class BenchmarkDriverStartUp {
             try {
                 weights.add(Integer.parseInt(weight));
             }
-            catch (NumberFormatException e) {
+            catch (NumberFormatException ignored) {
                 errorHelp(cfg, "Can not parse driver run weight [driver=" + name + ", weight=" + weight + "]");
 
                 return;
