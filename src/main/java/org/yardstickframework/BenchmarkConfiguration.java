@@ -83,6 +83,10 @@ public class BenchmarkConfiguration {
     private String hostName = "";
 
     /** */
+    @Parameter(names = {"-lfreq", "--logFreq"}, description = "Iterations log frequency")
+    private int logIterFreq = 25000;
+
+    /** */
     @Parameter(names = { "-h", "--help" }, description = "Print help message", help = true, hidden = true)
     private boolean help;
 
@@ -180,6 +184,13 @@ public class BenchmarkConfiguration {
      */
     public void operationsCount(int opsCnt) {
         this.opsCnt = opsCnt;
+    }
+
+    /**
+     * @return Log frequency.
+     */
+    public int logIterationsFrequency() {
+        return logIterFreq;
     }
 
     /**

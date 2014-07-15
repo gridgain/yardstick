@@ -111,10 +111,12 @@ public class BenchmarkRunner {
             }
         });
 
-        final AtomicLong opsCnt = cfg.operationsCount() <= 0 ? null : new AtomicLong();
+        final AtomicLong opsCnt = new AtomicLong();
 
         for (int i = 0; i < threadNum; i++) {
             final int threadIdx = i;
+
+            final int logFreq = cfg.logIterationsFrequency();
 
             threads.add(new Thread(new Runnable() {
                 @Override public void run() {
@@ -159,24 +161,26 @@ public class BenchmarkRunner {
                                 continue;
                             }
 
-                            if (!reset && cfg.operationsCount() > 0) {
+                            if (!reset) {
                                 long ops = opsCnt.incrementAndGet();
 
-                                if (ops % 25000 == 0)
+                                if (ops % logFreq == 0)
                                     BenchmarkUtils.println("Finished iteration: " + ops);
 
-                                if (ops >= cfg.operationsCount()) {
+                                if (cfg.operationsCount() > 0) {
+                                    if (ops >= cfg.operationsCount()) {
+                                        for (BenchmarkProbeSet set : probeSets)
+                                            set.onFinished();
+
+                                        break;
+                                    }
+                                }
+                                else if (elapsed > totalDuration) {
                                     for (BenchmarkProbeSet set : probeSets)
                                         set.onFinished();
 
                                     break;
                                 }
-                            }
-                            else if (!reset && elapsed > totalDuration) {
-                                for (BenchmarkProbeSet set : probeSets)
-                                    set.onFinished();
-
-                                break;
                             }
                         }
 
