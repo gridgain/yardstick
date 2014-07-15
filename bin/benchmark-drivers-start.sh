@@ -128,13 +128,15 @@ do
         outFol=${OUTPUT_FOLDER}
     fi
 
+    now=`date +'%H%M%S'`
+
     cfg="${outFol} ${host_name0} ${CONFIG}"
 
     suffix=`echo "${cfg}" | tail -c 60 | sed 's/ *$//g'`
 
     echo "<"$(date +"%H:%M:%S")"><yardstick> Starting driver config '..."${suffix}"' on "${host_name}""
 
-    file_log=${LOGS_DIR}"/"${cntr}"_"${host_name}".log"
+    file_log=${LOGS_DIR}"/"${now}"_"${cntr}"_"${host_name}".log"
 
     ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} \
         "MAIN_CLASS='org.yardstickframework.BenchmarkDriverStartUp'" "JVM_OPTS='${JVM_OPTS}'" "CP='${CP}'" "CUR_DIR='${CUR_DIR}'" \
