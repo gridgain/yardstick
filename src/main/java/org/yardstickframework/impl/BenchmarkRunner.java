@@ -162,7 +162,7 @@ public class BenchmarkRunner {
                             if (!reset && cfg.operationsCount() > 0) {
                                 long ops = opsCnt.incrementAndGet();
 
-                                if (ops % 1000 == 0)
+                                if (ops % 25000 == 0)
                                     BenchmarkUtils.println("Finished iteration: " + ops);
 
                                 if (ops >= cfg.operationsCount()) {
