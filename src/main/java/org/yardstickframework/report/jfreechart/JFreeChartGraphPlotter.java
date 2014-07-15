@@ -443,21 +443,29 @@ public class JFreeChartGraphPlotter {
 
         Map<String, List<File>> res = new HashMap<>();
 
-        for (File dir : dirs) {
-            if (dir.isDirectory()) {
-                File[] files = dir.listFiles();
-
-                if (files == null || files.length == 0)
-                    continue;
-
-                for (File file : files)
-                    addFile(file, res);
-            }
-            else
-                addFile(dir, res);
-        }
+        files0(dirs, res);
 
         return res;
+    }
+
+    /**
+     * @param files Files.
+     * @param res Result.
+     */
+    private static void files0(File[] files, Map<String, List<File>> res) {
+        if (files == null || files.length == 0)
+            return;
+
+        List<File> fs = new ArrayList<>(Arrays.asList(files));
+
+        Collections.sort(fs, FILE_NAME_COMP);
+
+        for (File file : fs) {
+            if (file.isDirectory())
+                files0(file.listFiles(), res);
+            else
+                addFile(file, res);
+        }
     }
 
     /**
