@@ -18,7 +18,6 @@ import org.yardstickframework.*;
 
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.*;
 
 import static java.util.concurrent.TimeUnit.*;
 import static org.yardstickframework.BenchmarkUtils.*;
@@ -60,9 +59,6 @@ public class PercentileProbe implements BenchmarkExecutionAwareProbe, BenchmarkT
     /** */
     private TimeUnit timeUnit;
 
-    /** */
-    private AtomicLong[] buckets;
-
     /** {@inheritDoc} */
     @SuppressWarnings("BusyWait")
     @Override public void start(BenchmarkDriver drv, BenchmarkConfiguration cfg) throws Exception {
@@ -71,11 +67,6 @@ public class PercentileProbe implements BenchmarkExecutionAwareProbe, BenchmarkT
         bucketInterval = interval(cfg);
         bucketsCnt = count(cfg);
         timeUnit = timeUnit(cfg);
-
-        buckets = new AtomicLong[bucketsCnt];
-
-        for (int i = 0; i < bucketsCnt; i++)
-            buckets[i] = new AtomicLong();
 
         agents = new ThreadAgent[cfg.threads()];
 
@@ -104,21 +95,27 @@ public class PercentileProbe implements BenchmarkExecutionAwareProbe, BenchmarkT
 
     /** {@inheritDoc} */
     @Override public Collection<BenchmarkProbePoint> points() {
+        long[] buckets0 = new long[bucketsCnt];
+
+        for (ThreadAgent agent : agents) {
+            long[] b0 = agent.reset();
+
+            for (int i = 0; i < b0.length; i++)
+                buckets0[i] += b0[i];
+        }
+
         Collection<BenchmarkProbePoint> ret = new ArrayList<>(bucketsCnt + 1);
 
-        if (buckets.length > 0)
+        if (bucketsCnt > 0)
             ret.add(new BenchmarkProbePoint(0, new double[] {0}));
 
         long sum = 0;
 
-        for (AtomicLong b : buckets)
-            sum += b.get();
+        for (long b : buckets0)
+            sum += b;
 
-        for (int i = 0; i < buckets.length; i++) {
-            long cnt = buckets[i].getAndSet(0);
-
-            ret.add(new BenchmarkProbePoint((i + 1) * bucketInterval, new double[] {((double)cnt) / sum}));
-        }
+        for (int i = 0; i < buckets0.length; i++)
+            ret.add(new BenchmarkProbePoint((i + 1) * bucketInterval, new double[] {((double)buckets0[i]) / sum}));
 
         return ret;
     }
@@ -184,6 +181,9 @@ public class PercentileProbe implements BenchmarkExecutionAwareProbe, BenchmarkT
         /** Last before execute timestamp. */
         private long beforeTs;
 
+        /** */
+        private volatile long[] buckets = new long[bucketsCnt];
+
         /**
          *
          */
@@ -203,7 +203,22 @@ public class PercentileProbe implements BenchmarkExecutionAwareProbe, BenchmarkT
 
             int idx = bucketIdx >= bucketsCnt ? bucketsCnt - 1 : (int)bucketIdx;
 
-            buckets[idx].incrementAndGet();
+            long[] b = buckets;
+
+            b[idx]++;
+
+            buckets = b;
+        }
+
+        /**
+         * @return Resets the agent.
+         */
+        public long[] reset() {
+            long[] b = buckets;
+
+            buckets = new long[bucketsCnt];
+
+            return b;
         }
     }
 }
