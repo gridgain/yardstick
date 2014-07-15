@@ -39,11 +39,6 @@ if "%or%"=="true" (
 
 endlocal
 
-if not defined CONFIG_INCLUDE (
-    set CONFIG_INCLUDE=%SCRIPT_DIR%\..\config\benchmark.properties.win
-    echo ^<%time:~0,2%:%time:~3,2%:%time:~6,2%^>^<yardstick^> Using default properties file: config\benchmark.properties.win
-)
-
 if not exist "%CONFIG_INCLUDE%" (
     echo ERROR: Properties file is not found.
     echo Type \"--help\" for usage.
@@ -92,7 +87,7 @@ if not defined CONFIG (
 )
 
 :: Kill servers if they exist.
-call %SCRIPT_DIR%\benchmark-servers-stop.bat
+call %SCRIPT_DIR%\benchmark-servers-stop.bat %CONFIG_INCLUDE%
 
 :: todo: call cleanup on ctrl+C
 
