@@ -24,6 +24,7 @@ import java.util.*;
 import static org.yardstickframework.BenchmarkUtils.*;
 import static org.yardstickframework.report.jfreechart.JFreeChartGenerationMode.*;
 import static org.yardstickframework.report.jfreechart.JFreeChartGraphPlotter.*;
+import static org.yardstickframework.report.jfreechart.JFreeChartGraphPlotter.errorHelp;
 
 /**
  * Generates html pages with resulted graphs built by JFreeChart framework.
@@ -197,7 +198,7 @@ public class JFreeChartResultPageGenerator {
 
                 if (list != null) {
                     writeLine(bw, "<table class=\"table\" style=\"width:auto;\">");
-                    writeLine(bw, "<thead><tr><th>Color</th><th>Benchmark</th></tr></thead>");
+                    writeLine(bw, "<thead><tr><th>Color</th><th>Benchmark</th><th>Configuration</th></tr></thead>");
                     writeLine(bw, "<tbody>");
 
                     for (JFreeChartPlotInfo info : list) {
@@ -205,9 +206,14 @@ public class JFreeChartResultPageGenerator {
 
                         String b = t == null ? info.name() : info.name().substring(t.length() + 1);
 
+                        t = parseTime(info.configuration());
+
+                        String cfg = t == null ? info.configuration() : info.configuration().substring(t.length() + 1);
+
                         writeLine(bw, "<tr>");
                         writeLine(bw, "<td><i style=\"color:#" + info.color() + ";\" class=\"fa fa-square\"></i></td>");
-                        writeLine(bw, "<td>" + b + "</td>");
+                        writeLine(bw, "<td>" + b.replaceAll(",", "<br>") + "</td>");
+                        writeLine(bw, "<td>" + cfg.replaceAll(",", "<br>") + "</td>");
                         writeLine(bw, "</tr>");
                     }
 
@@ -238,7 +244,6 @@ public class JFreeChartResultPageGenerator {
                         writeLine(bw, "<div class=\"col-md-4\">");
                         writeLine(bw, "<a data-toggle=\"modal\" data-target=\"#" + id + "\" href=\"#\"><img src=\"" +
                             file.getName() + "\" class=\"img-thumbnail\"/></a>");
-
                         writeLine(bw, "<div class=\"modal\" id=\"" + id +
                             "\" tabindex=\"-1\" role=\"dialog\" aria-hidden=\"true\">");
                         writeLine(bw, "<div class=\"modal-dialog modal-lg\">");
@@ -246,7 +251,10 @@ public class JFreeChartResultPageGenerator {
                         writeLine(bw, "<div class=\"modal-body text-center\">");
                         writeLine(bw, "<img src=\"" + file.getName() + "\" class=\"img-thumbnail\"/>");
                         writeLine(bw, "<p>&nbsp;</p>");
-                        buildGraphDetailTable(infoMap, bw, file);
+
+                        if (!file.getName().contains(PercentileProbe.class.getSimpleName()))
+                            buildGraphDetailTable(infoMap, bw, file);
+
                         writeLine(bw, "</div>");
                         writeLine(bw, "<div class=\"modal-footer\">");
                         writeLine(bw, "<button type=\"button\" class=\"btn btn-primary\" " +
@@ -256,7 +264,8 @@ public class JFreeChartResultPageGenerator {
                         writeLine(bw, "</div>");
                         writeLine(bw, "</div>");
 
-                        buildGraphDetailTable(infoMap, bw, file);
+                        if (!file.getName().contains(PercentileProbe.class.getSimpleName()))
+                            buildGraphDetailTable(infoMap, bw, file);
 
                         writeLine(bw, "</div>");
 

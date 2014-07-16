@@ -280,29 +280,20 @@ public class JFreeChartGraphPlotter {
         for (Map.Entry<String, List<List<File>>> entry : res.entrySet()) {
             Collection<List<PlotData>> plots = new ArrayList<>(entry.getValue().size());
 
-            int inc = 0;
-
             for (List<File> files : entry.getValue()) {
-                if (files.size() > 1 && args.summarySubfoldersMode()) {
+                if (files.size() > 1) {
                     if (entry.getKey().equals(ThroughputLatencyProbe.class.getSimpleName() + INPUT_FILE_EXTENSION) ||
                         entry.getKey().equals(PercentileProbe.class.getSimpleName() + INPUT_FILE_EXTENSION)) {
                         Collection<List<PlotData>> plots0 = new ArrayList<>(entry.getValue().size());
-
-                        StringBuilder sb = new StringBuilder();
 
                         for (File file : files) {
                             List<PlotData> pd = readData(file);
 
                             if (!pd.isEmpty())
                                 plots0.add(pd);
-
-                            sb.append(pd.get(0).series().seriesName).append(' ');
                         }
 
-                        if (sb.length() > 0)
-                            sb.delete(sb.length() - 1, sb.length());
-
-                        List<PlotData> sumPlot = addSummaryPlot(plots0, "Summary plot " + inc++ + ": " + sb.toString());
+                        List<PlotData> sumPlot = addSummaryPlot(plots0);
 
                         if (!sumPlot.isEmpty())
                             plots.add(sumPlot);
@@ -324,15 +315,6 @@ public class JFreeChartGraphPlotter {
                 }
             }
 
-            if (plots.size() > 1 && args.summaryPlotMode() &&
-                (entry.getKey().equals(ThroughputLatencyProbe.class.getSimpleName() + INPUT_FILE_EXTENSION) ||
-                entry.getKey().equals(PercentileProbe.class.getSimpleName() + INPUT_FILE_EXTENSION))) {
-                List<PlotData> sumPlot = addSummaryPlot(plots, "Summary plot");
-
-                if (!sumPlot.isEmpty())
-                    plots.add(sumPlot);
-            }
-
             processPlots(folderToWrite, plots, infoMap, mode);
         }
 
@@ -342,10 +324,9 @@ public class JFreeChartGraphPlotter {
 
     /**
      * @param plots Plots.
-     * @param plotName Plot name.
      * @return Summary Plot.
      */
-    private static List<PlotData> addSummaryPlot(Collection<List<PlotData>> plots, String plotName) {
+    private static List<PlotData> addSummaryPlot(Collection<List<PlotData>> plots) {
         int idx = -1;
 
         List<PlotData> sumPlot = new ArrayList<>();
@@ -364,12 +345,15 @@ public class JFreeChartGraphPlotter {
                 double[][] data = plotData.series().data;
 
                 if (sumPlotData == null) {
-                    PlotSeries sumSeries = new PlotSeries(plotName);
+                    PlotSeries sumSeries = new PlotSeries(plotData.series().seriesName);
 
                     sumSeries.data = new double[data.length][];
 
-                    sumPlotData = new PlotData(plotData.plotName(), sumSeries, plotData.xAxisLabel, plotData.yAxisLabel);
+                    sumPlotData = new PlotData(plotData.plotName(), sumSeries,
+                        plotData.xAxisLabel, plotData.yAxisLabel);
                 }
+
+                sumPlotData.series().addConfiguration(plotData.series().cfg.toString());
 
                 double[][] sumData = sumPlotData.series().data;
 
@@ -609,7 +593,7 @@ public class JFreeChartGraphPlotter {
         if (len == 1) {
             double val = series.data[1][0];
 
-            return new JFreeChartPlotInfo(series.seriesName, val, val, val, 0, mode);
+            return new JFreeChartPlotInfo(series.seriesName, series.configuration(), val, val, val, 0, mode);
         }
 
         for (int i = 0; i < len; i++) {
@@ -634,7 +618,7 @@ public class JFreeChartGraphPlotter {
 
         double stdDiv = Math.sqrt(s / (len - 1));
 
-        return new JFreeChartPlotInfo(series.seriesName, avg, min, max, stdDiv, mode);
+        return new JFreeChartPlotInfo(series.seriesName, series.configuration(), avg, min, max, stdDiv, mode);
     }
 
     /**
@@ -648,11 +632,24 @@ public class JFreeChartGraphPlotter {
         try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(file)))) {
             long initTime = 0;
 
+            String drvNames = null;
             String[] metaInfo = null;
 
             for (String line; (line = br.readLine()) != null; ) {
                 if (line.startsWith("--"))
                     continue;
+
+                if (line.startsWith(DRV_NAMES_PREFIX)) {
+                    drvNames = line.substring(DRV_NAMES_PREFIX.length());
+
+                    List<String> drvNamesList = Arrays.asList(drvNames.split(","));
+
+                    Collections.sort(drvNamesList);
+
+                    drvNames = drvNamesList.toString().replaceAll("\\[", "").replaceAll("]", "");
+
+                    continue;
+                }
 
                 if (line.startsWith(META_INFO_PREFIX)) {
                     metaInfo = line.substring(META_INFO_PREFIX.length()).split("\"" + META_INFO_SEPARATOR + "\"");
@@ -673,7 +670,9 @@ public class JFreeChartGraphPlotter {
                     String xAxisLabel = metaInfo == null || metaInfo.length == 0 ? "" : metaInfo[0].replace("\"", "");
 
                     for (int i = 0; i < plotNum; i++) {
-                        PlotSeries single = new PlotSeries(file.getParentFile().getName());
+                        PlotSeries single = new PlotSeries(drvNames);
+
+                        single.addConfiguration(file.getParentFile().getName());
 
                         String yAxisLabel = metaInfo == null || i + 1 >= metaInfo.length ? "" :
                             metaInfo[i + 1].replace("\"", "");
@@ -684,7 +683,8 @@ public class JFreeChartGraphPlotter {
 
                         cnt = cnt.length() == 1 ? "0" + cnt : cnt;
 
-                        data.add(new PlotData("Plot_" + plotName + "_" + cnt, single, xAxisLabel, yAxisLabel));
+                        data.add(new PlotData("Plot_" + plotName + "_" + cnt, single,
+                            xAxisLabel, yAxisLabel));
                     }
                 }
 
@@ -829,6 +829,9 @@ public class JFreeChartGraphPlotter {
         private final String seriesName;
 
         /** */
+        private final List<String> cfg = new ArrayList<>();
+
+        /** */
         private List<double[]> rawData = new ArrayList<>();
 
         /** */
@@ -839,6 +842,22 @@ public class JFreeChartGraphPlotter {
          */
         PlotSeries(String seriesName) {
             this.seriesName = seriesName;
+        }
+
+        /**
+         * @param cfg Adds configuration string.
+         */
+        public void addConfiguration(String cfg) {
+            this.cfg.add(cfg);
+        }
+
+        /**
+         * @return Configuration string.
+         */
+        public String configuration() {
+            Collections.sort(cfg);
+
+            return cfg.toString().replaceAll("\\[", "").replaceAll("]", "");
         }
 
         /**
