@@ -36,6 +36,9 @@ public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
     public static final String META_INFO_SEPARATOR = ",";
 
     /** */
+    public static final String DRV_NAMES_PREFIX = "@@";
+
+    /** */
     public static final String META_INFO_PREFIX = "**";
 
     /** */
@@ -140,6 +143,7 @@ public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
             println("--Created " + new Date(startTime));
             println("--Benchmark config: " + removeUnwantedChars(cfg.toString()));
             println("--Description: " + removeUnwantedChars(drv.description() == null ? "" : drv.description()));
+            println(DRV_NAMES_PREFIX + cfg.driverNames().toString().replaceAll("\\[", "").replaceAll("]", ""));
 
             if (probe.metaInfo() != null && !probe.metaInfo().isEmpty()) {
                 print(META_INFO_PREFIX);

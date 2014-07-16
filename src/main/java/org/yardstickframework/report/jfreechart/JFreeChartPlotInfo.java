@@ -22,6 +22,9 @@ public class JFreeChartPlotInfo {
     private final String name;
 
     /** */
+    private final String cfg;
+
+    /** */
     private final double avg;
 
     /** */
@@ -41,15 +44,17 @@ public class JFreeChartPlotInfo {
 
     /**
      * @param name Plot name.
+     * @param cfg Configuration string.
      * @param avg Average.
      * @param min Minimum.
      * @param max Maximum.
      * @param stdDiv Standard deviation.
      * @param mode Mode.
      */
-    public JFreeChartPlotInfo(String name, double avg, double min, double max, double stdDiv,
+    public JFreeChartPlotInfo(String name, String cfg, double avg, double min, double max, double stdDiv,
         JFreeChartGenerationMode mode) {
         this.name = name;
+        this.cfg = cfg;
         this.avg = avg;
         this.min = min;
         this.max = max;
@@ -62,6 +67,13 @@ public class JFreeChartPlotInfo {
      */
     public String name() {
         return name;
+    }
+
+    /**
+     * @return Configuration string.
+     */
+    public String configuration() {
+        return cfg;
     }
 
     /**
