@@ -121,7 +121,7 @@ for /f "tokens=1* delims=," %%a in ("%srv_hosts%") do (
     set file_log=%LOGS_DIR%\!cntr!_!host_name!.log
 
     start /min /low cmd /c ssh -o PasswordAuthentication=no %REMOTE_USER%@!host_name! ^
-        "if not exist %LOGS_DIR% mkdir %LOGS_DIR% && set MAIN_CLASS=org.yardstickframework.BenchmarkServerStartUp && set JVM_OPTS=%JVM_OPTS% && set CP=%CP% && set CUR_DIR=%CUR_DIR% && %SCRIPT_DIR%\benchmark-bootstrap.bat %CONFIG% --config %CONFIG_INCLUDE% ^>^> !file_log! 2^>^&1"
+        "(if not exist %LOGS_DIR% mkdir %LOGS_DIR%) && set MAIN_CLASS=org.yardstickframework.BenchmarkServerStartUp && set JVM_OPTS=%JVM_OPTS% && set CP=%CP% && set CUR_DIR=%CUR_DIR% && %SCRIPT_DIR%\benchmark-bootstrap.bat %CONFIG% --config %CONFIG_INCLUDE% ^>^> !file_log! 2^>^&1"
 
     set /a cntr+=1
 )
