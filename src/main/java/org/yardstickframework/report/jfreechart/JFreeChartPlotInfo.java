@@ -14,6 +14,8 @@
 
 package org.yardstickframework.report.jfreechart;
 
+import java.util.*;
+
 /**
  * Additional info for plot.
  */
@@ -22,7 +24,7 @@ public class JFreeChartPlotInfo {
     private final String name;
 
     /** */
-    private final String cfg;
+    private final Collection<String> cfg;
 
     /** */
     private final double avg;
@@ -51,7 +53,7 @@ public class JFreeChartPlotInfo {
      * @param stdDiv Standard deviation.
      * @param mode Mode.
      */
-    public JFreeChartPlotInfo(String name, String cfg, double avg, double min, double max, double stdDiv,
+    public JFreeChartPlotInfo(String name, Collection<String> cfg, double avg, double min, double max, double stdDiv,
         JFreeChartGenerationMode mode) {
         this.name = name;
         this.cfg = cfg;
@@ -70,9 +72,9 @@ public class JFreeChartPlotInfo {
     }
 
     /**
-     * @return Configuration string.
+     * @return Configuration.
      */
-    public String configuration() {
+    public Collection<String> configuration() {
         return cfg;
     }
 

@@ -87,22 +87,26 @@ public class JFreeChartGraphPlotter {
             for (String folderAsString : inFoldersAsString)
                 inFolders.add(new File(folderAsString).getAbsoluteFile());
 
+            List<File> benchFolders = new ArrayList<>();
+
             for (File inFolder : inFolders) {
                 if (!inFolder.exists()) {
                     errorHelp("Folder does not exist: " + inFolder.getAbsolutePath());
 
                     return;
                 }
+
+                benchmarkFolders(inFolder, benchFolders);
             }
 
             JFreeChartGenerationMode mode = args.generationMode();
 
             if (mode == COMPOUND)
-                processCompoundMode(inFolders, args);
+                processCompoundMode(benchFolders, args);
             else if (mode == COMPARISON)
-                processComparisonMode(inFolders, args);
+                processComparisonMode(benchFolders, args);
             else if (mode == STANDARD)
-                processStandardMode(inFolders, args);
+                processStandardMode(benchFolders, args);
             else
                 errorHelp("Unknown generation mode: " + args.generationMode());
         }
@@ -115,6 +119,31 @@ public class JFreeChartGraphPlotter {
     }
 
     /**
+     * Searches for benchmark folders in provided folder.
+     *
+     * @param file Folder.
+     * @param benchFolders Benchmark folders collection.
+     */
+    private static void benchmarkFolders(File file, List<File> benchFolders) {
+        assert file.exists();
+
+        if (file.isDirectory()) {
+            File[] list = file.listFiles();
+
+            for (File f : list) {
+                if (f.isFile() && MARKER_FILE_NAME.equals(f.getName())) {
+                    benchFolders.add(file);
+
+                    return;
+                }
+            }
+
+            for (File f : list)
+                benchmarkFolders(f, benchFolders);
+        }
+    }
+
+    /**
      * @param inFolders Input folders.
      * @param args Arguments.
      * @throws Exception If failed.
@@ -122,11 +151,44 @@ public class JFreeChartGraphPlotter {
     private static void processCompoundMode(List<File> inFolders, JFreeChartGraphPlotterArguments args) throws Exception {
         Map<String, List<List<File>>> res = new HashMap<>();
 
-        for (File inFolder : inFolders) {
-            Map<String, List<File>> map = files(inFolder);
+        Collections.sort(inFolders, new Comparator<File>() {
+            @Override public int compare(File f1, File f2) {
+                return f1.getName().compareTo(f2.getName());
+            }
+        });
 
-            mergeMaps(res, map);
+        Map<String, List<File>> map = new HashMap<>();
+        String prevName = null;
+
+        for (File inFolder : inFolders) {
+            String name = inFolder.getName();
+
+            String t = parseTime(name);
+
+            if (t != null)
+                name = name.substring(t.length() + 1);
+
+            if (prevName != null && !name.equals(prevName)) {
+                mergeMaps(res, map);
+
+                map = new HashMap<>();
+            }
+
+            Map<String, List<File>> map0 = files(inFolder);
+
+            for (Map.Entry<String, List<File>> e : map0.entrySet()) {
+                List<File> l = map.get(e.getKey());
+
+                if (l == null)
+                    map.put(e.getKey(), l = new ArrayList<>());
+
+                l.addAll(e.getValue());
+            }
+
+            prevName = name;
         }
+
+        mergeMaps(res, map);
 
         if (res.isEmpty())
             return;
@@ -353,7 +415,7 @@ public class JFreeChartGraphPlotter {
                         plotData.xAxisLabel, plotData.yAxisLabel);
                 }
 
-                sumPlotData.series().addConfiguration(plotData.series().cfg.toString());
+                sumPlotData.series().addConfigurations(plotData.series().cfg);
 
                 double[][] sumData = sumPlotData.series().data;
 
@@ -847,19 +909,26 @@ public class JFreeChartGraphPlotter {
         }
 
         /**
-         * @param cfg Adds configuration string.
+         * @param cfg Configuration string.
          */
         public void addConfiguration(String cfg) {
             this.cfg.add(cfg);
         }
 
         /**
+         * @param cfg Configuration strings.
+         */
+        public void addConfigurations(List<String> cfg) {
+            this.cfg.addAll(cfg);
+        }
+
+        /**
          * @return Configuration string.
          */
-        public String configuration() {
+        public Collection<String> configuration() {
             Collections.sort(cfg);
 
-            return cfg.toString().replaceAll("\\[", "").replaceAll("]", "");
+            return cfg;
         }
 
         /**

@@ -45,6 +45,9 @@ public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
     public static final SimpleDateFormat FORMAT = new SimpleDateFormat("yyyyMMdd-HHmmss");
 
     /** */
+    public static final String MARKER_FILE_NAME = ".benchmark";
+
+    /** */
     private PrintWriter writer;
 
     /** */
@@ -93,6 +96,8 @@ public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
 
         String hostName = cfg.hostName().isEmpty() ? "" : '-' + cfg.hostName();
 
+        File benchFolder;
+
         if (cfg.driverNames().size() > 1) {
             StringBuilder sb = new StringBuilder();
 
@@ -102,10 +107,17 @@ public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
             if (sb.length() > 0)
                 sb.delete(sb.length() - 1, sb.length());
 
-            subFolderName = subFolderName + '-' + sb.toString() + File.separator + desc.substring(1) + hostName;
+            subFolderName += '-' + sb.toString();
+
+            benchFolder = new File(folder, subFolderName);
+
+            subFolderName += File.separator + desc.substring(1) + hostName;
         }
-        else
+        else {
             subFolderName += desc + hostName;
+
+            benchFolder = new File(folder, subFolderName);
+        }
 
         subFolderName = fixFolderName(subFolderName);
 
@@ -114,6 +126,16 @@ public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
         if (!outPath.exists()) {
             if (!outPath.mkdirs())
                 throw new IllegalStateException("Can not create folder: " + outPath.getAbsolutePath());
+        }
+
+        File marker = new File(benchFolder, MARKER_FILE_NAME);
+
+        try {
+            marker.createNewFile();
+        }
+        catch (IOException e) {
+            throw new IllegalStateException("Failed to create marker file in folder: " +
+                benchFolder.getAbsolutePath(), e);
         }
     }
 

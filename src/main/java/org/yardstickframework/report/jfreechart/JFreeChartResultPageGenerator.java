@@ -198,7 +198,7 @@ public class JFreeChartResultPageGenerator {
 
                 if (list != null) {
                     writeLine(bw, "<table class=\"table\" style=\"width:auto;\">");
-                    writeLine(bw, "<thead><tr><th>Color</th><th>Benchmark</th><th>Configuration</th></tr></thead>");
+                    writeLine(bw, "<thead><tr><th>Color</th><th>Benchmark</th><th>Configurations</th></tr></thead>");
                     writeLine(bw, "<tbody>");
 
                     for (JFreeChartPlotInfo info : list) {
@@ -206,14 +206,21 @@ public class JFreeChartResultPageGenerator {
 
                         String b = t == null ? info.name() : info.name().substring(t.length() + 1);
 
-                        t = parseTime(info.configuration());
+                        StringBuilder cfgSb = new StringBuilder();
 
-                        String cfg = t == null ? info.configuration() : info.configuration().replaceAll(t + "-", "");
+                        for (String cfg : info.configuration()) {
+                            t = parseTime(cfg);
+
+                            if (t != null)
+                                cfg = cfg.substring(t.length() + 1);
+
+                            cfgSb.append(cfg).append("<br>");
+                        }
 
                         writeLine(bw, "<tr>");
                         writeLine(bw, "<td><i style=\"color:#" + info.color() + ";\" class=\"fa fa-square\"></i></td>");
                         writeLine(bw, "<td>" + b.replaceAll(",", "<br>") + "</td>");
-                        writeLine(bw, "<td>" + cfg.replaceAll(",", "<br>") + "</td>");
+                        writeLine(bw, "<td>" + cfgSb + "</td>");
                         writeLine(bw, "</tr>");
                     }
 
