@@ -114,26 +114,24 @@ for cfg in "${configs0[@]}";
 do
     now=`date +'%H%M%S'`
 
-    cfgParms="${OUTPUT_FOLDER} ${cfg}"
+    cfgParams="${OUTPUT_FOLDER} ${cfg}"
 
     suffix=`echo "${cfgParams}" | tail -c 60 | sed 's/ *$//g'`
 
     file_log=${LOGS_DIR}"/"${now}"_"${cntr}"_driver.log"
 
     echo "<"$(date +"%H:%M:%S")"><yardstick> Starting driver config '..."${suffix}"'"
-    echo "<"$(date +"%H:%M:%S")"><yardstick> Starting driver config "${file_log}
+    echo "<"$(date +"%H:%M:%S")"><yardstick> Log file: "${file_log}
 
     MAIN_CLASS=org.yardstickframework.BenchmarkDriverStartUp JVM_OPTS=${JVM_OPTS} CP=${CP} \
     CUR_DIR=${CUR_DIR} PROPS_ENV0=${PROPS_ENV} \
     ${SCRIPT_DIR}/benchmark-bootstrap.sh ${cfgParams} --config ${CONFIG_INCLUDE} > ${file_log} 2>& 1 &
 
-    HOST_NAME="localhost"
-
-    ${SCRIPT_DIR}/benchmark-wait-driver-up.sh
+    HOST_NAME=localhost ${SCRIPT_DIR}/benchmark-wait-driver-up.sh
 
     echo "<"$(date +"%H:%M:%S")"><yardstick> Driver is started"
 
-    ${SCRIPT_DIR}/benchmark-wait-driver-finish.sh
+    HOST_NAME=localhost ${SCRIPT_DIR}/benchmark-wait-driver-finish.sh
 
     echo "<"$(date +"%H:%M:%S")"><yardstick> Driver is stopped"
 
