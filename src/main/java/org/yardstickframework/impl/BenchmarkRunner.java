@@ -129,6 +129,22 @@ public class BenchmarkRunner {
                         boolean reset = true;
 
                         while (!cancelled && !Thread.currentThread().isInterrupted()) {
+                            if (!reset) {
+                                long ops = opsCnt.incrementAndGet();
+
+                                if (ops % logFreq == 0)
+                                    BenchmarkUtils.println("Starting iteration: " + ops);
+
+                                if (cfg.operationsCount() > 0) {
+                                    if (ops > cfg.operationsCount()) {
+                                        for (BenchmarkProbeSet set : probeSets)
+                                            set.onFinished();
+
+                                        break;
+                                    }
+                                }
+                            }
+
                             int idx = driverIndex(rand, sumWeight);
 
                             BenchmarkDriver drv = drivers[idx];
@@ -161,21 +177,8 @@ public class BenchmarkRunner {
                                 continue;
                             }
 
-                            if (!reset) {
-                                long ops = opsCnt.incrementAndGet();
-
-                                if (ops % logFreq == 0)
-                                    BenchmarkUtils.println("Finished iteration: " + ops);
-
-                                if (cfg.operationsCount() > 0) {
-                                    if (ops >= cfg.operationsCount()) {
-                                        for (BenchmarkProbeSet set : probeSets)
-                                            set.onFinished();
-
-                                        break;
-                                    }
-                                }
-                                else if (elapsed > totalDuration) {
+                            if (!reset && cfg.operationsCount() == 0) {
+                                if (elapsed > totalDuration) {
                                     for (BenchmarkProbeSet set : probeSets)
                                         set.onFinished();
 
