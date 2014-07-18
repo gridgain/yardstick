@@ -19,6 +19,7 @@ import org.yardstickframework.*;
 import java.util.*;
 import java.util.concurrent.*;
 
+import static java.util.concurrent.TimeUnit.*;
 import static org.yardstickframework.BenchmarkUtils.*;
 
 /**
@@ -55,8 +56,9 @@ public class ThroughputLatencyProbe implements BenchmarkExecutionAwareProbe {
     /** {@inheritDoc} */
     @Override public void stop() throws Exception {
         if (buildingService != null) {
-            buildingService.shutdown();
-            assert buildingService.awaitTermination(10, TimeUnit.SECONDS);
+            buildingService.shutdownNow();
+
+            buildingService.awaitTermination(1, MINUTES);
 
             println(cfg, getClass().getSimpleName() + " is stopped.");
         }
