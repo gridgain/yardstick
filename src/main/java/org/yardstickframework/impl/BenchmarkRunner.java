@@ -337,8 +337,21 @@ public class BenchmarkRunner {
                     t.join();
 
                 for (int i = 0; i < drivers.length; i++) {
-                    drivers[i].tearDown();
-                    probeSets[i].stop();
+                    try {
+                        drivers[i].tearDown();
+                    }
+                    catch (Exception e) {
+                        errorHelp(cfg, "Failed to gracefully stop driver [driver=" + drivers[i] +
+                          ", err=" + e.getMessage() + ']', e);
+                    }
+
+                    try {
+                        probeSets[i].stop();
+                    }
+                    catch (Exception e) {
+                        errorHelp(cfg, "Failed to gracefully stop probe set [probe=" + probeSets[i] +
+                            ", err=" + e.getMessage() + ']', e);
+                    }
                 }
             }
             catch (Exception e) {
