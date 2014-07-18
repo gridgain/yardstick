@@ -79,6 +79,8 @@ function cleanup() {
 trap "cleanup; exit" SIGHUP SIGINT SIGTERM SIGQUIT SIGKILL
 
 # Define logs directory.
+LOGS_BASE=logs-$(date +"%Y%m%d-%H%M%S")
+
 LOGS_DIR=${SCRIPT_DIR}/../${LOGS_BASE}/logs_servers
 
 if [ ! -d "${LOGS_DIR}" ]; then
@@ -99,7 +101,7 @@ do
     echo "<"$(date +"%H:%M:%S")"><yardstick> Starting server config '..."${suffix}"'"
     echo "<"$(date +"%H:%M:%S")"><yardstick> Log file: "${file_log}
 
-    MAIN_CLASS='org.yardstickframework.BenchmarkServerStartUp' JVM_OPTS='${JVM_OPTS}' CP='${CP}' \
-    CUR_DIR='${CUR_DIR}' PROPS_ENV0='${PROPS_ENV}' \
+    MAIN_CLASS=org.yardstickframework.BenchmarkServerStartUp JVM_OPTS=${JVM_OPTS} CP=${CP} \
+    CUR_DIR=${CUR_DIR} PROPS_ENV0=${PROPS_ENV} \
     ${SCRIPT_DIR}/benchmark-bootstrap.sh ${CONFIG} --config ${CONFIG_INCLUDE} > ${file_log} 2>& 1 &
 done
