@@ -19,6 +19,9 @@
 
 @echo off
 
+set JVM_OPTS=
+set CP=
+
 set SCRIPT_DIR=%~dp0
 set SCRIPT_DIR=%SCRIPT_DIR:~0,-1%
 

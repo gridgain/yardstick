@@ -208,7 +208,7 @@ public class JFreeChartResultPageGenerator {
 
                         t = parseTime(info.configuration());
 
-                        String cfg = t == null ? info.configuration() : info.configuration().substring(t.length() + 1);
+                        String cfg = t == null ? info.configuration() : info.configuration().replaceAll(t + "-", "");
 
                         writeLine(bw, "<tr>");
                         writeLine(bw, "<td><i style=\"color:#" + info.color() + ";\" class=\"fa fa-square\"></i></td>");

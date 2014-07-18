@@ -505,13 +505,15 @@ public class JFreeChartGraphPlotter {
             String yAxisLabel = "";
             String plotName = "";
 
+            int cnt = 0;
+
             for (List<PlotData> plotData0 : plots) {
                 if (plotData0.size() <= idx)
                     continue;
 
                 PlotData plotData = plotData0.get(idx);
 
-                dataSet.addSeries(plotData.series().seriesName, plotData.series().data);
+                dataSet.addSeries(plotData.plotName() + "_" + cnt++, plotData.series().data);
 
                 xAxisLabel = plotData.xAxisLabel;
                 yAxisLabel = plotData.yAxisLabel;
