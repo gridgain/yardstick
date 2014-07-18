@@ -11,7 +11,7 @@
 ::    limitations under the License.
 
 ::
-:: Script that starts BenchmarkDriver on local machine.
+:: Script that starts BenchmarkDriver or BenchmarkDriver.
 :: This script expects the argument to be a path to run properties file which contains
 :: the list of remote nodes to start server on and the list of configurations.
 ::
@@ -30,7 +30,7 @@ if "%CONFIG_INCLUDE%"=="-h" set or=true
 if "%CONFIG_INCLUDE%"=="--help" set or=true
 
 if "%or%"=="true" (
-    echo Usage: benchmark-driver-start.bat [PROPERTIES_FILE_PATH]
+    echo Usage: manual-drivers-start.bat [PROPERTIES_FILE_PATH]
     echo Script that starts BenchmarkDriver on local machine.
 
     exit /b
@@ -68,9 +68,9 @@ if not defined CONFIG (
     exit /b
 )
 
+:: Define logs directory.
 set LOGS_BASE=logs-%time:~0,2%%time:~3,2%%time:~6,2%
 
-:: Define logs directory.
 set LOGS_DIR=%SCRIPT_DIR%\..\%LOGS_BASE%\logs_drivers
 
 if not exist "%LOGS_DIR%" (
@@ -92,20 +92,41 @@ set CUR_DIR=%cd%
 
 setlocal enabledelayedexpansion
 
-set cfg=%OUTPUT_FOLDER% %CONFIG%
+set cntr=0
 
-set file_log=%LOGS_DIR%\driver.log
+set cfgs=%CONFIGS%
 
-echo ^<%time:~0,2%:%time:~3,2%:%time:~6,2%^>^<yardstick^> Starting driver config '!cfg!'
-echo ^<%time:~0,2%:%time:~3,2%:%time:~6,2%^>^<yardstick^> Lof file: !file_log!
+:loop.configs.next
+for /f "tokens=1* delims=," %%a in ("%cfgs%") do (
+    set CONFIG=%%a
 
-start /min cmd /c ^
-    "set MAIN_CLASS=org.yardstickframework.BenchmarkDriverStartUp && set JVM_OPTS=%JVM_OPTS% && set CP=%CP% && set CUR_DIR=%CUR_DIR% && %SCRIPT_DIR%\benchmark-bootstrap.bat !cfg! --config %CONFIG_INCLUDE% ^>^> !file_log! 2^>^&1"
+    set cfgs=%%b
 
-set HOST_NAME=localhost && call %SCRIPT_DIR%\%benchmark-wait-driver-up.bat"
+    set cfg=%OUTPUT_FOLDER% %CONFIG%
 
-echo ^<%time:~0,2%:%time:~3,2%:%time:~6,2%^>^<yardstick^> Driver is started
+    set file_log=%LOGS_DIR%\!cntr!_driver.log
 
-call "%SCRIPT_DIR%\%benchmark-wait-driver-finish.bat"
+    echo ^<%time:~0,2%:%time:~3,2%:%time:~6,2%^>^<yardstick^> Starting driver config '!cfg!'
+    echo ^<%time:~0,2%:%time:~3,2%:%time:~6,2%^>^<yardstick^> Lof file: !file_log!
 
-echo ^<%time:~0,2%:%time:~3,2%:%time:~6,2%^>^<yardstick^> Driver is stopped
+    start /min cmd /c ^
+       "set MAIN_CLASS=org.yardstickframework.BenchmarkDriverStartUp && set JVM_OPTS=%JVM_OPTS% && set CP=%CP% && set CUR_DIR=%CUR_DIR% && %SCRIPT_DIR%\benchmark-bootstrap.bat !cfg! --config %CONFIG_INCLUDE% ^>^> !file_log! 2^>^&1"
+
+    set HOST_NAME=localhost
+
+    call %SCRIPT_DIR%\%benchmark-wait-driver-up.bat"
+
+    echo ^<%time:~0,2%:%time:~3,2%:%time:~6,2%^>^<yardstick^> Driver is started
+
+    call "%SCRIPT_DIR%\%benchmark-wait-driver-finish.bat"
+
+    echo ^<%time:~0,2%:%time:~3,2%:%time:~6,2%^>^<yardstick^> Driver is stopped
+
+    set /a cntr+=1
+)
+
+if defined cfgs (
+    goto loop.configs.next
+)
+
+echo ^<%time:~0,2%:%time:~3,2%:%time:~6,2%^>^<yardstick^> All drivers are stopped

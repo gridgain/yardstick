@@ -11,9 +11,9 @@
 ::    limitations under the License.
 
 ::
-:: Script that starts BenchmarkServer on local machine.
-:: This script expects the argument to be a path to run properties file which contains
-:: the list of remote nodes to start server on and the list of configurations.
+:: Script that starts BenchmarkServer on local machines.
+:: This script expects first argument to be a path to run properties file.
+:: Second argument is number of starting nodes.
 ::
 
 @echo off
@@ -24,6 +24,12 @@ set SCRIPT_DIR=%SCRIPT_DIR:~0,-1%
 
 set CONFIG_INCLUDE=%1
 
+if "%2"=="" (
+    set SERVER_NODES=1
+) else (
+    set SERVER_NODES=%2
+)
+
 setlocal
 
 set or=false
@@ -31,7 +37,7 @@ if "%CONFIG_INCLUDE%"=="-h" set or=true
 if "%CONFIG_INCLUDE%"=="--help" set or=true
 
 if "%or%"=="true" (
-    echo Usage: benchmark-server-start.bat [PROPERTIES_FILE_PATH]
+    echo Usage: manual-servers-start.bat [PROPERTIES_FILE_PATH]
     echo Script that starts BenchmarkServer on local machines.
 
     exit /b
@@ -57,9 +63,21 @@ call "%CONFIG_TMP%" > nul 2>&1
 
 del %CONFIG_TMP%
 
-set LOGS_BASE=logs-%time:~0,2%%time:~3,2%%time:~6,2%
+if not defined CONFIG (
+    for /f "tokens=1 delims=," %%a in ("%CONFIGS%") do (
+        set CONFIG=%%a
+    )
+)
+
+if not defined CONFIG (
+    echo ERROR: Configurations ^(CONFIGS^) are not defined in properties file.
+    echo Type \"--help\" for usage.
+    exit /b
+)
 
 :: Define logs directory.
+set LOGS_BASE=logs-%time:~0,2%%time:~3,2%%time:~6,2%
+
 set LOGS_DIR=%SCRIPT_DIR%\..\%LOGS_BASE%\logs_servers
 
 if not exist "%LOGS_DIR%" (
@@ -73,10 +91,13 @@ set CUR_DIR=%cd%
 
 setlocal enabledelayedexpansion
 
-set file_log=%LOGS_DIR%\server.log
+for /L %%i IN (1,1,%SERVER_NODES%) DO (
+    echo %%i
+    set file_log=%LOGS_DIR%\%%i_server.log
 
-echo ^<%time:~0,2%:%time:~3,2%:%time:~6,2%^>^<yardstick^> Starting server config '%CONFIG%'
-echo ^<%time:~0,2%:%time:~3,2%:%time:~6,2%^>^<yardstick^> Lof file: !file_log!
+    echo ^<%time:~0,2%:%time:~3,2%:%time:~6,2%^>^<yardstick^> Starting server config '%CONFIG%'
+    echo ^<%time:~0,2%:%time:~3,2%:%time:~6,2%^>^<yardstick^> Lof file: !file_log!
 
-start /min /low cmd /c ^
-    "set MAIN_CLASS=org.yardstickframework.BenchmarkServerStartUp && set JVM_OPTS=%JVM_OPTS% && set CP=%CP% && set CUR_DIR=%CUR_DIR% && %SCRIPT_DIR%\benchmark-bootstrap.bat %CONFIG% --config %CONFIG_INCLUDE% ^>^> !file_log! 2^>^&1"
+    start /min /low cmd /c ^
+        "set MAIN_CLASS=org.yardstickframework.BenchmarkServerStartUp && set JVM_OPTS=%JVM_OPTS% && set CP=%CP% && set CUR_DIR=%CUR_DIR% && %SCRIPT_DIR%\benchmark-bootstrap.bat %CONFIG% --config %CONFIG_INCLUDE% ^>^> !file_log! 2^>^&1"
+)
