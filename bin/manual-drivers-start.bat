@@ -13,7 +13,7 @@
 ::
 :: Script that starts BenchmarkDriver or BenchmarkDriver.
 :: This script expects the argument to be a path to run properties file which contains
-:: the list of remote nodes to start server on and the list of configurations.
+:: list of configurations.
 ::
 
 @echo off
@@ -107,7 +107,7 @@ for /f "tokens=1* delims=," %%a in ("%cfgs%") do (
     set file_log=%LOGS_DIR%\!cntr!_driver.log
 
     echo ^<%time:~0,2%:%time:~3,2%:%time:~6,2%^>^<yardstick^> Starting driver config '!cfg!'
-    echo ^<%time:~0,2%:%time:~3,2%:%time:~6,2%^>^<yardstick^> Lof file: !file_log!
+    echo ^<%time:~0,2%:%time:~3,2%:%time:~6,2%^>^<yardstick^> Log file: !file_log!
 
     start /min cmd /c ^
        "set MAIN_CLASS=org.yardstickframework.BenchmarkDriverStartUp && set JVM_OPTS=%JVM_OPTS% && set CP=%CP% && set CUR_DIR=%CUR_DIR% && %SCRIPT_DIR%\benchmark-bootstrap.bat !cfg! --config %CONFIG_INCLUDE% ^>^> !file_log! 2^>^&1"

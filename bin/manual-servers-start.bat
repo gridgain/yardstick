@@ -13,7 +13,7 @@
 ::
 :: Script that starts BenchmarkServer on local machines.
 :: This script expects first argument to be a path to run properties file.
-:: Second argument is number of starting nodes.
+:: Second argument is optional and defines number of starting nodes.
 ::
 
 @echo off
@@ -96,7 +96,7 @@ for /L %%i IN (1,1,%SERVER_NODES%) DO (
     set file_log=%LOGS_DIR%\%%i_server.log
 
     echo ^<%time:~0,2%:%time:~3,2%:%time:~6,2%^>^<yardstick^> Starting server config '%CONFIG%'
-    echo ^<%time:~0,2%:%time:~3,2%:%time:~6,2%^>^<yardstick^> Lof file: !file_log!
+    echo ^<%time:~0,2%:%time:~3,2%:%time:~6,2%^>^<yardstick^> Log file: !file_log!
 
     start /min /low cmd /c ^
         "set MAIN_CLASS=org.yardstickframework.BenchmarkServerStartUp && set JVM_OPTS=%JVM_OPTS% && set CP=%CP% && set CUR_DIR=%CUR_DIR% && %SCRIPT_DIR%\benchmark-bootstrap.bat %CONFIG% --config %CONFIG_INCLUDE% ^>^> !file_log! 2^>^&1"
