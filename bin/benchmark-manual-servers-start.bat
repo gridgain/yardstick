@@ -76,7 +76,7 @@ if not defined CONFIG (
 )
 
 :: Define logs directory.
-set LOGS_BASE=logs-%time:~0,2%%time:~3,2%%time:~6,2%
+set LOGS_BASE=logs-%date:~10,4%%date:~4,2%%date:~7,2%-%time:~0,2%%time:~3,2%%time:~6,2%
 
 set LOGS_DIR=%SCRIPT_DIR%\..\%LOGS_BASE%\logs_servers
 
