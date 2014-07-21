@@ -109,20 +109,37 @@ public class BenchmarkDriverStartUp {
 
         BenchmarkProbeSet[] probeSets = new BenchmarkProbeSet[drivers.size()];
 
-        for (int i = 0; i < drivers.size(); i++) {
-            Collection<BenchmarkProbe> probes = ldr.loadProbes();
+        try {
+            for (int i = 0; i < drivers.size(); i++) {
+                Collection<BenchmarkProbe> probes = ldr.loadProbes();
 
-            if (probes == null || probes.isEmpty()) {
-                errorHelp(cfg, "No probes provided by benchmark driver (stopping benchmark): " + names);
+                if (probes == null || probes.isEmpty()) {
+                    errorHelp(cfg, "No probes provided by benchmark driver (stopping benchmark): " + names);
 
-                return;
+                    return;
+                }
+
+                BenchmarkDriver drv = drivers.get(i);
+
+                probeSets[i] = new BenchmarkProbeSet(drv, cfg, probes, ldr);
+
+                drv.setUp(cfg);
+            }
+        }
+        catch (Throwable e) {
+            BenchmarkUtils.error("Failed to set up benchmark drivers (will shutdown and exit).", e);
+
+            for (BenchmarkDriver drv : drivers) {
+                try {
+                    drv.tearDown();
+                }
+                catch (Exception ex) {
+                    BenchmarkUtils.println("Failed to tear down benchmark driver (will ignore) " +
+                        "[drv=" + drv.description() + ", msg=" + ex.getMessage() + ']');
+                }
             }
 
-            BenchmarkDriver drv = drivers.get(i);
-
-            probeSets[i] = new BenchmarkProbeSet(drv, cfg, probes, ldr);
-
-            drv.setUp(cfg);
+            return;
         }
 
         int[] weights0 = new int[weights.size()];
