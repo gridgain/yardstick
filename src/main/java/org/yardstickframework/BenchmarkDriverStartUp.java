@@ -113,11 +113,8 @@ public class BenchmarkDriverStartUp {
             for (int i = 0; i < drivers.size(); i++) {
                 Collection<BenchmarkProbe> probes = ldr.loadProbes();
 
-                if (probes == null || probes.isEmpty()) {
-                    errorHelp(cfg, "No probes provided by benchmark driver (stopping benchmark): " + names);
-
-                    return;
-                }
+                if (probes == null)
+                    probes = Collections.emptyList();
 
                 BenchmarkDriver drv = drivers.get(i);
 

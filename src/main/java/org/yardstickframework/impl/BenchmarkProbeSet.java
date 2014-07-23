@@ -125,68 +125,66 @@ public class BenchmarkProbeSet {
             throw e;
         }
 
-        fileWriterThread = new Thread("probe-dump-thread") {
-            @Override public void run() {
-                try {
-                    warmupFinished.await();
+        if (!probes.isEmpty()) {
+            fileWriterThread = new Thread("probe-dump-thread") {
+                @Override
+                public void run() {
+                    try {
+                        warmupFinished.await();
 
-                    while (!Thread.currentThread().isInterrupted()) {
-                        Thread.sleep(PROBE_DUMP_FREQ);
+                        while (!Thread.currentThread().isInterrupted()) {
+                            Thread.sleep(PROBE_DUMP_FREQ);
 
+                            for (Map.Entry<BenchmarkProbe, BenchmarkProbePointWriter> entry : writers.entrySet()) {
+                                BenchmarkProbe probe = entry.getKey();
+
+                                if (probe instanceof BenchmarkTotalsOnlyProbe)
+                                    continue;
+
+                                BenchmarkProbePointWriter writer = entry.getValue();
+
+                                Collection<BenchmarkProbePoint> points = probe.points();
+
+                                try {
+                                    writer.writePoints(probe, points);
+                                } catch (Exception e) {
+                                    errorHelp(cfg, "Exception is raised during point write.", e);
+                                }
+                            }
+
+                            if (finished)
+                                break;
+                        }
+                    } catch (InterruptedException ignore) {
+                        // No-op.
+                    } finally {
                         for (Map.Entry<BenchmarkProbe, BenchmarkProbePointWriter> entry : writers.entrySet()) {
                             BenchmarkProbe probe = entry.getKey();
 
-                            if (probe instanceof BenchmarkTotalsOnlyProbe)
-                                continue;
+                            if (probe instanceof BenchmarkTotalsOnlyProbe) {
+                                BenchmarkProbePointWriter writer = entry.getValue();
 
-                            BenchmarkProbePointWriter writer = entry.getValue();
-
-                            Collection<BenchmarkProbePoint> points = probe.points();
+                                try {
+                                    writer.writePoints(probe, probe.points());
+                                } catch (Exception e) {
+                                    errorHelp(cfg, "Exception is raised during point write.", e);
+                                }
+                            }
 
                             try {
-                                writer.writePoints(probe, points);
+                                entry.getValue().close();
+                            } catch (Exception e) {
+                                errorHelp(cfg, "Failed to gracefully close probe writer " +
+                                    "[probe=" + entry.getKey() + ", writer=" + entry.getValue() +
+                                    ", err=" + e.getMessage() + ']', e);
                             }
-                            catch (Exception e) {
-                                errorHelp(cfg, "Exception is raised during point write.", e);
-                            }
-                        }
-
-                        if (finished)
-                            break;
-                    }
-                }
-                catch (InterruptedException ignore) {
-                    // No-op.
-                }
-                finally {
-                    for (Map.Entry<BenchmarkProbe, BenchmarkProbePointWriter> entry : writers.entrySet()) {
-                        BenchmarkProbe probe = entry.getKey();
-
-                        if (probe instanceof BenchmarkTotalsOnlyProbe) {
-                            BenchmarkProbePointWriter writer = entry.getValue();
-
-                            try {
-                                writer.writePoints(probe, probe.points());
-                            }
-                            catch (Exception e) {
-                                errorHelp(cfg, "Exception is raised during point write.", e);
-                            }
-                        }
-
-                        try {
-                            entry.getValue().close();
-                        }
-                        catch (Exception e) {
-                            errorHelp(cfg, "Failed to gracefully close probe writer " +
-                                "[probe=" + entry.getKey() + ", writer=" + entry.getValue() +
-                                ", err=" + e.getMessage() + ']', e);
                         }
                     }
                 }
-            }
-        };
+            };
 
-        fileWriterThread.start();
+            fileWriterThread.start();
+        }
     }
 
     /**
