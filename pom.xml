@@ -164,6 +164,7 @@
                 </executions>
             </plugin>
 
+            <!--
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-gpg-plugin</artifactId>
@@ -177,12 +178,13 @@
                         </goals>
                         <configuration>
                             <gpgArguments>
-                                <argument>--no-tty</argument>
+                                <argument>-no-tty</argument>
                             </gpgArguments>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
+            -->
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
