@@ -98,11 +98,9 @@ set cfgs=%CONFIGS%
 
 :loop.configs.next
 for /f "tokens=1* delims=," %%a in ("%cfgs%") do (
-    set CONFIG=%%a
-
     set cfgs=%%b
 
-    set cfg=%OUTPUT_FOLDER% %CONFIG%
+    set cfg=%OUTPUT_FOLDER% %%a
 
     set file_log=%LOGS_DIR%\!cntr!_driver.log
 
