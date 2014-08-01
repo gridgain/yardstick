@@ -76,7 +76,8 @@ if not defined CONFIG (
 )
 
 :: Define logs directory.
-set LOGS_BASE=logs-%date:~10,4%%date:~4,2%%date:~7,2%-%time:~0,2%%time:~3,2%%time:~6,2%
+set now=%time: =0%
+set LOGS_BASE=logs-%date:~10,4%%date:~4,2%%date:~7,2%-%now:~0,2%%now:~3,2%%now:~6,2%
 
 set LOGS_DIR=%SCRIPT_DIR%\..\%LOGS_BASE%\logs_servers
 
@@ -95,8 +96,9 @@ for /L %%i IN (1,1,%SERVER_NODES%) DO (
     echo %%i
     set file_log=%LOGS_DIR%\%%i_server.log
 
-    echo ^<%time:~0,2%:%time:~3,2%:%time:~6,2%^>^<yardstick^> Starting server config '%CONFIG%'
-    echo ^<%time:~0,2%:%time:~3,2%:%time:~6,2%^>^<yardstick^> Log file: !file_log!
+    set now=%time: =0%
+    echo ^<%now:~0,2%:%now:~3,2%:%now:~6,2%^>^<yardstick^> Starting server config '%CONFIG%'
+    echo ^<%now:~0,2%:%now:~3,2%:%now:~6,2%^>^<yardstick^> Log file: !file_log!
 
     start /min /low cmd /c ^
         "set MAIN_CLASS=org.yardstickframework.BenchmarkServerStartUp && set JVM_OPTS=%JVM_OPTS% && set CP=%CP% && set CUR_DIR=%CUR_DIR% && %SCRIPT_DIR%\benchmark-bootstrap.bat %CONFIG% --config %CONFIG_INCLUDE% ^>^> !file_log! 2^>^&1"

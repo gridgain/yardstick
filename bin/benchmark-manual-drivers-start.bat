@@ -69,7 +69,8 @@ if not defined CONFIG (
 )
 
 :: Define logs directory.
-set LOGS_BASE=logs-%date:~10,4%%date:~4,2%%date:~7,2%-%time:~0,2%%time:~3,2%%time:~6,2%
+set now=%time: =0%
+set LOGS_BASE=logs-%date:~10,4%%date:~4,2%%date:~7,2%-%now:~0,2%%now:~3,2%%now:~6,2%
 
 set LOGS_DIR=%SCRIPT_DIR%\..\%LOGS_BASE%\logs_drivers
 
@@ -80,7 +81,7 @@ if not exist "%LOGS_DIR%" (
 if not defined OUTPUT_FOLDER (
     if "x%CONFIG%"=="x%CONFIG:-of =%" (
         if "x%CONFIG%"=="x%CONFIG:--outputFolder =%" (
-            set OUTPUT_FOLDER=--outputFolder results-%date:~10,4%%date:~4,2%%date:~7,2%-%time:~0,2%%time:~3,2%%time:~6,2%
+            set OUTPUT_FOLDER=--outputFolder results-%date:~10,4%%date:~4,2%%date:~7,2%-%now:~0,2%%now:~3,2%%now:~6,2%
         )
     )
 )
@@ -104,8 +105,9 @@ for /f "tokens=1* delims=," %%a in ("%cfgs%") do (
 
     set file_log=%LOGS_DIR%\!cntr!_driver.log
 
-    echo ^<%time:~0,2%:%time:~3,2%:%time:~6,2%^>^<yardstick^> Starting driver config '!cfg!'
-    echo ^<%time:~0,2%:%time:~3,2%:%time:~6,2%^>^<yardstick^> Log file: !file_log!
+    set now=%time: =0%
+    echo ^<%now:~0,2%:%now:~3,2%:%now:~6,2%^>^<yardstick^> Starting driver config '!cfg!'
+    echo ^<%now:~0,2%:%now:~3,2%:%now:~6,2%^>^<yardstick^> Log file: !file_log!
 
     start /min cmd /c ^
        "set MAIN_CLASS=org.yardstickframework.BenchmarkDriverStartUp && set JVM_OPTS=%JVM_OPTS% && set CP=%CP% && set CUR_DIR=%CUR_DIR% && %SCRIPT_DIR%\benchmark-bootstrap.bat !cfg! --config %CONFIG_INCLUDE% ^>^> !file_log! 2^>^&1"
@@ -114,11 +116,13 @@ for /f "tokens=1* delims=," %%a in ("%cfgs%") do (
 
     call %SCRIPT_DIR%\%benchmark-wait-driver-up.bat"
 
-    echo ^<%time:~0,2%:%time:~3,2%:%time:~6,2%^>^<yardstick^> Driver is started
+    set now=%time: =0%
+    echo ^<%now:~0,2%:%now:~3,2%:%now:~6,2%^>^<yardstick^> Driver is started
 
     call "%SCRIPT_DIR%\%benchmark-wait-driver-finish.bat"
 
-    echo ^<%time:~0,2%:%time:~3,2%:%time:~6,2%^>^<yardstick^> Driver is stopped
+    set now=%time: =0%
+    echo ^<%now:~0,2%:%now:~3,2%:%now:~6,2%^>^<yardstick^> Driver is stopped
 
     set /a cntr+=1
 )
@@ -127,4 +131,5 @@ if defined cfgs (
     goto loop.configs.next
 )
 
-echo ^<%time:~0,2%:%time:~3,2%:%time:~6,2%^>^<yardstick^> All drivers are stopped
+set now=%time: =0%
+echo ^<%now:~0,2%:%now:~3,2%:%now:~6,2%^>^<yardstick^> All drivers are stopped
