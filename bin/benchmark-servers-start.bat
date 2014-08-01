@@ -116,7 +116,8 @@ for /f "tokens=1* delims=," %%a in ("%srv_hosts%") do (
 
     set srv_hosts=%%b
 
-    echo ^<%time:~0,2%:%time:~3,2%:%time:~6,2%^>^<yardstick^> Starting server config '%CONFIG%' on !host_name!
+    set now=%time: =0%
+    echo ^<%now:~0,2%:%now:~3,2%:%now:~6,2%^>^<yardstick^> Starting server config '%CONFIG%' on !host_name!
 
     set file_log=%LOGS_DIR%\!cntr!_!host_name!.log
 
