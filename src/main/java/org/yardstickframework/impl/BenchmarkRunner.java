@@ -126,7 +126,15 @@ public class BenchmarkRunner {
                         Map<Object, Object> ctx = new HashMap<>();
 
                         // To avoid CAS on each benchmark iteration.
-                        boolean reset = true;
+                        boolean reset;
+
+                        if (cfg.warmup() > 0)
+                            reset = true;
+                        else {
+                            reset = false;
+
+                            barrier.await();
+                        }
 
                         while (!cancelled && !Thread.currentThread().isInterrupted()) {
                             if (!reset) {
