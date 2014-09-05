@@ -58,7 +58,7 @@ set CP=%CP%;%SCRIPT_DIR%\..\libs\*
 ::
 :: ADD YOUR/CHANGE ADDITIONAL OPTIONS HERE
 ::
-set JVM_OPTS=-Xms2g -Xmx2g -server -Djava.net.preferIPv4Stack=true %JVM_OPTS%
+set JVM_OPTS=-server -Djava.net.preferIPv4Stack=true %JVM_OPTS%
 
 ::
 :: Assertions are disabled by default.

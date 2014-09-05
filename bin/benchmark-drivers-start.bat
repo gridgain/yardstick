@@ -97,7 +97,8 @@ if not exist "%LOGS_DIR%" (
 if not defined OUTPUT_FOLDER (
     if "x%CONFIG%"=="x%CONFIG:-of =%" (
         if "x%CONFIG%"=="x%CONFIG:--outputFolder =%" (
-            set OUTPUT_FOLDER=--outputFolder results-%time:~0,2%%time:~3,2%%time:~6,2%
+            set now=%time: =0%
+            set OUTPUT_FOLDER=--outputFolder results-%now:~0,2%%now:~3,2%%now:~6,2%
         )
     )
 )
@@ -138,7 +139,8 @@ for /f "tokens=1* delims=," %%a in ("%drv_hosts%") do (
 
     set cfg=!outFol! !host_name0! %CONFIG%
 
-    echo ^<%time:~0,2%:%time:~3,2%:%time:~6,2%^>^<yardstick^> Starting driver config '!cfg!' on !host_name!
+    set now=%time: =0%
+    echo ^<%now:~0,2%:%now:~3,2%:%now:~6,2%^>^<yardstick^> Starting driver config '!cfg!' on !host_name!
 
     set file_log=%LOGS_DIR%\!cntr!_!host_name!.log
 
@@ -148,7 +150,8 @@ for /f "tokens=1* delims=," %%a in ("%drv_hosts%") do (
     ssh -o PasswordAuthentication=no %REMOTE_USER%@%host_name% ^
         "set HOST_NAME=!host_name! && %SCRIPT_DIR%\%benchmark-wait-driver-up.bat"
 
-    echo ^<%time:~0,2%:%time:~3,2%:%time:~6,2%^>^<yardstick^> Driver is started on !host_name!
+    set now=%time: =0%
+    echo ^<%now:~0,2%:%now:~3,2%:%now:~6,2%^>^<yardstick^> Driver is started on !host_name!
 
     set /a cntr+=1
 )
@@ -168,7 +171,8 @@ for /f "tokens=1* delims=," %%a in ("%drv_hosts2%") do (
     ssh -o PasswordAuthentication=no %REMOTE_USER%@%host_name% ^
         "%SCRIPT_DIR%\%benchmark-wait-driver-finish.bat"
 
-    echo ^<%time:~0,2%:%time:~3,2%:%time:~6,2%^>^<yardstick^> Driver is stopped on !host_name!
+    set now=%time: =0%
+    echo ^<%now:~0,2%:%now:~3,2%:%now:~6,2%^>^<yardstick^> Driver is stopped on !host_name!
 
     set /a cntr+=1
 )

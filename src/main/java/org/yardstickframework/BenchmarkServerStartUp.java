@@ -57,21 +57,28 @@ public class BenchmarkServerStartUp {
                 return;
             }
 
-            srv.start(cfg);
+            try {
+                srv.start(cfg);
 
-            final BenchmarkServer srv0 = srv;
+                final BenchmarkServer srv0 = srv;
 
-            if (cfg.shutdownHook()) {
-                Runtime.getRuntime().addShutdownHook(new Thread() {
-                    @Override public void run() {
-                        try {
-                            srv0.stop();
+                if (cfg.shutdownHook()) {
+                    Runtime.getRuntime().addShutdownHook(new Thread() {
+                        @Override public void run() {
+                            try {
+                                srv0.stop();
+                            }
+                            catch (Exception e) {
+                                errorHelp(cfg, "Exception is raised during server stop.", e);
+                            }
                         }
-                        catch (Exception e) {
-                            errorHelp(cfg, "Exception is raised during server stop.", e);
-                        }
-                    }
-                });
+                    });
+                }
+            }
+            catch (Exception e) {
+                BenchmarkUtils.error("Failed to start benchmark server (will stop and exit).", e);
+
+                srv.stop();
             }
         }
         else {

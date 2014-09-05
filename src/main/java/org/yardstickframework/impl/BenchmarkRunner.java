@@ -126,9 +126,33 @@ public class BenchmarkRunner {
                         Map<Object, Object> ctx = new HashMap<>();
 
                         // To avoid CAS on each benchmark iteration.
-                        boolean reset = true;
+                        boolean reset;
+
+                        if (cfg.warmup() > 0)
+                            reset = true;
+                        else {
+                            reset = false;
+
+                            barrier.await();
+                        }
 
                         while (!cancelled && !Thread.currentThread().isInterrupted()) {
+                            if (!reset) {
+                                long ops = opsCnt.incrementAndGet();
+
+                                if (ops % logFreq == 0)
+                                    BenchmarkUtils.println("Starting iteration: " + ops);
+
+                                if (cfg.operationsCount() > 0) {
+                                    if (ops > cfg.operationsCount()) {
+                                        for (BenchmarkProbeSet set : probeSets)
+                                            set.onFinished();
+
+                                        break;
+                                    }
+                                }
+                            }
+
                             int idx = driverIndex(rand, sumWeight);
 
                             BenchmarkDriver drv = drivers[idx];
@@ -161,21 +185,8 @@ public class BenchmarkRunner {
                                 continue;
                             }
 
-                            if (!reset) {
-                                long ops = opsCnt.incrementAndGet();
-
-                                if (ops % logFreq == 0)
-                                    BenchmarkUtils.println("Finished iteration: " + ops);
-
-                                if (cfg.operationsCount() > 0) {
-                                    if (ops >= cfg.operationsCount()) {
-                                        for (BenchmarkProbeSet set : probeSets)
-                                            set.onFinished();
-
-                                        break;
-                                    }
-                                }
-                                else if (elapsed > totalDuration) {
+                            if (!reset && cfg.operationsCount() == 0) {
+                                if (elapsed > totalDuration) {
                                     for (BenchmarkProbeSet set : probeSets)
                                         set.onFinished();
 
@@ -334,8 +345,21 @@ public class BenchmarkRunner {
                     t.join();
 
                 for (int i = 0; i < drivers.length; i++) {
-                    drivers[i].tearDown();
-                    probeSets[i].stop();
+                    try {
+                        drivers[i].tearDown();
+                    }
+                    catch (Exception e) {
+                        errorHelp(cfg, "Failed to gracefully stop driver [driver=" + drivers[i] +
+                          ", err=" + e.getMessage() + ']', e);
+                    }
+
+                    try {
+                        probeSets[i].stop();
+                    }
+                    catch (Exception e) {
+                        errorHelp(cfg, "Failed to gracefully stop probe set [probe=" + probeSets[i] +
+                            ", err=" + e.getMessage() + ']', e);
+                    }
                 }
             }
             catch (Exception e) {

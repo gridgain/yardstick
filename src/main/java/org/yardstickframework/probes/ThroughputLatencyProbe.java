@@ -19,6 +19,7 @@ import org.yardstickframework.*;
 import java.util.*;
 import java.util.concurrent.*;
 
+import static java.util.concurrent.TimeUnit.*;
 import static org.yardstickframework.BenchmarkUtils.*;
 
 /**
@@ -37,6 +38,9 @@ public class ThroughputLatencyProbe implements BenchmarkExecutionAwareProbe {
     /** */
     private BenchmarkConfiguration cfg;
 
+    /** Last data collection time stamp. */
+    private volatile long lastTstamp;
+
     /** {@inheritDoc} */
     @SuppressWarnings("BusyWait")
     @Override public void start(BenchmarkDriver drv, BenchmarkConfiguration cfg) throws Exception {
@@ -50,13 +54,16 @@ public class ThroughputLatencyProbe implements BenchmarkExecutionAwareProbe {
         buildingService = Executors.newSingleThreadExecutor();
 
         println(cfg, getClass().getSimpleName() + " is started.");
+
+        lastTstamp = System.currentTimeMillis();
     }
 
     /** {@inheritDoc} */
     @Override public void stop() throws Exception {
         if (buildingService != null) {
-            buildingService.shutdown();
-            assert buildingService.awaitTermination(10, TimeUnit.SECONDS);
+            buildingService.shutdownNow();
+
+            buildingService.awaitTermination(1, MINUTES);
 
             println(cfg, getClass().getSimpleName() + " is stopped.");
         }
@@ -80,6 +87,15 @@ public class ThroughputLatencyProbe implements BenchmarkExecutionAwareProbe {
     @Override public void buildPoint(final long time) {
         buildingService.execute(new Runnable() {
             @Override public void run() {
+                long lastTstamp0 = lastTstamp;
+
+                long lastTstamp1 = System.currentTimeMillis();
+
+                lastTstamp = lastTstamp1;
+
+                // Time delta in seconds.
+                long delta = (lastTstamp1 - lastTstamp0) / 1000;
+
                 ThreadAgent collector = new ThreadAgent();
 
                 for (ThreadAgent agent : agents)
@@ -89,7 +105,7 @@ public class ThroughputLatencyProbe implements BenchmarkExecutionAwareProbe {
 
                 BenchmarkProbePoint pnt = new BenchmarkProbePoint(
                     TimeUnit.MILLISECONDS.toSeconds(time),
-                    new double[] {collector.execCnt, latency});
+                    new double[] { delta == 0 ? Double.NaN : (double)collector.execCnt / delta, latency});
 
                 collectPoint(pnt);
             }

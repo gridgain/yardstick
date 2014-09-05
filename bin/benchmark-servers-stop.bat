@@ -86,7 +86,8 @@ for /f "tokens=1* delims=," %%a in ("%srv_hosts%") do (
 
     set srv_hosts=%%b
 
-    echo ^<%time:~0,2%:%time:~3,2%:%time:~6,2%^>^<yardstick^> Stopping server nodes on !host_name!
+    set now=%time: =0%
+    echo ^<%now:~0,2%:%now:~3,2%:%now:~6,2%^>^<yardstick^> Stopping server nodes on !host_name!
 
     ssh -o PasswordAuthentication=no %REMOTE_USER%@!host_name! ^
         "for /f %%i in ('wmic process where (name^^=""java.exe"" and commandline like ""%%%%Dyardstick.server%%%%""^^) get ProcessId 2^^^>^^^&1 ^^^| findstr [0-9]') do ( taskkill /F /PID %%i > nul )"

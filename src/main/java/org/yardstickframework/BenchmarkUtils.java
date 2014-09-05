@@ -83,6 +83,19 @@ public class BenchmarkUtils {
     }
 
     /**
+     * Prints error message.
+     *
+     * @param msg Error message.
+     * @param err Exception to print.
+     */
+    public static void error(String msg, Throwable err) {
+        System.err.println(DATE_FMT.format(new Date()) + "<yardstick> " + msg);
+
+        if (err != null)
+            err.printStackTrace(System.err);
+    }
+
+    /**
      * Prints message.
      *
      * @param msg Message.
