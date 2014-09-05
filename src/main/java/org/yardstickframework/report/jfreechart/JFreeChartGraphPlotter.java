@@ -54,8 +54,8 @@ public class JFreeChartGraphPlotter {
 
     /** */
     static final Comparator<File> FILE_NAME_COMP = new Comparator<File>() {
-        @Override public int compare(File o1, File o2) {
-            return o1.getName().compareTo(o2.getName());
+        @Override public int compare(File f1, File f2) {
+            return f1.getName().compareTo(f2.getName());
         }
     };
 
@@ -130,6 +130,9 @@ public class JFreeChartGraphPlotter {
         if (file.isDirectory()) {
             File[] list = file.listFiles();
 
+            if (list == null || list.length == 0)
+                return;
+
             for (File f : list) {
                 if (f.isFile() && MARKER_FILE_NAME.equals(f.getName())) {
                     benchFolders.add(file);
@@ -151,11 +154,7 @@ public class JFreeChartGraphPlotter {
     private static void processCompoundMode(List<File> inFolders, JFreeChartGraphPlotterArguments args) throws Exception {
         Map<String, List<List<File>>> res = new HashMap<>();
 
-        Collections.sort(inFolders, new Comparator<File>() {
-            @Override public int compare(File f1, File f2) {
-                return f1.getName().compareTo(f2.getName());
-            }
-        });
+        Collections.sort(inFolders, FILE_NAME_COMP);
 
         Map<String, List<File>> map = new HashMap<>();
         String prevName = null;

@@ -138,8 +138,6 @@ with probe results files (required)
 * `-cc <num>` or `--chartColumns <num>` - number of columns that the charts are displayed in on the resulted page
 * `-gm <mode>` or `--generationMode <mode>` - mode that defines the way how different benchmark runs are compared 
 with each other
-* `-spm` or `--summaryPlotMode` - mode in which the summary plot is added to the generated chart in COMPARISON and COMPOUND modes
-* `-ssfm` or `--summarySubfoldersMode` - mode in which the plots built from probe results from the subfolders of the input folders are replaced with a summary plot
 
 Generation modes:
 

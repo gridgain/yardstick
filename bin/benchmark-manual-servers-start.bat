@@ -45,6 +45,11 @@ if "%or%"=="true" (
 
 endlocal
 
+if not defined CONFIG_INCLUDE (
+    set CONFIG_INCLUDE=%SCRIPT_DIR%\..\config\benchmark-win.properties
+    echo Using default properties file: config\benchmark-win.properties
+)
+
 if not exist "%CONFIG_INCLUDE%" (
     echo ERROR: Properties file is not found.
     echo Type \"--help\" for usage.
@@ -93,7 +98,7 @@ set CUR_DIR=%cd%
 setlocal enabledelayedexpansion
 
 for /L %%i IN (1,1,%SERVER_NODES%) DO (
-    echo %%i
+    echo Server #%%i
     set file_log=%LOGS_DIR%\%%i_server.log
 
     set now=%time: =0%

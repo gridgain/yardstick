@@ -30,7 +30,7 @@
             <outputDirectory>/</outputDirectory>
 
             <includes>
-                <include>bin/*</include>
+                <include>bin/*.sh</include>
             </includes>
             <lineEnding>unix</lineEnding>
             <fileMode>0755</fileMode>
