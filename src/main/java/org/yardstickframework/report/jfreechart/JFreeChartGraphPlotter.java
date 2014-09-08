@@ -224,9 +224,11 @@ public class JFreeChartGraphPlotter {
 
             List<File> files = new ArrayList<>(Arrays.asList(dirs));
 
-            for (int i = 0; i < files.size(); i++) {
+            for (int i = 0; i < files.size();) {
                 if (!files.get(i).isDirectory())
                     files.remove(i);
+                else
+                    i++;
             }
 
             Collections.sort(files, FILE_NAME_COMP);
