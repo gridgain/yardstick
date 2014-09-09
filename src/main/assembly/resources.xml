@@ -30,10 +30,18 @@
             <outputDirectory>/</outputDirectory>
 
             <includes>
-                <include>bin/*</include>
+                <include>bin/*.sh</include>
             </includes>
             <lineEnding>unix</lineEnding>
             <fileMode>0755</fileMode>
+        </fileSet>
+
+        <fileSet>
+            <outputDirectory>/</outputDirectory>
+
+            <excludes>
+                <exclude>bin/*.sh</exclude>
+            </excludes>
         </fileSet>
     </fileSets>
 </assembly>
