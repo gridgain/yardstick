@@ -48,6 +48,9 @@ public class JFreeChartGraphPlotter {
     private static final String INPUT_FILE_EXTENSION = ".csv";
 
     /** */
+    private static final String MULTIPLE_DRIVERS_MARKER_FILE = ".multiple-drivers";
+
+    /** */
     private static final Color[] PLOT_COLORS = {new Color(39, 174, 96), new Color(41, 128, 185),
         new Color(192, 57, 43), new Color(142, 68, 173), new Color(44, 62, 80), new Color(243, 156, 18),
         new Color(211, 84, 0), new Color(127, 140, 141), new Color(22, 160, 133)};
@@ -87,24 +90,70 @@ public class JFreeChartGraphPlotter {
             for (String folderAsString : inFoldersAsString)
                 inFolders.add(new File(folderAsString).getAbsoluteFile());
 
-            List<File> benchFolders = new ArrayList<>();
-
             for (File inFolder : inFolders) {
                 if (!inFolder.exists()) {
                     errorHelp("Folder does not exist: " + inFolder.getAbsolutePath());
 
                     return;
                 }
-
-                benchmarkFolders(inFolder, benchFolders);
             }
+
+            List<List<List<File>>> benchFolders = new ArrayList<>();
+
+            for (File inFolder : inFolders) {
+                File[] dirs0 = inFolder.listFiles();
+
+                if (dirs0 == null || dirs0.length == 0)
+                    continue;
+
+                List<File> dirs = new ArrayList<>(Arrays.asList(dirs0));
+
+                Collections.sort(dirs, FILE_NAME_COMP);
+
+                boolean multipleDrivers = false;
+
+                for (File f : dirs) {
+                    if (f.isFile() && MULTIPLE_DRIVERS_MARKER_FILE.equals(f.getName())) {
+                        multipleDrivers = true;
+
+                        break;
+                    }
+                }
+
+                List<List<File>> mulDrvFiles = new ArrayList<>();
+
+                if (multipleDrivers) {
+                    for (File f : dirs) {
+                        List<File> files = getFiles(f);
+
+                        if (files != null)
+                            mulDrvFiles.add(files);
+                    }
+                }
+                else {
+                    List<File> files = getFiles(inFolder);
+
+                    if (files != null)
+                        mulDrvFiles.add(files);
+                }
+
+                benchFolders.add(mergeMultipleDriverLists(mulDrvFiles));
+            }
+
+            if (benchFolders.isEmpty()) {
+                errorHelp("Input folders are empty or have invalid structure: " + inFoldersAsString);
+
+                return;
+            }
+
+            String outputFolder = outputFolder(inFolders);
 
             JFreeChartGenerationMode mode = args.generationMode();
 
             if (mode == COMPOUND)
-                processCompoundMode(benchFolders, args);
+                processCompoundMode(outputFolder, benchFolders, args);
             else if (mode == COMPARISON)
-                processComparisonMode(benchFolders, args);
+                processComparisonMode(outputFolder, benchFolders, args);
             else if (mode == STANDARD)
                 processStandardMode(benchFolders, args);
             else
@@ -119,86 +168,98 @@ public class JFreeChartGraphPlotter {
     }
 
     /**
-     * Searches for benchmark folders in provided folder.
-     *
-     * @param file Folder.
-     * @param benchFolders Benchmark folders collection.
+     * @param inFolder Input folder.
+     * @return List of folders.
      */
-    private static void benchmarkFolders(File file, List<File> benchFolders) {
-        assert file.exists();
+    private static List<File> getFiles(File inFolder) {
+        File[] dirs = inFolder.listFiles();
 
-        if (file.isDirectory()) {
-            File[] list = file.listFiles();
+        if (dirs == null || dirs.length == 0)
+            return null;
 
-            if (list == null || list.length == 0)
-                return;
+        List<File> files = new ArrayList<>(Arrays.asList(dirs));
 
-            for (File f : list) {
-                if (f.isFile() && MARKER_FILE_NAME.equals(f.getName())) {
-                    benchFolders.add(file);
-
-                    return;
-                }
-            }
-
-            for (File f : list)
-                benchmarkFolders(f, benchFolders);
+        for (int i = 0; i < files.size();) {
+            if (!files.get(i).isDirectory())
+                files.remove(i);
+            else
+                i++;
         }
+
+        Collections.sort(files, FILE_NAME_COMP);
+
+        return files;
     }
 
     /**
-     * @param inFolders Input folders.
+     * @param list List of folders.
+     * @return Merged folders.
+     */
+    private static List<List<File>> mergeMultipleDriverLists(List<List<File>> list) {
+        if (list == null || list.isEmpty())
+            return Collections.emptyList();
+
+        List<List<File>> res = new ArrayList<>();
+
+        int idx = -1;
+
+        while (true) {
+            idx++;
+
+            List<File> l = new ArrayList<>();
+
+            for (List<File> files : list) {
+                if (files.size() <= idx)
+                    continue;
+
+                l.add(files.get(idx));
+            }
+
+            if (l.isEmpty())
+                break;
+
+            res.add(l);
+        }
+
+        return res;
+    }
+
+    /**
+     * @param outputFolder Output folders.
+     * @param benchFolders Input folders.
      * @param args Arguments.
      * @throws Exception If failed.
      */
-    private static void processCompoundMode(List<File> inFolders, JFreeChartGraphPlotterArguments args) throws Exception {
-        Map<String, List<List<File>>> res = new HashMap<>();
+    private static void processCompoundMode(String outputFolder, List<List<List<File>>>benchFolders,
+        JFreeChartGraphPlotterArguments args) throws Exception {
+        Map<String, List<List<List<File>>>> res = new HashMap<>();
 
-        Collections.sort(inFolders, FILE_NAME_COMP);
+        for (List<List<File>> f0 : benchFolders) {
+            for (List<File> f1 : f0) {
+                Map<String, List<List<File>>> res0 = new HashMap<>();
 
-        Map<String, List<File>> map = new HashMap<>();
-        String prevName = null;
+                for (File f2 : f1) {
+                    if (f2.isDirectory()) {
+                        Map<String, List<File>> map = files(f2);
 
-        for (File inFolder : inFolders) {
-            String name = inFolder.getName();
+                        if (!map.isEmpty())
+                            mergeMaps(res0, map);
+                    }
+                }
 
-            String t = parseTime(name);
-
-            if (t != null)
-                name = name.substring(t.length() + 1);
-
-            if (prevName != null && !name.equals(prevName)) {
-                mergeMaps(res, map);
-
-                map = new HashMap<>();
+                if (!res0.isEmpty())
+                    mergeMaps(res, res0);
             }
-
-            Map<String, List<File>> map0 = files(inFolder);
-
-            for (Map.Entry<String, List<File>> e : map0.entrySet()) {
-                List<File> l = map.get(e.getKey());
-
-                if (l == null)
-                    map.put(e.getKey(), l = new ArrayList<>());
-
-                l.addAll(e.getValue());
-            }
-
-            prevName = name;
         }
-
-        mergeMaps(res, map);
 
         if (res.isEmpty())
             return;
-
-        String parent = outputFolder(inFolders);
 
         String parentFolderName = "results-" + COMPOUND.name().toLowerCase() + '-' + FORMAT.format(new Date());
 
         parentFolderName = fixFolderName(parentFolderName);
 
-        File folderToWrite = new File(parent, parentFolderName);
+        File folderToWrite = new File(outputFolder, parentFolderName);
 
         if (!folderToWrite.exists()) {
             if (!folderToWrite.mkdir())
@@ -209,40 +270,18 @@ public class JFreeChartGraphPlotter {
     }
 
     /**
-     * @param inFolders Input folders.
+     * @param outputFolder Output folder.
+     * @param benchFolders Input folders.
      * @param args Arguments.
      * @throws Exception If failed.
      */
-    private static void processComparisonMode(List<File> inFolders, JFreeChartGraphPlotterArguments args) throws Exception {
-        Collection<List<File>> foldersToCompare = new ArrayList<>();
-
-        for (File inFolder : inFolders) {
-            File[] dirs = inFolder.listFiles();
-
-            if (dirs == null || dirs.length == 0)
-                continue;
-
-            List<File> files = new ArrayList<>(Arrays.asList(dirs));
-
-            for (int i = 0; i < files.size();) {
-                if (!files.get(i).isDirectory())
-                    files.remove(i);
-                else
-                    i++;
-            }
-
-            Collections.sort(files, FILE_NAME_COMP);
-
-            foldersToCompare.add(files);
-        }
-
-        String parent = outputFolder(inFolders);
-
+    private static void processComparisonMode(String outputFolder, List<List<List<File>>> benchFolders,
+        JFreeChartGraphPlotterArguments args) throws Exception {
         String parentFolderName = "results-" + COMPARISON.name().toLowerCase() + '-' + FORMAT.format(new Date());
 
         parentFolderName = fixFolderName(parentFolderName);
 
-        File parentFolderToWrite = new File(parent, parentFolderName);
+        File parentFolderToWrite = new File(outputFolder, parentFolderName);
 
         int idx = -1;
 
@@ -251,30 +290,37 @@ public class JFreeChartGraphPlotter {
 
             boolean filesExist = false;
 
-            Map<String, List<List<File>>> res = new HashMap<>();
+            Map<String, List<List<List<File>>>> res = new HashMap<>();
 
-            for (List<File> files : foldersToCompare) {
+            for (List<List<File>> files : benchFolders) {
                 if (files.size() <= idx)
                     continue;
 
                 filesExist = true;
 
-                File f = files.get(idx);
+                List<File> f = files.get(idx);
 
-                if (f.isDirectory()) {
-                    Map<String, List<File>> map = files(f);
+                Map<String, List<List<File>>> res0 = new HashMap<>();
 
-                    if (!map.isEmpty())
-                        mergeMaps(res, map);
+                for (File f0 : f) {
+                    if (f0.isDirectory()) {
+                        Map<String, List<File>> map = files(f0);
+
+                        if (!map.isEmpty())
+                            mergeMaps(res0, map);
+                    }
                 }
+
+                if (!res0.isEmpty())
+                    mergeMaps(res, res0);
             }
 
             if (!filesExist)
                 break;
 
-            List<List<File>> fList = res.isEmpty() ? null : res.values().iterator().next();
+            List<List<List<File>>> fList = res.isEmpty() ? null : res.values().iterator().next();
 
-            File parFile = fList == null || fList.isEmpty() ? null : fList.get(0).get(0).getParentFile();
+            File parFile = fList == null || fList.isEmpty() ? null : fList.get(0).get(0).get(0).getParentFile();
 
             String suffix = parFile == null ? "" : parFile.getName();
 
@@ -312,20 +358,25 @@ public class JFreeChartGraphPlotter {
      * @param args Arguments.
      * @throws Exception If failed.
      */
-    private static void processStandardMode(List<File> inFolders, JFreeChartGraphPlotterArguments args) throws Exception {
-        for (File inFolder : inFolders) {
-            Map<String, List<JFreeChartPlotInfo>> infoMap = new HashMap<>();
+    private static void processStandardMode(List<List<List<File>>> inFolders,
+        JFreeChartGraphPlotterArguments args) throws Exception {
+        for (List<List<File>> f0 : inFolders) {
+            for (List<File> f1 : f0) {
+                for (File f2 : f1) {
+                    Map<String, List<JFreeChartPlotInfo>> infoMap = new HashMap<>();
 
-            for (List<File> files : files(inFolder).values()) {
-                for (File file : files) {
-                    List<PlotData> plotData = readData(file);
+                    for (List<File> files : files(f2).values()) {
+                        for (File file : files) {
+                            List<PlotData> plotData = readData(file);
 
-                    if (!plotData.isEmpty())
-                        processPlots(file.getParentFile(), Collections.singleton(plotData), infoMap, STANDARD);
+                            if (!plotData.isEmpty())
+                                processPlots(file.getParentFile(), Collections.singleton(plotData), infoMap, STANDARD);
+                        }
+                    }
+
+                    JFreeChartResultPageGenerator.generate(f2, args, infoMap);
                 }
             }
-
-            JFreeChartResultPageGenerator.generate(inFolder, args, infoMap);
         }
     }
 
@@ -336,24 +387,27 @@ public class JFreeChartGraphPlotter {
      * @param mode Generation mode.
      * @throws Exception If failed.
      */
-    private static void processFilesPerProbe(Map<String, List<List<File>>> res, File folderToWrite,
+    private static void processFilesPerProbe(Map<String, List<List<List<File>>>> res, File folderToWrite,
         JFreeChartGraphPlotterArguments args, JFreeChartGenerationMode mode) throws Exception {
         Map<String, List<JFreeChartPlotInfo>> infoMap = new HashMap<>();
 
-        for (Map.Entry<String, List<List<File>>> entry : res.entrySet()) {
+        for (Map.Entry<String, List<List<List<File>>>> entry : res.entrySet()) {
             Collection<List<PlotData>> plots = new ArrayList<>(entry.getValue().size());
 
-            for (List<File> files : entry.getValue()) {
-                if (files.size() > 1) {
-                    if (entry.getKey().equals(ThroughputLatencyProbe.class.getSimpleName() + INPUT_FILE_EXTENSION) ||
-                        entry.getKey().equals(PercentileProbe.class.getSimpleName() + INPUT_FILE_EXTENSION)) {
+            for (List<List<File>> files : entry.getValue()) {
+                if ((files.size() > 1 || files.get(0).size() > 1) &&
+                    args.summaryMode() == JFreeChartSummaryMode.SUM_ONLY) {
+                    if (isProbeResultFile(entry, ThroughputLatencyProbe.class) ||
+                        isProbeResultFile(entry, PercentileProbe.class)) {
                         Collection<List<PlotData>> plots0 = new ArrayList<>(entry.getValue().size());
 
-                        for (File file : files) {
-                            List<PlotData> pd = readData(file);
+                        for (List<File> files0 : files) {
+                            for (File file : files0) {
+                                List<PlotData> pd = readData(file);
 
-                            if (!pd.isEmpty())
-                                plots0.add(pd);
+                                if (!pd.isEmpty())
+                                    plots0.add(pd);
+                            }
                         }
 
                         List<PlotData> sumPlot = addSummaryPlot(plots0);
@@ -362,18 +416,34 @@ public class JFreeChartGraphPlotter {
                             plots.add(sumPlot);
                     }
                     else {
-                        List<PlotData> pd = readData(files.get(0));
+                        List<PlotData> pd = readData(files.get(0).get(0));
 
                         if (!pd.isEmpty())
                             plots.add(pd);
                     }
                 }
                 else {
-                    for (File file : files) {
-                        List<PlotData> pd = readData(file);
+                    for (List<File> f0 : files) {
+                        List<List<PlotData>> l = new ArrayList<>(files.size());
 
-                        if (!pd.isEmpty())
-                            plots.add(pd);
+                        for (File f1 : f0) {
+                            List<PlotData> pd = readData(f1);
+
+                            if (!pd.isEmpty()) {
+                                plots.add(pd);
+
+                                l.add(pd);
+                            }
+                        }
+
+                        if (l.size() > 1 && args.summaryMode() == JFreeChartSummaryMode.INDIVIDUAL_AND_SUM &&
+                            (isProbeResultFile(entry, ThroughputLatencyProbe.class) ||
+                                isProbeResultFile(entry, PercentileProbe.class))) {
+                            List<PlotData> sumPlot = addSummaryPlot(l);
+
+                            if (!sumPlot.isEmpty())
+                                plots.add(sumPlot);
+                        }
                     }
                 }
             }
@@ -383,6 +453,15 @@ public class JFreeChartGraphPlotter {
 
         if (!infoMap.isEmpty())
             JFreeChartResultPageGenerator.generate(folderToWrite, args, infoMap);
+    }
+
+    /**
+     * @param entry Entry.
+     * @param probeCls Probe class.
+     * @return check if file is the given probe result file.
+     */
+    private static <T> boolean isProbeResultFile(Map.Entry<String, T> entry, Class probeCls) {
+        return entry.getKey().equals(probeCls.getSimpleName() + INPUT_FILE_EXTENSION);
     }
 
     /**
@@ -464,9 +543,9 @@ public class JFreeChartGraphPlotter {
      * @param res Resulted map.
      * @param map Map to merge.
      */
-    private static void mergeMaps(Map<String, List<List<File>>> res, Map<String, List<File>> map) {
-        for (Map.Entry<String, List<File>> entry : map.entrySet()) {
-            List<List<File>> list = res.get(entry.getKey());
+    private static <T> void mergeMaps(Map<String, List<T>> res, Map<String, T> map) {
+        for (Map.Entry<String, T> entry : map.entrySet()) {
+            List<T> list = res.get(entry.getKey());
 
             if (list == null) {
                 list = new ArrayList<>();

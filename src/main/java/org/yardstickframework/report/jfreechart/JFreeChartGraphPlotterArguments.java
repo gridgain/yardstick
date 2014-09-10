@@ -45,6 +45,11 @@ public class JFreeChartGraphPlotterArguments {
             "       COMPOUND: benchmarks from multiple folders (space-separated) are shown together.\n")
     private JFreeChartGenerationMode genMode = JFreeChartGenerationMode.COMPOUND;
 
+    /** */
+    @Parameter(names = {"-sm", "--summaryMode"},
+        description = "")
+    private JFreeChartSummaryMode sumMode = JFreeChartSummaryMode.SUM_ONLY;
+
     /**
      * @return List of input folders.
      */
@@ -71,5 +76,12 @@ public class JFreeChartGraphPlotterArguments {
      */
     public JFreeChartGenerationMode generationMode() {
         return genMode;
+    }
+
+    /**
+     * @return Summary mode.
+     */
+    public JFreeChartSummaryMode summaryMode() {
+        return sumMode;
     }
 }

@@ -138,6 +138,7 @@ with probe results files (required)
 * `-cc <num>` or `--chartColumns <num>` - number of columns that the charts are displayed in on the resulted page
 * `-gm <mode>` or `--generationMode <mode>` - mode that defines the way how different benchmark runs are compared 
 with each other
+* `-sm <mode>` or `--summaryMode <mode>` - mode that defines whether a summary plot is added to a graph or not
 
 Generation modes:
 
@@ -147,7 +148,7 @@ Generation modes:
    bin/jfreechart-graph-gen.sh -gm STANDARD -i results_2014-05-20_03-19-21
 ```
 
-* `COMPARISON` - Benchmarks from multiple folders are paired together.  In this mode 2 or more results folders are compared in such way that benchmark 1 from result 1 will be compared with benchmark 1 from result 2, same for benchmark 2, 3 and so on.
+* `COMPARISON` - Benchmarks from multiple folders are paired together. In this mode 2 or more results folders are compared in such way that benchmark 1 from result 1 will be compared with benchmark 1 from result 2, same for benchmark 2, 3 and so on.
 
 ```
    bin/jfreechart-graph-gen.sh -gm COMPARISON -i results_2014-05-20_03-19-21 results_2014-05-20_03-20-35

@@ -151,6 +151,11 @@ do
     cntr=$((1 + $cntr))
 done
 
+# Create marker file denoting that subfolders contain results from multiple drivers.
+if ((${drvNum} > 1)); then
+    touch ${OUTPUT_FOLDER}"/.multiple-drivers"
+fi
+
 for host_name in "${hosts0[@]}";
 do
     ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} ${SCRIPT_DIR}/benchmark-wait-driver-finish.sh
