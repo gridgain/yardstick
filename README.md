@@ -49,12 +49,14 @@ If you do not wish to run `bin/benchmark-run-all.sh` script and prefer to have m
 
     $ bin/benchmark-servers-start.sh config/benchmark.properties
 
-**Remote Server Log Files** are stored in the `logs` folder.
+**Server Log Files** are stored in the `logs-<current time>/logs_servers` folder.
 
 ### Starting Benchmark Driver
 Again, if you do not wish to run `bin/benchmark-run-all.sh` script, you can start benchmark driver directly by executing `benchmark-run.sh` script.
 
     $ bin/benchmark-run.sh config/benchmark.properties
+    
+**Driver Log Files** are stored in the `logs-<current time>/logs_drivers` folder.
 
 ### Stopping Remote Servers
 To stop remote servers after the benchmark is finished, you can execute `benchmark-servers-stop.sh` script.
@@ -85,16 +87,14 @@ Example of `benchmark.properties` file to run 2 instances of `EchoServer`
     # BENCHMARK_WRITER=
 
     # Comma-separated list of remote hosts to run BenchmarkServers on.
-    # If same host is specified multiple times, then benchmark server will 
-    # be started on that host multiple times.
+    # If same host is specified multiple times, then benchmark server will be started on that host multiple times.
     SERVER_HOSTS=localhost,localhost    
     
     # Comma-separated list of remote hosts to run BenchmarkDrivers on.
-    # If same host is specified multiple times, then benchmark driver will 
-    # be started on that host multiple times.
+    # If same host is specified multiple times, then benchmark driver will be started on that host multiple times.
     DRIVER_HOSTS=localhost,localhost
     
-    # Remote username
+    # Remote username.
     # REMOTE_USER=
 
     # Comma-separated list of benchmark driver and server configuration parameters.
@@ -106,7 +106,7 @@ Example of `benchmark.properties` file to run 2 instances of `EchoServer`
 The following properties can be defined in the benchmark configuration:
 
 * `-cfg <path>` or `--config <path>` - framework configuration file path
-* `-dn <list>` or `--driverNames <list>` - space-separated list of driver names (required for the driver), 
+* `-dn <list>` or `--driverNames <list>` - space-separated list of driver names (required for the driver), the specified drivers will be run in one JVM,
 optionally a weight can be added to the driver name, for example `EchoBenchmark:3 NewEchoBenchmark:7`, 
 so `EchoBenchmark` will be run 30% of benchmark time, NewEchoBenchmark will be run 70%
 * `-sn <name>` or `--serverName <name>` - server name (required for the server)
@@ -120,7 +120,7 @@ so `EchoBenchmark` will be run 30% of benchmark time, NewEchoBenchmark will be r
 * `-of <path>` or `--outputFolder <path>` - output folder for benchmark results, current folder is used by default
 * `-ds <list>` or `--descriptions <list>` - space-separated list of benchmark run descriptions, 
 the description with index 1 corresponds to the driver with index 1 and so on
-* `-hn <name>` or `--hostName <name>` - host name where a benchmark driver is run
+* `-hn <name>` or `--hostName <name>` - host name where a benchmark driver is run, this property is set automatically by the benchmark scripts
 
 For example if we need to run EchoServer server on localhost and EchoServerBenchmark benchmark on localhost, 
 the test should be 20 seconds then the following configuration should be specified in run properties file:
@@ -138,9 +138,12 @@ with probe results files (required)
 * `-cc <num>` or `--chartColumns <num>` - number of columns that the charts are displayed in on the resulted page
 * `-gm <mode>` or `--generationMode <mode>` - mode that defines the way how different benchmark runs are compared 
 with each other
-* `-sm <mode>` or `--summaryMode <mode>` - mode that defines whether a summary plot is added to a graph or not
+* `-sm <mode>` or `--summaryMode <mode>` - mode that defines whether a summary plot is added to a graph or not.
+It's useful to add summary plots when two or more drivers are run in one JVM (driver names that defined via `--driverNames` configuration property) 
+or when two or more drivers are run on multiple hosts (`DRIVER_HOSTS` property in properties file). 
+In these cases the plots of `ThroughputLatencyProbe` or `PercentileProbe` from multiple drivers can be replaced with one summary plot.  
 
-Generation modes:
+### Generation modes:
 
 * `STANDARD` - All benchmark results are displayed on separate graphs. Graphs are generated in the benchmark run folder.
 
@@ -158,6 +161,26 @@ Generation modes:
 
 ```
    bin/jfreechart-graph-gen.sh -gm COMPOUND -i results_2014-05-20_03-19-21 results_2014-05-20_03-20-35
+```
+
+### Summary modes:
+
+* `SUM_ONLY` - Summary plot is added to a graph. This is default mode.
+
+```
+   bin/jfreechart-graph-gen.sh -sm SUM_ONLY -i results_2014-05-20_03-19-21
+```
+
+* `INDIVIDUAL_ONLY` - Individual plots are displayed.
+
+```
+   bin/jfreechart-graph-gen.sh -sm INDIVIDUAL_ONLY -i results_2014-05-20_03-19-21 results_2014-05-20_03-20-35
+```
+
+* `INDIVIDUAL_AND_SUM` - Individual and summary plots are displayed.
+
+```
+   bin/jfreechart-graph-gen.sh -sm INDIVIDUAL_AND_SUM -i results_2014-05-20_03-19-21 results_2014-05-20_03-20-35
 ```
 
 ## Maven Install

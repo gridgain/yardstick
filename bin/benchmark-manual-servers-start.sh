@@ -13,9 +13,9 @@
 #    limitations under the License.
 
 #
-# Script that starts BenchmarkServer on local machine.
+# Script that starts BenchmarkServers on a local machine.
 # This script expects first argument to be a path to run properties file.
-# Second argument is optional and defines number of starting nodes.
+# Second argument is optional and defines number of starting servers.
 #
 
 # Define script directory.
@@ -24,8 +24,8 @@ SCRIPT_DIR=$(cd $(dirname "$0"); pwd)
 CONFIG_INCLUDE=$1
 
 if [ "${CONFIG_INCLUDE}" == "-h" ] || [ "${CONFIG_INCLUDE}" == "--help" ]; then
-    echo "Usage: benchmark-servers-start.sh [PROPERTIES_FILE_PATH]"
-    echo "Script that starts BenchmarkServer on remote machines."
+    echo "Usage: benchmark-manual-servers-start.sh [PROPERTIES_FILE_PATH]"
+    echo "Script that starts BenchmarkServers on a local machine."
     exit 1
 fi
 

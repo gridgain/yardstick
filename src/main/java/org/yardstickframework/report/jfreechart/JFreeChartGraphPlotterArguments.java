@@ -47,7 +47,10 @@ public class JFreeChartGraphPlotterArguments {
 
     /** */
     @Parameter(names = {"-sm", "--summaryMode"},
-        description = "")
+        description = "Mode that defines whether a summary plot is added to a graph or not:\n\n" +
+            "       SUM_ONLY: summary plot is added to a graph.\n\n" +
+            "       INDIVIDUAL_ONLY: individual plots are displayed.\n\n" +
+            "       INDIVIDUAL_AND_SUM: individual and summary plots are displayed.\n")
     private JFreeChartSummaryMode sumMode = JFreeChartSummaryMode.SUM_ONLY;
 
     /**

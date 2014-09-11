@@ -11,9 +11,9 @@
 ::    limitations under the License.
 
 ::
-:: Script that starts BenchmarkServer on local machines.
+:: Script that starts BenchmarkServers on a local machine.
 :: This script expects first argument to be a path to run properties file.
-:: Second argument is optional and defines number of starting nodes.
+:: Second argument is optional and defines number of starting servers.
 ::
 
 @echo off
@@ -37,8 +37,8 @@ if "%CONFIG_INCLUDE%"=="-h" set or=true
 if "%CONFIG_INCLUDE%"=="--help" set or=true
 
 if "%or%"=="true" (
-    echo Usage: manual-servers-start.bat [PROPERTIES_FILE_PATH]
-    echo Script that starts BenchmarkServer on local machines.
+    echo Usage: benchmark-manual-servers-start.bat [PROPERTIES_FILE_PATH]
+    echo Script that starts BenchmarkServers on a local machine.
 
     exit /b
 )

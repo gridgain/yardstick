@@ -11,7 +11,7 @@
 ::    limitations under the License.
 
 ::
-:: Script that starts BenchmarkDriver or BenchmarkDriver.
+:: Script that starts BenchmarkDriver on a local machine.
 :: This script expects the argument to be a path to run properties file which contains
 :: list of configurations.
 ::
@@ -30,8 +30,8 @@ if "%CONFIG_INCLUDE%"=="-h" set or=true
 if "%CONFIG_INCLUDE%"=="--help" set or=true
 
 if "%or%"=="true" (
-    echo Usage: manual-drivers-start.bat [PROPERTIES_FILE_PATH]
-    echo Script that starts BenchmarkDriver on local machine.
+    echo Usage: benchmark-manual-drivers-start.bat [PROPERTIES_FILE_PATH]
+    echo Script that starts BenchmarkDriver on a local machine.
 
     exit /b
 )

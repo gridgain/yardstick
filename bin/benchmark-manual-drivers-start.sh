@@ -13,7 +13,7 @@
 #    limitations under the License.
 
 #
-# Script that starts BenchmarkDriver on local machine.
+# Script that starts BenchmarkDriver on a local machine.
 # This script expects the argument to be a path to run properties file which contains
 # list of configurations.
 #
@@ -24,8 +24,8 @@ SCRIPT_DIR=$(cd $(dirname "$0"); pwd)
 CONFIG_INCLUDE=$1
 
 if [ "${CONFIG_INCLUDE}" == "-h" ] || [ "${CONFIG_INCLUDE}" == "--help" ]; then
-    echo "Usage: benchmark-drivers-start.sh [PROPERTIES_FILE_PATH]"
-    echo "Script that starts BenchmarkDriver on local machine."
+    echo "Usage: benchmark-manual-drivers-start.sh [PROPERTIES_FILE_PATH]"
+    echo "Script that starts BenchmarkDriver on a local machine."
     exit 1
 fi
 
