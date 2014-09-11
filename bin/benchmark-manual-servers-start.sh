@@ -67,7 +67,7 @@ if [ "${CONFIG}" == "" ]; then
 fi
 
 if [ -z "$1" ]; then
-    if "${SERVER_HOSTS}" == "" ] ; then
+    if [ "${SERVER_HOSTS}" == "" ]; then
         SERVER_NODES=1
     else
         srv_num=0
@@ -79,6 +79,7 @@ if [ -z "$1" ]; then
                 srv_num=$((1 + $srv_num))
             else
                 ip=$(hostname --ip-address)
+
                 host_name=$(hostname)
 
                 if [ "${host}" == "${ip}" ] || [ "${host}" == "${host_name}" ]; then
@@ -93,11 +94,11 @@ else
     SERVER_NODES=$1
 fi
 
-if ((${SERVER_NODES} < 1)); (
+if ((${SERVER_NODES} < 1)); then
     echo "ERROR: Servers number is should be greater than 0:" ${SERVER_NODES}
     echo "Type \"--help\" for usage."
     exit 1
-)
+fi
 
 function cleanup() {
     pkill -9 -f "Dyardstick.server"
