@@ -52,9 +52,9 @@ If you do not wish to run `bin/benchmark-run-all.sh` script and prefer to have m
 **Server Log Files** are stored in the `logs-<current time>/logs_servers` folder.
 
 ### Starting Benchmark Driver
-Again, if you do not wish to run `bin/benchmark-run-all.sh` script, you can start benchmark driver directly by executing `benchmark-run.sh` script.
+Again, if you do not wish to run `bin/benchmark-run-all.sh` script, you can start benchmark driver directly by executing `benchmark-driver-start.sh` script.
 
-    $ bin/benchmark-run.sh config/benchmark.properties
+    $ bin/benchmark-driver-start.sh config/benchmark.properties
     
 **Driver Log Files** are stored in the `logs-<current time>/logs_drivers` folder.
 
@@ -62,6 +62,21 @@ Again, if you do not wish to run `bin/benchmark-run-all.sh` script, you can star
 To stop remote servers after the benchmark is finished, you can execute `benchmark-servers-stop.sh` script.
 
     $ bin/benchmark-servers-stop.sh config/benchmark.properties
+    
+### Manual Running
+There are scripts that allow to run servers and drivers on local machine only, no SSH commands are used to start remote servers or drivers.
+
+To start servers you can execute `benchmark-manual-servers-start.sh` script. Optionally the number of servers parameter can be passed to this script.
+If it's not specified then the number of servers will be equal to the number of server hosts (`SERVER_HOSTS` property in properties file).
+  
+    $ bin/benchmark-manual-servers-start.sh config/benchmark.properties
+    
+To start drivers you can execute `benchmark-manual-drivers-start.sh` script.   
+
+    $ bin/benchmark-manual-drivers-start.sh config/benchmark.properties
+
+Servers and drivers are stopped manually, for example by `kill` command.
+Windows version of manual scripts is shipped as well: `benchmark-manual-servers-start.bat` and `benchmark-manual-drivers-start.bat` batch scripts.
 
 ### Properties And Command Line Arguments
 
