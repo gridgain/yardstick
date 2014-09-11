@@ -24,12 +24,6 @@ set SCRIPT_DIR=%SCRIPT_DIR:~0,-1%
 
 set CONFIG_INCLUDE=%1
 
-if "%2"=="" (
-    set SERVER_NODES=1
-) else (
-    set SERVER_NODES=%2
-)
-
 setlocal
 
 set or=false
@@ -76,6 +70,59 @@ if not defined CONFIG (
 
 if not defined CONFIG (
     echo ERROR: Configurations ^(CONFIGS^) are not defined in properties file.
+    echo Type \"--help\" for usage.
+    exit /b
+)
+
+if "%1"=="" (
+    if not defined SERVER_HOSTS (
+        set SERVER_NODES=1
+    ) else (
+        setlocal enabledelayedexpansion
+
+        set srv_num=0
+
+        set hosts=%SERVER_HOSTS%
+
+        :loop.configs.next
+        for /f "tokens=1* delims=," %%a in ("%hosts%") do (
+            set hosts=%%b
+
+            if "%%a"=="localhost" (
+                set /a srv_num+=1
+            ) else if "%%a"=="127.0.0.1" (
+                set /a srv_num+=1
+            ) else (
+                for /f "skip=1 delims={}, " %%A in ('wmic nicconfig get ipaddress') do for /f "tokens=1" %%B in ("%%~A") do set "ip=%%B"
+
+                if "%%a"=="!ip!" (
+                    set /a srv_num+=1
+                ) else (
+                    for /f %%i in ('hostname') do set host_name=%%i
+
+                    if "%%a"=="!host_name!" (
+                        set /a srv_num+=1
+                    )
+                )
+            )
+        )
+
+        if defined hosts (
+            goto loop.configs.next
+        )
+
+        endlocal & set srv_num=%srv_num%
+    )
+) else (
+    set SERVER_NODES=%1
+)
+
+if defined srv_num (
+    set SERVER_NODES=%srv_num%
+)
+
+if %SERVER_NODES% LSS 1 (
+    echo ERROR: Servers number is should be greater than 0: %SERVER_NODES%
     echo Type \"--help\" for usage.
     exit /b
 )

@@ -40,12 +40,6 @@ if [ ! -f $CONFIG_INCLUDE ]; then
     exit 1
 fi
 
-if [ -z "$2" ]; then
-    SERVER_NODES=1
-else
-    SERVER_NODES=$2
-fi
-
 shift
 
 CONFIG_TMP=`mktemp tmp.XXXXXXXX`
@@ -71,6 +65,39 @@ if [ "${CONFIG}" == "" ]; then
     echo "Type \"--help\" for usage."
     exit 1
 fi
+
+if [ -z "$1" ]; then
+    if "${SERVER_HOSTS}" == "" ] ; then
+        SERVER_NODES=1
+    else
+        srv_num=0
+
+        IFS=',' read -ra hosts <<< "${SERVER_HOSTS}"
+        for host in "${hosts[@]}";
+        do
+            if [ "${host}" == "localhost" ] || [ "${host}" == "127.0.0.1" ]; then
+                srv_num=$((1 + $srv_num))
+            else
+                ip=$(hostname --ip-address)
+                host_name=$(hostname)
+
+                if [ "${host}" == "${ip}" ] || [ "${host}" == "${host_name}" ]; then
+                    srv_num=$((1 + $srv_num))
+                fi
+            fi
+        done
+
+        SERVER_NODES=${srv_num}
+    fi
+else
+    SERVER_NODES=$1
+fi
+
+if ((${SERVER_NODES} < 1)); (
+    echo "ERROR: Servers number is should be greater than 0:" ${SERVER_NODES}
+    echo "Type \"--help\" for usage."
+    exit 1
+)
 
 function cleanup() {
     pkill -9 -f "Dyardstick.server"
