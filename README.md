@@ -76,6 +76,7 @@ To start drivers you can execute `benchmark-manual-drivers-start.sh` script.
     $ bin/benchmark-manual-drivers-start.sh config/benchmark.properties
 
 Servers and drivers are stopped manually, for example by `kill` command.
+
 Windows version of manual scripts is shipped as well: `benchmark-manual-servers-start.bat` and `benchmark-manual-drivers-start.bat` batch scripts.
 
 ### Properties And Command Line Arguments
@@ -156,7 +157,7 @@ with each other
 * `-sm <mode>` or `--summaryMode <mode>` - mode that defines whether a summary plot is added to a graph or not.
 It's useful to add summary plots when two or more drivers are run in one JVM (driver names that defined via `--driverNames` configuration property) 
 or when two or more drivers are run on multiple hosts (`DRIVER_HOSTS` property in properties file). 
-In these cases the plots of `ThroughputLatencyProbe` or `PercentileProbe` from multiple drivers can be replaced with one summary plot.  
+In these cases the plots of `ThroughputLatencyProbe` or `PercentileProbe` probes from multiple drivers can be replaced with one summary plot.  
 
 ### Generation modes:
 
