@@ -141,7 +141,7 @@ do
     ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} \
         "MAIN_CLASS='org.yardstickframework.BenchmarkDriverStartUp'" "JVM_OPTS='${JVM_OPTS}'" "CP='${CP}'" \
         "CUR_DIR='${CUR_DIR}'" "PROPS_ENV0='${PROPS_ENV}'" \
-        ${SCRIPT_DIR}/benchmark-bootstrap.sh ${cfg} "--config" ${CONFIG_INCLUDE} > ${file_log} 2>& 1 &
+        "nohup ${SCRIPT_DIR}/benchmark-bootstrap.sh ${cfg} "--config" ${CONFIG_INCLUDE} > ${file_log} 2>& 1 &"
 
     ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} "HOST_NAME='${host_name}'" \
         ${SCRIPT_DIR}/benchmark-wait-driver-up.sh
