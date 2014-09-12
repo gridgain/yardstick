@@ -98,10 +98,6 @@ trap "cleanup; exit" SIGHUP SIGINT SIGTERM SIGQUIT SIGKILL
 # Define logs directory.
 LOGS_DIR=${SCRIPT_DIR}/../${LOGS_BASE}/logs_servers
 
-if [ ! -d "${LOGS_DIR}" ]; then
-    mkdir -p ${LOGS_DIR}
-fi
-
 # JVM options.
 JVM_OPTS=${JVM_OPTS}" -Dyardstick.server"
 
@@ -117,6 +113,8 @@ do
     echo "<"$(date +"%H:%M:%S")"><yardstick> Starting server config '..."${suffix}"' on "${host_name}""
 
     file_log=${LOGS_DIR}"/"${cntr}"_"${host_name}".log"
+
+    ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} mkdir -p ${LOGS_DIR}
 
     ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} \
         "MAIN_CLASS='org.yardstickframework.BenchmarkServerStartUp'" "JVM_OPTS='${JVM_OPTS}'" "CP='${CP}'" \

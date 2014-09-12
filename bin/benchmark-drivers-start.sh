@@ -96,10 +96,6 @@ trap "cleanup; exit" SIGHUP SIGINT SIGTERM SIGQUIT SIGKILL
 # Define logs directory.
 LOGS_DIR=${SCRIPT_DIR}/../${LOGS_BASE}/logs_drivers
 
-if [ ! -d "${LOGS_DIR}" ]; then
-    mkdir -p ${LOGS_DIR}
-fi
-
 if [[ "${OUTPUT_FOLDER}" == "" ]] && [[ ${CONFIG} != *'-of '* ]] && [[ ${CONFIG} != *'--outputFolder '* ]]; then
     folder=results-$(date +"%Y%m%d-%H%M%S")
 
@@ -138,6 +134,8 @@ do
 
     file_log=${LOGS_DIR}"/"${now}"_"${cntr}"_"${host_name}".log"
 
+    ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} mkdir -p ${LOGS_DIR}
+
     ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} \
         "MAIN_CLASS='org.yardstickframework.BenchmarkDriverStartUp'" "JVM_OPTS='${JVM_OPTS}'" "CP='${CP}'" \
         "CUR_DIR='${CUR_DIR}'" "PROPS_ENV0='${PROPS_ENV}'" \
@@ -156,9 +154,9 @@ do
     ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} ${SCRIPT_DIR}/benchmark-wait-driver-finish.sh
 
     echo "<"$(date +"%H:%M:%S")"><yardstick> Driver is stopped on "${host_name}
-done
 
-# Create marker file denoting that subfolders contain results from multiple drivers.
-if ((${drvNum} > 1)); then
-    touch ${OUTPUT_FOLDER#--outputFolder}"/.multiple-drivers"
-fi
+    # Create marker file denoting that subfolders contain results from multiple drivers.
+    if ((${drvNum} > 1)); then
+        ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} touch ${CUR_DIR}/${OUTPUT_FOLDER#--outputFolder }"/.multiple-drivers"
+    fi
+done
