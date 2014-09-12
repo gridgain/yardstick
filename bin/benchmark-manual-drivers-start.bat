@@ -38,9 +38,11 @@ if "%or%"=="true" (
 
 endlocal
 
+set now0=%time: =0%
+
 if not defined CONFIG_INCLUDE (
     set CONFIG_INCLUDE=%SCRIPT_DIR%\..\config\benchmark-win.properties
-    echo Using default properties file: config\benchmark-win.properties
+    echo ^<%now0:~0,2%:%now0:~3,2%:%now0:~6,2%^>^<yardstick^> Using default properties file: config\benchmark-win.properties
 )
 
 if not exist "%CONFIG_INCLUDE%" (
