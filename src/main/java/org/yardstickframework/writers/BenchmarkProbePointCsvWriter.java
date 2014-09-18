@@ -106,9 +106,8 @@ public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
 
             subFolderName += File.separator + desc.substring(1) + hostName;
         }
-        else {
+        else
             subFolderName += desc + hostName;
-        }
 
         subFolderName = fixFolderName(subFolderName);
 
