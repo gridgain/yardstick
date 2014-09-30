@@ -114,16 +114,12 @@ do
 
     file_log=${LOGS_DIR}"/"${cntr}"_"${host_name}".log"
 
-    # To have quite ssh login on localhost.
-    touch ~/.hushlogin
+    ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} mkdir -p ${LOGS_DIR}
 
-    ssh -T -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} << EOF
-        mkdir -p ${LOGS_DIR}
-
-        MAIN_CLASS="org.yardstickframework.BenchmarkServerStartUp" JVM_OPTS="${JVM_OPTS}" CP="${CP}" \
-        CUR_DIR="${CUR_DIR}" PROPS_ENV0="${PROPS_ENV}" \
-        nohup ${SCRIPT_DIR}/benchmark-bootstrap.sh "${CONFIG}" "--config" "${CONFIG_INCLUDE}" > ${file_log} 2>& 1 &
-EOF
+    ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} \
+        "MAIN_CLASS='org.yardstickframework.BenchmarkServerStartUp'" "JVM_OPTS='${JVM_OPTS}'" "CP='${CP}'" \
+        "CUR_DIR='${CUR_DIR}'" "PROPS_ENV0='${PROPS_ENV}'" \
+        "nohup ${SCRIPT_DIR}/benchmark-bootstrap.sh ${CONFIG} "--config" ${CONFIG_INCLUDE} > ${file_log} 2>& 1 &"
 
     cntr=$((1 + $cntr))
 done
