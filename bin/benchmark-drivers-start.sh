@@ -134,15 +134,18 @@ do
 
     file_log=${LOGS_DIR}"/"${now}"_"${cntr}"_"${host_name}".log"
 
-    ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} mkdir -p ${LOGS_DIR}
+    # To have quite ssh login on localhost.
+    touch ~/.hushlogin
 
-    ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} \
-        "MAIN_CLASS='org.yardstickframework.BenchmarkDriverStartUp'" "JVM_OPTS='${JVM_OPTS}'" "CP='${CP}'" \
-        "CUR_DIR='${CUR_DIR}'" "PROPS_ENV0='${PROPS_ENV}'" \
-        "nohup ${SCRIPT_DIR}/benchmark-bootstrap.sh ${cfg} "--config" ${CONFIG_INCLUDE} > ${file_log} 2>& 1 &"
+    ssh -T -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} << EOF
+        mkdir -p ${LOGS_DIR}
 
-    ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} "HOST_NAME='${host_name}'" \
-        ${SCRIPT_DIR}/benchmark-wait-driver-up.sh
+        MAIN_CLASS="org.yardstickframework.BenchmarkDriverStartUp" JVM_OPTS="${JVM_OPTS}" CP="${CP}" \
+        CUR_DIR="${CUR_DIR}" PROPS_ENV0="${PROPS_ENV}" \
+        nohup ${SCRIPT_DIR}/benchmark-bootstrap.sh "${cfg}" "--config" "${CONFIG_INCLUDE}" > ${file_log} 2>& 1 &
+
+        HOST_NAME="${host_name}" ${SCRIPT_DIR}/benchmark-wait-driver-up.sh
+EOF
 
     echo "<"$(date +"%H:%M:%S")"><yardstick> Driver is started on "${host_name}
 
