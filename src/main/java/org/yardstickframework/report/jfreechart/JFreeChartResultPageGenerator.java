@@ -365,7 +365,9 @@ public class JFreeChartResultPageGenerator {
      * @throws IOException If failed.
      */
     private static void writeValueToTable(BufferedWriter bw, double val) throws IOException {
-        writeLine(bw, "<td class=\"text-left\">" + NUMBER_INSTANCE.format(val) + "</td>");
+        String s = Double.isNaN(val) ? "NaN" : Double.isInfinite(val) ? "Inf" : NUMBER_INSTANCE.format(val);
+
+        writeLine(bw, "<td class=\"text-left\">" + s + "</td>");
     }
 
     /**

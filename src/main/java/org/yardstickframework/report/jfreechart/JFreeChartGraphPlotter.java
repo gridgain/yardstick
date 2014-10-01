@@ -841,7 +841,7 @@ public class JFreeChartGraphPlotter {
                 }
 
                 for (int i = 0; i < split.length - 1; i++)
-                    data.get(i).series().rawData.add(new double[] {tup[0], tup[i + 1]});
+                    data.get(i).series().rawData().add(new double[] {tup[0], tup[i + 1]});
             }
 
             for (PlotData plotData : data)
@@ -968,7 +968,7 @@ public class JFreeChartGraphPlotter {
     /**
      *
      */
-    private static class PlotSeries {
+    static class PlotSeries {
         /** */
         private final String seriesName;
 
@@ -1012,9 +1012,64 @@ public class JFreeChartGraphPlotter {
         }
 
         /**
+         * @return Raw data.
+         */
+        public List<double[]> rawData() {
+            return rawData;
+        }
+
+        /**
+         * Corrects NaN values if possible.
+         */
+        public void correctValues() {
+            int firstNanIdx = -1;
+
+            for (int i = 0; i < rawData.size(); i++) {
+                double val = rawData.get(i)[1];
+
+                if (incorrect(val)) {
+                    if (firstNanIdx == -1)
+                        firstNanIdx = i;
+                } else if (i > 0 && firstNanIdx != -1) {
+                    for (int j = i; j >= firstNanIdx; j--) {
+                        if (j - 1 >= 0 && incorrect(rawData.get(j - 1)[1])) {
+                            double newVal = j - 2 >= 0 && !incorrect(rawData.get(j - 2)[1]) ?
+                                (rawData.get(j - 2)[1] + rawData.get(j)[1]) / 2 : rawData.get(j)[1];
+
+                            rawData.get(j - 1)[1] = newVal;
+                        }
+                    }
+
+                    firstNanIdx = -1;
+                }
+            }
+
+            if (firstNanIdx != -1) {
+                for (int i = firstNanIdx; i < rawData.size(); i++) {
+                    if (i - 1 >= 0 && incorrect(rawData.get(i)[1])) {
+                        double newVal = i + 1 < rawData.size() && !incorrect(rawData.get(i + 1)[1]) ?
+                            (rawData.get(i + 1)[1] + rawData.get(i - 1)[1]) / 2 : rawData.get(i - 1)[1];
+
+                        rawData.get(i)[1] = newVal;
+                    }
+                }
+            }
+        }
+
+        /**
+         * @param val Value.
+         * @return {@code True} if the value is incorrect, {@code false} otherwise.
+         */
+        private static boolean incorrect(double val) {
+            return Double.isNaN(val) || Double.isInfinite(val);
+        }
+
+        /**
          *
          */
         public void finish() {
+            correctValues();
+
             data = new double[2][];
 
             data[0] = new double[rawData.size()];
