@@ -71,4 +71,6 @@ IFS=',' read -ra hosts0 <<< "${SERVER_HOSTS}"
 for host_name in "${hosts0[@]}";
 do
     `ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} pkill -9 -f "Dyardstick.server"`
+
+    echo "<"$(date +"%H:%M:%S")"><yardstick> Server is stopped on "${host_name}
 done
