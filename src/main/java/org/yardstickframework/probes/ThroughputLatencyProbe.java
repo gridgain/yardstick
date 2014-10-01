@@ -93,8 +93,8 @@ public class ThroughputLatencyProbe implements BenchmarkExecutionAwareProbe {
 
                 lastTstamp = lastTstamp1;
 
-                // Time delta in seconds.
-                long delta = (lastTstamp1 - lastTstamp0) / 1000;
+                // Time delta in seconds, rounding is used because Thread.sleep(1000) can last less than a second.
+                long delta = (long)Math.floor((lastTstamp1 - lastTstamp0) / 1000d + 0.5);
 
                 ThreadAgent collector = new ThreadAgent();
 
