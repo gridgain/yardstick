@@ -436,13 +436,20 @@ public class JFreeChartGraphPlotter {
                             }
                         }
 
-                        if (l.size() > 1 && args.summaryMode() == JFreeChartSummaryMode.INDIVIDUAL_AND_SUM &&
-                            (isProbeResultFile(entry, ThroughputLatencyProbe.class) ||
-                                isProbeResultFile(entry, PercentileProbe.class))) {
-                            List<PlotData> sumPlot = addSummaryPlot(l);
+                        if (l.size() > 1 && args.summaryMode() == JFreeChartSummaryMode.INDIVIDUAL_AND_SUM) {
+                            if (isProbeResultFile(entry, ThroughputLatencyProbe.class) ||
+                                isProbeResultFile(entry, PercentileProbe.class)) {
+                                List<PlotData> sumPlot = addSummaryPlot(l);
 
-                            if (!sumPlot.isEmpty())
-                                plots.add(sumPlot);
+                                if (!sumPlot.isEmpty())
+                                    plots.add(sumPlot);
+                            }
+                            else {
+                                List<PlotData> pd = readData(f0.get(0));
+
+                                if (!pd.isEmpty())
+                                    plots.add(pd);
+                            }
                         }
                     }
                 }
