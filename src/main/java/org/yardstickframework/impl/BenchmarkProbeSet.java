@@ -155,9 +155,11 @@ public class BenchmarkProbeSet {
                             if (finished)
                                 break;
                         }
-                    } catch (InterruptedException ignore) {
+                    }
+                    catch (InterruptedException ignore) {
                         // No-op.
-                    } finally {
+                    }
+                    finally {
                         for (Map.Entry<BenchmarkProbe, BenchmarkProbePointWriter> entry : writers.entrySet()) {
                             BenchmarkProbe probe = entry.getKey();
 
