@@ -21,7 +21,7 @@
     <groupId>org.yardstickframework</groupId>
     <artifactId>yardstick</artifactId>
     <name>Yardstick</name>
-    <version>0.6.7</version>
+    <version>0.7.0</version>
 
     <url>https://github.com/gridgain/yardstick</url>
     <description>Framework for benchmarks writing.</description>
@@ -179,7 +179,6 @@
                 </executions>
             </plugin>
 
-            <!--
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-gpg-plugin</artifactId>
@@ -193,13 +192,12 @@
                         </goals>
                         <configuration>
                             <gpgArguments>
-                                <argument>-no-tty</argument>
+                                <argument>--no-tty</argument>
                             </gpgArguments>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
-            -->
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
