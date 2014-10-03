@@ -1,4 +1,4 @@
-![Yardstick Logo](http://www.gridgain.org/images/yardstick/yardstick-logo-no-background-200x85px-rgb.png) 
+![Yardstick Logo](http://www.gridgain.com/images/yardstick/yardstick-logo-no-background-200x85px-rgb.png) 
 # Yardstick - Benchmarking Framework
 Yardstick is a framework for writing benchmarks. Specifically it helps with writing benchmarks for clustered or otherwise distributed systems.
 
@@ -8,9 +8,9 @@ The framework comes with a default set of probes that collect various metrics du
 See <a href="https://github.com/gridgain/yardstick-gridgain" target="_blank">Yardstick GridGain Benchmarks</a> as an example of Yardstick framework usage.
 
 ## Screenshots
-![Generated Graph](http://www.gridgain.org/images/yardstick/yardstick-compound1.png)
+![Generated Graph](http://www.gridgain.com/images/yardstick/yardstick-compound1.png)
 ### Click on individual graphs to Zoom In
-![Generated Graph](http://www.gridgain.org/images/yardstick/yardstick-compound-magnified1.png)
+![Generated Graph](http://www.gridgain.com/images/yardstick/yardstick-compound-magnified1.png)
 
 ## Available Probes
 1. `ThroughputLatencyProbe` - measures throughput and latency

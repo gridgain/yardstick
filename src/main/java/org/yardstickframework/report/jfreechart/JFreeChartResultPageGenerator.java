@@ -178,7 +178,7 @@ public class JFreeChartResultPageGenerator {
             writeLine(bw, "<body>");
 
             writeLine(bw, "<div class=\"container-fluid\">");
-            writeLine(bw, "<img src=\"http://www.gridgain.org/images/yardstick/yardstick-logo-no-background-200x85px-rgb.png\"/>");
+            writeLine(bw, "<img src=\"http://www.gridgain.com/images/yardstick/yardstick-logo-no-background-200x85px-rgb.png\"/>");
 
             JFreeChartGenerationMode mode = generationMode(fileMap, infoMap);
 
