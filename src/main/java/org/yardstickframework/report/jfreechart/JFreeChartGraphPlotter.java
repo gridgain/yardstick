@@ -283,6 +283,8 @@ public class JFreeChartGraphPlotter {
 
         File parentFolderToWrite = new File(outputFolder, parentFolderName);
 
+        List<Map<String, List<JFreeChartPlotInfo>>> maps = new ArrayList<>();
+
         int idx = -1;
 
         while (true) {
@@ -349,8 +351,11 @@ public class JFreeChartGraphPlotter {
                     throwException("Can not create folder: " + folderToWrite.getAbsolutePath());
             }
 
-            processFilesPerProbe(res, folderToWrite, args, COMPARISON);
+            maps.add(processFilesPerProbe(res, folderToWrite, args, COMPARISON));
         }
+
+        if (!maps.isEmpty())
+            JFreeChartResultPageGenerator.generateIndexFile(parentFolderToWrite, maps, args);
     }
 
     /**
@@ -385,10 +390,11 @@ public class JFreeChartGraphPlotter {
      * @param folderToWrite Folder to write results to.
      * @param args Arguments.
      * @param mode Generation mode.
+     * @return Map of plots
      * @throws Exception If failed.
      */
-    private static void processFilesPerProbe(Map<String, List<List<List<File>>>> res, File folderToWrite,
-        JFreeChartGraphPlotterArguments args, JFreeChartGenerationMode mode) throws Exception {
+    private static Map<String, List<JFreeChartPlotInfo>> processFilesPerProbe(Map<String, List<List<List<File>>>> res,
+        File folderToWrite, JFreeChartGraphPlotterArguments args, JFreeChartGenerationMode mode) throws Exception {
         Map<String, List<JFreeChartPlotInfo>> infoMap = new HashMap<>();
 
         for (Map.Entry<String, List<List<List<File>>>> entry : res.entrySet()) {
@@ -460,6 +466,8 @@ public class JFreeChartGraphPlotter {
 
         if (!infoMap.isEmpty())
             JFreeChartResultPageGenerator.generate(folderToWrite, args, infoMap);
+
+        return infoMap;
     }
 
     /**
