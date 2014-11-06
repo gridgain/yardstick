@@ -153,141 +153,145 @@ public class JFreeChartResultPageGenerator {
      * @param parentFolderToWrite Root benchmark folder.
      * @param maps Map of plots.
      * @param args Arguments.
-     * @throws Exception If failed.
      */
-    public static void generateIndexFile(File parentFolderToWrite, List<Map<String, List<JFreeChartPlotInfo>>> maps,
-                                         JFreeChartGraphPlotterArguments args) {
-            File outFile = new File(parentFolderToWrite, "index.html");
+    public static void generateIndexFile(
+        File parentFolderToWrite,
+        List<Map<String, List<JFreeChartPlotInfo>>> maps,
+        JFreeChartGraphPlotterArguments args) {
 
-            try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outFile)))) {
-                writeLine(bw, "<!DOCTYPE html>");
-                writeLine(bw, "<html lang=\"en\">");
-                writeLine(bw, "<head>");
-                writeLine(bw, "<meta charset=\"utf-8\">");
-                writeLine(bw, "<meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">");
-                writeLine(bw, "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">");
-                writeLine(bw, "<link rel=\"stylesheet\" " +
-                        "href=\"http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css\">");
-                writeLine(bw, "<link rel=\"stylesheet\" " +
-                        "href=\"http://netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css\">");
+        File outFile = new File(parentFolderToWrite, "index.html");
 
-                writeLine(bw, "<script src=\"http://code.jquery.com/jquery-1.11.0.min.js\"></script>");
-                writeLine(bw, "<script src=\"http://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js\"></script>");
-                writeLine(bw, "</head>");
-                writeLine(bw, "<body>");
+        try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outFile)))) {
+            writeLine(bw, "<!DOCTYPE html>");
+            writeLine(bw, "<html lang=\"en\">");
+            writeLine(bw, "<head>");
+            writeLine(bw, "<meta charset=\"utf-8\">");
+            writeLine(bw, "<meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">");
+            writeLine(bw, "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">");
+            writeLine(bw, "<link rel=\"stylesheet\" " +
+                    "href=\"http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css\">");
+            writeLine(bw, "<link rel=\"stylesheet\" " +
+                    "href=\"http://netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css\">");
 
-                writeLine(bw, "<div class=\"container-fluid\">");
-                writeLine(bw, "<img src=\"http://www.gridgain.com/images/yardstick/yardstick-logo-no-background-200x85px-rgb.png\"/>");
+            writeLine(bw, "<script src=\"http://code.jquery.com/jquery-1.11.0.min.js\"></script>");
+            writeLine(bw,
+                "<script src=\"http://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js\"></script>");
+            writeLine(bw, "</head>");
+            writeLine(bw, "<body>");
 
-                writeLine(bw, "<h3>Benchmark Comparison Results</h3>");
+            writeLine(bw, "<div class=\"container-fluid\">");
+            writeLine(bw,
+                "<img src=\"http://www.gridgain.com/images/yardstick/yardstick-logo-no-background-200x85px-rgb.png\"/>");
 
-                for (Map<String, List<JFreeChartPlotInfo>> map : maps) {
+            writeLine(bw, "<h3>Benchmark Comparison Results</h3>");
 
-                    Iterator<List<JFreeChartPlotInfo>> iter = map.values().iterator();
+            for (Map<String, List<JFreeChartPlotInfo>> map : maps) {
 
-                    String benchmarkDirectory = new File(map.keySet().iterator().next()).getParent();
-                    File benchmarkResultFile = new File(benchmarkDirectory + "\\Results.html");
-                    if (!benchmarkResultFile.exists())
-                        continue;
+                Iterator<List<JFreeChartPlotInfo>> iter = map.values().iterator();
 
-                    if (iter.hasNext()) {
-                        List<JFreeChartPlotInfo> list = iter.next();
+                String benchmarkDirectory = new File(map.keySet().iterator().next()).getParent();
+                File benchmarkResultFile = new File(benchmarkDirectory + "\\Results.html");
+                if (!benchmarkResultFile.exists())
+                    continue;
 
-                        String relativityFileResultPath = parentFolderToWrite.toURI()
-                                .relativize(benchmarkResultFile.toURI()).getPath();
-                        writeLine(bw, "<a href=" + relativityFileResultPath + "><h4>" + list.get(0).name()
-                                + "</h4></a>");
+                if (iter.hasNext()) {
+                    List<JFreeChartPlotInfo> list = iter.next();
 
-                        writeLine(bw, "<table class=\"table\" style=\"width:auto;\">");
-                        writeLine(bw, "<thead><tr><th>Color</th><th>Benchmark</th><th>Configurations</th></tr></thead>");
-                        writeLine(bw, "<tbody>");
+                    String relativityFileResultPath = parentFolderToWrite.toURI()
+                            .relativize(benchmarkResultFile.toURI()).getPath();
+                    writeLine(bw, "<a href=" + relativityFileResultPath + "><h4>" + list.get(0).name()
+                            + "</h4></a>");
 
-                        for (JFreeChartPlotInfo info : list) {
-                            String t = parseTime(info.name());
+                    writeLine(bw, "<table class=\"table\" style=\"width:auto;\">");
+                    writeLine(bw, "<thead><tr><th>Color</th><th>Benchmark</th><th>Configurations</th></tr></thead>");
+                    writeLine(bw, "<tbody>");
 
-                            String b = t == null ? info.name() : info.name().substring(t.length() + 1);
+                    for (JFreeChartPlotInfo info : list) {
+                        String t = parseTime(info.name());
 
-                            StringBuilder cfgSb = new StringBuilder();
+                        String b = t == null ? info.name() : info.name().substring(t.length() + 1);
 
-                            for (String cfg : info.configuration()) {
-                                t = parseTime(cfg);
+                        StringBuilder cfgSb = new StringBuilder();
 
-                                if (t != null)
-                                    cfg = cfg.substring(t.length() + 1);
+                        for (String cfg : info.configuration()) {
+                            t = parseTime(cfg);
 
-                                cfgSb.append(cfg).append("<br>");
-                            }
+                            if (t != null)
+                                cfg = cfg.substring(t.length() + 1);
 
-                            writeLine(bw, "<tr>");
-                            writeLine(bw, "<td><i style=\"color:#" + info.color() + ";\" class=\"fa fa-square\"></i></td>");
-                            writeLine(bw, "<td>" + b.replaceAll(",", "<br>") + "</td>");
-                            writeLine(bw, "<td>" + cfgSb + "</td>");
-                            writeLine(bw, "</tr>");
+                            cfgSb.append(cfg).append("<br>");
                         }
 
-                        writeLine(bw, "</tbody>");
-                        writeLine(bw, "</table>");
+                        writeLine(bw, "<tr>");
+                        writeLine(bw, "<td><i style=\"color:#" + info.color() + ";\" class=\"fa fa-square\"></i></td>");
+                        writeLine(bw, "<td>" + b.replaceAll(",", "<br>") + "</td>");
+                        writeLine(bw, "<td>" + cfgSb + "</td>");
+                        writeLine(bw, "</tr>");
                     }
 
-                    Map<String, Map<String, List<JFreeChartPlotInfo>>> fileMapToChartInfo = new HashMap<>();
+                    writeLine(bw, "</tbody>");
+                    writeLine(bw, "</table>");
+                }
 
-                    for (Map.Entry<String, List<JFreeChartPlotInfo>> entry : map.entrySet()) {
-                        String fileName = new File(entry.getKey()).getName();
-                        fileName = fileName.substring(0, fileName.lastIndexOf("_")).replaceAll("Plot_", "");
+                Map<String, Map<String, List<JFreeChartPlotInfo>>> fileMapToChartInfo = new HashMap<>();
 
-                        if (!fileMapToChartInfo.containsKey(fileName))
-                            fileMapToChartInfo.put(fileName, new HashMap<String, List<JFreeChartPlotInfo>>());
+                for (Map.Entry<String, List<JFreeChartPlotInfo>> entry : map.entrySet()) {
+                    String fileName = new File(entry.getKey()).getName();
+                    fileName = fileName.substring(0, fileName.lastIndexOf("_")).replaceAll("Plot_", "");
 
-                        fileMapToChartInfo.get(fileName).put(entry.getKey(), entry.getValue());
-                    }
+                    if (!fileMapToChartInfo.containsKey(fileName))
+                        fileMapToChartInfo.put(fileName, new HashMap<String, List<JFreeChartPlotInfo>>());
 
-                    for (String fileName : fileMapToChartInfo.keySet()) {
-                        Map<String, List<JFreeChartPlotInfo>> plotMapToInfo = fileMapToChartInfo.get(fileName);;
-                        List<String> files = new ArrayList<>(plotMapToInfo.keySet());
+                    fileMapToChartInfo.get(fileName).put(entry.getKey(), entry.getValue());
+                }
 
-                        int columnCount = args.chartColumns();
+                for (String fileName : fileMapToChartInfo.keySet()) {
+                    Map<String, List<JFreeChartPlotInfo>> plotMapToInfo = fileMapToChartInfo.get(fileName);;
+                    List<String> files = new ArrayList<>(plotMapToInfo.keySet());
 
-                        writeLine(bw, "<div class=\"panel panel-default\">");
-                        writeLine(bw, "<div class=\"panel-heading\"><h2 class=\"panel-title\">" + fileName + "</h2></div>");
-                        writeLine(bw, "<div class=\"panel-body\">");
+                    int columnCount = args.chartColumns();
 
-                        for (int start = 0; start < files.size(); start += columnCount) {
-                            int end = Math.min(start + columnCount, files.size());
+                    writeLine(bw, "<div class=\"panel panel-default\">");
+                    writeLine(bw, "<div class=\"panel-heading\"><h2 class=\"panel-title\">" + fileName + "</h2></div>");
+                    writeLine(bw, "<div class=\"panel-body\">");
 
-                            List<String> sublist = files.subList(start, end);
+                    for (int start = 0; start < files.size(); start += columnCount) {
+                        int end = Math.min(start + columnCount, files.size());
 
-                            writeLine(bw, "<div class=\"row\">");
+                        List<String> sublist = files.subList(start, end);
 
-                            for (String file : sublist) {
-                                plotMapToInfo.get(file).get(0).name();
-                                writeLine(bw, "<div class=\"col-md-4\">");
+                        writeLine(bw, "<div class=\"row\">");
 
-                                if (!file.contains(PercentileProbe.class.getSimpleName()))
-                                    buildGraphDetailTable(bw, plotMapToInfo.get(file));
+                        for (String file : sublist) {
+                            plotMapToInfo.get(file).get(0).name();
+                            writeLine(bw, "<div class=\"col-md-4\">");
 
-                                writeLine(bw, "</div>");
-                            }
+                            if (!file.contains(PercentileProbe.class.getSimpleName()))
+                                buildGraphDetailTable(bw, plotMapToInfo.get(file));
 
                             writeLine(bw, "</div>");
                         }
 
                         writeLine(bw, "</div>");
-                        writeLine(bw, "</div>");
                     }
 
-                    writeLine(bw, "<br>");
+                    writeLine(bw, "</div>");
+                    writeLine(bw, "</div>");
                 }
 
-                writeLine(bw, "</div>");
-
-                writeLine(bw, "</body>");
-                writeLine(bw, "</html>");
-
-                println("Index file is generated: ", outFile);
+                writeLine(bw, "<br>");
             }
-            catch (Exception e) {
-                errorHelp("Could not generate index file: " + outFile.getAbsolutePath(), e);
-            }
+
+            writeLine(bw, "</div>");
+
+            writeLine(bw, "</body>");
+            writeLine(bw, "</html>");
+
+            println("Index file is generated: ", outFile);
+        }
+        catch (Exception e) {
+            errorHelp("Could not generate index file: " + outFile.getAbsolutePath(), e);
+        }
     }
 
     /**
@@ -319,7 +323,8 @@ public class JFreeChartResultPageGenerator {
             writeLine(bw, "<body>");
 
             writeLine(bw, "<div class=\"container-fluid\">");
-            writeLine(bw, "<img src=\"http://www.gridgain.com/images/yardstick/yardstick-logo-no-background-200x85px-rgb.png\"/>");
+            writeLine(bw,
+                "<img src=\"http://www.gridgain.com/images/yardstick/yardstick-logo-no-background-200x85px-rgb.png\"/>");
 
             JFreeChartGenerationMode mode = generationMode(fileMap, infoMap);
 
@@ -378,7 +383,8 @@ public class JFreeChartResultPageGenerator {
                 int columnCount = args.chartColumns();
 
                 writeLine(bw, "<div class=\"panel panel-default\">");
-                writeLine(bw, "<div class=\"panel-heading\"><h2 class=\"panel-title\">" + entry.getKey() + "</h2></div>");
+                writeLine(bw, "<div class=\"panel-heading\"><h2 class=\"panel-title\">" + entry.getKey() +
+                    "</h2></div>");
                 writeLine(bw, "<div class=\"panel-body\">");
 
                 for (int start = 0; start < files.size(); start += columnCount) {
@@ -444,7 +450,8 @@ public class JFreeChartResultPageGenerator {
      * @param chartPlotInfo Chart info.
      * @throws IOException If failed.
      */
-    private static void buildGraphDetailTable(BufferedWriter bw, List<JFreeChartPlotInfo> chartPlotInfo) throws IOException {
+    private static void buildGraphDetailTable(BufferedWriter bw, List<JFreeChartPlotInfo> chartPlotInfo)
+        throws IOException {
         writeLine(bw, "<table class=\"table table-condensed\">");
         writeLine(bw, "<thead>");
         writeLine(bw, "<tr>");
