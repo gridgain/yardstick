@@ -122,6 +122,8 @@ CUR_DIR=$(pwd)
 
 for i in $(eval echo {1..$SERVER_NODES});
 do
+    CONFIG_PRM="-id ${cntr} ${CONFIG}"
+
     suffix=`echo "${CONFIG}" | tail -c 60 | sed 's/ *$//g'`
 
     file_log=${LOGS_DIR}"/"${i}"_server.log"
@@ -131,5 +133,5 @@ do
 
     MAIN_CLASS=org.yardstickframework.BenchmarkServerStartUp JVM_OPTS=${JVM_OPTS} CP=${CP} \
     CUR_DIR=${CUR_DIR} PROPS_ENV0=${PROPS_ENV} \
-    nohup ${SCRIPT_DIR}/benchmark-bootstrap.sh ${CONFIG} --config ${CONFIG_INCLUDE} > ${file_log} 2>& 1 &
+    nohup ${SCRIPT_DIR}/benchmark-bootstrap.sh ${CONFIG_PRM} --config ${CONFIG_INCLUDE} > ${file_log} 2>& 1 &
 done

@@ -14,6 +14,8 @@
 
 package org.yardstickframework.examples.echo;
 
+import static org.yardstickframework.BenchmarkUtils.println;
+
 import org.yardstickframework.*;
 
 import java.io.*;
@@ -38,7 +40,9 @@ public class EchoBenchmark extends BenchmarkDriverAdapter {
     /** {@inheritDoc} */
     @Override public void setUp(BenchmarkConfiguration cfg) throws Exception {
         super.setUp(cfg);
-
+        
+        println("Configuring driver id=" + cfg.memberId());
+        
         BenchmarkUtils.jcommander(cfg.commandLineArguments(), args, "<echo-driver>");
 
         // Check if EchoServer is up.

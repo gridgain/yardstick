@@ -108,6 +108,8 @@ cntr=0
 IFS=',' read -ra hosts0 <<< "${SERVER_HOSTS}"
 for host_name in "${hosts0[@]}";
 do
+    CONFIG_PRM="-id ${cntr} ${CONFIG}"
+
     suffix=`echo "${CONFIG}" | tail -c 60 | sed 's/ *$//g'`
 
     echo "<"$(date +"%H:%M:%S")"><yardstick> Starting server config '..."${suffix}"' on "${host_name}""
@@ -119,7 +121,7 @@ do
     ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} \
         "MAIN_CLASS='org.yardstickframework.BenchmarkServerStartUp'" "JVM_OPTS='${JVM_OPTS}'" "CP='${CP}'" \
         "CUR_DIR='${CUR_DIR}'" "PROPS_ENV0='${PROPS_ENV}'" \
-        "nohup ${SCRIPT_DIR}/benchmark-bootstrap.sh ${CONFIG} "--config" ${CONFIG_INCLUDE} > ${file_log} 2>& 1 &"
+        "nohup ${SCRIPT_DIR}/benchmark-bootstrap.sh ${CONFIG_PRM} "--config" ${CONFIG_INCLUDE} > ${file_log} 2>& 1 &"
 
     cntr=$((1 + $cntr))
 done
