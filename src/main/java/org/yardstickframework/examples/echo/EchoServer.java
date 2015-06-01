@@ -34,7 +34,9 @@ public class EchoServer implements BenchmarkServer {
     /** {@inheritDoc} */
     @Override public void start(final BenchmarkConfiguration cfg) throws Exception {
         BenchmarkUtils.jcommander(cfg.commandLineArguments(), args, "<echo-server>");
-
+        
+        println("Configuring server id=" + cfg.memberId());
+        
         th = new Thread(new Runnable() {
             @Override public void run() {
                 try (ServerSocket srvrSock = newServerSocket(args)) {

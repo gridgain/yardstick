@@ -114,7 +114,7 @@ for cfg in "${configs0[@]}";
 do
     now=`date +'%H%M%S'`
 
-    cfgParams="${OUTPUT_FOLDER} ${cfg}"
+    cfgParams="${OUTPUT_FOLDER} -id ${cntr} ${cfg}"
 
     suffix=`echo "${cfgParams}" | tail -c 60 | sed 's/ *$//g'`
 

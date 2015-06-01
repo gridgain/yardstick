@@ -126,7 +126,7 @@ do
 
     now=`date +'%H%M%S'`
 
-    cfg="${outFol} ${host_name0} ${CONFIG}"
+    cfg="${outFol} ${host_name0} -id ${cntr} ${CONFIG}"
 
     suffix=`echo "${cfg}" | tail -c 60 | sed 's/ *$//g'`
 

@@ -38,6 +38,10 @@ public class BenchmarkConfiguration {
     private String serverName;
 
     /** */
+    @Parameter(names = {"-id", "--memberId"}, description = "Memebr ID")
+    private int memberId = 0;
+    
+    /** */
     @Parameter(names = {"-p", "--packages"}, description = "Comma separated list of packages for benchmarks")
     private List<String> packages = Collections.emptyList();
 
@@ -130,6 +134,13 @@ public class BenchmarkConfiguration {
         return driverNames;
     }
 
+    /**
+     * @return Member ID unique to server or driver.  
+     */
+    public int memberId() {
+        return memberId;
+    }
+    
     /**
      * @return List of packages to load benchmarks from.
      */
