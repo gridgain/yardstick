@@ -1,4 +1,4 @@
-![Yardstick Logo](http://www.gridgain.com/images/yardstick/yardstick-logo-no-background-200x85px-rgb.png) 
+![Yardstick Logo](http://www.gridgain.com/images/yardstick/yardstick-logo-no-background-200x85px-rgb.png)
 # Yardstick - Benchmarking Framework
 Yardstick is a framework for writing benchmarks. Specifically it helps with writing benchmarks for clustered or otherwise distributed systems.
 
@@ -19,8 +19,8 @@ See <a href="https://github.com/gridgain/yardstick-gridgain" target="_blank">Yar
 4. `PercentileProbe` - tracks the latency of each individual request and collects the time frame bucket
 
 ## Creating Yardstick Benchmarks
-There are two main interfaces that need to be implemented, `BenchmarkServer` and `BenchmarkDriver`: 
-* `BenchmarkDriver` is an instance of the benchmark that performs some operation that needs to be tested. 
+There are two main interfaces that need to be implemented, `BenchmarkServer` and `BenchmarkDriver`:
+* `BenchmarkDriver` is an instance of the benchmark that performs some operation that needs to be tested.
 * `BenchmarkServer` is the remote server that the BenchmarkDriver communicates with.
 
 You can benchmark any distributed operation with Yardstick. For example, if you have to measure message processing time in your application, then you can put message sending logic into `BenchmarkDriver`, and message processing logic to one or more remote `BenchmarkServers`.
@@ -36,7 +36,7 @@ You can find Yardstick benchmark examples in
 The easiest way to run benchmarks is by executing `bin/benchmark-run-all.sh` script which will automatically start benchmark driver and remote servers base based on the properties file passed in (`config/benchmark.properties` used by default):
 
     $ bin/benchmark-run-all.sh config/benchmark.properties
-    
+
 This script will automatically restart benchmark driver and remote servers for every benchmark configuration provided in `config/benchmark.properties` file.
 
 At the end of the run, you can generate graphs by executing `bin/jfreechart-graph-gen.sh` script with folders that contain benchmark results.
@@ -55,23 +55,23 @@ If you do not wish to run `bin/benchmark-run-all.sh` script and prefer to have m
 Again, if you do not wish to run `bin/benchmark-run-all.sh` script, you can start benchmark driver directly by executing `benchmark-driver-start.sh` script.
 
     $ bin/benchmark-driver-start.sh config/benchmark.properties
-    
+
 **Driver Log Files** are stored in the `logs-<current time>/logs_drivers` folder.
 
 ### Stopping Remote Servers
 To stop remote servers after the benchmark is finished, you can execute `benchmark-servers-stop.sh` script.
 
     $ bin/benchmark-servers-stop.sh config/benchmark.properties
-    
+
 ### Manual Running
 There are scripts that allow to run servers and drivers on local machine only, no SSH commands are used to start remote servers or drivers.
 
 To start servers you can execute `benchmark-manual-servers-start.sh` script. Optionally the number of servers parameter can be passed to this script.
 If it's not specified then the number of servers will be equal to the number of server hosts (`SERVER_HOSTS` property in properties file).
-  
+
     $ bin/benchmark-manual-servers-start.sh config/benchmark.properties
-    
-To start drivers you can execute `benchmark-manual-drivers-start.sh` script.   
+
+To start drivers you can execute `benchmark-manual-drivers-start.sh` script.
 
     $ bin/benchmark-manual-drivers-start.sh config/benchmark.properties
 
@@ -89,6 +89,12 @@ The following properties can be defined in benchmark properties file:
 * `SERVER_HOSTS` - comma-separated list of IP addresses where servers should be started, one server per host
 * `DRIVER_HOSTS` - comma-separated list of IP addresses where drivers should be started, one driver per host, if the property is not defined then the driver will be run on localhost
 * `REMOTE_USER` - SSH user for logging in to remote hosts
+* `RESTART_SERVERS` - there is two modes to use it. 1. `RESTART_SERVERS=true` - yardstick will start new servers
+for each benchmark. 2. `RESTART_SERVERS=<hostname_1>:<delay_1>:<period_1>,<hostname_2>:<delay_2>:<period_2>` - comma-separated list of colon-separated triples of hostname,
+a delay (for warmup) before first restart and a period for next restarts. The delay and the period in seconds.
+In this case, yardstick will start new servers for each benchmark (the same with `RESTART_SERVERS=true`), and after starting of driver,
+yardstick will killing server by the hostname according to the delay and the period time.
+`DELAY_AFTER_SERVER_KILL` property can be used to set a delay between killing server and restarting new instance (0.01 seconds, by default).
 * `CONFIGS` - comma-separated list of benchmark run configurations which are passed to the servers and to the benchmarks
 
 Example of `benchmark.properties` file to run 2 instances of `EchoServer`
@@ -104,12 +110,12 @@ Example of `benchmark.properties` file to run 2 instances of `EchoServer`
 
     # Comma-separated list of remote hosts to run BenchmarkServers on.
     # If same host is specified multiple times, then benchmark server will be started on that host multiple times.
-    SERVER_HOSTS=localhost,localhost    
-    
+    SERVER_HOSTS=localhost,localhost
+
     # Comma-separated list of remote hosts to run BenchmarkDrivers on.
     # If same host is specified multiple times, then benchmark driver will be started on that host multiple times.
     DRIVER_HOSTS=localhost,localhost
-    
+
     # Remote username.
     # REMOTE_USER=
 
@@ -123,7 +129,7 @@ The following properties can be defined in the benchmark configuration:
 
 * `-cfg <path>` or `--config <path>` - framework configuration file path
 * `-dn <list>` or `--driverNames <list>` - space-separated list of driver names (required for the driver), the specified drivers will be run in one JVM,
-optionally a weight can be added to the driver name, for example `EchoBenchmark:3 NewEchoBenchmark:7`, 
+optionally a weight can be added to the driver name, for example `EchoBenchmark:3 NewEchoBenchmark:7`,
 so `EchoBenchmark` will be run 30% of benchmark time, NewEchoBenchmark will be run 70%
 * `-sn <name>` or `--serverName <name>` - server name (required for the server)
 * `-p <list>` or `--packages <list>` - comma separated list of packages for benchmarks
@@ -134,11 +140,11 @@ so `EchoBenchmark` will be run 30% of benchmark time, NewEchoBenchmark will be r
 * `-w <time>` or `--warmup <time>` - warmup time, in seconds
 * `-sh` or `--shutdown` - flag indicating whether to invoke shutdown hook or not
 * `-of <path>` or `--outputFolder <path>` - output folder for benchmark results, current folder is used by default
-* `-ds <list>` or `--descriptions <list>` - space-separated list of benchmark run descriptions, 
+* `-ds <list>` or `--descriptions <list>` - space-separated list of benchmark run descriptions,
 the description with index 1 corresponds to the driver with index 1 and so on
 * `-hn <name>` or `--hostName <name>` - host name where a benchmark driver is run, this property is set automatically by the benchmark scripts
 
-For example if we need to run EchoServer server on localhost and EchoServerBenchmark benchmark on localhost, 
+For example if we need to run EchoServer server on localhost and EchoServerBenchmark benchmark on localhost,
 the test should be 20 seconds then the following configuration should be specified in run properties file:
 
 * `SERVER_HOSTS=localhost`
@@ -149,15 +155,15 @@ Yardstick goes with the script `jfreechart-graph-gen.sh` that builds JFreeChart 
 
 `jfreechart-graph-gen.sh` script accepts the following arguments:
 
-* `-i <list>` or `--inputFolders <list>` - space separated list of input folders which contains folders 
+* `-i <list>` or `--inputFolders <list>` - space separated list of input folders which contains folders
 with probe results files (required)
 * `-cc <num>` or `--chartColumns <num>` - number of columns that the charts are displayed in on the resulted page
-* `-gm <mode>` or `--generationMode <mode>` - mode that defines the way how different benchmark runs are compared 
+* `-gm <mode>` or `--generationMode <mode>` - mode that defines the way how different benchmark runs are compared
 with each other
 * `-sm <mode>` or `--summaryMode <mode>` - mode that defines whether a summary plot is added to a graph or not.
-It's useful to add summary plots when two or more drivers are run in one JVM (driver names that defined via `--driverNames` configuration property) 
-or when two or more drivers are run on multiple hosts (`DRIVER_HOSTS` property in properties file). 
-In these cases the plots of `ThroughputLatencyProbe` or `PercentileProbe` probes from multiple drivers can be replaced with one summary plot.  
+It's useful to add summary plots when two or more drivers are run in one JVM (driver names that defined via `--driverNames` configuration property)
+or when two or more drivers are run on multiple hosts (`DRIVER_HOSTS` property in properties file).
+In these cases the plots of `ThroughputLatencyProbe` or `PercentileProbe` probes from multiple drivers can be replaced with one summary plot.
 
 ### Generation modes:
 
@@ -210,7 +216,7 @@ The easiest way to get started with Yardstick in your project is to use Maven de
 </dependency>
 ```
 
-Yardstick is shipped with scripts that run servers and drivers, these scripts can be used for your benchmarks. In order to have them, just unzip `yardstick-resources.zip` maven artifact. Also this can be done by copying and pasting the following code snippet to your benchmark project POM file (see how it's done in 
+Yardstick is shipped with scripts that run servers and drivers, these scripts can be used for your benchmarks. In order to have them, just unzip `yardstick-resources.zip` maven artifact. Also this can be done by copying and pasting the following code snippet to your benchmark project POM file (see how it's done in
 [Yardstick GridGain](https://github.com/gridgain/yardstick-gridgain)).
 
 ```xml

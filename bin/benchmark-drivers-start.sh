@@ -124,13 +124,13 @@ do
         outFol=${OUTPUT_FOLDER}
     fi
 
-    now=`date +'%H%M%S'`
-
     cfg="${outFol} ${host_name0} ${CONFIG}"
 
     suffix=`echo "${cfg}" | tail -c 60 | sed 's/ *$//g'`
 
     echo "<"$(date +"%H:%M:%S")"><yardstick> Starting driver config '..."${suffix}"' on "${host_name}""
+
+    now=`date +'%H%M%S'`
 
     file_log=${LOGS_DIR}"/"${now}"_"${cntr}"_"${host_name}".log"
 
@@ -149,6 +149,10 @@ do
     cntr=$((1 + $cntr))
 done
 
+if [ "${RESTART_SERVERS}" != "" ] && [ "${RESTART_SERVERS}" != "true" ]; then
+    PROPS_ENV=${PROPS_ENV} /bin/bash ${SCRIPT_DIR}/benchmark-restarters-all-start.sh ${CONFIG_INCLUDE}
+fi
+
 for host_name in "${hosts0[@]}";
 do
     ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} ${SCRIPT_DIR}/benchmark-wait-driver-finish.sh
@@ -160,3 +164,7 @@ do
         ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} touch ${CUR_DIR}/${OUTPUT_FOLDER#--outputFolder }"/.multiple-drivers"
     fi
 done
+
+if [ "${RESTART_SERVERS}" != "" ] && [ "${RESTART_SERVERS}" != "true" ]; then
+    /bin/bash ${SCRIPT_DIR}/benchmark-restarters-all-stop.sh ${CONFIG_INCLUDE}
+fi
