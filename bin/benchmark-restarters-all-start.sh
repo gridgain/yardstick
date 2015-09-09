@@ -91,7 +91,8 @@ do
 
     host_to_restart=${hostToRestart[0]}
     delay=${hostToRestart[1]}
-    period=${hostToRestart[2]}
+    pause=${hostToRestart[2]}
+    period=${hostToRestart[3]}
 
     host_is_valid=false
 
@@ -111,7 +112,7 @@ do
 
         suffix=`echo "${CONFIG}" | tail -c 60 | sed 's/ *$//g'`
 
-        nohup ${SCRIPT_DIR}/benchmark-restarter-start.sh "${host_to_restart}" "${CONFIG}" "${delay}" "${period}" "${CONFIG_INCLUDE}" > ${file_log} 2>& 1 &
+        nohup ${SCRIPT_DIR}/benchmark-restarter-start.sh "${host_to_restart}" "${CONFIG}" "${delay}" "${pause}" "${period}" "${CONFIG_INCLUDE}" > ${file_log} 2>& 1 &
 
         echo "<"$(date +"%H:%M:%S")"><yardstick> Server restarter is started for ${host_to_restart} with config '...${suffix}', warmup delay ${delay} sec. and period ${period} sec."
 

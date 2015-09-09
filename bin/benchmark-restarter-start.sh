@@ -28,8 +28,9 @@ SCRIPT_DIR=$(cd $(dirname "$0"); pwd)
 HOST_NAME=$1
 CONFIG=$2
 WARMPUP_DELAY=$3
-PERIOD=$4
-CONFIG_INCLUDE=$5
+PAUSE=$4
+PERIOD=$5
+CONFIG_INCLUDE=$6
 
 if [ "${CONFIG_INCLUDE}" == "-h" ] || [ "${CONFIG_INCLUDE}" == "--help" ]; then
     echo "Usage: benchmark-restarter-start.sh [HOST_NAME] [CONFIG] [DELAY] [PERIOD] [PROPERTIES_FILE_PATH]"
@@ -128,7 +129,13 @@ do
     echo "<"$(date +"%H:%M:%S")"><yardstick> Killing server on "${HOST_NAME}""
 
     # Kill only first found yardstick.server on the host
-    ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${HOST_NAME} "kill -9 `pgrep -f Dyardstick.server | awk 'NR==1{print $1}'`"
+    if [ "${HOST_NAME}" == "localhost" ]; then
+        ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${HOST_NAME} "kill -9 `pgrep -f Dyardstick.server | awk 'NR==1{print $1}'`"
+    else
+        ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${HOST_NAME} "pkill -9 -f 'Dyardstick.server'"
+    fi
+
+    sleep ${PAUSE}
 
     sleep ${DELAY_AFTER_SERVER_KILL} # Wait for process stopping.
 

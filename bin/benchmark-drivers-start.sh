@@ -107,6 +107,9 @@ JVM_OPTS=${JVM_OPTS}" -Dyardstick.driver"
 
 CUR_DIR=$(pwd)
 
+# Description
+DS=""
+
 cntr=0
 
 drvNum=$((`echo ${DRIVER_HOSTS} | tr ',' '\n' | wc -l`))
@@ -132,7 +135,21 @@ do
 
     now=`date +'%H%M%S'`
 
-    file_log=${LOGS_DIR}"/"${now}"_"${cntr}"_"${host_name}".log"
+    IFS=' ' read -ra cfg0 <<< "${CONFIG}"
+    for cfg00 in "${cfg0[@]}";
+    do
+        if [[ ${ds0} == 'true' ]]; then
+            ds0=""
+            DS=${cfg00}
+        fi
+
+        if [[ ${cfg00} == '-ds' ]] || [[ ${cfg00} == '--descriptions ' ]]; then
+            ds0="true"
+        fi
+
+    done
+
+    file_log=${LOGS_DIR}"/"${now}"_"${cntr}"_"${host_name}"_"${DS}".log"
 
     ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} mkdir -p ${LOGS_DIR}
 
