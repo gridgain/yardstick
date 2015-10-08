@@ -20,7 +20,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -215,13 +214,6 @@ public class BenchmarkRunner {
                                 drv.onException(e);
                         }
                         catch (Throwable ignore) {
-                            // No-op.
-                        }
-
-                        try {
-                            barrier.await();
-                        }
-                        catch (InterruptedException | BrokenBarrierException ignored) {
                             // No-op.
                         }
 
