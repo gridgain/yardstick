@@ -14,13 +14,23 @@
 
 package org.yardstickframework.writers;
 
-import org.yardstickframework.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Locale;
+import org.yardstickframework.BenchmarkConfiguration;
+import org.yardstickframework.BenchmarkDriver;
+import org.yardstickframework.BenchmarkProbe;
+import org.yardstickframework.BenchmarkProbePoint;
+import org.yardstickframework.BenchmarkProbePointWriter;
+import org.yardstickframework.BenchmarkUtils;
 
-import java.io.*;
-import java.text.*;
-import java.util.*;
-
-import static org.yardstickframework.BenchmarkUtils.*;
+import static org.yardstickframework.BenchmarkUtils.WEIGHT_DELIMITER;
+import static org.yardstickframework.BenchmarkUtils.fixFolderName;
 
 /**
  * CSV probe point writer.

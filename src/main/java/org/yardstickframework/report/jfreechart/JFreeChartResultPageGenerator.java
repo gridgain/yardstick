@@ -14,17 +14,32 @@
 
 package org.yardstickframework.report.jfreechart;
 
-import org.yardstickframework.probes.*;
-import org.yardstickframework.writers.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.text.NumberFormat;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.TreeMap;
+import org.yardstickframework.probes.PercentileProbe;
+import org.yardstickframework.probes.ThroughputLatencyProbe;
+import org.yardstickframework.writers.BenchmarkProbePointCsvWriter;
 
-import java.io.*;
-import java.text.*;
-import java.util.*;
-
-import static org.yardstickframework.BenchmarkUtils.*;
-import static org.yardstickframework.report.jfreechart.JFreeChartGenerationMode.*;
-import static org.yardstickframework.report.jfreechart.JFreeChartGraphPlotter.*;
+import static org.yardstickframework.BenchmarkUtils.println;
+import static org.yardstickframework.report.jfreechart.JFreeChartGenerationMode.STANDARD;
+import static org.yardstickframework.report.jfreechart.JFreeChartGraphPlotter.FILE_NAME_COMP;
 import static org.yardstickframework.report.jfreechart.JFreeChartGraphPlotter.errorHelp;
+import static org.yardstickframework.report.jfreechart.JFreeChartGraphPlotter.parseTime;
 
 /**
  * Generates html pages with resulted graphs built by JFreeChart framework.

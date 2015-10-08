@@ -14,13 +14,20 @@
 
 package org.yardstickframework.probes;
 
-import org.yardstickframework.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.concurrent.TimeUnit;
+import org.yardstickframework.BenchmarkConfiguration;
+import org.yardstickframework.BenchmarkDriver;
+import org.yardstickframework.BenchmarkExecutionAwareProbe;
+import org.yardstickframework.BenchmarkProbePoint;
+import org.yardstickframework.BenchmarkTotalsOnlyProbe;
 
-import java.util.*;
-import java.util.concurrent.*;
+import static java.util.concurrent.TimeUnit.MICROSECONDS;
+import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
-import static java.util.concurrent.TimeUnit.*;
-import static org.yardstickframework.BenchmarkUtils.*;
+import static org.yardstickframework.BenchmarkUtils.println;
 
 /**
  * Probe that tracks the latency of each individual request and collects the time frame bucket.

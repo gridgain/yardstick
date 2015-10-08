@@ -14,14 +14,21 @@
 
 package org.yardstickframework.impl;
 
-import org.reflections.*;
-import org.yardstickframework.*;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import org.reflections.Reflections;
+import org.yardstickframework.BenchmarkConfiguration;
+import org.yardstickframework.BenchmarkProbe;
 
-import java.io.*;
-import java.lang.reflect.*;
-import java.util.*;
-
-import static org.yardstickframework.BenchmarkUtils.*;
+import static org.yardstickframework.BenchmarkUtils.println;
 
 /**
  * Benchmarks loader.

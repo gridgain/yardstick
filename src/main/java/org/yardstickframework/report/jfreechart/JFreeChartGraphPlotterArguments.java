@@ -14,9 +14,9 @@
 
 package org.yardstickframework.report.jfreechart;
 
-import com.beust.jcommander.*;
-
-import java.util.*;
+import com.beust.jcommander.Parameter;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Graph plotter arguments.

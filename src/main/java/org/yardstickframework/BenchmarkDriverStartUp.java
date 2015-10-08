@@ -14,11 +14,18 @@
 
 package org.yardstickframework;
 
-import org.yardstickframework.impl.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import org.yardstickframework.impl.BenchmarkLoader;
+import org.yardstickframework.impl.BenchmarkProbeSet;
+import org.yardstickframework.impl.BenchmarkRunner;
 
-import java.util.*;
-
-import static org.yardstickframework.BenchmarkUtils.*;
+import static org.yardstickframework.BenchmarkUtils.errorHelp;
+import static org.yardstickframework.BenchmarkUtils.println;
 
 /**
  * Benchmark driver startup class.

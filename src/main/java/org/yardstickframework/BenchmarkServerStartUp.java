@@ -14,9 +14,11 @@
 
 package org.yardstickframework;
 
-import org.yardstickframework.impl.*;
+import org.yardstickframework.impl.BenchmarkLoader;
 
-import static org.yardstickframework.BenchmarkUtils.*;
+import static org.yardstickframework.BenchmarkUtils.errorHelp;
+import static org.yardstickframework.BenchmarkUtils.jcommander;
+import static org.yardstickframework.BenchmarkUtils.println;
 
 /**
  * Benchmark server startup class.

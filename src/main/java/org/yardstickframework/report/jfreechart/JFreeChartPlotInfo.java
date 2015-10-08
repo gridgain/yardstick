@@ -14,7 +14,7 @@
 
 package org.yardstickframework.report.jfreechart;
 
-import java.util.*;
+import java.util.Collection;
 
 /**
  * Additional info for plot.

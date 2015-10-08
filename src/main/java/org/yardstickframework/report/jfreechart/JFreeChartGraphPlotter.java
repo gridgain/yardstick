@@ -14,28 +14,55 @@
 
 package org.yardstickframework.report.jfreechart;
 
-import com.beust.jcommander.*;
-import org.jfree.chart.*;
-import org.jfree.chart.axis.*;
-import org.jfree.chart.entity.*;
-import org.jfree.chart.plot.*;
-import org.jfree.chart.renderer.xy.*;
-import org.jfree.chart.title.*;
-import org.jfree.data.xy.*;
-import org.jfree.ui.*;
-import org.yardstickframework.probes.*;
-import org.yardstickframework.writers.*;
-
-import java.awt.*;
-import java.io.*;
-import java.text.*;
-import java.util.*;
+import com.beust.jcommander.JCommander;
+import com.beust.jcommander.ParameterException;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Font;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartRenderingInfo;
+import org.jfree.chart.ChartUtilities;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.AxisSpace;
+import org.jfree.chart.axis.ValueAxis;
+import org.jfree.chart.entity.StandardEntityCollection;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
+import org.jfree.chart.title.TextTitle;
+import org.jfree.data.xy.DefaultXYDataset;
+import org.jfree.ui.RectangleEdge;
+import org.yardstickframework.probes.PercentileProbe;
+import org.yardstickframework.probes.ThroughputLatencyProbe;
+import org.yardstickframework.writers.BenchmarkProbePointCsvWriter;
 
-import static java.awt.Color.*;
-import static org.yardstickframework.BenchmarkUtils.*;
-import static org.yardstickframework.report.jfreechart.JFreeChartGenerationMode.*;
-import static org.yardstickframework.writers.BenchmarkProbePointCsvWriter.*;
+import static java.awt.Color.GRAY;
+import static java.awt.Color.WHITE;
+
+import static org.yardstickframework.BenchmarkUtils.fixFolderName;
+import static org.yardstickframework.BenchmarkUtils.jcommander;
+import static org.yardstickframework.BenchmarkUtils.println;
+import static org.yardstickframework.report.jfreechart.JFreeChartGenerationMode.COMPARISON;
+import static org.yardstickframework.report.jfreechart.JFreeChartGenerationMode.COMPOUND;
+import static org.yardstickframework.report.jfreechart.JFreeChartGenerationMode.STANDARD;
+import static org.yardstickframework.writers.BenchmarkProbePointCsvWriter.DRV_NAMES_PREFIX;
+import static org.yardstickframework.writers.BenchmarkProbePointCsvWriter.META_INFO_PREFIX;
+import static org.yardstickframework.writers.BenchmarkProbePointCsvWriter.META_INFO_SEPARATOR;
 
 /**
  * JFreeChart graph plotter.

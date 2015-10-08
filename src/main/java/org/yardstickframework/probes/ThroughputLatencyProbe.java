@@ -14,13 +14,20 @@
 
 package org.yardstickframework.probes;
 
-import org.yardstickframework.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import org.yardstickframework.BenchmarkConfiguration;
+import org.yardstickframework.BenchmarkDriver;
+import org.yardstickframework.BenchmarkExecutionAwareProbe;
+import org.yardstickframework.BenchmarkProbePoint;
 
-import java.util.*;
-import java.util.concurrent.*;
+import static java.util.concurrent.TimeUnit.MINUTES;
 
-import static java.util.concurrent.TimeUnit.*;
-import static org.yardstickframework.BenchmarkUtils.*;
+import static org.yardstickframework.BenchmarkUtils.println;
 
 /**
  * Probe that calculates throughput and average latency.

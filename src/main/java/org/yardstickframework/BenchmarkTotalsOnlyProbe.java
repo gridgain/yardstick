@@ -14,7 +14,7 @@
 
 package org.yardstickframework;
 
-import java.util.*;
+import java.util.Collection;
 
 /**
  * Probe marked with this interface should be asked for collected points

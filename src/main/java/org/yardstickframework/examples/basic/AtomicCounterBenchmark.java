@@ -14,10 +14,9 @@
 
 package org.yardstickframework.examples.basic;
 
-import org.yardstickframework.*;
-
-import java.util.*;
-import java.util.concurrent.atomic.*;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+import org.yardstickframework.BenchmarkDriverAdapter;
 
 /**
  * Benchmark to measure how fast atomic integer can be incremented when

@@ -14,7 +14,7 @@
 
 package org.yardstickframework;
 
-import java.util.*;
+import java.util.Collection;
 
 /**
  * Points writer.
