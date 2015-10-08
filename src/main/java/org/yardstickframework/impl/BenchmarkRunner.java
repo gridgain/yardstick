@@ -20,10 +20,10 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.atomic.AtomicReference;
 import org.yardstickframework.BenchmarkConfiguration;
 import org.yardstickframework.BenchmarkDriver;
 import org.yardstickframework.BenchmarkUtils;
@@ -107,8 +107,7 @@ public class BenchmarkRunner {
 
         final int sumWeight = sumWeights();
 
-        final AtomicReference<CyclicBarrier> barrierHdr = new AtomicReference<>(
-            new CyclicBarrier(threadNum, new Runnable() {
+        final CyclicBarrier barrier = new CyclicBarrier(threadNum, new Runnable() {
             @Override public void run() {
                 for (BenchmarkDriver drv : drivers)
                     drv.onWarmupFinished();
@@ -118,7 +117,7 @@ public class BenchmarkRunner {
 
                 BenchmarkUtils.println("Starting main test (warmup finished).");
             }
-        }));
+        });
 
         final AtomicLong opsCnt = new AtomicLong();
 
@@ -144,12 +143,7 @@ public class BenchmarkRunner {
                         else {
                             reset = false;
 
-                            CyclicBarrier b = barrierHdr.get();
-
-                            if (b == null)
-                                return;
-
-                            b.await();
+                            barrier.await();
                         }
 
                         while (!cancelled && !Thread.currentThread().isInterrupted()) {
@@ -194,12 +188,7 @@ public class BenchmarkRunner {
                             long elapsed = (now - testStart) / 1_000;
 
                             if (reset && elapsed > cfg.warmup()) {
-                                CyclicBarrier b = barrierHdr.get();
-
-                                if (b == null)
-                                    return;
-
-                                b.await();
+                                barrier.await();
 
                                 reset = false;
 
@@ -221,16 +210,18 @@ public class BenchmarkRunner {
                             shutdown();
                     }
                     catch (Throwable e) {
-                        // Some drivers can wait on barrier - reset barrier.
-                        final CyclicBarrier barrier = barrierHdr.getAndSet(null);
-
-                        if (barrier != null)
-                            barrier.reset();
-
                         try {
-                            drv.onException(e);
+                            if (drv != null)
+                                drv.onException(e);
                         }
                         catch (Throwable ignore) {
+                            // No-op.
+                        }
+
+                        try {
+                            barrier.await();
+                        }
+                        catch (InterruptedException | BrokenBarrierException ignored) {
                             // No-op.
                         }
 

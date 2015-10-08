@@ -67,7 +67,7 @@ public interface BenchmarkDriver {
 
     /**
      * This method is invoked only then {@link #test(Map)} throws exception, right after the exception
-     * thrown. It blocks an shutting down of benchmark, so it should not have long execution.
+     * thrown. It blocks shutting down of benchmark, so it should not have long execution.
      *
      * Any exception thrown from the method will be ignored.
      *

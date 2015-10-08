@@ -42,7 +42,7 @@ public class EchoServer implements BenchmarkServer {
     @Override public void start(final BenchmarkConfiguration cfg) throws Exception {
         BenchmarkUtils.jcommander(cfg.commandLineArguments(), args, "<echo-server>");
 
-        println("Started server with id=" + cfg.memberId());
+        println("Started server with id: " + cfg.memberId());
 
         th = new Thread(new Runnable() {
             @Override public void run() {

@@ -44,7 +44,7 @@ public class EchoBenchmark extends BenchmarkDriverAdapter {
     @Override public void setUp(BenchmarkConfiguration cfg) throws Exception {
         super.setUp(cfg);
 
-        println("Started benchmark with id" + cfg.memberId());
+        println("Started benchmark with id: " + cfg.memberId());
 
         BenchmarkUtils.jcommander(cfg.commandLineArguments(), args, "<echo-driver>");
 

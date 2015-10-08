@@ -97,7 +97,7 @@ a delay (for warmup) before first restart (stop, then pause, then start),
 the pause time (pause between server kill and server start)
 and a period for next restarts.
 The delay, the pause and the period in seconds (Note: it can be 0.1 seconds for example).
-Please pay attention that restarters warmup delay is an absolute time rom benchmark start, it does not depends of benchmark's warmup delay.
+Please pay attention that restarters warmup delay is an absolute time from benchmark start, it does not depends of benchmark's warmup delay.
 In this case, yardstick will start new servers for each benchmark (the same with `RESTART_SERVERS=true`), and after starting of driver,
 yardstick will killing server by the hostname according to the delay, the pause and the period time.
 * `CONFIGS` - comma-separated list of benchmark run configurations which are passed to the servers and to the benchmarks

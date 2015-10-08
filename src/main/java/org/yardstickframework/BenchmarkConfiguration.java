@@ -34,16 +34,16 @@ public class BenchmarkConfiguration implements Serializable {
     @Parameter(names = {"-cfg", "--config"}, description = "Framework configuration file path")
     private String propsFileName = "config/benchmark.properties";
 
-    /** */
-    @Parameter(names = {"-logsFold", "--logsFolder"}, description = "Logs directory")
+    /** For internal use. Should not be used in configs. */
+    @Parameter(names = {"--logsFolder"}, description = "Logs directory")
     private String logsFolder;
 
-    /** */
-    @Parameter(names = {"-curFold", "--currentFolder"}, description = "Current folder")
+    /** For internal use. Should not be used in configs. */
+    @Parameter(names = {"--currentFolder"}, description = "Current folder")
     private String curFolder;
 
-    /** */
-    @Parameter(names = {"-scriptsFold", "--scriptsFolder"}, description = "Script folder")
+    /** For internal use. Should not be used in configs. */
+    @Parameter(names = {"--scriptsFolder"}, description = "Script folder")
     private String scriptsFolder;
 
     /** */
