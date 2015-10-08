@@ -14,7 +14,7 @@
 
 package org.yardstickframework;
 
-import java.util.*;
+import java.util.Map;
 
 /**
  * Benchmark driver.
@@ -64,4 +64,14 @@ public interface BenchmarkDriver {
      * This method is invoked right after the warmup procedure is finished.
      */
     public void onWarmupFinished();
+
+    /**
+     * This method is invoked only then {@link #test(Map)} throws exception, right after the exception
+     * thrown. It blocks an shutting down of benchmark, so it should not have long execution.
+     *
+     * Any exception thrown from the method will be ignored.
+     *
+     * @param e Exception.
+     */
+    public void onException(Throwable e);
 }

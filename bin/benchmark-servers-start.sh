@@ -98,30 +98,83 @@ trap "cleanup; exit" SIGHUP SIGINT SIGTERM SIGQUIT SIGKILL
 # Define logs directory.
 LOGS_DIR=${SCRIPT_DIR}/../${LOGS_BASE}/logs_servers
 
-# JVM options.
-JVM_OPTS=${JVM_OPTS}" -Dyardstick.server"
+if [ "${RESTARTERS_LOGS_DIR}" = "" ]; then
+    RESTARTERS_LOGS_DIR=${SCRIPT_DIR}/../${LOGS_BASE}/logs_restarters
+fi
+
+if [[ "${RESTART_SERVERS}" != "" ]] && [[ "${RESTART_SERVERS}" != "true" ]]; then
+    mkdir -p ${RESTARTERS_LOGS_DIR}
+fi
 
 CUR_DIR=$(pwd)
 
-cntr=0
+DS=""
+
+id=0
 
 IFS=',' read -ra hosts0 <<< "${SERVER_HOSTS}"
 for host_name in "${hosts0[@]}";
 do
+    CONFIG_PRM="-id ${id} ${CONFIG}"
+
     suffix=`echo "${CONFIG}" | tail -c 60 | sed 's/ *$//g'`
 
-    echo "<"$(date +"%H:%M:%S")"><yardstick> Starting server config '..."${suffix}"' on "${host_name}""
+    echo "<"$(date +"%H:%M:%S")"><yardstick> Starting server config '..."${suffix}"' on "${host_name}" with id=${id}"
 
     now=`date +'%H%M%S'`
 
-    file_log=${LOGS_DIR}"/"${now}"_"${cntr}"_"${host_name}".log"
+    # Extract description.
+    if [[ "${RESTART_SERVERS}" != "" ]]; then
+        IFS=' ' read -ra cfg0 <<< "${CONFIG}"
+        for cfg00 in "${cfg0[@]}";
+        do
+            if [[ ${found} == 'true' ]]; then
+                found=""
+                DS="_${cfg00}"
+            fi
+
+            if [[ ${cfg00} == '-ds' ]] || [[ ${cfg00} == '--descriptions' ]]; then
+                found="true"
+            fi
+        done
+    fi
+
+    file_log=${LOGS_DIR}"/"${now}"_id"${id}"_"${host_name}${DS}".log"
 
     ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} mkdir -p ${LOGS_DIR}
 
     ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} \
-        "MAIN_CLASS='org.yardstickframework.BenchmarkServerStartUp'" "JVM_OPTS='${JVM_OPTS}'" "CP='${CP}'" \
+        "MAIN_CLASS='org.yardstickframework.BenchmarkServerStartUp'" "JVM_OPTS='${JVM_OPTS} -Dyardstick.server${id}'" "CP='${CP}'" \
         "CUR_DIR='${CUR_DIR}'" "PROPS_ENV0='${PROPS_ENV}'" \
-        "nohup ${SCRIPT_DIR}/benchmark-bootstrap.sh ${CONFIG} "--config" ${CONFIG_INCLUDE} > ${file_log} 2>& 1 &"
+        "nohup ${SCRIPT_DIR}/benchmark-bootstrap.sh ${CONFIG_PRM} "--config" ${CONFIG_INCLUDE} "--logsFolder" ${LOGS_DIR} "--remoteuser" ${REMOTE_USER} "--remoteHostName" ${host_name} > ${file_log} 2>& 1 &"
 
-    cntr=$((1 + $cntr))
+    # Start a restarter if needed.
+    if [[ "${RESTART_SERVERS}" != "" ]] && [[ "${RESTART_SERVERS}" != "true" ]]; then
+        IFS=',' read -ra hostsToRestart0 <<< "${RESTART_SERVERS}"
+        for host2Timeout in "${hostsToRestart0[@]}";
+        do
+            IFS=':' read -ra hostToRestart <<< "${host2Timeout}"
+
+            host_to_restart=${hostToRestart[0]}
+            id_to_restart=${hostToRestart[1]}
+            delay=${hostToRestart[2]}
+            pause=${hostToRestart[3]}
+            period=${hostToRestart[4]}
+
+            if [[ "${host_to_restart}" = "${host_name}" ]] && [[ "${id_to_restart}" = "${id}" ]] ; then
+                if [[ "${delay}" != "" ]] && [[ "${pause}" != "" ]] && [[ "${period}" != "" ]] ; then
+                    file_log=${RESTARTERS_LOGS_DIR}"/"${now}"_id"${id}"_"${host_name}".log"
+
+                    nohup ${SCRIPT_DIR}/benchmark-server-restarter-start.sh "${host_name}" "${id}" "${CONFIG_PRM}" "${delay}" "${pause}" "${period}" "${CONFIG_INCLUDE}" > ${file_log} 2>& 1 &
+
+                    echo "<"$(date +"%H:%M:%S")"><yardstick> Server restarter is started for ${host_to_restart} with id=${id} and config '...${suffix}', warmup delay ${delay} sec., pause ${pause} sec. and period ${period} sec."
+                else
+                    echo "<"$(date +"%H:%M:%S")"><yardstick> Failed to start a server restarter for host ${host_to_restart} with id=${id}. Next params should not be empty: [warmup delay='${delay}', pause='${pause}', period='${period}']"
+                fi
+            fi
+        done
+    fi
+    # End of restarter logic.
+
+    id=$((1 + $id))
 done

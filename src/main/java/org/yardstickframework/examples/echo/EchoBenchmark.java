@@ -14,13 +14,18 @@
 
 package org.yardstickframework.examples.echo;
 
-import org.yardstickframework.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.Socket;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicInteger;
+import org.yardstickframework.BenchmarkConfiguration;
+import org.yardstickframework.BenchmarkDriverAdapter;
+import org.yardstickframework.BenchmarkUtils;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.*;
+import static org.yardstickframework.BenchmarkUtils.println;
 
 /**
  * Echo server benchmark. This benchmark has client and server counterparts.
@@ -38,6 +43,8 @@ public class EchoBenchmark extends BenchmarkDriverAdapter {
     /** {@inheritDoc} */
     @Override public void setUp(BenchmarkConfiguration cfg) throws Exception {
         super.setUp(cfg);
+
+        println("Started benchmark with id" + cfg.memberId());
 
         BenchmarkUtils.jcommander(cfg.commandLineArguments(), args, "<echo-driver>");
 

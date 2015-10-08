@@ -47,4 +47,9 @@ public abstract class BenchmarkDriverAdapter implements BenchmarkDriver {
     @Override public void onWarmupFinished() {
         // No-op.
     }
+
+    /** {@inheritDoc} */
+    @Override public void onException(Throwable e) {
+        // No-op.
+    }
 }

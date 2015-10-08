@@ -90,11 +90,16 @@ The following properties can be defined in benchmark properties file:
 * `DRIVER_HOSTS` - comma-separated list of IP addresses where drivers should be started, one driver per host, if the property is not defined then the driver will be run on localhost
 * `REMOTE_USER` - SSH user for logging in to remote hosts
 * `RESTART_SERVERS` - there is two modes to use it. 1. `RESTART_SERVERS=true` - yardstick will start new servers
-for each benchmark. 2. `RESTART_SERVERS=<hostname_1>:<delay_1>:<period_1>,<hostname_2>:<delay_2>:<period_2>` - comma-separated list of colon-separated triples of hostname,
-a delay (for warmup) before first restart and a period for next restarts. The delay and the period in seconds.
+for each benchmark. 2. `RESTART_SERVERS=<hostname_1>:<id_1>:<delay_1>:<pause_1>:<period_1>,<hostname_2>:<id_2>:<delay_2>:<pause_2>:<period_2>` -
+comma-separated list of colon-separated tuples of a hostname,
+a server host id (id - number of hostname at `SERVER_HOSTS` from 0),
+a delay (for warmup) before first restart (stop, then pause, then start),
+the pause time (pause between server kill and server start)
+and a period for next restarts.
+The delay, the pause and the period in seconds (Note: it can be 0.1 seconds for example).
+Please pay attention that restarters warmup delay is an absolute time rom benchmark start, it does not depends of benchmark's warmup delay.
 In this case, yardstick will start new servers for each benchmark (the same with `RESTART_SERVERS=true`), and after starting of driver,
-yardstick will killing server by the hostname according to the delay and the period time.
-`DELAY_AFTER_SERVER_KILL` property can be used to set a delay between killing server and restarting new instance (0.01 seconds, by default).
+yardstick will killing server by the hostname according to the delay, the pause and the period time.
 * `CONFIGS` - comma-separated list of benchmark run configurations which are passed to the servers and to the benchmarks
 
 Example of `benchmark.properties` file to run 2 instances of `EchoServer`

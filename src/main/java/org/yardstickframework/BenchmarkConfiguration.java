@@ -14,19 +14,37 @@
 
 package org.yardstickframework;
 
-import com.beust.jcommander.*;
-
-import java.io.*;
-import java.util.*;
+import com.beust.jcommander.Parameter;
+import java.io.PrintStream;
+import java.io.Serializable;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Input arguments for benchmarks.
  */
 @SuppressWarnings({"UnusedDeclaration", "FieldCanBeLocal"})
-public class BenchmarkConfiguration {
+public class BenchmarkConfiguration implements Serializable {
+    /** */
+    private static final long serialVersionUID = 0L;
+
     /** */
     @Parameter(names = {"-cfg", "--config"}, description = "Framework configuration file path")
     private String propsFileName = "config/benchmark.properties";
+
+    /** */
+    @Parameter(names = {"-logsFold", "--logsFolder"}, description = "Logs directory")
+    private String logsFolder;
+
+    /** */
+    @Parameter(names = {"-curFold", "--currentFolder"}, description = "Current folder")
+    private String curFolder;
+
+    /** */
+    @Parameter(names = {"-scriptsFold", "--scriptsFolder"}, description = "Script folder")
+    private String scriptsFolder;
 
     /** */
     @Parameter(names = {"-dn", "--driverNames"}, variableArity = true,
@@ -36,6 +54,10 @@ public class BenchmarkConfiguration {
     /** */
     @Parameter(names = {"-sn", "--serverName"}, description = "Benchmark server name (required)")
     private String serverName;
+
+    /** */
+    @Parameter(names = {"-id", "--memberId"}, description = "Memebr ID")
+    private int memberId = -1;
 
     /** */
     @Parameter(names = {"-p", "--packages"}, description = "Comma separated list of packages for benchmarks")
@@ -83,6 +105,14 @@ public class BenchmarkConfiguration {
     private String hostName = "";
 
     /** */
+    @Parameter(names = {"-remoteuser", "--remoteuser"}, description = "Remote user name")
+    private String remoteUser = "";
+
+    /** */
+    @Parameter(names = {"-rhn", "--remoteHostName"}, description = "Remote host name")
+    private String remoteHostName = "";
+
+    /** */
     @Parameter(names = {"-lfreq", "--logFreq"}, description = "Iterations log frequency")
     private int logIterFreq = 25000;
 
@@ -97,10 +127,10 @@ public class BenchmarkConfiguration {
     private Map<String, String> customProps;
 
     /** Output writer. */
-    private PrintStream outputWriter;
+    private transient PrintStream outputWriter;
 
     /** Error writer. */
-    private PrintStream errorWriter;
+    private transient PrintStream errorWriter;
 
     /**
      * @return Properties file name.
@@ -128,6 +158,13 @@ public class BenchmarkConfiguration {
      */
     public List<String> driverNames() {
         return driverNames;
+    }
+
+    /**
+     * @return Member ID unique to server or driver.
+     */
+    public int memberId() {
+        return memberId;
     }
 
     /**
@@ -306,6 +343,27 @@ public class BenchmarkConfiguration {
     }
 
     /**
+     * @return Script folder.
+     */
+    public String scriptsFolder() {
+        return scriptsFolder;
+    }
+
+    /**
+     * @return Current folder.
+     */
+    public String currentFolder() {
+        return curFolder;
+    }
+
+    /**
+     * @return Logs folder.
+     */
+    public String logsFolder() {
+        return logsFolder;
+    }
+
+    /**
      * @return Output folder.
      */
     public String outputFolder() {
@@ -327,6 +385,34 @@ public class BenchmarkConfiguration {
     }
 
     /**
+     * @return Remote user name.
+     */
+    public String remoteUser() {
+        return remoteUser;
+    }
+
+    /**
+     * @param remoteUser Remote user name.
+     */
+    public void remoteUser(String remoteUser) {
+        this.remoteUser = remoteUser;
+    }
+
+    /**
+     * @return Remote host name.
+     */
+    public String remoteHostName() {
+        return remoteHostName;
+    }
+
+    /**
+     * @param remoteHostName Remote host name.
+     */
+    public void remoteHostName(String remoteHostName) {
+        this.remoteHostName = remoteHostName;
+    }
+
+    /**
      * @return Default description.
      */
     public String defaultDescription() {
@@ -336,7 +422,8 @@ public class BenchmarkConfiguration {
     /** {@inheritDoc} */
     @Override public String toString() {
         return getClass().getSimpleName() + " [" +
-            "driverNames='" + driverNames + '\'' +
+            "memberId='" + memberId + '\'' +
+            ", driverNames='" + driverNames + '\'' +
             ", serverName='" + serverName + '\'' +
             ", threads=" + threads +
             ", duration=" + duration +
@@ -348,6 +435,9 @@ public class BenchmarkConfiguration {
             ", probeWriter='" + probeWriter + '\'' +
             ", customProps=" + customProps +
             ", shutdownHook=" + shutdownHook +
+            ", currentFolder=" + curFolder +
+            ", scriptsFolder=" + scriptsFolder +
+            ", logsFolder=" + logsFolder +
             ", outputFolder=" + outputFolder +
             ", outputWriter=" + outputWriter +
             ", errorWriter=" + errorWriter +

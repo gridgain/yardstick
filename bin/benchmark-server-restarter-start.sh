@@ -26,13 +26,15 @@
 SCRIPT_DIR=$(cd $(dirname "$0"); pwd)
 
 HOST_NAME=$1
-CONFIG=$2
-WARMPUP_DELAY=$3
-PERIOD=$4
-CONFIG_INCLUDE=$5
+ID=$2
+CONFIG=$3
+WARMPUP_DELAY=$4
+PAUSE=$5
+PERIOD=$6
+CONFIG_INCLUDE=$7
 
 if [ "${CONFIG_INCLUDE}" == "-h" ] || [ "${CONFIG_INCLUDE}" == "--help" ]; then
-    echo "Usage: benchmark-restarter-start.sh [HOST_NAME] [CONFIG] [DELAY] [PERIOD] [PROPERTIES_FILE_PATH]"
+    echo "Usage: benchmark-server-restarter-start.sh [HOST_NAME] [ID] [CONFIG] [DELAY] [PAUSE] [PERIOD] [PROPERTIES_FILE_PATH]"
     echo "Script that starts server restarter according to given paramethers."
     exit 1
 fi
@@ -103,49 +105,60 @@ if [ "${SERVERS_LOGS_DIR}" = "" ]; then
     SERVERS_LOGS_DIR=${SCRIPT_DIR}/../${LOGS_BASE}/logs_servers
 fi
 
-if [ "${DELAY_AFTER_SERVER_KILL}" == "" ]; then
-    DELAY_AFTER_SERVER_KILL=0.01
-fi
-
-# JVM options.
-JVM_OPTS=${JVM_OPTS}" -Dyardstick.server"
-
 CUR_DIR=$(pwd)
 
-echo "<"$(date +"%H:%M:%S")"><yardstick> Server restarer started for ${HOST_NAME}."
+echo "<"$(date +"%H:%M:%S")"><yardstick> Server restarer started for ${HOST_NAME} with id=${ID}."
 
 #
 # Main.
 #
 ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${HOST_NAME} mkdir -p ${SERVERS_LOGS_DIR}
 
-cntr=0
+DS=""
+
+# Extract description.
+if [[ "${RESTART_SERVERS}" != "" ]]; then
+    IFS=' ' read -ra cfg0 <<< "${CONFIG}"
+    for cfg00 in "${cfg0[@]}";
+    do
+        if [[ ${found} == 'true' ]]; then
+            found=""
+            DS=${cfg00}
+        fi
+
+        if [[ ${cfg00} == '-ds' ]] || [[ ${cfg00} == '--descriptions' ]]; then
+            found="true"
+        fi
+    done
+fi
+
+cntr=1
 
 sleep ${WARMPUP_DELAY}
 
 while [ true ]
 do
-    echo "<"$(date +"%H:%M:%S")"><yardstick> Killing server on "${HOST_NAME}""
+    echo "<"$(date +"%H:%M:%S")"><yardstick> Killing server on "${HOST_NAME}" with id=${ID}"
 
     # Kill only first found yardstick.server on the host
-    ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${HOST_NAME} "kill -9 `pgrep -f Dyardstick.server | awk 'NR==1{print $1}'`"
+    ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${HOST_NAME} "pkill -9 -f 'Dyardstick.server${ID}'"
 
-    sleep ${DELAY_AFTER_SERVER_KILL} # Wait for process stopping.
+    sleep ${PAUSE} # Wait for process stopping.
 
     suffix=`echo "${CONFIG}" | tail -c 60 | sed 's/ *$//g'`
 
-    echo "<"$(date +"%H:%M:%S")"><yardstick> Starting server config '...${suffix}' on ${HOST_NAME}"
+    echo "<"$(date +"%H:%M:%S")"><yardstick> Starting server config '...${suffix}' on ${HOST_NAME} with id=${ID}"
 
     now=`date +'%H%M%S'`
 
-    server_file_log=${SERVERS_LOGS_DIR}"/"${now}"_"${cntr}"_"${HOST_NAME}".log"
+    server_file_log=${SERVERS_LOGS_DIR}"/"${now}"_id"${ID}"-"${cntr}"_"${HOST_NAME}${DS}".log"
 
     ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${HOST_NAME} \
-        "MAIN_CLASS='org.yardstickframework.BenchmarkServerStartUp'" "JVM_OPTS='${JVM_OPTS}'" "CP='${CP}'" \
-        "CUR_DIR='${CUR_DIR}'" "PROPS_ENV0='${PROPS_ENV}'" \
+        "MAIN_CLASS='org.yardstickframework.BenchmarkServerStartUp'" \
+        "JVM_OPTS='${JVM_OPTS} -Dyardstick.server${ID}-${cntr}'" "CP='${CP}'" "CUR_DIR='${CUR_DIR}'" "PROPS_ENV0='${PROPS_ENV}'" \
         "nohup ${SCRIPT_DIR}/benchmark-bootstrap.sh ${CONFIG} "--config" ${CONFIG_INCLUDE} > ${server_file_log} 2>& 1 &"
 
-    echo "<"$(date +"%H:%M:%S")"><yardstick> Server on ${HOST_NAME} was started."
+    echo "<"$(date +"%H:%M:%S")"><yardstick> Server on ${HOST_NAME} with id=${ID} was started."
 
     cntr=$((1 + $cntr))
 

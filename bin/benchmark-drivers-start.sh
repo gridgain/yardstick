@@ -102,12 +102,11 @@ if [[ "${OUTPUT_FOLDER}" == "" ]] && [[ ${CONFIG} != *'-of '* ]] && [[ ${CONFIG}
     OUTPUT_FOLDER="--outputFolder ${folder}"
 fi
 
-# JVM options.
-JVM_OPTS=${JVM_OPTS}" -Dyardstick.driver"
-
 CUR_DIR=$(pwd)
 
-cntr=0
+DS=""
+
+id=0
 
 drvNum=$((`echo ${DRIVER_HOSTS} | tr ',' '\n' | wc -l`))
 
@@ -115,7 +114,7 @@ IFS=',' read -ra hosts0 <<< "${DRIVER_HOSTS}"
 for host_name in "${hosts0[@]}";
 do
     if ((${drvNum} > 1)); then
-        outFol=${OUTPUT_FOLDER}"/"${cntr}"-"${host_name}
+        outFol=${OUTPUT_FOLDER}"/"${id}"-"${host_name}
 
         if [[ ${CONFIG} != *'-hn '* ]] && [[ ${CONFIG} != *'--hostName '* ]]; then
             host_name0="--hostName ${host_name}"
@@ -124,34 +123,44 @@ do
         outFol=${OUTPUT_FOLDER}
     fi
 
-    cfg="${outFol} ${host_name0} ${CONFIG}"
+    cfg="${outFol} ${host_name0} -id ${id} ${CONFIG}"
 
     suffix=`echo "${cfg}" | tail -c 60 | sed 's/ *$//g'`
 
-    echo "<"$(date +"%H:%M:%S")"><yardstick> Starting driver config '..."${suffix}"' on "${host_name}""
+    echo "<"$(date +"%H:%M:%S")"><yardstick> Starting driver config '..."${suffix}"' on "${host_name}" with id=${id}"
 
     now=`date +'%H%M%S'`
 
-    file_log=${LOGS_DIR}"/"${now}"_"${cntr}"_"${host_name}".log"
+    # Extract description.
+    IFS=' ' read -ra cfg0 <<< "${CONFIG}"
+    for cfg00 in "${cfg0[@]}";
+    do
+        if [[ ${found} == 'true' ]]; then
+            found=""
+            DS=${cfg00}
+        fi
+
+        if [[ ${cfg00} == '-ds' ]] || [[ ${cfg00} == '--descriptions' ]]; then
+            found="true"
+        fi
+    done
+
+    file_log=${LOGS_DIR}"/"${now}"_id"${id}"_"${host_name}"_"${DS}".log"
 
     ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} mkdir -p ${LOGS_DIR}
 
     ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} \
-        "MAIN_CLASS='org.yardstickframework.BenchmarkDriverStartUp'" "JVM_OPTS='${JVM_OPTS}'" "CP='${CP}'" \
-        "CUR_DIR='${CUR_DIR}'" "PROPS_ENV0='${PROPS_ENV}'" \
-        "nohup ${SCRIPT_DIR}/benchmark-bootstrap.sh ${cfg} "--config" ${CONFIG_INCLUDE} > ${file_log} 2>& 1 &"
+        "MAIN_CLASS='org.yardstickframework.BenchmarkDriverStartUp'" "JVM_OPTS='${JVM_OPTS} -Dyardstick.driver${id}'" \
+        "CP='${CP}'" "CUR_DIR='${CUR_DIR}'" "PROPS_ENV0='${PROPS_ENV}'" \
+        "nohup ${SCRIPT_DIR}/benchmark-bootstrap.sh ${cfg} "--config" ${CONFIG_INCLUDE} "--logsFolder" ${LOGS_DIR} > ${file_log} 2>& 1 &"
 
     ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} "HOST_NAME='${host_name}'" \
         ${SCRIPT_DIR}/benchmark-wait-driver-up.sh
 
-    echo "<"$(date +"%H:%M:%S")"><yardstick> Driver is started on "${host_name}
+    echo "<"$(date +"%H:%M:%S")"><yardstick> Driver is started on "${host_name}" with id=${id}"
 
-    cntr=$((1 + $cntr))
+    id=$((1 + $id))
 done
-
-if [ "${RESTART_SERVERS}" != "" ] && [ "${RESTART_SERVERS}" != "true" ]; then
-    PROPS_ENV=${PROPS_ENV} /bin/bash ${SCRIPT_DIR}/benchmark-restarters-all-start.sh ${CONFIG_INCLUDE}
-fi
 
 for host_name in "${hosts0[@]}";
 do
@@ -164,7 +173,3 @@ do
         ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} touch ${CUR_DIR}/${OUTPUT_FOLDER#--outputFolder }"/.multiple-drivers"
     fi
 done
-
-if [ "${RESTART_SERVERS}" != "" ] && [ "${RESTART_SERVERS}" != "true" ]; then
-    /bin/bash ${SCRIPT_DIR}/benchmark-restarters-all-stop.sh ${CONFIG_INCLUDE}
-fi

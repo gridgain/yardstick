@@ -67,6 +67,12 @@ if [ "${REMOTE_USER}" == "" ]; then
     exit 1
 fi
 
+pkill -9 -f "benchmark-server-restarter-start.sh"
+
+if [[ "${RESTART_SERVERS}" != "" ]] && [[ "${RESTART_SERVERS}" != "true" ]]; then
+    echo "<"$(date +"%H:%M:%S")"><yardstick> All server restartets are stopped."
+fi
+
 IFS=',' read -ra hosts0 <<< "${SERVER_HOSTS}"
 for host_name in "${hosts0[@]}";
 do

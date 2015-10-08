@@ -14,12 +14,19 @@
 
 package org.yardstickframework.examples.echo;
 
-import org.yardstickframework.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.InetAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.UnknownHostException;
+import org.yardstickframework.BenchmarkConfiguration;
+import org.yardstickframework.BenchmarkServer;
+import org.yardstickframework.BenchmarkUtils;
 
-import java.io.*;
-import java.net.*;
-
-import static org.yardstickframework.BenchmarkUtils.*;
+import static org.yardstickframework.BenchmarkUtils.errorHelp;
+import static org.yardstickframework.BenchmarkUtils.println;
 
 /**
  * Echo server.
@@ -34,6 +41,8 @@ public class EchoServer implements BenchmarkServer {
     /** {@inheritDoc} */
     @Override public void start(final BenchmarkConfiguration cfg) throws Exception {
         BenchmarkUtils.jcommander(cfg.commandLineArguments(), args, "<echo-server>");
+
+        println("Started server with id=" + cfg.memberId());
 
         th = new Thread(new Runnable() {
             @Override public void run() {

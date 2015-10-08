@@ -14,13 +14,21 @@
 
 package org.yardstickframework.impl;
 
-import org.yardstickframework.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
+import org.yardstickframework.BenchmarkConfiguration;
+import org.yardstickframework.BenchmarkDriver;
+import org.yardstickframework.BenchmarkUtils;
 
-import java.util.*;
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.*;
-
-import static org.yardstickframework.BenchmarkUtils.*;
+import static org.yardstickframework.BenchmarkUtils.errorHelp;
 
 /**
  * Benchmark runner. Starts benchmarking threads, manages lifecycle.
@@ -99,7 +107,8 @@ public class BenchmarkRunner {
 
         final int sumWeight = sumWeights();
 
-        final CyclicBarrier barrier = new CyclicBarrier(threadNum, new Runnable() {
+        final AtomicReference<CyclicBarrier> barrierHdr = new AtomicReference<>(
+            new CyclicBarrier(threadNum, new Runnable() {
             @Override public void run() {
                 for (BenchmarkDriver drv : drivers)
                     drv.onWarmupFinished();
@@ -109,7 +118,7 @@ public class BenchmarkRunner {
 
                 BenchmarkUtils.println("Starting main test (warmup finished).");
             }
-        });
+        }));
 
         final AtomicLong opsCnt = new AtomicLong();
 
@@ -120,6 +129,8 @@ public class BenchmarkRunner {
 
             threads.add(new Thread(new Runnable() {
                 @Override public void run() {
+                    BenchmarkDriver drv = null;
+
                     try {
                         Random rand = new Random();
 
@@ -133,7 +144,12 @@ public class BenchmarkRunner {
                         else {
                             reset = false;
 
-                            barrier.await();
+                            CyclicBarrier b = barrierHdr.get();
+
+                            if (b == null)
+                                return;
+
+                            b.await();
                         }
 
                         while (!cancelled && !Thread.currentThread().isInterrupted()) {
@@ -155,7 +171,7 @@ public class BenchmarkRunner {
 
                             int idx = driverIndex(rand, sumWeight);
 
-                            BenchmarkDriver drv = drivers[idx];
+                            drv = drivers[idx];
 
                             BenchmarkProbeSet probeSet = probeSets[idx];
 
@@ -178,7 +194,12 @@ public class BenchmarkRunner {
                             long elapsed = (now - testStart) / 1_000;
 
                             if (reset && elapsed > cfg.warmup()) {
-                                barrier.await();
+                                CyclicBarrier b = barrierHdr.get();
+
+                                if (b == null)
+                                    return;
+
+                                b.await();
 
                                 reset = false;
 
@@ -200,6 +221,19 @@ public class BenchmarkRunner {
                             shutdown();
                     }
                     catch (Throwable e) {
+                        // Some drivers can wait on barrier - reset barrier.
+                        final CyclicBarrier barrier = barrierHdr.getAndSet(null);
+
+                        if (barrier != null)
+                            barrier.reset();
+
+                        try {
+                            drv.onException(e);
+                        }
+                        catch (Throwable ignore) {
+                            // No-op.
+                        }
+
                         // Stop whole benchmark execution.
                         cancel(e);
                     }
