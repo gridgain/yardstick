@@ -20,7 +20,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.Phaser;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import org.yardstickframework.BenchmarkConfiguration;
@@ -106,8 +106,8 @@ public class BenchmarkRunner {
 
         final int sumWeight = sumWeights();
 
-        final CyclicBarrier barrier = new CyclicBarrier(threadNum, new Runnable() {
-            @Override public void run() {
+        final Phaser phaser = new Phaser(threadNum) {
+            @Override protected boolean onAdvance(int phase, int registeredParties) {
                 for (BenchmarkDriver drv : drivers)
                     drv.onWarmupFinished();
 
@@ -115,8 +115,10 @@ public class BenchmarkRunner {
                     set.onWarmupFinished();
 
                 BenchmarkUtils.println("Starting main test (warmup finished).");
+
+                return true;
             }
-        });
+        };
 
         final AtomicLong opsCnt = new AtomicLong();
 
@@ -142,7 +144,7 @@ public class BenchmarkRunner {
                         else {
                             reset = false;
 
-                            barrier.await();
+                            phaser.arriveAndAwaitAdvance();
                         }
 
                         while (!cancelled && !Thread.currentThread().isInterrupted()) {
@@ -187,7 +189,7 @@ public class BenchmarkRunner {
                             long elapsed = (now - testStart) / 1_000;
 
                             if (reset && elapsed > cfg.warmup()) {
-                                barrier.await();
+                                phaser.arriveAndAwaitAdvance();
 
                                 reset = false;
 
@@ -216,6 +218,8 @@ public class BenchmarkRunner {
                         catch (Throwable ignore) {
                             // No-op.
                         }
+
+                        phaser.forceTermination();
 
                         // Stop whole benchmark execution.
                         cancel(e);
