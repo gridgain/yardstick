@@ -154,6 +154,7 @@ do
     server_file_log=${SERVERS_LOGS_DIR}"/"${now}"_id"${ID}"-"${cntr}"_"${HOST_NAME}${DS}".log"
 
     ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${HOST_NAME} \
+        "JAVA_HOME='${JAVA_HOME}'" \
         "MAIN_CLASS='org.yardstickframework.BenchmarkServerStartUp'" \
         "JVM_OPTS='${JVM_OPTS} -Dyardstick.server${ID}-${cntr}'" "CP='${CP}'" "CUR_DIR='${CUR_DIR}'" "PROPS_ENV0='${PROPS_ENV}'" \
         "nohup ${SCRIPT_DIR}/benchmark-bootstrap.sh ${CONFIG} "--config" ${CONFIG_INCLUDE} > ${server_file_log} 2>& 1 &"
