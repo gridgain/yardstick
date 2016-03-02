@@ -23,10 +23,11 @@ public interface BenchmarkServerProbe {
     /**
      * Starts probe execution.
      *
+     * @param srv Benchmark server.
      * @param cfg Benchmark configuration.
      * @throws Exception If start failed.
      */
-    public void start(BenchmarkConfiguration cfg) throws Exception;
+    public void start(BenchmarkServer srv, BenchmarkConfiguration cfg) throws Exception;
 
     /**
      * Stops probe execution.

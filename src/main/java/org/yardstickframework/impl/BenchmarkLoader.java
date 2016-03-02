@@ -27,6 +27,7 @@ import java.util.Properties;
 import org.reflections.Reflections;
 import org.yardstickframework.BenchmarkConfiguration;
 import org.yardstickframework.BenchmarkProbe;
+import org.yardstickframework.BenchmarkServerProbe;
 
 import static org.yardstickframework.BenchmarkUtils.println;
 
@@ -154,6 +155,28 @@ public class BenchmarkLoader {
 
         for (String probeClsName : cfg.defaultProbeClassNames()) {
             BenchmarkProbe probe = loadClass(BenchmarkProbe.class, probeClsName);
+
+            if (probe != null)
+                probes.add(probe);
+            else
+                println(cfg, "Failed to load probe: " + probeClsName);
+        }
+
+        return probes;
+    }
+
+    /**
+     * Loads benchmark probes.
+     *
+     * @return Loaded probes.
+     * @throws Exception If failed.
+     */
+    public Collection<BenchmarkServerProbe> loadServerProbes() throws Exception {
+        // Init probes.
+        Collection<BenchmarkServerProbe> probes = new ArrayList<>(cfg.serverProbeClsNames().size());
+
+        for (String probeClsName : cfg.serverProbeClsNames()) {
+            BenchmarkServerProbe probe = loadClass(BenchmarkServerProbe.class, probeClsName);
 
             if (probe != null)
                 probes.add(probe);

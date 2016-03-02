@@ -14,7 +14,11 @@
 
 package org.yardstickframework;
 
+import java.util.Collection;
+import java.util.Collections;
 import org.yardstickframework.impl.BenchmarkLoader;
+import org.yardstickframework.impl.BenchmarkProbeSet;
+import org.yardstickframework.impl.BenchmarkServerProbeSet;
 
 import static org.yardstickframework.BenchmarkUtils.errorHelp;
 import static org.yardstickframework.BenchmarkUtils.jcommander;
@@ -51,6 +55,7 @@ public class BenchmarkServerStartUp {
         }
 
         BenchmarkServer srv;
+        BenchmarkServerProbeSet probeSet = null;
 
         if ((srv = ldr.loadClass(BenchmarkServer.class, name)) != null) {
             if (cfg.help()) {
@@ -62,12 +67,30 @@ public class BenchmarkServerStartUp {
             try {
                 srv.start(cfg);
 
+                try {
+                    Collection<BenchmarkServerProbe> probes = ldr.loadServerProbes();
+
+                    if (probes == null)
+                        probes = Collections.emptyList();
+
+                    probeSet = new BenchmarkServerProbeSet(srv, cfg, probes, ldr);
+
+                    probeSet.start();
+                }
+                catch (Exception e){
+                    errorHelp(cfg, "Failed to start server probes. Probes will be disabled.", e);
+                }
+
                 final BenchmarkServer srv0 = srv;
+                final BenchmarkServerProbeSet probeSet0 = probeSet;
 
                 if (cfg.shutdownHook()) {
                     Runtime.getRuntime().addShutdownHook(new Thread() {
                         @Override public void run() {
                             try {
+                                if (probeSet0 != null)
+                                    probeSet0.stop();
+
                                 srv0.stop();
                             }
                             catch (Exception e) {

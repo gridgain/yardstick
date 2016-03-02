@@ -27,6 +27,9 @@ import org.yardstickframework.BenchmarkDriver;
 import org.yardstickframework.BenchmarkProbe;
 import org.yardstickframework.BenchmarkProbePoint;
 import org.yardstickframework.BenchmarkProbePointWriter;
+import org.yardstickframework.BenchmarkServer;
+import org.yardstickframework.BenchmarkServerProbe;
+import org.yardstickframework.BenchmarkServerProbePointWriter;
 import org.yardstickframework.BenchmarkUtils;
 
 import static org.yardstickframework.BenchmarkUtils.WEIGHT_DELIMITER;
@@ -35,7 +38,7 @@ import static org.yardstickframework.BenchmarkUtils.fixFolderName;
 /**
  * CSV probe point writer.
  */
-public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
+public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter, BenchmarkServerProbePointWriter {
     /** */
     private static final String DUPLICATE_TO_OUTPUT = "BENCHMARK_WRITER_DUPLICATE_TO_OUTPUT";
 
@@ -61,7 +64,7 @@ public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
     private BenchmarkConfiguration cfg;
 
     /** */
-    private BenchmarkDriver drv;
+    private String desc;
 
     /** */
     private long startTime;
@@ -75,9 +78,46 @@ public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
     /** {@inheritDoc} */
     @Override public void start(BenchmarkDriver drv, BenchmarkConfiguration cfg, long startTime) {
         this.cfg = cfg;
-        this.drv = drv;
         this.startTime = startTime;
 
+        desc = drv.description() == null ? "" : drv.description();
+
+        desc = formatDescription(desc);
+
+        start0(cfg, startTime);
+    }
+
+    /** {@inheritDoc} */
+    @Override public void start(BenchmarkServer srv, BenchmarkConfiguration cfg, long startTime) {
+        this.cfg = cfg;
+        this.startTime = startTime;
+        desc = (cfg.descriptions() != null && cfg.descriptions().size() >= 1 && cfg.descriptions().get(0) != null)
+            ? cfg.descriptions().get(0) : "";
+
+        desc = formatDescription(desc);
+
+        desc += "-" + cfg.remoteHostName();
+
+        start0(cfg, startTime);
+    }
+
+    /**
+     * Escape description.
+     *
+     * @param str String.
+     * @return Escaped string.
+     */
+    private String formatDescription(String str) {
+        String str0 = str.replaceAll("-+", "-").replaceAll(",|\\\\|/|\\||%|:|<|>|\\*|\\?|\"|\\s", "-");
+
+        return str0.charAt(0) == '-' ? str0 : '-' + str0;
+    }
+
+    /**
+     * @param cfg Benchmark configuration.
+     * @param startTime Start time.
+     */
+    private void start0(BenchmarkConfiguration cfg, long startTime) {
         dupToOutput = duplicateToOutput(cfg);
 
         String path = cfg.outputFolder();
@@ -92,12 +132,6 @@ public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
                     throw new IllegalStateException("Can not create folder: " + folder.getAbsolutePath());
             }
         }
-
-        String desc = drv.description() == null ? "" : drv.description();
-
-        desc = desc.replaceAll("-+", "-").replaceAll(",|\\\\|/|\\||%|:|<|>|\\*|\\?|\"|\\s", "-");
-
-        desc = desc.charAt(0) == '-' ? desc : '-' + desc;
 
         String subFolderName = FORMAT.format(new Date(startTime));
 
@@ -130,6 +164,35 @@ public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
     }
 
     /** {@inheritDoc} */
+    @Override public void writePoints(BenchmarkServerProbe probe, Collection<BenchmarkProbePoint> points)
+        throws Exception {
+        if (writer == null) {
+            String fileName = probe.getClass().getSimpleName() + ".csv";
+
+            File f = outPath == null ? new File(fileName) : new File(outPath, fileName);
+
+            writer = new PrintWriter(new OutputStreamWriter(new FileOutputStream(f)));
+
+            String parent = outPath.getParent() == null ? outPath.getPath() : outPath.getParent();
+
+            BenchmarkUtils.println(cfg, probe.getClass().getSimpleName() + " results will be saved to: " + parent);
+
+            println("--Probe dump file for probe: " + probe + " (" + probe.getClass() + ")");
+            println("--Created " + new Date(startTime));
+            println("--Benchmark config: " + removeUnwantedChars(cfg.toString()));
+            println("--Description: " + removeUnwantedChars(desc));
+            println(DRV_NAMES_PREFIX + cfg.driverNames().toString().replaceAll("\\[", "").replaceAll("]", ""));
+
+            writeMeta(probe.metaInfo());
+        }
+
+        writePoints0(points);
+
+        writer.flush();
+    }
+
+
+    /** {@inheritDoc} */
     @Override public void writePoints(BenchmarkProbe probe, Collection<BenchmarkProbePoint> points) throws Exception {
         if (writer == null) {
             String fileName = probe.getClass().getSimpleName() + ".csv";
@@ -154,22 +217,18 @@ public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
             println("--Probe dump file for probe: " + probe + " (" + probe.getClass() + ")");
             println("--Created " + new Date(startTime));
             println("--Benchmark config: " + removeUnwantedChars(cfg.toString()));
-            println("--Description: " + removeUnwantedChars(drv.description() == null ? "" : drv.description()));
+            println("--Description: " + removeUnwantedChars(desc));
             println(DRV_NAMES_PREFIX + cfg.driverNames().toString().replaceAll("\\[", "").replaceAll("]", ""));
 
-            if (probe.metaInfo() != null && !probe.metaInfo().isEmpty()) {
-                print(META_INFO_PREFIX);
-
-                int i = 0;
-
-                for (String metaInfo : probe.metaInfo())
-                    print("\"" + metaInfo + "\"" + (++i == probe.metaInfo().size() ? "" : META_INFO_SEPARATOR));
-
-                if (i != 0)
-                    println("");
-            }
+            writeMeta(probe.metaInfo());
         }
 
+        writePoints0(points);
+
+        writer.flush();
+    }
+
+    private void writePoints0(Collection<BenchmarkProbePoint> points) {
         for (BenchmarkProbePoint pt : points) {
             print(String.valueOf(pt.time()));
             print(",");
@@ -185,8 +244,25 @@ public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
 
             println("");
         }
+    }
 
-        writer.flush();
+    /**
+     * Print meta to file.
+     *
+     * @param meta Meta info.
+     */
+    private void writeMeta(Collection<String> meta) {
+        if (meta != null && !meta.isEmpty()) {
+            print(META_INFO_PREFIX);
+
+            int i = 0;
+
+            for (String metaInfo : meta)
+                print("\"" + metaInfo + "\"" + (++i == meta.size() ? "" : META_INFO_SEPARATOR));
+
+            if (i != 0)
+                println("");
+        }
     }
 
     /** {@inheritDoc} */

@@ -67,6 +67,10 @@ public class BenchmarkConfiguration implements Serializable {
     @Parameter(names = {"-pr", "--probes"}, description = "Comma separated list of probes for benchmarks")
     private List<String> dfltProbeClsNames = Collections.emptyList();
 
+    /** */
+    @Parameter(names = {"-spr", "--serverProbes"}, description = "Comma separated list of server probes")
+    private List<String> srvProbeClsNames = Collections.emptyList();
+
     /** Probe writer class name. */
     @Parameter(names = {"wr", "--writer"}, description = "Probe point writer class name")
     private String probeWriter;
@@ -179,6 +183,13 @@ public class BenchmarkConfiguration implements Serializable {
      */
     public void packages(List<String> packages) {
         this.packages = packages;
+    }
+
+    /**
+     * @return Server probe class names.
+     */
+    public List<String> serverProbeClsNames() {
+        return srvProbeClsNames;
     }
 
     /**
