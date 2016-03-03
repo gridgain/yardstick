@@ -17,7 +17,7 @@ package org.yardstickframework;
 import java.util.Collection;
 
 /**
- * Benchmark probe.
+ * Benchmark server probe.
  */
 public interface BenchmarkServerProbe {
     /**

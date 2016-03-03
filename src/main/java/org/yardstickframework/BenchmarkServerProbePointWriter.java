@@ -17,7 +17,7 @@ package org.yardstickframework;
 import java.util.Collection;
 
 /**
- * Points writer.
+ * Points writer for server probes.
  */
 public interface BenchmarkServerProbePointWriter extends AutoCloseable {
     /**
