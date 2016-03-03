@@ -166,7 +166,7 @@ public class BenchmarkLoader {
     }
 
     /**
-     * Loads benchmark probes.
+     * Loads benchmark server probes.
      *
      * @return Loaded probes.
      * @throws Exception If failed.

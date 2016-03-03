@@ -17,7 +17,6 @@ package org.yardstickframework;
 import java.util.Collection;
 import java.util.Collections;
 import org.yardstickframework.impl.BenchmarkLoader;
-import org.yardstickframework.impl.BenchmarkProbeSet;
 import org.yardstickframework.impl.BenchmarkServerProbeSet;
 
 import static org.yardstickframework.BenchmarkUtils.errorHelp;
@@ -77,7 +76,7 @@ public class BenchmarkServerStartUp {
 
                     probeSet.start();
                 }
-                catch (Exception e){
+                catch (Exception e) {
                     errorHelp(cfg, "Failed to start server probes. Probes will be disabled.", e);
                 }
 

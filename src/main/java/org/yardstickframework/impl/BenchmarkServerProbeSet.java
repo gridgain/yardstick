@@ -28,7 +28,7 @@ import static org.yardstickframework.BenchmarkUtils.errorHelp;
 import static org.yardstickframework.BenchmarkUtils.println;
 
 /**
- * Set of configured benchmark probes.
+ * Set of configured benchmark server probes.
  */
 public class BenchmarkServerProbeSet {
     /** Probe statistics dump frequency. */
