@@ -120,7 +120,7 @@ do
     echo "<"$(date +"%H:%M:%S")"><yardstick> Starting driver config '..."${suffix}"' with id=${id}"
     echo "<"$(date +"%H:%M:%S")"><yardstick> Log file: "${file_log}
 
-    MAIN_CLASS=org.yardstickframework.BenchmarkDriverStartUp JVM_OPTS=${JVM_OPTS}" -Dyardstick.driver${id}" CP=${CP} \
+    MAIN_CLASS=org.yardstickframework.BenchmarkDriverStartUp JVM_OPTS=${JVM_OPTS}${DRIVER_JVM_OPTS}" -Dyardstick.driver${id}" CP=${CP} \
     CUR_DIR=${CUR_DIR} PROPS_ENV0=${PROPS_ENV} \
     ${SCRIPT_DIR}/benchmark-bootstrap.sh ${cfgParams} --config ${CONFIG_INCLUDE} > ${file_log} 2>& 1 &
 
