@@ -89,6 +89,9 @@ The following properties can be defined in benchmark properties file:
 * `SERVER_HOSTS` - comma-separated list of IP addresses where servers should be started, one server per host
 * `DRIVER_HOSTS` - comma-separated list of IP addresses where drivers should be started, one driver per host, if the property is not defined then the driver will be run on localhost
 * `REMOTE_USER` - SSH user for logging in to remote hosts
+* `JVM_OPTS` - list of general JVM options used to start both server and driver node
+* `SERVER_JVM_OPTS` - list of JVM options used to start server node (appended to `JVM_OPTS`)
+* `DRIVER_JVM_OPTS` - list of JVM options used to start driver node (appended to `JVM_OPTS`)
 * `RESTART_SERVERS` - there is two modes to use it. 1. `RESTART_SERVERS=true` - yardstick will start new servers
 for each benchmark. 2. `RESTART_SERVERS=<hostname_1>:<id_1>:<delay_1>:<pause_1>:<period_1>,<hostname_2>:<id_2>:<delay_2>:<pause_2>:<period_2>` -
 comma-separated list of colon-separated tuples of a hostname,
@@ -112,6 +115,37 @@ Example of `benchmark.properties` file to run 2 instances of `EchoServer`
 
     # Probe point writer class name.
     # BENCHMARK_WRITER=
+    
+    # General JVM options.
+    JVM_OPTS=${JVM_OPTS}" -DIGNITE_QUIET=false"
+    
+    JVM_OPTS=${JVM_OPTS}" \
+      -Xloggc:./gc${now0}.log \
+      -XX:+PrintGCDetails \
+      -verbose:gc \
+      -XX:+UseParNewGC \
+      -XX:+UseConcMarkSweepGC \
+      -XX:+UseTLAB \
+      -XX:NewSize=128m \
+      -XX:MaxNewSize=128m \
+      -XX:MaxTenuringThreshold=0 \
+    "
+    # Server JVM options.
+    SERVER_JVM_OPTS=${SERVER_JVM_OPTS}" -DIGNITE_QUIET=false"
+    
+    SERVER_JVM_OPTS=${SERVER_JVM_OPTS}" \
+      -XX:SurvivorRatio=1024 \
+      -XX:+UseCMSInitiatingOccupancyOnly \
+      -XX:CMSInitiatingOccupancyFraction=60 \
+    "
+    # Driver JVM options.
+    DRIVER_JVM_OPTS=${DRIVER_JVM_OPTS}" -DIGNITE_QUIET=false"
+    
+    DRIVER_JVM_OPTS=${DRIVER_JVM_OPTS}" \
+      -XX:SurvivorRatio=1024 \
+      -XX:+UseCMSInitiatingOccupancyOnly \
+      -XX:CMSInitiatingOccupancyFraction=60 \
+    "
 
     # Comma-separated list of remote hosts to run BenchmarkServers on.
     # If same host is specified multiple times, then benchmark server will be started on that host multiple times.

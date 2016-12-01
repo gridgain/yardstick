@@ -338,6 +338,7 @@ public class BenchmarkUtils {
 
         cmds.add("nohup "
             + java + " " + cfg.customProperties().get("JVM_OPTS")
+            + " " + cfg.customProperties().get("SERVER_JVM_OPTS")
             + " -cp " + cfg.customProperties().get("CLASSPATH")
             + " org.yardstickframework.BenchmarkServerStartUp " + cmdArgs + " > " + logFile + " 2>& 1 &");
 
