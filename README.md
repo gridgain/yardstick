@@ -117,35 +117,14 @@ Example of `benchmark.properties` file to run 2 instances of `EchoServer`
     # BENCHMARK_WRITER=
     
     # General JVM options.
-    JVM_OPTS=${JVM_OPTS}" -DIGNITE_QUIET=false"
+    JVM_OPTS=${JVM_OPTS}"-Xms512m"
     
-    JVM_OPTS=${JVM_OPTS}" \
-      -Xloggc:./gc${now0}.log \
-      -XX:+PrintGCDetails \
-      -verbose:gc \
-      -XX:+UseParNewGC \
-      -XX:+UseConcMarkSweepGC \
-      -XX:+UseTLAB \
-      -XX:NewSize=128m \
-      -XX:MaxNewSize=128m \
-      -XX:MaxTenuringThreshold=0 \
-    "
     # Server JVM options.
-    SERVER_JVM_OPTS=${SERVER_JVM_OPTS}" -DIGNITE_QUIET=false"
+    SERVER_JVM_OPTS=${SERVER_JVM_OPTS}"-Xmx512m"
     
-    SERVER_JVM_OPTS=${SERVER_JVM_OPTS}" \
-      -XX:SurvivorRatio=1024 \
-      -XX:+UseCMSInitiatingOccupancyOnly \
-      -XX:CMSInitiatingOccupancyFraction=60 \
-    "
     # Driver JVM options.
-    DRIVER_JVM_OPTS=${DRIVER_JVM_OPTS}" -DIGNITE_QUIET=false"
+    DRIVER_JVM_OPTS=${DRIVER_JVM_OPTS}"-Xmx1024m"
     
-    DRIVER_JVM_OPTS=${DRIVER_JVM_OPTS}" \
-      -XX:SurvivorRatio=1024 \
-      -XX:+UseCMSInitiatingOccupancyOnly \
-      -XX:CMSInitiatingOccupancyFraction=60 \
-    "
 
     # Comma-separated list of remote hosts to run BenchmarkServers on.
     # If same host is specified multiple times, then benchmark server will be started on that host multiple times.
