@@ -100,7 +100,7 @@ public class BenchmarkRunner {
 
         startBuildingThread();
 
-        BenchmarkUtils.println("Starting warmup");
+        BenchmarkUtils.println("Starting warmup.");
 
         final long testStart = System.currentTimeMillis();
 
