@@ -83,11 +83,15 @@ fi
 
 function cleanup() {
     pkill -9 -f "Dyardstick.driver"
-
     IFS=',' read -ra hosts0 <<< "${DRIVER_HOSTS}"
     for host_name in "${hosts0[@]}";
     do
-        `ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} pkill -9 -f "Dyardstick.driver"`
+        if [[ ${host_name} = "127.0.0.1" || ${host_name} = "localhost" ]]
+            then
+                pkill -9 -f "Dyardstick.driver"
+            else
+                `ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} pkill -9 -f "Dyardstick.driver"`
+            fi
     done
 }
 
@@ -147,16 +151,35 @@ do
 
     file_log=${LOGS_DIR}"/"${now}"_id"${id}"_"${host_name}"_"${DS}".log"
 
-    ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} mkdir -p ${LOGS_DIR}
+    if [[ ${host_name} = "127.0.0.1" || ${host_name} = "localhost" ]]
+    then
 
-    ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} \
-        "JAVA_HOME='${JAVA_HOME}'" \
-        "MAIN_CLASS='org.yardstickframework.BenchmarkDriverStartUp'" "JVM_OPTS='${JVM_OPTS}${DRIVER_JVM_OPTS} -Dyardstick.driver${id}'" \
-        "CP='${CP}'" "CUR_DIR='${CUR_DIR}'" "PROPS_ENV0='${PROPS_ENV}'" \
-        "nohup ${SCRIPT_DIR}/benchmark-bootstrap.sh ${cfg} "--config" ${CONFIG_INCLUDE} "--logsFolder" ${LOGS_DIR} > ${file_log} 2>& 1 &"
+        mkdir -p ${LOGS_DIR}
 
-    ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} "HOST_NAME='${host_name}'" \
+        export JAVA_HOME=${JAVA_HOME}
+        export MAIN_CLASS='org.yardstickframework.BenchmarkDriverStartUp'
+        export JVM_OPTS="${JVM_OPTS}${SERVER_JVM_OPTS} -Dyardstick.driver${id}"
+        export CP=${CP}
+        export CUR_DIR=${CUR_DIR}
+        export PROPS_ENV0=${PROPS_ENV}
+
+        nohup ${SCRIPT_DIR}/benchmark-bootstrap.sh ${cfg} "--config" ${CONFIG_INCLUDE} "--logsFolder" ${LOGS_DIR} > ${file_log} 2>& 1 &
+
+        export HOST_NAME=${host_name}
+
         ${SCRIPT_DIR}/benchmark-wait-driver-up.sh
+    else
+        ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} mkdir -p ${LOGS_DIR}
+
+        ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} \
+            "JAVA_HOME='${JAVA_HOME}'" \
+            "MAIN_CLASS='org.yardstickframework.BenchmarkDriverStartUp'" "JVM_OPTS='${JVM_OPTS}${DRIVER_JVM_OPTS} -Dyardstick.driver${id}'" \
+            "CP='${CP}'" "CUR_DIR='${CUR_DIR}'" "PROPS_ENV0='${PROPS_ENV}'" \
+            "nohup ${SCRIPT_DIR}/benchmark-bootstrap.sh ${cfg} "--config" ${CONFIG_INCLUDE} "--logsFolder" ${LOGS_DIR} > ${file_log} 2>& 1 &"
+
+        ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} "HOST_NAME='${host_name}'" \
+            ${SCRIPT_DIR}/benchmark-wait-driver-up.sh
+    fi
 
     echo "<"$(date +"%H:%M:%S")"><yardstick> Driver is started on "${host_name}" with id=${id}"
 
@@ -165,12 +188,22 @@ done
 
 for host_name in "${hosts0[@]}";
 do
-    ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} ${SCRIPT_DIR}/benchmark-wait-driver-finish.sh
+    if [[ ${host_name} = "127.0.0.1" || ${host_name} = "localhost" ]]
+    then
+        ${SCRIPT_DIR}/benchmark-wait-driver-finish.sh
+
+        # Create marker file denoting that subfolders contain results from multiple drivers.
+        if ((${drvNum} > 1)); then
+            touch ${CUR_DIR}/${OUTPUT_FOLDER#--outputFolder }"/.multiple-drivers"
+        fi
+    else
+        ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} ${SCRIPT_DIR}/benchmark-wait-driver-finish.sh
+
+        # Create marker file denoting that subfolders contain results from multiple drivers.
+        if ((${drvNum} > 1)); then
+            ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} touch ${CUR_DIR}/${OUTPUT_FOLDER#--outputFolder }"/.multiple-drivers"
+        fi
+    fi
 
     echo "<"$(date +"%H:%M:%S")"><yardstick> Driver is stopped on "${host_name}
-
-    # Create marker file denoting that subfolders contain results from multiple drivers.
-    if ((${drvNum} > 1)); then
-        ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} touch ${CUR_DIR}/${OUTPUT_FOLDER#--outputFolder }"/.multiple-drivers"
-    fi
 done

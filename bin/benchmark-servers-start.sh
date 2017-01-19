@@ -141,13 +141,28 @@ do
 
     file_log=${LOGS_DIR}"/"${now}"_id"${id}"_"${host_name}${DS}".log"
 
-    ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} mkdir -p ${LOGS_DIR}
+    if [[ ${host_name} = "127.0.0.1" || ${host_name} = "localhost" ]]
+    then
+        mkdir -p ${LOGS_DIR}
 
-    ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} \
-        "JAVA_HOME='${JAVA_HOME}'" \
-        "MAIN_CLASS='org.yardstickframework.BenchmarkServerStartUp'" "JVM_OPTS='${JVM_OPTS}${SERVER_JVM_OPTS} -Dyardstick.server${id}'" "CP='${CP}'" \
-        "CUR_DIR='${CUR_DIR}'" "PROPS_ENV0='${PROPS_ENV}'" \
-        "nohup ${SCRIPT_DIR}/benchmark-bootstrap.sh ${CONFIG_PRM} "--config" ${CONFIG_INCLUDE} "--logsFolder" ${LOGS_DIR} "--remoteuser" ${REMOTE_USER} "--remoteHostName" ${host_name} > ${file_log} 2>& 1 &"
+        export JAVA_HOME=${JAVA_HOME}
+        export MAIN_CLASS='org.yardstickframework.BenchmarkServerStartUp'
+        export JVM_OPTS="${JVM_OPTS}${SERVER_JVM_OPTS} -Dyardstick.server${id}"
+        export CP=${CP}
+        export CUR_DIR=${CUR_DIR}
+        export PROPS_ENV0=${PROPS_ENV}
+        nohup ${SCRIPT_DIR}/benchmark-bootstrap.sh ${CONFIG_PRM} "--config" ${CONFIG_INCLUDE} "--logsFolder" ${LOGS_DIR} "--remoteuser" ${REMOTE_USER} "--remoteHostName" ${host_name} > ${file_log} 2>& 1 &
+    else
+        ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} mkdir -p ${LOGS_DIR}
+
+        ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} \
+            "JAVA_HOME='${JAVA_HOME}'" \
+            "MAIN_CLASS='org.yardstickframework.BenchmarkServerStartUp'" "JVM_OPTS='${JVM_OPTS}${SERVER_JVM_OPTS} -Dyardstick.server${id}'" "CP='${CP}'" \
+            "CUR_DIR='${CUR_DIR}'" "PROPS_ENV0='${PROPS_ENV}'" \
+            "nohup ${SCRIPT_DIR}/benchmark-bootstrap.sh ${CONFIG_PRM} "--config" ${CONFIG_INCLUDE} "--logsFolder" ${LOGS_DIR} "--remoteuser" ${REMOTE_USER} "--remoteHostName" ${host_name} > ${file_log} 2>& 1 &"
+    fi
+
+
 
     # Start a restarter if needed.
     if [[ "${RESTART_SERVERS}" != "" ]] && [[ "${RESTART_SERVERS}" != "true" ]]; then
