@@ -89,7 +89,7 @@ function cleanup() {
     IFS=',' read -ra hosts0 <<< "${SERVER_HOSTS}"
     for host_name in "${hosts0[@]}";
     do
-        `ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} pkill -9 -f "Dyardstick.server"`
+        `ssh -o StrictHostKeyChecking=no ${REMOTE_USER}"@"${host_name} pkill -9 -f "Dyardstick.server"`
     done
 }
 
@@ -153,9 +153,9 @@ do
         export PROPS_ENV0=${PROPS_ENV}
         nohup ${SCRIPT_DIR}/benchmark-bootstrap.sh ${CONFIG_PRM} "--config" ${CONFIG_INCLUDE} "--logsFolder" ${LOGS_DIR} "--remoteuser" ${REMOTE_USER} "--remoteHostName" ${host_name} > ${file_log} 2>& 1 &
     else
-        ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} mkdir -p ${LOGS_DIR}
+        ssh -o StrictHostKeyChecking=no ${REMOTE_USER}"@"${host_name} mkdir -p ${LOGS_DIR}
 
-        ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} \
+        ssh -o StrictHostKeyChecking=no ${REMOTE_USER}"@"${host_name} \
             "JAVA_HOME='${JAVA_HOME}'" \
             "MAIN_CLASS='org.yardstickframework.BenchmarkServerStartUp'" "JVM_OPTS='${JVM_OPTS}${SERVER_JVM_OPTS} -Dyardstick.server${id}'" "CP='${CP}'" \
             "CUR_DIR='${CUR_DIR}'" "PROPS_ENV0='${PROPS_ENV}'" \
