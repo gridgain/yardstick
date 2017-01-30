@@ -117,7 +117,7 @@ if [[ ${HOST_NAME} = "127.0.0.1" || ${HOST_NAME} = "localhost" ]]
     then
         mkdir -p ${SERVERS_LOGS_DIR}
     else
-        ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${HOST_NAME} mkdir -p ${SERVERS_LOGS_DIR}
+        ssh -o StrictHostKeyChecking=no -o PasswordAuthentication=no ${REMOTE_USER}"@"${HOST_NAME} mkdir -p ${SERVERS_LOGS_DIR}
     fi
 
 DS=""
@@ -152,7 +152,7 @@ do
     then
         pkill -9 -f "Dyardstick.server${ID}"
     else
-        ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${HOST_NAME} "pkill -9 -f 'Dyardstick.server${ID}'"
+        ssh -o StrictHostKeyChecking=no -o PasswordAuthentication=no ${REMOTE_USER}"@"${HOST_NAME} "pkill -9 -f 'Dyardstick.server${ID}'"
     fi
 
     sleep ${PAUSE} # Wait for process stopping.
@@ -177,7 +177,7 @@ do
 
         nohup ${SCRIPT_DIR}/benchmark-bootstrap.sh ${CONFIG_PRM} "--config" ${CONFIG_INCLUDE} "--logsFolder" ${LOGS_DIR} "--remoteuser" ${REMOTE_USER} "--remoteHostName" ${host_name} > ${file_log} 2>& 1 &
     else
-        ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${HOST_NAME} \
+        ssh -o StrictHostKeyChecking=no -o PasswordAuthentication=no ${REMOTE_USER}"@"${HOST_NAME} \
         "JAVA_HOME='${JAVA_HOME}'" \
         "MAIN_CLASS='${MAIN_CLASS}'" "JVM_OPTS='${JVM_OPTS}'" "CP='${CP}'" \
         "CUR_DIR='${CUR_DIR}'" "PROPS_ENV0='${PROPS_ENV}'" \
