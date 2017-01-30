@@ -165,20 +165,22 @@ do
 
     server_file_log=${SERVERS_LOGS_DIR}"/"${now}"_id"${ID}"-"${cntr}"_"${HOST_NAME}${DS}".log"
 
+    export JAVA_HOME=${JAVA_HOME}
+    export MAIN_CLASS='org.yardstickframework.BenchmarkServerStartUp'
+    export JVM_OPTS="${JVM_OPTS}${SERVER_JVM_OPTS} -Dyardstick.server${id}"
+    export CP=${CP}
+    export CUR_DIR=${CUR_DIR}
+    export PROPS_ENV0=${PROPS_ENV}
+
     if [[ ${HOST_NAME} = "127.0.0.1" || ${HOST_NAME} = "localhost" ]]
     then
-        export JAVA_HOME=${JAVA_HOME}
-        export MAIN_CLASS='org.yardstickframework.BenchmarkServerStartUp'
-        export JVM_OPTS="${JVM_OPTS}${SERVER_JVM_OPTS} -Dyardstick.server${id}"
-        export CP=${CP}
-        export CUR_DIR=${CUR_DIR}
-        export PROPS_ENV0=${PROPS_ENV}
+
         nohup ${SCRIPT_DIR}/benchmark-bootstrap.sh ${CONFIG_PRM} "--config" ${CONFIG_INCLUDE} "--logsFolder" ${LOGS_DIR} "--remoteuser" ${REMOTE_USER} "--remoteHostName" ${host_name} > ${file_log} 2>& 1 &
     else
         ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${HOST_NAME} \
         "JAVA_HOME='${JAVA_HOME}'" \
-        "MAIN_CLASS='org.yardstickframework.BenchmarkServerStartUp'" \
-        "JVM_OPTS='${JVM_OPTS}${SERVER_JVM_OPTS} -Dyardstick.server${ID}-${cntr}'" "CP='${CP}'" "CUR_DIR='${CUR_DIR}'" "PROPS_ENV0='${PROPS_ENV}'" \
+        "MAIN_CLASS='${MAIN_CLASS}'" "JVM_OPTS='${JVM_OPTS}'" "CP='${CP}'" \
+        "CUR_DIR='${CUR_DIR}'" "PROPS_ENV0='${PROPS_ENV}'" \
         "nohup ${SCRIPT_DIR}/benchmark-bootstrap.sh ${CONFIG} "--config" ${CONFIG_INCLUDE} > ${server_file_log} 2>& 1 &"
     fi
 
