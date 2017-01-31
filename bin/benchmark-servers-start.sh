@@ -153,7 +153,8 @@ do
     then
         mkdir -p ${LOGS_DIR}
 
-        nohup ${SCRIPT_DIR}/benchmark-bootstrap.sh ${CONFIG_PRM} "--config" ${CONFIG_INCLUDE} "--logsFolder" ${LOGS_DIR} "--remoteuser" ${REMOTE_USER} "--remoteHostName" ${host_name} > ${file_log} 2>& 1 &
+        nohup ${SCRIPT_DIR}/benchmark-bootstrap.sh ${CONFIG_PRM} "--config" ${CONFIG_INCLUDE} "--logsFolder" ${LOGS_DIR} \
+        "--remoteuser" ${REMOTE_USER} "--remoteHostName" ${host_name} > ${file_log} 2>& 1 &
     else
         ssh -o StrictHostKeyChecking=no -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} mkdir -p ${LOGS_DIR}
 
@@ -161,7 +162,8 @@ do
             "JAVA_HOME='${JAVA_HOME}'" \
             "MAIN_CLASS='${MAIN_CLASS}'" "JVM_OPTS='${JVM_OPTS}'" "CP='${CP}'" \
             "CUR_DIR='${CUR_DIR}'" "PROPS_ENV0='${PROPS_ENV}'" \
-            "nohup ${SCRIPT_DIR}/benchmark-bootstrap.sh ${CONFIG_PRM} "--config" ${CONFIG_INCLUDE} "--logsFolder" ${LOGS_DIR} "--remoteuser" ${REMOTE_USER} "--remoteHostName" ${host_name} > ${file_log} 2>& 1 &"
+            "nohup ${SCRIPT_DIR}/benchmark-bootstrap.sh ${CONFIG_PRM} "--config" ${CONFIG_INCLUDE} "--logsFolder" ${LOGS_DIR} \
+            "--remoteuser" ${REMOTE_USER} "--remoteHostName" ${host_name} > ${file_log} 2>& 1 &"
     fi
 
 
@@ -183,11 +185,14 @@ do
                 if [[ "${delay}" != "" ]] && [[ "${pause}" != "" ]] && [[ "${period}" != "" ]] ; then
                     file_log=${RESTARTERS_LOGS_DIR}"/"${now}"_id"${id}"_"${host_name}".log"
 
-                    nohup ${SCRIPT_DIR}/benchmark-server-restarter-start.sh "${host_name}" "${id}" "${CONFIG_PRM}" "${delay}" "${pause}" "${period}" "${CONFIG_INCLUDE}" > ${file_log} 2>& 1 &
+                    nohup ${SCRIPT_DIR}/benchmark-server-restarter-start.sh "${host_name}" "${id}" "${CONFIG_PRM}" \
+                    "${delay}" "${pause}" "${period}" "${CONFIG_INCLUDE}" > ${file_log} 2>& 1 &
 
-                    echo "<"$(date +"%H:%M:%S")"><yardstick> Server restarter is started for ${host_to_restart} with id=${id} and config '...${suffix}', warmup delay ${delay} sec., pause ${pause} sec. and period ${period} sec."
+                    echo "<"$(date +"%H:%M:%S")"><yardstick> Server restarter is started for ${host_to_restart} \
+                    with id=${id} and config '...${suffix}', warmup delay ${delay} sec., pause ${pause} sec. and period ${period} sec."
                 else
-                    echo "<"$(date +"%H:%M:%S")"><yardstick> Failed to start a server restarter for host ${host_to_restart} with id=${id}. Next params should not be empty: [warmup delay='${delay}', pause='${pause}', period='${period}']"
+                    echo "<"$(date +"%H:%M:%S")"><yardstick> Failed to start a server restarter for host \
+                    ${host_to_restart} with id=${id}. Next params should not be empty: [warmup delay='${delay}', pause='${pause}', period='${period}']"
                 fi
             fi
         done

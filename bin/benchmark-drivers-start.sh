@@ -92,7 +92,8 @@ function cleanup() {
             then
                 pkill -9 -f "Dyardstick.driver"
             else
-                `ssh -o StrictHostKeyChecking=no -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} pkill -9 -f "Dyardstick.driver"`
+                `ssh -o StrictHostKeyChecking=no -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} pkill -9 -f \
+                "Dyardstick.driver"`
             fi
     done
 }
@@ -199,11 +200,13 @@ do
             touch ${CUR_DIR}/${OUTPUT_FOLDER#--outputFolder }"/.multiple-drivers"
         fi
     else
-        ssh -o StrictHostKeyChecking=no -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} ${SCRIPT_DIR}/benchmark-wait-driver-finish.sh
+        ssh -o StrictHostKeyChecking=no -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} \
+        ${SCRIPT_DIR}/benchmark-wait-driver-finish.sh
 
         # Create marker file denoting that subfolders contain results from multiple drivers.
         if ((${drvNum} > 1)); then
-            ssh -o StrictHostKeyChecking=no -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} touch ${CUR_DIR}/${OUTPUT_FOLDER#--outputFolder }"/.multiple-drivers"
+            ssh -o StrictHostKeyChecking=no -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} \
+            touch ${CUR_DIR}/${OUTPUT_FOLDER#--outputFolder }"/.multiple-drivers"
         fi
     fi
 
