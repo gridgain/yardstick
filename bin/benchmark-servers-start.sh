@@ -126,6 +126,7 @@ do
     # Extract description.
     if [[ "${RESTART_SERVERS}" != "" ]]; then
         IFS=' ' read -ra cfg0 <<< "${CONFIG}"
+
         for cfg00 in "${cfg0[@]}";
         do
             if [[ ${found} == 'true' ]]; then

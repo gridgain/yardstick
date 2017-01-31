@@ -83,7 +83,9 @@ fi
 
 function cleanup() {
     pkill -9 -f "Dyardstick.driver"
+
     IFS=',' read -ra hosts0 <<< "${DRIVER_HOSTS}"
+
     for host_name in "${hosts0[@]}";
     do
         if [[ ${host_name} = "127.0.0.1" || ${host_name} = "localhost" ]]
@@ -115,6 +117,7 @@ id=0
 drvNum=$((`echo ${DRIVER_HOSTS} | tr ',' '\n' | wc -l`))
 
 IFS=',' read -ra hosts0 <<< "${DRIVER_HOSTS}"
+
 for host_name in "${hosts0[@]}";
 do
     if ((${drvNum} > 1)); then
@@ -151,21 +154,20 @@ do
 
     file_log=${LOGS_DIR}"/"${now}"_id"${id}"_"${host_name}"_"${DS}".log"
 
+    export JAVA_HOME=${JAVA_HOME}
+    export MAIN_CLASS='org.yardstickframework.BenchmarkDriverStartUp'
+    export JVM_OPTS="${JVM_OPTS}${SERVER_JVM_OPTS} -Dyardstick.driver${id}"
+    export CP=${CP}
+    export CUR_DIR=${CUR_DIR}
+    export PROPS_ENV0=${PROPS_ENV}
+    export HOST_NAME=${host_name}
+
     if [[ ${host_name} = "127.0.0.1" || ${host_name} = "localhost" ]]
     then
 
         mkdir -p ${LOGS_DIR}
 
-        export JAVA_HOME=${JAVA_HOME}
-        export MAIN_CLASS='org.yardstickframework.BenchmarkDriverStartUp'
-        export JVM_OPTS="${JVM_OPTS}${SERVER_JVM_OPTS} -Dyardstick.driver${id}"
-        export CP=${CP}
-        export CUR_DIR=${CUR_DIR}
-        export PROPS_ENV0=${PROPS_ENV}
-
         nohup ${SCRIPT_DIR}/benchmark-bootstrap.sh ${cfg} "--config" ${CONFIG_INCLUDE} "--logsFolder" ${LOGS_DIR} > ${file_log} 2>& 1 &
-
-        export HOST_NAME=${host_name}
 
         ${SCRIPT_DIR}/benchmark-wait-driver-up.sh
     else
@@ -173,7 +175,7 @@ do
 
         ssh -o StrictHostKeyChecking=no -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} \
             "JAVA_HOME='${JAVA_HOME}'" \
-            "MAIN_CLASS='org.yardstickframework.BenchmarkDriverStartUp'" "JVM_OPTS='${JVM_OPTS}${DRIVER_JVM_OPTS} -Dyardstick.driver${id}'" \
+            "MAIN_CLASS='${MAIN_CLASS}'" "JVM_OPTS='${JVM_OPTS}'" \
             "CP='${CP}'" "CUR_DIR='${CUR_DIR}'" "PROPS_ENV0='${PROPS_ENV}'" \
             "nohup ${SCRIPT_DIR}/benchmark-bootstrap.sh ${cfg} "--config" ${CONFIG_INCLUDE} "--logsFolder" ${LOGS_DIR} > ${file_log} 2>& 1 &"
 
