@@ -92,8 +92,8 @@ function cleanup() {
             then
                 pkill -9 -f "Dyardstick.driver"
             else
-                `ssh -o StrictHostKeyChecking=no -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} pkill -9 -f \
-                "Dyardstick.driver"`
+                `ssh -o StrictHostKeyChecking=no -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} \
+                    pkill -9 -f "Dyardstick.driver"`
             fi
     done
 }
@@ -165,7 +165,6 @@ do
 
     if [[ ${host_name} = "127.0.0.1" || ${host_name} = "localhost" ]]
     then
-
         mkdir -p ${LOGS_DIR}
 
         nohup ${SCRIPT_DIR}/benchmark-bootstrap.sh ${cfg} "--config" ${CONFIG_INCLUDE} "--logsFolder" ${LOGS_DIR} > ${file_log} 2>& 1 &
