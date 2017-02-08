@@ -119,7 +119,7 @@ CUR_DIR=$(pwd)
 
 for id in $(eval echo {1..$SERVER_NODES});
 do
-    CONFIG_PRM="-id ${cntr} ${CONFIG}"
+    CONFIG_PRM="-id ${id} ${CONFIG}"
 
     suffix=`echo "${CONFIG}" | tail -c 60 | sed 's/ *$//g'`
 
