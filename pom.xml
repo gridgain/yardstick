@@ -21,7 +21,7 @@
     <groupId>org.yardstickframework</groupId>
     <artifactId>yardstick</artifactId>
     <name>Yardstick</name>
-    <version>0.8.1</version>
+    <version>0.8.2</version>
 
     <url>https://github.com/gridgain/yardstick</url>
     <description>Framework for benchmarks writing.</description>
@@ -47,16 +47,14 @@
     </developers>
 
     <distributionManagement>
-        <repository>
-            <id>gridgain.staging</id>
-            <name>GridGain Release Repository</name>
-            <url>http://www.gridgainsystems.com/nexus/service/local/staging/deploy/maven2</url>
-        </repository>
         <snapshotRepository>
-            <id>gridgain.snapshots</id>
-            <name>GridGain Snapshot Repository</name>
-            <url>http://www.gridgainsystems.com/nexus/content/repositories/snapshots</url>
+            <id>sonatype-nexus-snapshots</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
         </snapshotRepository>
+        <repository>
+            <id>sonatype-nexus-staging</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
     </distributionManagement>
 
     <properties>
