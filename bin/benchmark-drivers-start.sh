@@ -157,7 +157,7 @@ do
 
     export JAVA_HOME=${JAVA_HOME}
     export MAIN_CLASS='org.yardstickframework.BenchmarkDriverStartUp'
-    export JVM_OPTS="${JVM_OPTS}${SERVER_JVM_OPTS} -Dyardstick.driver${id}"
+    export JVM_OPTS="${JVM_OPTS}${DRIVER_JVM_OPTS} -Dyardstick.driver${id}"
     export CP=${CP}
     export CUR_DIR=${CUR_DIR}
     export PROPS_ENV0=${PROPS_ENV}
