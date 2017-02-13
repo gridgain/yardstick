@@ -50,6 +50,12 @@ chmod +x $CONFIG_TMP
 . $CONFIG_TMP
 rm $CONFIG_TMP
 
+if ! [[ -d ${SCRIPT_DIR}/../output ]]
+then
+    echo "<"$(date +"%H:%M:%S")"><yardstick> Creating output directory"
+    mkdir ${SCRIPT_DIR}/../output
+fi
+
 if [ "${CONFIG}" == "" ]; then
     IFS=',' read -ra cfg <<< "${CONFIGS}"
 
@@ -107,9 +113,9 @@ function cleanup() {
 trap "cleanup; exit" SIGHUP SIGINT SIGTERM SIGQUIT SIGKILL
 
 # Define logs directory.
-LOGS_BASE=logs-$(date +"%Y%m%d-%H%M%S")
+LOGS_BASE=${SCRIPT_DIR}/../output/logs-$(date +"%Y%m%d-%H%M%S")
 
-LOGS_DIR=${SCRIPT_DIR}/../${LOGS_BASE}/logs_servers
+LOGS_DIR=${LOGS_BASE}/logs_servers
 
 if [ ! -d "${LOGS_DIR}" ]; then
     mkdir -p ${LOGS_DIR}

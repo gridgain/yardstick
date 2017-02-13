@@ -96,10 +96,10 @@ function cleanup() {
 trap "cleanup; exit" SIGHUP SIGINT SIGTERM SIGQUIT SIGKILL
 
 # Define logs directory.
-LOGS_DIR=${SCRIPT_DIR}/../${LOGS_BASE}/logs_servers
+LOGS_DIR=${LOGS_BASE}/logs_servers
 
 if [ "${RESTARTERS_LOGS_DIR}" = "" ]; then
-    RESTARTERS_LOGS_DIR=${SCRIPT_DIR}/../${LOGS_BASE}/logs_restarters
+    RESTARTERS_LOGS_DIR=${LOGS_BASE}/logs_restarters
 fi
 
 if [[ "${RESTART_SERVERS}" != "" ]] && [[ "${RESTART_SERVERS}" != "true" ]]; then
@@ -141,6 +141,11 @@ do
     fi
 
     file_log=${LOGS_DIR}"/"${now}"_id"${id}"_"${host_name}${DS}".log"
+
+    if echo "${JVM_OPTS}" | grep -i "PrintGC" >/dev/null
+    then
+        JVM_OPTS=${JVM_OPTS}" -Xloggc:${LOGS_DIR}/gc_${now0}_server_id_${id}_${host_name}_${DS}.log"
+    fi
 
     export JAVA_HOME=${JAVA_HOME}
     export MAIN_CLASS='org.yardstickframework.BenchmarkServerStartUp'

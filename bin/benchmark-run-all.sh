@@ -55,9 +55,16 @@ if [ "${CONFIGS}" == "" ]; then
     exit 1
 fi
 
-folder=results-$(date +"%Y%m%d-%H%M%S")
+if ! [[ -d ${SCRIPT_DIR}/../output ]]
+then
+    echo "<"$(date +"%H:%M:%S")"><yardstick> Creating output directory"
+    mkdir ${SCRIPT_DIR}/../output
+fi
 
-export LOGS_BASE=logs-$(date +"%Y%m%d-%H%M%S")
+folder=${SCRIPT_DIR}/../output/results-$(date +"%Y%m%d-%H%M%S")
+
+LOGS_BASE=${SCRIPT_DIR}/../output/logs-$(date +"%Y%m%d-%H%M%S")
+export LOGS_BASE
 
 if [ -z "$RESTART_SERVERS" ]; then
     /bin/bash ${SCRIPT_DIR}/benchmark-servers-start.sh ${CONFIG_INCLUDE}
@@ -97,3 +104,7 @@ if [ -z "$RESTART_SERVERS" ]; then
 
     sleep 1s
 fi
+
+CHART_DIR=`cd $folder; pwd`
+echo "<"$(date +"%H:%M:%S")"><yardstick> Creating charts in the ${CHART_DIR} directory"
+. ${SCRIPT_DIR}/jfreechart-graph-gen.sh -gm STANDARD -i $folder >> /dev/null 2>&1
