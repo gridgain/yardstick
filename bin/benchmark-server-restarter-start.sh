@@ -102,7 +102,7 @@ if [ "${PERIOD}" == "" ]; then
 fi
 
 if [ "${SERVERS_LOGS_DIR}" = "" ]; then
-    SERVERS_LOGS_DIR=${SCRIPT_DIR}/../${LOGS_BASE}/logs_servers
+    SERVERS_LOGS_DIR=${LOGS_BASE}/logs_servers
 fi
 
 CUR_DIR=$(pwd)

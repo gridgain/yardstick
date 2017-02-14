@@ -96,10 +96,10 @@ function cleanup() {
 trap "cleanup; exit" SIGHUP SIGINT SIGTERM SIGQUIT SIGKILL
 
 # Define logs directory.
-LOGS_DIR=${SCRIPT_DIR}/../${LOGS_BASE}/logs_servers
+LOGS_DIR=${LOGS_BASE}/logs_servers
 
 if [ "${RESTARTERS_LOGS_DIR}" = "" ]; then
-    RESTARTERS_LOGS_DIR=${SCRIPT_DIR}/../${LOGS_BASE}/logs_restarters
+    RESTARTERS_LOGS_DIR=${LOGS_BASE}/logs_restarters
 fi
 
 if [[ "${RESTART_SERVERS}" != "" ]] && [[ "${RESTART_SERVERS}" != "true" ]]; then
@@ -124,23 +124,25 @@ do
     now=`date +'%H%M%S'`
 
     # Extract description.
-    if [[ "${RESTART_SERVERS}" != "" ]]; then
-        IFS=' ' read -ra cfg0 <<< "${CONFIG}"
+    IFS=' ' read -ra cfg0 <<< "${CONFIG}"
+    for cfg00 in "${cfg0[@]}";
+    do
+        if [[ ${found} == 'true' ]]; then
+            found=""
+            DS=${cfg00}
+        fi
 
-        for cfg00 in "${cfg0[@]}";
-        do
-            if [[ ${found} == 'true' ]]; then
-                found=""
-                DS="_${cfg00}"
-            fi
+        if [[ ${cfg00} == '-ds' ]] || [[ ${cfg00} == '--descriptions' ]]; then
+            found="true"
+        fi
+    done
 
-            if [[ ${cfg00} == '-ds' ]] || [[ ${cfg00} == '--descriptions' ]]; then
-                found="true"
-            fi
-        done
+    file_log=${LOGS_DIR}"/"${now}"-id"${id}"-"${host_name}"-"${DS}".log"
+
+    if echo "${JVM_OPTS}" | grep -i "PrintGC" >/dev/null
+    then
+        JVM_OPTS=${JVM_OPTS}" -Xloggc:${LOGS_DIR}/gc-${now0}-server-id${id}-${host_name}-${DS}.log"
     fi
-
-    file_log=${LOGS_DIR}"/"${now}"_id"${id}"_"${host_name}${DS}".log"
 
     export JAVA_HOME=${JAVA_HOME}
     export MAIN_CLASS='org.yardstickframework.BenchmarkServerStartUp'

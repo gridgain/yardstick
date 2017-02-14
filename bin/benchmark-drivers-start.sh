@@ -101,10 +101,10 @@ function cleanup() {
 trap "cleanup; exit" SIGHUP SIGINT SIGTERM SIGQUIT SIGKILL
 
 # Define logs directory.
-LOGS_DIR=${SCRIPT_DIR}/../${LOGS_BASE}/logs_drivers
+LOGS_DIR=${LOGS_BASE}/logs_drivers
 
 if [[ "${OUTPUT_FOLDER}" == "" ]] && [[ ${CONFIG} != *'-of '* ]] && [[ ${CONFIG} != *'--outputFolder '* ]]; then
-    folder=results-$(date +"%Y%m%d-%H%M%S")
+    folder=${SCRIPT_DIR}/../output/results-$(date +"%Y%m%d-%H%M%S")
 
     OUTPUT_FOLDER="--outputFolder ${folder}"
 fi
@@ -153,11 +153,16 @@ do
         fi
     done
 
-    file_log=${LOGS_DIR}"/"${now}"_id"${id}"_"${host_name}"_"${DS}".log"
+    file_log=${LOGS_DIR}"/"${now}"-id"${id}"-"${host_name}"-"${DS}".log"
+
+    if echo "${JVM_OPTS}" | grep -i "PrintGC" >/dev/null
+    then
+        JVM_OPTS=${JVM_OPTS}" -Xloggc:${LOGS_DIR}/gc-${now0}-driver-id${id}-${host_name}-${DS}.log"
+    fi
 
     export JAVA_HOME=${JAVA_HOME}
     export MAIN_CLASS='org.yardstickframework.BenchmarkDriverStartUp'
-    export JVM_OPTS="${JVM_OPTS}${SERVER_JVM_OPTS} -Dyardstick.driver${id}"
+    export JVM_OPTS="${JVM_OPTS}${DRIVER_JVM_OPTS} -Dyardstick.driver${id}"
     export CP=${CP}
     export CUR_DIR=${CUR_DIR}
     export PROPS_ENV0=${PROPS_ENV}
@@ -196,7 +201,7 @@ do
 
         # Create marker file denoting that subfolders contain results from multiple drivers.
         if ((${drvNum} > 1)); then
-            touch ${CUR_DIR}/${OUTPUT_FOLDER#--outputFolder }"/.multiple-drivers"
+            touch ${OUTPUT_FOLDER#--outputFolder }"/.multiple-drivers"
         fi
     else
         ssh -o StrictHostKeyChecking=no -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} \
@@ -205,9 +210,10 @@ do
         # Create marker file denoting that subfolders contain results from multiple drivers.
         if ((${drvNum} > 1)); then
             ssh -o StrictHostKeyChecking=no -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} \
-            touch ${CUR_DIR}/${OUTPUT_FOLDER#--outputFolder }"/.multiple-drivers"
+            touch ${OUTPUT_FOLDER#--outputFolder }"/.multiple-drivers"
         fi
     fi
 
     echo "<"$(date +"%H:%M:%S")"><yardstick> Driver is stopped on "${host_name}
 done
+

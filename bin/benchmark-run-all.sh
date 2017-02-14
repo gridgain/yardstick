@@ -21,6 +21,7 @@
 
 # Define script directory.
 SCRIPT_DIR=$(cd $(dirname "$0"); pwd)
+MAIN_DIR=`cd ${SCRIPT_DIR}/../; pwd`
 
 CONFIG_INCLUDE=$1
 
@@ -55,9 +56,59 @@ if [ "${CONFIGS}" == "" ]; then
     exit 1
 fi
 
-folder=results-$(date +"%Y%m%d-%H%M%S")
+if ! [[ -d ${SCRIPT_DIR}/../output ]]
+then
+    echo "<"$(date +"%H:%M:%S")"><yardstick> Creating output directory"
+    mkdir ${SCRIPT_DIR}/../output
+fi
 
-export LOGS_BASE=logs-$(date +"%Y%m%d-%H%M%S")
+# Creating an array of IP addresses of the remote hosts from SERVER_HOSTS and DRIVER_HOSTS variables.
+function define_ips()
+{
+    # Defining IP of the local machine.
+    local_ip_addresses=`ifconfig | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p'`
+    IFS=',' read -ra local_ips_array <<< ${local_ip_addresses[@]}
+    comma_separated_ips="${SERVER_HOSTS},${DRIVER_HOSTS}"
+    ips=${comma_separated_ips//,/ }
+    uniq_ips=`echo "${ips[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '`
+    for local_ip in ${local_ips_array}
+    do
+        uniq_ips=( "${uniq_ips[@]/$local_ip}" )
+    done
+}
+
+# Copying working directory to remote hosts.
+function copy_to_hosts()
+{
+    define_ips
+    for ip in ${uniq_ips[@]}
+    do
+        if [[ $ip != "127.0.0.1" && $ip != "localhost" ]]
+        then
+            echo "<"$(date +"%H:%M:%S")"><yardstick> Copying yardstick to the host ${ip}"
+            # Checking if working directory already exist on the remote host.
+            if (ssh -o StrictHostKeyChecking=no $ip "[ ! -d $MAIN_DIR ]")
+            then
+                #Creating working directory on the remote host.
+                ssh -o StrictHostKeyChecking=no $ip mkdir -p $MAIN_DIR
+            fi
+            scp -o StrictHostKeyChecking=no -rq $MAIN_DIR/* $ip:$MAIN_DIR
+        fi
+    done
+}
+
+if [[ $AUTO_RUN != false ]]; then
+    copy_to_hosts
+fi
+
+date_time=$(date +"%Y%m%d-%H%M%S")
+result_dir_name=results-$date_time
+log_dir_name=logs-$date_time
+
+folder=${SCRIPT_DIR}/../output/$result_dir_name
+LOGS_BASE=${SCRIPT_DIR}/../output/$log_dir_name
+
+export LOGS_BASE
 
 if [ -z "$RESTART_SERVERS" ]; then
     /bin/bash ${SCRIPT_DIR}/benchmark-servers-start.sh ${CONFIG_INCLUDE}
@@ -96,4 +147,45 @@ if [ -z "$RESTART_SERVERS" ]; then
     /bin/bash ${SCRIPT_DIR}/benchmark-servers-stop.sh ${CONFIG_INCLUDE}
 
     sleep 1s
+fi
+
+# Collecting results and logs from the remote hosts
+function collect_results()
+{
+    define_ips
+    for ip in ${uniq_ips[@]}
+    do
+        if [[ $ip != "127.0.0.1" && $ip != "localhost" && $ip != $local_ip_addr ]]
+        then
+            echo "<"$(date +"%H:%M:%S")"><yardstick> Collecting results from the host ${ip}"
+            # Checking if current IP belongs to the driver-host and therefore there should be the "results" directory
+            if echo "${DRIVER_HOSTS}" | grep -i $ip >/dev/null
+            then
+                scp -o StrictHostKeyChecking=no -rq $ip:$folder/../../output/$result_dir_name/* $MAIN_DIR/output/$result_dir_name
+            fi
+            scp -o StrictHostKeyChecking=no -rq $ip:$LOGS_BASE/../../output/$log_dir_name/* $MAIN_DIR/output/$log_dir_name
+        fi
+    done
+}
+
+if [[ $AUTO_RUN != false ]]; then
+    collect_results
+fi
+
+# Creating graphs
+function create_charts()
+{
+    if [ -d $folder ]
+    then
+        OUT_DIR=`cd $folder/../; pwd`
+        echo "<"$(date +"%H:%M:%S")"><yardstick> Creating charts in the ${OUT_DIR}/charts-${date_time} directory"
+        #. ${SCRIPT_DIR}/jfreechart-graph-gen.sh -gm STANDARD -i $folder >> /dev/null
+        . ${SCRIPT_DIR}/jfreechart-graph-gen.sh -i $folder >> /dev/null
+        # Renaming chart directory including current time.
+        mv $MAIN_DIR/output/results-compound* $MAIN_DIR/output/charts-$date_time
+    fi
+}
+
+if [[ $AUTO_RUN != false ]]; then
+    create_charts
 fi
