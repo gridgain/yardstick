@@ -160,7 +160,7 @@ function collect_results()
     IFS=' ' read -ra ips_array <<< $(define_ips)
     for ip in ${ips_array[@]}
     do
-        if [[ $ip != "127.0.0.1" && $ip != "localhost" && $ip != $local_ip_addr ]]
+        if [[ $ip != "127.0.0.1" && $ip != "localhost" ]]
         then
             echo "<"$(date +"%H:%M:%S")"><yardstick> Collecting results from the host ${ip}"
             # Checking if current IP belongs to the driver-host and therefore there should be the "results" directory
