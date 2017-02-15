@@ -179,10 +179,10 @@ function create_charts()
     then
         OUT_DIR=`cd $folder/../; pwd`
         echo "<"$(date +"%H:%M:%S")"><yardstick> Creating charts in the ${OUT_DIR}/charts-${date_time} directory"
-        #. ${SCRIPT_DIR}/jfreechart-graph-gen.sh -gm STANDARD -i $folder >> /dev/null
+        . ${SCRIPT_DIR}/jfreechart-graph-gen.sh -gm STANDARD -i $folder >> /dev/null
         . ${SCRIPT_DIR}/jfreechart-graph-gen.sh -i $folder >> /dev/null
         # Renaming chart directory including current time.
-        mv $MAIN_DIR/output/results-compound* $MAIN_DIR/output/charts-$date_time
+        mv $MAIN_DIR/output/results-compound* $MAIN_DIR/output/results-$date_time
     fi
 }
 
