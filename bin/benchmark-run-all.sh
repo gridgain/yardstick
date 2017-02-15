@@ -21,7 +21,7 @@
 
 # Define script directory.
 SCRIPT_DIR=$(cd $(dirname "$0"); pwd)
-MAIN_DIR=`cd ${SCRIPT_DIR}/../; pwd`
+MAIN_DIR=$(cd ${SCRIPT_DIR}/../; pwd)
 
 CONFIG_INCLUDE=$1
 
@@ -66,38 +66,43 @@ fi
 function define_ips()
 {
     # Defining IP of the local machine.
-    local_ip_addresses=`ifconfig | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p'`
-    IFS=',' read -ra local_ips_array <<< ${local_ip_addresses[@]}
-    comma_separated_ips="${SERVER_HOSTS},${DRIVER_HOSTS}"
-    ips=${comma_separated_ips//,/ }
-    uniq_ips=`echo "${ips[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '`
+    local local_ip_addresses=`ifconfig | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p'`
+    IFS=' ' read -ra local_ips_array <<< ${local_ip_addresses[@]}
+    local comma_separated_ips="${SERVER_HOSTS},${DRIVER_HOSTS}"
+    local ips=${comma_separated_ips//,/ }
+    local uniq_ips=`echo "${ips[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '`
     for local_ip in ${local_ips_array}
     do
         uniq_ips=( "${uniq_ips[@]/$local_ip}" )
     done
+    echo ${uniq_ips[@]}
 }
 
 # Copying working directory to remote hosts.
 function copy_to_hosts()
 {
-    define_ips
-    for ip in ${uniq_ips[@]}
+    IFS=' ' read -ra ips_array <<< $(define_ips)
+    echo ${ips_array[@]}
+    for ip in ${ips_array[@]}
     do
         if [[ $ip != "127.0.0.1" && $ip != "localhost" ]]
         then
             echo "<"$(date +"%H:%M:%S")"><yardstick> Copying yardstick to the host ${ip}"
             # Checking if working directory already exist on the remote host.
-            if (ssh -o StrictHostKeyChecking=no $ip "[ ! -d $MAIN_DIR ]")
-            then
-                #Creating working directory on the remote host.
-                ssh -o StrictHostKeyChecking=no $ip mkdir -p $MAIN_DIR
-            fi
+
+            ssh -o StrictHostKeyChecking=no $ip mkdir -p $MAIN_DIR
+
+
             scp -o StrictHostKeyChecking=no -rq $MAIN_DIR/* $ip:$MAIN_DIR
+            sleep 2
+
+            scp -o StrictHostKeyChecking=no -rq $MAIN_DIR/* $ip:$MAIN_DIR
+
         fi
     done
 }
 
-if [[ $AUTO_RUN != false ]]; then
+if [[ $AUTO_COPY != false ]]; then
     copy_to_hosts
 fi
 
@@ -105,7 +110,7 @@ date_time=$(date +"%Y%m%d-%H%M%S")
 result_dir_name=results-$date_time
 log_dir_name=logs-$date_time
 
-folder=${SCRIPT_DIR}/../output/$result_dir_name
+results_folder=${SCRIPT_DIR}/../output/$result_dir_name
 LOGS_BASE=${SCRIPT_DIR}/../output/$log_dir_name
 
 export LOGS_BASE
@@ -122,7 +127,7 @@ do
     CONFIG=${cfg}
 
     if [[ ${CONFIG} != *'-of '* ]] && [[ ${CONFIG} != *'--outputFolder '* ]]; then
-        OUTPUT_FOLDER="--outputFolder ${folder}"
+        OUTPUT_FOLDER="--outputFolder ${results_folder}"
     fi
 
     export CONFIG
@@ -152,40 +157,45 @@ fi
 # Collecting results and logs from the remote hosts
 function collect_results()
 {
-    define_ips
-    for ip in ${uniq_ips[@]}
+    IFS=' ' read -ra ips_array <<< $(define_ips)
+    for ip in ${ips_array[@]}
     do
         if [[ $ip != "127.0.0.1" && $ip != "localhost" && $ip != $local_ip_addr ]]
         then
             echo "<"$(date +"%H:%M:%S")"><yardstick> Collecting results from the host ${ip}"
             # Checking if current IP belongs to the driver-host and therefore there should be the "results" directory
-            if echo "${DRIVER_HOSTS}" | grep -i $ip >/dev/null
+            if [[ ${DRIVER_HOSTS} == *"$ip"* ]]
             then
-                scp -o StrictHostKeyChecking=no -rq $ip:$folder/../../output/$result_dir_name/* $MAIN_DIR/output/$result_dir_name
+                scp -o StrictHostKeyChecking=no -rq $ip:$results_folder/../../output/$result_dir_name/* $MAIN_DIR/output/$result_dir_name
             fi
             scp -o StrictHostKeyChecking=no -rq $ip:$LOGS_BASE/../../output/$log_dir_name/* $MAIN_DIR/output/$log_dir_name
+            ssh -o StrictHostKeyChecking=no $ip rm -r $MAIN_DIR/bin
+            ssh -o StrictHostKeyChecking=no $ip rm -r $MAIN_DIR/config
+            ssh -o StrictHostKeyChecking=no $ip rm -r $MAIN_DIR/libs
+            ssh -o StrictHostKeyChecking=no $ip rm -r $MAIN_DIR/output
+            ssh -o StrictHostKeyChecking=no $ip rm -r $MAIN_DIR/work
         fi
     done
 }
 
-if [[ $AUTO_RUN != false ]]; then
+if [[ $AUTO_COPY != false ]]; then
     collect_results
 fi
 
 # Creating graphs
 function create_charts()
 {
-    if [ -d $folder ]
+    if [ -d $results_folder ]
     then
-        OUT_DIR=`cd $folder/../; pwd`
+        OUT_DIR=$(cd $results_folder/../; pwd)
         echo "<"$(date +"%H:%M:%S")"><yardstick> Creating charts in the ${OUT_DIR}/charts-${date_time} directory"
-        . ${SCRIPT_DIR}/jfreechart-graph-gen.sh -gm STANDARD -i $folder >> /dev/null
-        . ${SCRIPT_DIR}/jfreechart-graph-gen.sh -i $folder >> /dev/null
+        . ${SCRIPT_DIR}/jfreechart-graph-gen.sh -gm STANDARD -i $results_folder >> /dev/null
+        . ${SCRIPT_DIR}/jfreechart-graph-gen.sh -i $results_folder >> /dev/null
         # Moving chart directory to the results directory.
         mv $MAIN_DIR/output/results-compound* $MAIN_DIR/output/results-$date_time
     fi
 }
 
-if [[ $AUTO_RUN != false ]]; then
+if [[ $AUTO_COPY != false ]]; then
     create_charts
 fi
