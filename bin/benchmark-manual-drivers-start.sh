@@ -103,9 +103,9 @@ if [ ! -d "${LOGS_DIR}" ]; then
 fi
 
 if [[ "${OUTPUT_FOLDER}" == "" ]] && [[ ${CONFIG} != *'-of '* ]] && [[ ${CONFIG} != *'--outputFolder '* ]]; then
-    folder=${SCRIPT_DIR}/../output/results-$(date +"%Y%m%d-%H%M%S")
+    results_folder=${SCRIPT_DIR}/../output/results-$(date +"%Y%m%d-%H%M%S")
 
-    OUTPUT_FOLDER="--outputFolder ${folder}"
+    OUTPUT_FOLDER="--outputFolder ${results_folder}"
 fi
 
 CUR_DIR=$(pwd)
