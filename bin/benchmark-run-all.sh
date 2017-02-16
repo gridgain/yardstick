@@ -27,7 +27,12 @@ CONFIG_INCLUDE=$1
 
 if [ "${CONFIG_INCLUDE}" == "-h" ] || [ "${CONFIG_INCLUDE}" == "--help" ]; then
     echo "Usage: benchmark-run-all.sh [PROPERTIES_FILE_PATH]"
-    echo "Script that executes BenchmarkDriver locally and BenchmarkServers on remote machines."
+    echo "This program executes Benchmarks locally and remotely."
+    echo "By default, all the necessary files will be automatically uploaded from this host"
+    echo "to every other remote host to the same path."
+    echo "If you prefer to do it manually set the AUTO_COPY variable in property file to `false`."
+    echo "For more information check the Yardstick framework site:"
+    echo "https://github.com/gridgain/yardstick"
     exit 1
 fi
 
@@ -78,26 +83,29 @@ function define_ips()
     echo ${uniq_ips[@]}
 }
 
+# Deleting all the yardstick directories from the working directory on remote host
+# $1 IP address of the remote host
+function clear_remote_work_directory()
+{
+    ssh -o StrictHostKeyChecking=no $1 rm -rf $MAIN_DIR/bin
+    ssh -o StrictHostKeyChecking=no $1 rm -rf $MAIN_DIR/config
+    ssh -o StrictHostKeyChecking=no $1 rm -rf $MAIN_DIR/libs
+    ssh -o StrictHostKeyChecking=no $1 rm -rf $MAIN_DIR/output
+    ssh -o StrictHostKeyChecking=no $1 rm -rf $MAIN_DIR/work
+}
+
 # Copying working directory to remote hosts.
 function copy_to_hosts()
 {
     IFS=' ' read -ra ips_array <<< $(define_ips)
-    echo ${ips_array[@]}
     for ip in ${ips_array[@]}
     do
         if [[ $ip != "127.0.0.1" && $ip != "localhost" ]]
         then
             echo "<"$(date +"%H:%M:%S")"><yardstick> Copying yardstick to the host ${ip}"
-            # Checking if working directory already exist on the remote host.
-
             ssh -o StrictHostKeyChecking=no $ip mkdir -p $MAIN_DIR
-
-
+            clear_remote_work_directory $ip
             scp -o StrictHostKeyChecking=no -rq $MAIN_DIR/* $ip:$MAIN_DIR
-            sleep 2
-
-            scp -o StrictHostKeyChecking=no -rq $MAIN_DIR/* $ip:$MAIN_DIR
-
         fi
     done
 }
@@ -169,11 +177,7 @@ function collect_results()
                 scp -o StrictHostKeyChecking=no -rq $ip:$results_folder/../../output/$result_dir_name/* $MAIN_DIR/output/$result_dir_name
             fi
             scp -o StrictHostKeyChecking=no -rq $ip:$LOGS_BASE/../../output/$log_dir_name/* $MAIN_DIR/output/$log_dir_name
-            ssh -o StrictHostKeyChecking=no $ip rm -r $MAIN_DIR/bin
-            ssh -o StrictHostKeyChecking=no $ip rm -r $MAIN_DIR/config
-            ssh -o StrictHostKeyChecking=no $ip rm -r $MAIN_DIR/libs
-            ssh -o StrictHostKeyChecking=no $ip rm -r $MAIN_DIR/output
-            ssh -o StrictHostKeyChecking=no $ip rm -r $MAIN_DIR/work
+            clear_remote_work_directory $ip
         fi
     done
 }
@@ -182,16 +186,16 @@ if [[ $AUTO_COPY != false ]]; then
     collect_results
 fi
 
-# Creating graphs
+# Creating graphs.
 function create_charts()
 {
     if [ -d $results_folder ]
     then
         OUT_DIR=$(cd $results_folder/../; pwd)
-        echo "<"$(date +"%H:%M:%S")"><yardstick> Creating charts in the ${OUT_DIR}/charts-${date_time} directory"
+        echo "<"$(date +"%H:%M:%S")"><yardstick> Creating charts"
         . ${SCRIPT_DIR}/jfreechart-graph-gen.sh -gm STANDARD -i $results_folder >> /dev/null
         . ${SCRIPT_DIR}/jfreechart-graph-gen.sh -i $results_folder >> /dev/null
-        # Moving chart directory to the results directory.
+        echo "<"$(date +"%H:%M:%S")"><yardstick> Moving chart directory to the results directory."
         mv $MAIN_DIR/output/results-compound* $MAIN_DIR/output/results-$date_time
     fi
 }
