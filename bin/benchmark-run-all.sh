@@ -72,11 +72,10 @@ function define_ips()
 {
     # Defining IP of the local machine.
     local local_ip_addresses=`ifconfig | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p'`
-    local_ips_array=( ${local_ip_addresses[@]} )
     local comma_separated_ips="${SERVER_HOSTS},${DRIVER_HOSTS}"
     local ips=${comma_separated_ips//,/ }
     local uniq_ips=`echo "${ips[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '`
-    for local_ip in ${local_ips_array[@]}
+    for local_ip in ${local_ip_addresses[@]}
     do
         uniq_ips=( "${uniq_ips[@]/$local_ip}" )
     done
@@ -195,7 +194,7 @@ function create_charts()
         echo "<"$(date +"%H:%M:%S")"><yardstick> Creating charts"
         . ${SCRIPT_DIR}/jfreechart-graph-gen.sh -gm STANDARD -i $results_folder >> /dev/null
         . ${SCRIPT_DIR}/jfreechart-graph-gen.sh -i $results_folder >> /dev/null
-        echo "<"$(date +"%H:%M:%S")"><yardstick> Moving chart directory to the results directory."
+        echo "Moving chart directory to the $MAIN_DIR/output/results-$date_time directory."
         mv $MAIN_DIR/output/results-compound* $MAIN_DIR/output/results-$date_time
     fi
 }
