@@ -155,7 +155,8 @@ do
 
     file_log=${LOGS_DIR}"/"${now}"-id"${id}"-"${host_name}"-"${DS}".log"
 
-    if echo "${JVM_OPTS}" | grep -i "PrintGC" >/dev/null
+    #if echo "${JVM_OPTS}" | grep -i "PrintGC" >/dev/null
+    if [[ ${JVM_OPTS} == *"PrintGC"* ]]
     then
         JVM_OPTS=${JVM_OPTS}" -Xloggc:${LOGS_DIR}/gc-${now0}-driver-id${id}-${host_name}-${DS}.log"
     fi

@@ -27,7 +27,6 @@ CONFIG_INCLUDE=$1
 
 if [ "${CONFIG_INCLUDE}" == "-h" ] || [ "${CONFIG_INCLUDE}" == "--help" ]; then
     echo "Usage: benchmark-run-all.sh [PROPERTIES_FILE_PATH]"
-    echo "This program executes Benchmarks locally and remotely."
     echo "By default, all the necessary files will be automatically uploaded from this host"
     echo "to every other remote host to the same path."
     echo "If you prefer to do it manually set the AUTO_COPY variable in property file to `false`."
