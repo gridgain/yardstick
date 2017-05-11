@@ -141,7 +141,7 @@ do
 
     if [[ ${JVM_OPTS} == *"PrintGC"* ]]
     then
-        JVM_OPTS=${JVM_OPTS}" -Xloggc:${LOGS_DIR}/gc-${now0}-server-id${id}-${host_name}-${DS}.log"
+        JVM_OPTS=${JVM_OPTS}" -Xloggc:${LOGS_DIR}/gc-${now}-server-id${id}-${host_name}-${DS}.log"
     fi
 
     export JAVA_HOME=${JAVA_HOME}
