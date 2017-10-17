@@ -73,16 +73,30 @@ if [[ "${RESTART_SERVERS}" != "" ]] && [[ "${RESTART_SERVERS}" != "true" ]]; the
     echo "<"$(date +"%H:%M:%S")"><yardstick> All server restartets are stopped."
 fi
 
-IFS=',' read -ra hosts0 <<< "${SERVER_HOSTS}"
-for host_name in "${hosts0[@]}";
+for grp in 0 1 2 3 ;
 do
-    if [[ ${host_name} = "127.0.0.1" || ${host_name} = "localhost" ]]
-        then
-            pkill -9 -f "Dyardstick.server"
+    if [[ "$grp" == "0" ]] ; then
+        SRV_HOST_TMP="${SERVER_HOSTS}"
+    else
+        eval SRV_HOST_TMP='$'"SERVER_GROUP${grp}_HOSTS"
+    fi
 
-        else
-            `ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} pkill -9 -f "Dyardstick.server"`
-        fi
+    if [[ -z "$SRV_HOST_TMP" ]]; then
+        break
+    fi
 
-    echo "<"$(date +"%H:%M:%S")"><yardstick> Server is stopped on "${host_name}
+    IFS=',' read -ra hosts0 <<< "${SRV_HOST_TMP}"
+
+    for host_name in "${hosts0[@]}";
+    do
+        if [[ ${host_name} = "127.0.0.1" || ${host_name} = "localhost" ]]
+            then
+                pkill -9 -f "Dyardstick.server"
+
+            else
+                `ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} pkill -9 -f "Dyardstick.server"`
+            fi
+
+        echo "<"$(date +"%H:%M:%S")"><yardstick> Server is stopped on "${host_name}
+    done
 done

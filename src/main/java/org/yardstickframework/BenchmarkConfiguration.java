@@ -52,8 +52,13 @@ public class BenchmarkConfiguration implements Serializable {
     private List<String> driverNames;
 
     /** */
-    @Parameter(names = {"-sn", "--serverName"}, description = "Benchmark server name (required)")
-    private String serverName;
+    @Parameter(names = {"-sn", "--serverName"},
+        description = "Space-separated list of benchmark server name (required), maximum size is 4")
+    private List<String> serverName;
+
+    /** */
+    @Parameter(names = {"-nn", "--serverNameNumber"}, description = "Number of the benchmark server name (default 0, max 3)")
+    private int serverNameNumber;
 
     /** */
     @Parameter(names = {"-id", "--memberId"}, description = "Memebr ID")
@@ -150,7 +155,7 @@ public class BenchmarkConfiguration implements Serializable {
      * @return Benchmark server name.
      */
     public String serverName() {
-        return serverName;
+        return serverName.size() > serverNameNumber ? serverName.get(serverNameNumber) : null;
     }
 
     /**
@@ -425,6 +430,7 @@ public class BenchmarkConfiguration implements Serializable {
             "memberId='" + memberId + '\'' +
             ", driverNames='" + driverNames + '\'' +
             ", serverName='" + serverName + '\'' +
+            ", serverNameNumber='" + serverNameNumber + '\'' +
             ", threads=" + threads +
             ", duration=" + duration +
             ", warmup=" + warmup +
