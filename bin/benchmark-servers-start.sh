@@ -111,95 +111,108 @@ CUR_DIR=$(pwd)
 DS=""
 
 id=0
-
-IFS=',' read -ra hosts0 <<< "${SERVER_HOSTS}"
-for host_name in "${hosts0[@]}";
+for grp in 0 1 2 3 ;
 do
-    CONFIG_PRM="-id ${id} ${CONFIG}"
-
-    suffix=`echo "${CONFIG}" | tail -c 60 | sed 's/ *$//g'`
-
-    echo "<"$(date +"%H:%M:%S")"><yardstick> Starting server config '..."${suffix}"' on "${host_name}" with id=${id}"
-
-    now=`date +'%H%M%S'`
-
-    # Extract description.
-    IFS=' ' read -ra cfg0 <<< "${CONFIG}"
-    for cfg00 in "${cfg0[@]}";
-    do
-        if [[ ${found} == 'true' ]]; then
-            found=""
-            DS=${cfg00}
-        fi
-
-        if [[ ${cfg00} == '-ds' ]] || [[ ${cfg00} == '--descriptions' ]]; then
-            found="true"
-        fi
-    done
-
-    file_log=${LOGS_DIR}"/"${now}"-id"${id}"-"${host_name}"-"${DS}".log"
-
-    if [[ ${JVM_OPTS} == *"PrintGC"* ]]
-    then
-        JVM_OPTS=${JVM_OPTS}" -Xloggc:${LOGS_DIR}/gc-${now}-server-id${id}-${host_name}-${DS}.log"
-    fi
-
-    export JAVA_HOME=${JAVA_HOME}
-    export MAIN_CLASS='org.yardstickframework.BenchmarkServerStartUp'
-    export JVM_OPTS="${JVM_OPTS}${SERVER_JVM_OPTS} -Dyardstick.server${id}"
-    export CP=${CP}
-    export CUR_DIR=${CUR_DIR}
-    export PROPS_ENV0=${PROPS_ENV}
-
-    if [[ ${host_name} = "127.0.0.1" || ${host_name} = "localhost" ]]
-    then
-        mkdir -p ${LOGS_DIR}
-
-        nohup ${SCRIPT_DIR}/benchmark-bootstrap.sh ${CONFIG_PRM} "--config" ${CONFIG_INCLUDE} "--logsFolder" ${LOGS_DIR} \
-        "--remoteuser" ${REMOTE_USER} "--remoteHostName" ${host_name} > ${file_log} 2>& 1 &
+    if [[ "$grp" == "0" ]] ; then
+        SRV_HOST_TMP="${SERVER_HOSTS}"
     else
-        ssh -o StrictHostKeyChecking=no -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} mkdir -p ${LOGS_DIR}
-
-        ssh -o StrictHostKeyChecking=no -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} \
-            "JAVA_HOME='${JAVA_HOME}'" \
-            "MAIN_CLASS='${MAIN_CLASS}'" "JVM_OPTS='${JVM_OPTS}'" "CP='${CP}'" \
-            "CUR_DIR='${CUR_DIR}'" "PROPS_ENV0='${PROPS_ENV}'" \
-            "nohup ${SCRIPT_DIR}/benchmark-bootstrap.sh ${CONFIG_PRM} "--config" ${CONFIG_INCLUDE} "--logsFolder" ${LOGS_DIR} \
-            "--remoteuser" ${REMOTE_USER} "--remoteHostName" ${host_name} > ${file_log} 2>& 1 &"
+        eval SRV_HOST_TMP='$'"SERVER_GROUP${grp}_HOSTS"
     fi
 
+    if [[ -z "$SRV_HOST_TMP" ]]; then
+        break
+    fi
 
+    IFS=',' read -ra hosts0 <<< "${SRV_HOST_TMP}"
 
-    # Start a restarter if needed.
-    if [[ "${RESTART_SERVERS}" != "" ]] && [[ "${RESTART_SERVERS}" != "true" ]]; then
-        IFS=',' read -ra hostsToRestart0 <<< "${RESTART_SERVERS}"
-        for host2Timeout in "${hostsToRestart0[@]}";
+    for host_name in "${hosts0[@]}";
+    do
+        CONFIG_PRM="-id ${id} ${CONFIG}"
+
+        suffix=`echo "${CONFIG}" | tail -c 60 | sed 's/ *$//g'`
+
+        echo "<"$(date +"%H:%M:%S")"><yardstick> Starting server config '..."${suffix}"' on "${host_name}" with id=${id}"
+
+        now=`date +'%H%M%S'`
+
+        # Extract description.
+        IFS=' ' read -ra cfg0 <<< "${CONFIG}"
+        for cfg00 in "${cfg0[@]}";
         do
-            IFS=':' read -ra hostToRestart <<< "${host2Timeout}"
+            if [[ ${found} == 'true' ]]; then
+                found=""
+                DS=${cfg00}
+            fi
 
-            host_to_restart=${hostToRestart[0]}
-            id_to_restart=${hostToRestart[1]}
-            delay=${hostToRestart[2]}
-            pause=${hostToRestart[3]}
-            period=${hostToRestart[4]}
-
-            if [[ "${host_to_restart}" = "${host_name}" ]] && [[ "${id_to_restart}" = "${id}" ]] ; then
-                if [[ "${delay}" != "" ]] && [[ "${pause}" != "" ]] && [[ "${period}" != "" ]] ; then
-                    file_log=${RESTARTERS_LOGS_DIR}"/"${now}"_id"${id}"_"${host_name}".log"
-
-                    nohup ${SCRIPT_DIR}/benchmark-server-restarter-start.sh "${host_name}" "${id}" "${CONFIG_PRM}" \
-                    "${delay}" "${pause}" "${period}" "${CONFIG_INCLUDE}" > ${file_log} 2>& 1 &
-
-                    echo "<"$(date +"%H:%M:%S")"><yardstick> Server restarter is started for ${host_to_restart} \
-                    with id=${id} and config '...${suffix}', warmup delay ${delay} sec., pause ${pause} sec. and period ${period} sec."
-                else
-                    echo "<"$(date +"%H:%M:%S")"><yardstick> Failed to start a server restarter for host \
-                    ${host_to_restart} with id=${id}. Next params should not be empty: [warmup delay='${delay}', pause='${pause}', period='${period}']"
-                fi
+            if [[ ${cfg00} == '-ds' ]] || [[ ${cfg00} == '--descriptions' ]]; then
+                found="true"
             fi
         done
-    fi
-    # End of restarter logic.
 
-    id=$((1 + $id))
+        file_log=${LOGS_DIR}"/"${now}"-id"${id}"-"${host_name}"-"${DS}".log"
+
+        if [[ ${JVM_OPTS} == *"PrintGC"* ]]
+        then
+            JVM_OPTS=${JVM_OPTS}" -Xloggc:${LOGS_DIR}/gc-${now}-server-id${id}-${host_name}-${DS}.log"
+        fi
+
+        export JAVA_HOME=${JAVA_HOME}
+        export MAIN_CLASS='org.yardstickframework.BenchmarkServerStartUp'
+        export JVM_OPTS="${JVM_OPTS}${SERVER_JVM_OPTS} -Dyardstick.server${id}"
+        export CP=${CP}
+        export CUR_DIR=${CUR_DIR}
+        export PROPS_ENV0=${PROPS_ENV}
+
+        if [[ ${host_name} = "127.0.0.1" || ${host_name} = "localhost" ]]
+        then
+            mkdir -p ${LOGS_DIR}
+
+            nohup ${SCRIPT_DIR}/benchmark-bootstrap.sh ${CONFIG_PRM} "--config" ${CONFIG_INCLUDE} "--logsFolder" ${LOGS_DIR} \
+            "--remoteuser" ${REMOTE_USER} "--remoteHostName" ${host_name} "--serverNameNumber" ${grp} > ${file_log} 2>& 1 &
+        else
+            ssh -o StrictHostKeyChecking=no -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} mkdir -p ${LOGS_DIR}
+
+            ssh -o StrictHostKeyChecking=no -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} \
+                "JAVA_HOME='${JAVA_HOME}'" \
+                "MAIN_CLASS='${MAIN_CLASS}'" "JVM_OPTS='${JVM_OPTS}'" "CP='${CP}'" \
+                "CUR_DIR='${CUR_DIR}'" "PROPS_ENV0='${PROPS_ENV}'" \
+                "nohup ${SCRIPT_DIR}/benchmark-bootstrap.sh ${CONFIG_PRM} "--config" ${CONFIG_INCLUDE} "--logsFolder" ${LOGS_DIR} \
+                "--remoteuser" ${REMOTE_USER} "--remoteHostName" ${host_name} "--serverNameNumber" ${grp} > ${file_log} 2>& 1 &"
+        fi
+
+
+
+        # Start a restarter if needed.
+        if [[ "${RESTART_SERVERS}" != "" ]] && [[ "${RESTART_SERVERS}" != "true" ]]; then
+            IFS=',' read -ra hostsToRestart0 <<< "${RESTART_SERVERS}"
+            for host2Timeout in "${hostsToRestart0[@]}";
+            do
+                IFS=':' read -ra hostToRestart <<< "${host2Timeout}"
+
+                host_to_restart=${hostToRestart[0]}
+                id_to_restart=${hostToRestart[1]}
+                delay=${hostToRestart[2]}
+                pause=${hostToRestart[3]}
+                period=${hostToRestart[4]}
+
+                if [[ "${host_to_restart}" = "${host_name}" ]] && [[ "${id_to_restart}" = "${id}" ]] ; then
+                    if [[ "${delay}" != "" ]] && [[ "${pause}" != "" ]] && [[ "${period}" != "" ]] ; then
+                        file_log=${RESTARTERS_LOGS_DIR}"/"${now}"_id"${id}"_"${host_name}".log"
+
+                        nohup ${SCRIPT_DIR}/benchmark-server-restarter-start.sh "${host_name}" "${id}" "${CONFIG_PRM}" \
+                        "${delay}" "${pause}" "${period}" "${CONFIG_INCLUDE}" > ${file_log} 2>& 1 &
+
+                        echo "<"$(date +"%H:%M:%S")"><yardstick> Server restarter is started for ${host_to_restart} \
+                        with id=${id} and config '...${suffix}', warmup delay ${delay} sec., pause ${pause} sec. and period ${period} sec."
+                    else
+                        echo "<"$(date +"%H:%M:%S")"><yardstick> Failed to start a server restarter for host \
+                        ${host_to_restart} with id=${id}. Next params should not be empty: [warmup delay='${delay}', pause='${pause}', period='${period}']"
+                    fi
+                fi
+            done
+        fi
+        # End of restarter logic.
+
+        id=$((1 + $id))
+    done
 done
