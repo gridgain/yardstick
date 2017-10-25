@@ -381,6 +381,7 @@ public class BenchmarkUtils {
 
         /**
          * @param exitCode Exit code.
+         * @param log Log.
          * @param out Out.
          * @param err Err.
          */

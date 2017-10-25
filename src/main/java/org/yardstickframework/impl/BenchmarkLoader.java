@@ -169,6 +169,7 @@ public class BenchmarkLoader {
      *
      * @param cls Class to load.
      * @param name Simple or fully-qualified class name to load.
+     * @param <T> Benchmark's class.
      * @return Loaded class.
      * @throws Exception If class could not be loaded.
      */
