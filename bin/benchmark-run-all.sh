@@ -71,7 +71,7 @@ function define_ips()
 {
     # Defining IP of the local machine.
     local local_ip_addresses=`ifconfig | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p'`
-    local comma_separated_ips="${SERVER_HOSTS},${DRIVER_HOSTS}"
+    local comma_separated_ips="${SERVER_HOSTS},${DRIVER_HOSTS},${SERVER_GROUP1_HOSTS},${SERVER_GROUP2_HOSTS},${SERVER_GROUP3_HOSTS}"
     local ips=${comma_separated_ips//,/ }
     local uniq_ips=`echo "${ips[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '`
     for local_ip in ${local_ip_addresses[@]}
