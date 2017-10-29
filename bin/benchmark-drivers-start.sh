@@ -157,16 +157,9 @@ do
 
     file_log=${LOGS_DIR}"/"${now}"-id"${id}"-"${host_name}"-"${DS}".log"
 
-    common_bootstrap_properties "driver"
-
-    echo  "MAIN_CLASS='org.yardstickframework.BenchmarkDriverStartUp'" >> ${SCRIPT_DIR}/bootstrap.properties
-    echo  "JVM_OPTS=\"${JVM_OPTS} ${DRIVER_JVM_OPTS} -Dyardstick.driver${id}\"" >> ${SCRIPT_DIR}/bootstrap.properties
-
-    start_node
+    start_driver
 
     echo "<"$(date +"%H:%M:%S")"><yardstick> Driver is started on "${host_name}" with id=${id}"
-
-    ${SCRIPT_DIR}/benchmark-wait-driver-up.sh
 
     id=$((1 + $id))
 done

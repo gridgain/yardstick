@@ -18,11 +18,13 @@
 
 SCRIPT_DIR=$(cd $(dirname "$0"); pwd)
 
-source ${SCRIPT_DIR}/bootstrap.properties
+if [ -f ${SCRIPT_DIR}/bootstrap.properties ]; then
+    source ${SCRIPT_DIR}/bootstrap.properties
 
-cp ${SCRIPT_DIR}/bootstrap.properties ${SCRIPT_DIR}/bootstrap-example.properties
+    cp ${SCRIPT_DIR}/bootstrap.properties ${SCRIPT_DIR}/bootstrap-last-backup.properties
 
-rm -f ${SCRIPT_DIR}/bootstrap.properties
+    rm -f ${SCRIPT_DIR}/bootstrap.properties
+fi
 
 if [ "${CUR_DIR}" != "" ]; then
     cd ${CUR_DIR}

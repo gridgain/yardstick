@@ -21,6 +21,8 @@
 # Define script directory.
 SCRIPT_DIR=$(cd $(dirname "$0"); pwd)
 
+source ${SCRIPT_DIR}/benchmark-functions.sh
+
 CONFIG_INCLUDE=$1
 
 if [ "${CONFIG_INCLUDE}" == "-h" ] || [ "${CONFIG_INCLUDE}" == "--help" ]; then
@@ -117,7 +119,7 @@ for cfg in "${configs0[@]}";
 do
     now=`date +'%H%M%S'`
 
-    cfgParams="${OUTPUT_FOLDER} -id ${id} ${cfg}"
+    CONFIG_PRM="${OUTPUT_FOLDER} -id ${id} ${cfg}"
 
     suffix=`echo "${cfgParams}" | tail -c 60 | sed 's/ *$//g'`
 
@@ -126,11 +128,7 @@ do
     echo "<"$(date +"%H:%M:%S")"><yardstick> Starting driver config '..."${suffix}"' with id=${id}"
     echo "<"$(date +"%H:%M:%S")"><yardstick> Log file: "${file_log}
 
-    MAIN_CLASS=org.yardstickframework.BenchmarkDriverStartUp JVM_OPTS=${JVM_OPTS}${DRIVER_JVM_OPTS}" -Dyardstick.driver${id}" CP=${CP} \
-    CUR_DIR=${CUR_DIR} PROPS_ENV0=${PROPS_ENV} \
-    ${SCRIPT_DIR}/benchmark-bootstrap.sh ${cfgParams} --config ${CONFIG_INCLUDE} > ${file_log} 2>& 1 &
-
-    HOST_NAME=localhost ${SCRIPT_DIR}/benchmark-wait-driver-up.sh
+    start_driver "driver"
 
     echo "<"$(date +"%H:%M:%S")"><yardstick> Driver with id=${id} is started"
 

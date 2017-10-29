@@ -166,12 +166,7 @@ do
 
     CONFIG_PRM=$CONFIG
 
-    common_bootstrap_properties "server"
-
-    echo  "MAIN_CLASS='org.yardstickframework.BenchmarkServerStartUp'" >> ${SCRIPT_DIR}/bootstrap.properties
-    echo  "JVM_OPTS=\"${JVM_OPTS} ${SERVER_JVM_OPTS} -Dyardstick.server${id}\"" >> ${SCRIPT_DIR}/bootstrap.properties
-
-    start_node
+    start_server
 
     echo "<"$(date +"%H:%M:%S")"><yardstick> Server on ${HOST_NAME} with id=${ID} was started."
 

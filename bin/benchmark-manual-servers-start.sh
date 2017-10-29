@@ -21,6 +21,8 @@
 # Define script directory.
 SCRIPT_DIR=$(cd $(dirname "$0"); pwd)
 
+source ${SCRIPT_DIR}/benchmark-functions.sh
+
 CONFIG_INCLUDE=$1
 
 if [ "${CONFIG_INCLUDE}" == "-h" ] || [ "${CONFIG_INCLUDE}" == "--help" ]; then
@@ -134,7 +136,5 @@ do
     echo "<"$(date +"%H:%M:%S")"><yardstick> Starting server config '..."${suffix}"' with id=${id}"
     echo "<"$(date +"%H:%M:%S")"><yardstick> Log file: "${file_log}
 
-    MAIN_CLASS=org.yardstickframework.BenchmarkServerStartUp JVM_OPTS=${JVM_OPTS}${SERVER_JVM_OPTS}" -Dyardstick.server${id}" CP=${CP} \
-    CUR_DIR=${CUR_DIR} PROPS_ENV0=${PROPS_ENV} \
-    nohup ${SCRIPT_DIR}/benchmark-bootstrap.sh ${CONFIG_PRM} --config ${CONFIG_INCLUDE} > ${file_log} 2>& 1 &
+    start_server
 done

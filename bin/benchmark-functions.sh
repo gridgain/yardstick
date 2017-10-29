@@ -18,21 +18,29 @@
 
 start_node()
 {
-    if [[ ${host_name} = "127.0.0.1" || ${host_name} = "localhost" ]]
-    then
+    if [[ ${host_name} = "127.0.0.1" || ${host_name} = "localhost" ]]; then
         mkdir -p ${LOGS_DIR}
 
         nohup ${SCRIPT_DIR}/benchmark-bootstrap.sh > ${file_log} 2>& 1 &
+
+        if [[ $1 == "driver" ]]; then
+            HOST_NAME=localhost ${SCRIPT_DIR}/benchmark-wait-driver-up.sh
+        fi
     else
         ssh -o StrictHostKeyChecking=no -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} mkdir -p ${LOGS_DIR}
 
-        scp -o StrictHostKeyChecking=no -o PasswordAuthentication=no ${SCRIPT_DIR}/bootstrap.properties \
+        scp -o StrictHostKeyChecking=no -o PasswordAuthentication=no  -q ${SCRIPT_DIR}/bootstrap.properties \
             ${REMOTE_USER}"@"${host_name}:${SCRIPT_DIR}/bootstrap.properties
 
         rm -f ${SCRIPT_DIR}/bootstrap.properties
 
         ssh -o StrictHostKeyChecking=no -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} \
             "nohup ${SCRIPT_DIR}/benchmark-bootstrap.sh > ${file_log} 2>& 1 &"
+
+        if [[ $1 == "driver" ]]; then
+            ssh -o StrictHostKeyChecking=no -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} "HOST_NAME='${host_name}'" \
+            ${SCRIPT_DIR}/benchmark-wait-driver-up.sh
+        fi
     fi
 }
 
@@ -44,8 +52,7 @@ common_bootstrap_properties()
 
     touch ${SCRIPT_DIR}/bootstrap.properties
 
-    if [[ ${JVM_OPTS} == *"PrintGC"* ]]
-    then
+    if [[ ${JVM_OPTS} == *"PrintGC"* ]]; then
         echo "GC_JVM_OPTS=\"-Xloggc:${LOGS_DIR}/gc-${now}-${type}-id${id}-${host_name}-${DS}.log \"" >> ${SCRIPT_DIR}/bootstrap.properties
     fi
 
@@ -66,4 +73,24 @@ common_bootstrap_properties()
     echo "REMOTE_USER=${REMOTE_USER}" >> ${SCRIPT_DIR}/bootstrap.properties
     echo "CONFIG_PRM=\"${CONFIG_PRM}\"" >> ${SCRIPT_DIR}/bootstrap.properties
 
+}
+
+function start_server()
+{
+    common_bootstrap_properties "server"
+
+    echo  "MAIN_CLASS='org.yardstickframework.BenchmarkServerStartUp'" >> ${SCRIPT_DIR}/bootstrap.properties
+    echo  "JVM_OPTS=\"${JVM_OPTS} ${SERVER_JVM_OPTS} -Dyardstick.server${id}\"" >> ${SCRIPT_DIR}/bootstrap.properties
+
+    start_node
+}
+
+function start_driver()
+{
+    common_bootstrap_properties "driver"
+
+    echo  "MAIN_CLASS='org.yardstickframework.BenchmarkDriverStartUp'" >> ${SCRIPT_DIR}/bootstrap.properties
+    echo  "JVM_OPTS=\"${JVM_OPTS} ${DRIVER_JVM_OPTS} -Dyardstick.driver${id}\"" >> ${SCRIPT_DIR}/bootstrap.properties
+
+    start_node "driver"
 }
