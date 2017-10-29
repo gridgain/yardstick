@@ -5,3 +5,4 @@ target/*
 *.jar
 *jar.asc
 *xml.asc
+output/

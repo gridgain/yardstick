@@ -18,6 +18,12 @@
 
 SCRIPT_DIR=$(cd $(dirname "$0"); pwd)
 
+source ${SCRIPT_DIR}/bootstrap.properties
+
+cp ${SCRIPT_DIR}/bootstrap.properties ${SCRIPT_DIR}/bootstrap-example.properties
+
+rm -f ${SCRIPT_DIR}/bootstrap.properties
+
 if [ "${CUR_DIR}" != "" ]; then
     cd ${CUR_DIR}
 fi
@@ -26,6 +32,10 @@ if [ "${MAIN_CLASS}" == "" ]; then
     echo "ERROR: Java class is not defined."
     echo "Type \"--help\" for usage."
     exit 1
+fi
+
+if [[ $DEFINED_JAVA_HOME != "" ]]; then
+    JAVA_HOME=${DEFINED_JAVA_HOME}
 fi
 
 #
@@ -85,6 +95,8 @@ CP=${CP}":${SCRIPT_DIR}/../libs/*"
 #
 JVM_OPTS="-Xms2g -Xmx2g -server -Djava.net.preferIPv4Stack=true "${JVM_OPTS}
 
+JVM_OPTS="${JVM_OPTS} ${GC_JVM_OPTS} ${JFR_JVM_OPTS}"
+
 #
 # Assertions are disabled by default.
 # If you want to enable them - set 'ENABLE_ASSERTIONS' flag to '1'.
@@ -108,4 +120,5 @@ ARGS=${ARGS}" --currentFolder ${CUR_DIR} --scriptsFolder ${SCRIPT_DIR}"
 
 export JAVA
 
-"$JAVA" ${JVM_OPTS} -cp ${CP} ${MAIN_CLASS} ${ARGS}
+"$JAVA" ${JVM_OPTS} -cp ${CP} ${MAIN_CLASS} ${ARGS} ${CONFIG_PRM} --config ${CONFIG_INCLUDE} --logsFolder ${LOGS_DIR} \
+        --remoteuser ${REMOTE_USER} --remoteHostName ${REMOTE_HOST_NAME}

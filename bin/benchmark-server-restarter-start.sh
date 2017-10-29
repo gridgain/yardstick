@@ -148,11 +148,10 @@ do
 
     # Kill only first found yardstick.server on the host
 
-    if [[ ${HOST_NAME} = "127.0.0.1" || ${HOST_NAME} = "localhost" ]]
-    then
-        pkill -9 -f "Dyardstick.server${ID}"
+    if [[ ${HOST_NAME} = "127.0.0.1" || ${HOST_NAME} = "localhost" ]]; then
+        pkill -9 -f "Dyardstick.server${ID} "
     else
-        ssh -o StrictHostKeyChecking=no -o PasswordAuthentication=no ${REMOTE_USER}"@"${HOST_NAME} "pkill -9 -f 'Dyardstick.server${ID}'"
+        ssh -o StrictHostKeyChecking=no -o PasswordAuthentication=no ${REMOTE_USER}"@"${HOST_NAME} "pkill -9 -f 'Dyardstick.server${ID} '"
     fi
 
     sleep ${PAUSE} # Wait for process stopping.
@@ -165,24 +164,14 @@ do
 
     server_file_log=${SERVERS_LOGS_DIR}"/"${now}"_id"${ID}"-"${cntr}"_"${HOST_NAME}${DS}".log"
 
-    export JAVA_HOME=${JAVA_HOME}
-    export MAIN_CLASS='org.yardstickframework.BenchmarkServerStartUp'
-    export JVM_OPTS="${JVM_OPTS}${SERVER_JVM_OPTS} -Dyardstick.server${id}"
-    export CP=${CP}
-    export CUR_DIR=${CUR_DIR}
-    export PROPS_ENV0=${PROPS_ENV}
+    CONFIG_PRM=$CONFIG
 
-    if [[ ${HOST_NAME} = "127.0.0.1" || ${HOST_NAME} = "localhost" ]]
-    then
-        nohup ${SCRIPT_DIR}/benchmark-bootstrap.sh ${CONFIG_PRM} "--config" ${CONFIG_INCLUDE} "--logsFolder" ${LOGS_DIR} \
-        "--remoteuser" ${REMOTE_USER} "--remoteHostName" ${host_name} > ${file_log} 2>& 1 &
-    else
-        ssh -o StrictHostKeyChecking=no -o PasswordAuthentication=no ${REMOTE_USER}"@"${HOST_NAME} \
-        "JAVA_HOME='${JAVA_HOME}'" \
-        "MAIN_CLASS='${MAIN_CLASS}'" "JVM_OPTS='${JVM_OPTS}'" "CP='${CP}'" \
-        "CUR_DIR='${CUR_DIR}'" "PROPS_ENV0='${PROPS_ENV}'" \
-        "nohup ${SCRIPT_DIR}/benchmark-bootstrap.sh ${CONFIG} "--config" ${CONFIG_INCLUDE} > ${server_file_log} 2>& 1 &"
-    fi
+    common_bootstrap_properties "server"
+
+    echo  "MAIN_CLASS='org.yardstickframework.BenchmarkServerStartUp'" >> ${SCRIPT_DIR}/bootstrap.properties
+    echo  "JVM_OPTS=\"${JVM_OPTS} ${SERVER_JVM_OPTS} -Dyardstick.server${id}\"" >> ${SCRIPT_DIR}/bootstrap.properties
+
+    start_node
 
     echo "<"$(date +"%H:%M:%S")"><yardstick> Server on ${HOST_NAME} with id=${ID} was started."
 

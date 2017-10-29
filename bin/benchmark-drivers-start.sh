@@ -21,6 +21,8 @@
 # Define script directory.
 SCRIPT_DIR=$(cd $(dirname "$0"); pwd)
 
+source ${SCRIPT_DIR}/benchmark-functions.sh
+
 CONFIG_INCLUDE=$1
 
 if [ "${CONFIG_INCLUDE}" == "-h" ] || [ "${CONFIG_INCLUDE}" == "--help" ]; then
@@ -131,9 +133,9 @@ do
         outFol=${OUTPUT_FOLDER}
     fi
 
-    cfg="${outFol} ${host_name0} -id ${id} ${CONFIG}"
+    CONFIG_PRM="${outFol} ${host_name0} -id ${id} ${CONFIG}"
 
-    suffix=`echo "${cfg}" | tail -c 60 | sed 's/ *$//g'`
+    suffix=`echo "${CONFIG_PRM}" | tail -c 60 | sed 's/ *$//g'`
 
     echo "<"$(date +"%H:%M:%S")"><yardstick> Starting driver config '..."${suffix}"' on "${host_name}" with id=${id}"
 
@@ -155,40 +157,16 @@ do
 
     file_log=${LOGS_DIR}"/"${now}"-id"${id}"-"${host_name}"-"${DS}".log"
 
-    if [[ ${JVM_OPTS} == *"PrintGC"* ]]
-    then
-        JVM_OPTS=${JVM_OPTS}" -Xloggc:${LOGS_DIR}/gc-${now}-driver-id${id}-${host_name}-${DS}.log"
-    fi
+    common_bootstrap_properties "driver"
 
-    export JAVA_HOME=${JAVA_HOME}
-    export MAIN_CLASS='org.yardstickframework.BenchmarkDriverStartUp'
-    export JVM_OPTS="${JVM_OPTS}${DRIVER_JVM_OPTS} -Dyardstick.driver${id}"
-    export CP=${CP}
-    export CUR_DIR=${CUR_DIR}
-    export PROPS_ENV0=${PROPS_ENV}
-    export HOST_NAME=${host_name}
+    echo  "MAIN_CLASS='org.yardstickframework.BenchmarkDriverStartUp'" >> ${SCRIPT_DIR}/bootstrap.properties
+    echo  "JVM_OPTS=\"${JVM_OPTS} ${DRIVER_JVM_OPTS} -Dyardstick.driver${id}\"" >> ${SCRIPT_DIR}/bootstrap.properties
 
-    if [[ ${host_name} = "127.0.0.1" || ${host_name} = "localhost" ]]
-    then
-        mkdir -p ${LOGS_DIR}
-
-        nohup ${SCRIPT_DIR}/benchmark-bootstrap.sh ${cfg} "--config" ${CONFIG_INCLUDE} "--logsFolder" ${LOGS_DIR} > ${file_log} 2>& 1 &
-
-        ${SCRIPT_DIR}/benchmark-wait-driver-up.sh
-    else
-        ssh -o StrictHostKeyChecking=no -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} mkdir -p ${LOGS_DIR}
-
-        ssh -o StrictHostKeyChecking=no -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} \
-            "JAVA_HOME='${JAVA_HOME}'" \
-            "MAIN_CLASS='${MAIN_CLASS}'" "JVM_OPTS='${JVM_OPTS}'" \
-            "CP='${CP}'" "CUR_DIR='${CUR_DIR}'" "PROPS_ENV0='${PROPS_ENV}'" \
-            "nohup ${SCRIPT_DIR}/benchmark-bootstrap.sh ${cfg} "--config" ${CONFIG_INCLUDE} "--logsFolder" ${LOGS_DIR} > ${file_log} 2>& 1 &"
-
-        ssh -o StrictHostKeyChecking=no -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} "HOST_NAME='${host_name}'" \
-            ${SCRIPT_DIR}/benchmark-wait-driver-up.sh
-    fi
+    start_node
 
     echo "<"$(date +"%H:%M:%S")"><yardstick> Driver is started on "${host_name}" with id=${id}"
+
+    ${SCRIPT_DIR}/benchmark-wait-driver-up.sh
 
     id=$((1 + $id))
 done

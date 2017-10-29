@@ -21,6 +21,8 @@
 # Define script directory.
 SCRIPT_DIR=$(cd $(dirname "$0"); pwd)
 
+source ${SCRIPT_DIR}/benchmark-functions.sh
+
 CONFIG_INCLUDE=$1
 
 if [ "${CONFIG_INCLUDE}" == "-h" ] || [ "${CONFIG_INCLUDE}" == "--help" ]; then
@@ -139,36 +141,12 @@ do
 
     file_log=${LOGS_DIR}"/"${now}"-id"${id}"-"${host_name}"-"${DS}".log"
 
-    if [[ ${JVM_OPTS} == *"PrintGC"* ]]
-    then
-        JVM_OPTS=${JVM_OPTS}" -Xloggc:${LOGS_DIR}/gc-${now}-server-id${id}-${host_name}-${DS}.log"
-    fi
+    common_bootstrap_properties "server"
 
-    export JAVA_HOME=${JAVA_HOME}
-    export MAIN_CLASS='org.yardstickframework.BenchmarkServerStartUp'
-    export JVM_OPTS="${JVM_OPTS}${SERVER_JVM_OPTS} -Dyardstick.server${id}"
-    export CP=${CP}
-    export CUR_DIR=${CUR_DIR}
-    export PROPS_ENV0=${PROPS_ENV}
+    echo  "MAIN_CLASS='org.yardstickframework.BenchmarkServerStartUp'" >> ${SCRIPT_DIR}/bootstrap.properties
+    echo  "JVM_OPTS=\"${JVM_OPTS} ${SERVER_JVM_OPTS} -Dyardstick.server${id}\"" >> ${SCRIPT_DIR}/bootstrap.properties
 
-    if [[ ${host_name} = "127.0.0.1" || ${host_name} = "localhost" ]]
-    then
-        mkdir -p ${LOGS_DIR}
-
-        nohup ${SCRIPT_DIR}/benchmark-bootstrap.sh ${CONFIG_PRM} "--config" ${CONFIG_INCLUDE} "--logsFolder" ${LOGS_DIR} \
-        "--remoteuser" ${REMOTE_USER} "--remoteHostName" ${host_name} > ${file_log} 2>& 1 &
-    else
-        ssh -o StrictHostKeyChecking=no -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} mkdir -p ${LOGS_DIR}
-
-        ssh -o StrictHostKeyChecking=no -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} \
-            "JAVA_HOME='${JAVA_HOME}'" \
-            "MAIN_CLASS='${MAIN_CLASS}'" "JVM_OPTS='${JVM_OPTS}'" "CP='${CP}'" \
-            "CUR_DIR='${CUR_DIR}'" "PROPS_ENV0='${PROPS_ENV}'" \
-            "nohup ${SCRIPT_DIR}/benchmark-bootstrap.sh ${CONFIG_PRM} "--config" ${CONFIG_INCLUDE} "--logsFolder" ${LOGS_DIR} \
-            "--remoteuser" ${REMOTE_USER} "--remoteHostName" ${host_name} > ${file_log} 2>& 1 &"
-    fi
-
-
+    start_node
 
     # Start a restarter if needed.
     if [[ "${RESTART_SERVERS}" != "" ]] && [[ "${RESTART_SERVERS}" != "true" ]]; then
