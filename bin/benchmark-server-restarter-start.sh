@@ -25,6 +25,8 @@
 # Define script directory.
 SCRIPT_DIR=$(cd $(dirname "$0"); pwd)
 
+source ${SCRIPT_DIR}/benchmark-functions.sh
+
 HOST_NAME=$1
 ID=$2
 CONFIG=$3
@@ -164,7 +166,9 @@ do
 
     server_file_log=${SERVERS_LOGS_DIR}"/"${now}"_id"${ID}"-"${cntr}"_"${HOST_NAME}${DS}".log"
 
-    CONFIG_PRM=$CONFIG
+    CONFIG_PRM=${CONFIG}
+
+    host_name=${HOST_NAME}
 
     start_server
 
