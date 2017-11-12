@@ -18,7 +18,8 @@
 
 start_node()
 {
-    if [[ ${host_name} = "127.0.0.1" || ${host_name} = "localhost" ]]; then
+    if [[ ${host_name} = "127.0.0.1" || ${host_name} = "localhost" ]]
+    then
         mkdir -p ${LOGS_DIR}
 
         nohup ${SCRIPT_DIR}/benchmark-bootstrap.sh > ${file_log} 2>& 1 &
@@ -27,7 +28,9 @@ start_node()
             HOST_NAME=localhost ${SCRIPT_DIR}/benchmark-wait-driver-up.sh
         fi
     else
-        ssh -o StrictHostKeyChecking=no -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} mkdir -p ${LOGS_DIR}
+        ssh -o StrictHostKeyChecking=no -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} "mkdir -p ${LOGS_DIR}"
+
+        ssh -o StrictHostKeyChecking=no -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} "touch ${file_log}"
 
         scp -o StrictHostKeyChecking=no -o PasswordAuthentication=no  -q ${SCRIPT_DIR}/bootstrap.properties \
             ${REMOTE_USER}"@"${host_name}:${SCRIPT_DIR}/bootstrap.properties
@@ -52,7 +55,8 @@ common_bootstrap_properties()
 
     touch ${SCRIPT_DIR}/bootstrap.properties
 
-    if [[ ${JVM_OPTS} == *"PrintGC"* ]]; then
+    if [[ ${JVM_OPTS} == *"PrintGC"* ]]
+    then
         echo "GC_JVM_OPTS=\"-Xloggc:${LOGS_DIR}/gc-${now}-${type}-id${id}-${host_name}-${DS}.log \"" >> ${SCRIPT_DIR}/bootstrap.properties
     fi
 
@@ -63,7 +67,7 @@ common_bootstrap_properties()
         echo "JFR_JVM_OPTS=\"-XX:+UnlockCommercialFeatures -XX:+FlightRecorder -XX:StartFlightRecording=delay=${JFR_DELAY}s,duration=${JFR_TIME}s,filename=${LOGS_DIR}/rec-${now}-${type}-id${id}-${host_name}-${DS}.jfr \"" >> ${SCRIPT_DIR}/bootstrap.properties
     fi
 
-    echo "DEFINED_JAVA_HOME=${DEFINED_JAVA_HOME}" >> ${SCRIPT_DIR}/bootstrap.properties
+    echo "BOOTSTRAP_JAVA_HOME=${BOOTSTRAP_JAVA_HOME}" >> ${SCRIPT_DIR}/bootstrap.properties
     echo "CP=${CP}" >> ${SCRIPT_DIR}/bootstrap.properties
     echo "CUR_DIR=${CUR_DIR}" >> ${SCRIPT_DIR}/bootstrap.properties
     echo "PROPS_ENV0=${PROPS_ENV}" >> ${SCRIPT_DIR}/bootstrap.properties

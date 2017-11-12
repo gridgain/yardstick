@@ -24,7 +24,6 @@
 
 # Define script directory.
 SCRIPT_DIR=$(cd $(dirname "$0"); pwd)
-
 source ${SCRIPT_DIR}/benchmark-functions.sh
 
 HOST_NAME=$1
@@ -46,7 +45,7 @@ if [ "${CONFIG_INCLUDE}" == "" ]; then
     echo "<"$(date +"%H:%M:%S")"><yardstick> Using default properties file: config/benchmark.properties"
 fi
 
-if [ ! -f $CONFIG_INCLUDE ]; then
+if [ ! -f "${CONFIG_INCLUDE}" ]; then
     echo "ERROR: Properties file is not found."
     echo "Type \"--help\" for usage."
     exit 1
@@ -103,8 +102,12 @@ if [ "${PERIOD}" == "" ]; then
     exit 1
 fi
 
-if [ "${SERVERS_LOGS_DIR}" = "" ]; then
-    SERVERS_LOGS_DIR=${LOGS_BASE}/logs_servers
+if [ "${LOGS_BASE}" = "" ]; then
+    LOGS_BASE=${SCRIPT_DIR}/../output/restarter-$(date +"%Y%m%d-%H%M%S")
+fi
+
+if [ "${LOGS_DIR}" = "" ]; then
+    LOGS_DIR=${LOGS_BASE}/logs_servers
 fi
 
 CUR_DIR=$(pwd)
@@ -119,7 +122,7 @@ if [[ ${HOST_NAME} = "127.0.0.1" || ${HOST_NAME} = "localhost" ]]
     then
         mkdir -p ${SERVERS_LOGS_DIR}
     else
-        ssh -o StrictHostKeyChecking=no -o PasswordAuthentication=no ${REMOTE_USER}"@"${HOST_NAME} mkdir -p ${SERVERS_LOGS_DIR}
+        ssh -o StrictHostKeyChecking=no -o PasswordAuthentication=no ${REMOTE_USER}"@"${HOST_NAME} mkdir -p ${LOGS_DIR}
     fi
 
 DS=""
@@ -164,11 +167,13 @@ do
 
     now=`date +'%H%M%S'`
 
-    server_file_log=${SERVERS_LOGS_DIR}"/"${now}"_id"${ID}"-"${cntr}"_"${HOST_NAME}${DS}".log"
+    file_log=${LOGS_DIR}"/"${now}"-id"${ID}"-"${cntr}"-"${HOST_NAME}"-"${DS}".log"
 
-    CONFIG_PRM=${CONFIG}
+    CONFIG_PRM=$CONFIG
 
     host_name=${HOST_NAME}
+
+    id=${ID}
 
     start_server
 

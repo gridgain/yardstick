@@ -18,10 +18,14 @@
 
 SCRIPT_DIR=$(cd $(dirname "$0"); pwd)
 
+ddd=$(date +'%H%M%S')
+
 if [ -f ${SCRIPT_DIR}/bootstrap.properties ]; then
     source ${SCRIPT_DIR}/bootstrap.properties
 
-    cp ${SCRIPT_DIR}/bootstrap.properties ${SCRIPT_DIR}/bootstrap-last-backup.properties
+    cp ${SCRIPT_DIR}/bootstrap.properties ${SCRIPT_DIR}/bootstrap-last-backup-${ddd}.properties
+
+    rm -f ${SCRIPT_DIR}/bootstrap.properties
 fi
 
 if [ "${CUR_DIR}" != "" ]; then
@@ -34,8 +38,8 @@ if [ "${MAIN_CLASS}" == "" ]; then
     exit 1
 fi
 
-if [[ $DEFINED_JAVA_HOME != "" ]]; then
-    JAVA_HOME=${DEFINED_JAVA_HOME}
+if [[ ${BOOTSTRAP_JAVA_HOME} != "" ]]; then
+    JAVA_HOME=${BOOTSTRAP_JAVA_HOME}
 fi
 
 #
