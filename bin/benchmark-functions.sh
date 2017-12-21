@@ -35,7 +35,7 @@ start_node()
         scp -o StrictHostKeyChecking=no -o PasswordAuthentication=no  -q ${SCRIPT_DIR}/bootstrap.properties \
             ${REMOTE_USER}"@"${host_name}:${SCRIPT_DIR}/bootstrap.properties
 
-        rm -f ${SCRIPT_DIR}/bootstrap.properties
+        #rm -f ${SCRIPT_DIR}/bootstrap.properties
 
         ssh -o StrictHostKeyChecking=no -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} \
             "nohup ${SCRIPT_DIR}/benchmark-bootstrap.sh > ${file_log} 2>& 1 &"
