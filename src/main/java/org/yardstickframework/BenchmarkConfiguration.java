@@ -117,6 +117,10 @@ public class BenchmarkConfiguration implements Serializable {
     private int logIterFreq = 25000;
 
     /** */
+    @Parameter(names = {"-vs", "--valueSize"}, description = "set the size of the byte[] in the sample value object")
+    private int valueSize = 1;
+
+    /** */
     @Parameter(names = { "-h", "--help" }, description = "Print help message", help = true, hidden = true)
     private boolean help;
 
@@ -419,6 +423,11 @@ public class BenchmarkConfiguration implements Serializable {
         return "-t=" + threads + "-d=" + duration + "-w=" + warmup;
     }
 
+    /**
+     * @return Value size.
+     */
+    public int valueSize() {return valueSize; }
+
     /** {@inheritDoc} */
     @Override public String toString() {
         return getClass().getSimpleName() + " [" +
@@ -443,6 +452,7 @@ public class BenchmarkConfiguration implements Serializable {
             ", errorWriter=" + errorWriter +
             ", descriptions=" + descs +
             ", hostName=" + hostName +
+            ", valueSize=" + valueSize +
             ']';
     }
 }
