@@ -163,6 +163,9 @@ fi
 # Collecting results and logs from the remote hosts
 function collect_results()
 {
+    mkdir -p $MAIN_DIR/output/${log_dir_name}
+    mkdir -p $MAIN_DIR/output/${result_dir_name}
+
     IFS=' ' read -ra ips_array <<< $(define_ips)
     for ip in ${ips_array[@]}
     do
@@ -170,11 +173,12 @@ function collect_results()
         then
             echo "<"$(date +"%H:%M:%S")"><yardstick> Collecting results from the host ${ip}"
             # Checking if current IP belongs to the driver-host and therefore there should be the "results" directory
-            if [[ ${DRIVER_HOSTS} == *"$ip"* ]]
-            then
+            if [[ ${DRIVER_HOSTS} == *"$ip"* ]]; then
                 scp -o StrictHostKeyChecking=no -rq $ip:$results_folder/../../output/$result_dir_name/* $MAIN_DIR/output/$result_dir_name
             fi
+
             scp -o StrictHostKeyChecking=no -rq $ip:$LOGS_BASE/../../output/$log_dir_name/* $MAIN_DIR/output/$log_dir_name
+
             clear_remote_work_directory $ip
         fi
     done
@@ -193,7 +197,7 @@ function create_charts()
         echo "<"$(date +"%H:%M:%S")"><yardstick> Creating charts"
         . ${SCRIPT_DIR}/jfreechart-graph-gen.sh -gm STANDARD -i $results_folder >> /dev/null
         . ${SCRIPT_DIR}/jfreechart-graph-gen.sh -i $results_folder >> /dev/null
-        echo "Moving chart directory to the $MAIN_DIR/output/results-$date_time directory."
+        echo "<"$(date +"%H:%M:%S")"><yardstick> Moving chart directory to the ${MAIN_DIR}/output/results-${date_time} directory."
         mv $MAIN_DIR/output/results-compound* $MAIN_DIR/output/results-$date_time
     fi
 }

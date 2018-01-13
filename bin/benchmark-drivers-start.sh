@@ -159,14 +159,6 @@ do
         GC_JVM_OPTS=" -Xloggc:${LOGS_DIR}/gc-${now}-driver-id${id}-${host_name}-${DS}.log"
     fi
 
-    export BOOTSTRAP_JAVA_HOME=${BOOTSTRAP_JAVA_HOME}
-    export MAIN_CLASS='org.yardstickframework.BenchmarkDriverStartUp'
-    export JVM_OPTS="${JVM_OPTS} ${GC_JVM_OPTS} ${DRIVER_JVM_OPTS} -Dyardstick.driver${id} "
-    export CP=${CP}
-    export CUR_DIR=${CUR_DIR}
-    export PROPS_ENV0=${PROPS_ENV}
-    export HOST_NAME=${host_name}
-
     if [[ ${host_name} = "127.0.0.1" || ${host_name} = "localhost" ]]; then
         mkdir -p ${LOGS_DIR}
 
@@ -185,7 +177,7 @@ do
 
         ssh -o StrictHostKeyChecking=no -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} \
             "BOOTSTRAP_JAVA_HOME='${BOOTSTRAP_JAVA_HOME}'" \
-            "MAIN_CLASS='${MAIN_CLASS}'" "JVM_OPTS='${JVM_OPTS}'" \
+            "MAIN_CLASS='org.yardstickframework.BenchmarkDriverStartUp'" "JVM_OPTS='${JVM_OPTS} ${GC_JVM_OPTS} ${DRIVER_JVM_OPTS} -Dyardstick.driver${id} '" \
             "CP='${CP}'" "CUR_DIR='${CUR_DIR}'" "PROPS_ENV0='${PROPS_ENV}'" \
             "nohup ${SCRIPT_DIR}/benchmark-bootstrap.sh ${cfg} "--config" ${CONFIG_INCLUDE} "--logsFolder" ${LOGS_DIR} > ${file_log} 2>& 1 &"
 
