@@ -33,7 +33,7 @@ fi
 # The function exports JAVA variable with path to Java executable.
 #
 checkJava() {
-    if [ "$JAVA_HOME" = "" ]; then
+    if [ "$BOOTSTRAP_JAVA_HOME" = "" ]; then
         JAVA=`which java`
         RETCODE=$?
 
@@ -47,7 +47,7 @@ checkJava() {
 
         JAVA_HOME=
     else
-        JAVA=${JAVA_HOME}/bin/java
+        JAVA=${BOOTSTRAP_JAVA_HOME}/bin/java
     fi
 
     if [ ! -e "$JAVA" ]; then
@@ -105,6 +105,16 @@ if [ -z "$PROPS_ENV" ]; then
 fi
 
 ARGS=${ARGS}" --currentFolder ${CUR_DIR} --scriptsFolder ${SCRIPT_DIR}"
+
+START_TIME=$(date +'%H-%M-%S')
+
+START_LOG="${SCRIPT_DIR}/start.log"
+
+echo "Start time = ${START_TIME}" >> START_LOG
+echo "JVM_OPTS = ${JVM_OPTS}" >> START_LOG
+echo "CP = ${CP}" >> START_LOG
+echo "MAIN_CLASS = ${MAIN_CLASS}" >> START_LOG
+echo "ARGS = ${ARGS}" >> START_LOG
 
 export JAVA
 
