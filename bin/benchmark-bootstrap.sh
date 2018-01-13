@@ -106,16 +106,6 @@ fi
 
 ARGS=${ARGS}" --currentFolder ${CUR_DIR} --scriptsFolder ${SCRIPT_DIR}"
 
-START_TIME=$(date +'%H-%M-%S')
-
-START_LOG="${SCRIPT_DIR}/start.log"
-
-echo "Start time = ${START_TIME}" >> START_LOG
-echo "JVM_OPTS = ${JVM_OPTS}" >> START_LOG
-echo "CP = ${CP}" >> START_LOG
-echo "MAIN_CLASS = ${MAIN_CLASS}" >> START_LOG
-echo "ARGS = ${ARGS}" >> START_LOG
-
 export JAVA
 
 "$JAVA" ${JVM_OPTS} -cp ${CP} ${MAIN_CLASS} ${ARGS}
