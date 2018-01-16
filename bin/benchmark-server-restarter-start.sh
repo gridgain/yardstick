@@ -164,9 +164,9 @@ do
 
     server_file_log=${SERVERS_LOGS_DIR}"/"${now}"_id"${ID}"-"${cntr}"_"${HOST_NAME}${DS}".log"
 
-#    if [[ ${JVM_OPTS} == *"PrintGC"* ]]; then
-#        GC_JVM_OPTS=" -Xloggc:${LOGS_DIR}/gc-${now}-server-id${ID}-${HOST_NAME}-${DS}.log"
-#    fi
+    if [[ ${JVM_OPTS} == *"PrintGC"* ]]; then
+        GC_JVM_OPTS=" -Xloggc:${SERVERS_LOGS_DIR}/gc-${now}-server-id${ID}-${HOST_NAME}-${DS}.log"
+    fi
 
     if [[ ${HOST_NAME} = "127.0.0.1" || ${HOST_NAME} = "localhost" ]]; then
         SAVED_JVM_OPTS=${JVM_OPTS}
