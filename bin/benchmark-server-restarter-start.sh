@@ -164,9 +164,9 @@ do
 
     server_file_log=${SERVERS_LOGS_DIR}"/"${now}"_id"${ID}"-"${cntr}"_"${HOST_NAME}${DS}".log"
 
-    if [[ ${JVM_OPTS} == *"PrintGC"* ]]; then
-        GC_JVM_OPTS=" -Xloggc:${LOGS_DIR}/gc-${now}-server-id${id}-${host_name}-${DS}.log"
-    fi
+#    if [[ ${JVM_OPTS} == *"PrintGC"* ]]; then
+#        GC_JVM_OPTS=" -Xloggc:${LOGS_DIR}/gc-${now}-server-id${ID}-${HOST_NAME}-${DS}.log"
+#    fi
 
     if [[ ${HOST_NAME} = "127.0.0.1" || ${HOST_NAME} = "localhost" ]]; then
         SAVED_JVM_OPTS=${JVM_OPTS}
@@ -180,7 +180,7 @@ do
     else
         ssh -o StrictHostKeyChecking=no -o PasswordAuthentication=no ${REMOTE_USER}"@"${HOST_NAME} \
         "BOOTSTRAP_JAVA_HOME='${BOOTSTRAP_JAVA_HOME}'" \
-        "MAIN_CLASS='org.yardstickframework.BenchmarkServerStartUp'" "JVM_OPTS='${JVM_OPTS} ${GC_JVM_OPTS} ${SERVER_JVM_OPTS} -Dyardstick.server${id} '" "CP='${CP}'" \
+        "MAIN_CLASS='org.yardstickframework.BenchmarkServerStartUp'" "JVM_OPTS='${JVM_OPTS} ${GC_JVM_OPTS} ${SERVER_JVM_OPTS} -Dyardstick.server${ID} '" "CP='${CP}'" \
         "CUR_DIR='${CUR_DIR}'" "PROPS_ENV0='${PROPS_ENV}'" \
         "nohup ${SCRIPT_DIR}/benchmark-bootstrap.sh ${CONFIG} "--config" ${CONFIG_INCLUDE} > ${server_file_log} 2>& 1 &"
     fi
