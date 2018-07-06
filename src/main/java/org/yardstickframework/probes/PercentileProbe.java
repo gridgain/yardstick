@@ -208,13 +208,41 @@ public class PercentileProbe implements BenchmarkExecutionAwareProbe, BenchmarkT
 
             long bucketIdx = timeUnit.convert(latency, NANOSECONDS) / bucketInterval;
 
-            int idx = bucketIdx >= bucketsCnt ? bucketsCnt - 1 : (int)bucketIdx;
+            int bucketIdxInt = (int) bucketIdx;
 
-            long[] b = buckets;
+            System.out.println(String.format("Thread name = %s, Bucket index = %d", Thread.currentThread().getName(), bucketIdxInt));
 
-            b[idx]++;
+            long[] newArr;
 
-            buckets = b;
+            if(bucketIdxInt >= bucketsCnt){
+                synchronized (PercentileProbe.class) {
+                System.out.println(String.format("Thread name = %s, Bucket index = %d, BucketsCnt = %d", Thread.currentThread().getName(), bucketIdxInt, bucketsCnt));
+
+                newArr = new long[(int)(bucketIdxInt*1.50)];
+
+                System.out.println("bl = " + buckets.length);
+
+                System.arraycopy( buckets, 0, newArr, 0, buckets.length );
+
+//                for(int i = 0; i < buckets.length; i++)
+//                    newArr[i] = buckets[i];
+
+
+                    if (bucketsCnt < newArr.length)
+                        bucketsCnt = newArr.length;
+                }
+            }
+            else
+                newArr = buckets;
+
+
+            try {
+                newArr[bucketIdxInt]++;
+            }
+            catch (Exception e){
+                System.out.println(String.format("AIOOB! Thread name = %s, Array length = %d,idx = %d", Thread.currentThread().getName(), newArr.length, bucketIdxInt));
+            }
+            buckets = newArr;
         }
 
         /**

@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -87,6 +88,8 @@ public class EchoBenchmark extends BenchmarkDriverAdapter {
 
         if (!req.equals(res))
             throw new Exception("Invalid echo response [req=" + req + ", res=" + res + ']');
+
+        Thread.sleep((long) new Random().nextInt(100));
 
         return true;
     }
