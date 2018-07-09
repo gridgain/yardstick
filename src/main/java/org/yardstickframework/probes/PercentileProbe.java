@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.yardstickframework.BenchmarkConfiguration;
 import org.yardstickframework.BenchmarkDriver;
 import org.yardstickframework.BenchmarkExecutionAwareProbe;
@@ -51,6 +52,9 @@ public class PercentileProbe implements BenchmarkExecutionAwareProbe, BenchmarkT
     /** */
     public static final TimeUnit DEFAULT_TIME_UNIT = MICROSECONDS;
 
+    /** */
+    private static final Object lock = new Object();
+
     /** Operations executed. */
     private ThreadAgent[] agents;
 
@@ -58,7 +62,18 @@ public class PercentileProbe implements BenchmarkExecutionAwareProbe, BenchmarkT
     private BenchmarkConfiguration cfg;
 
     /** */
-    private int bucketsCnt;
+    private AtomicInteger initBucketsCnt = new AtomicInteger();
+
+    /** */
+    private ThreadLocal<Integer> bucketsCnt = new ThreadLocal<Integer>(){
+        @Override
+        protected Integer initialValue(){
+            System.out.println(String.format("Thread name = %s, INITIAL VALUE SET (%d).",
+                Thread.currentThread().getName(), initBucketsCnt.get()));
+
+            return initBucketsCnt.get();
+        }
+    };;
 
     /** */
     private long bucketInterval;
@@ -72,7 +87,9 @@ public class PercentileProbe implements BenchmarkExecutionAwareProbe, BenchmarkT
         this.cfg = cfg;
 
         bucketInterval = interval(cfg);
-        bucketsCnt = count(cfg);
+
+        System.out.println(String.format("Thread name = %s, Setting init count.", Thread.currentThread().getName()));
+        initBucketsCnt.getAndSet(count(cfg));
         timeUnit = timeUnit(cfg);
 
         agents = new ThreadAgent[cfg.threads()];
@@ -102,7 +119,10 @@ public class PercentileProbe implements BenchmarkExecutionAwareProbe, BenchmarkT
 
     /** {@inheritDoc} */
     @Override public Collection<BenchmarkProbePoint> points() {
-        long[] buckets0 = new long[bucketsCnt];
+        System.out.println(String.format("Thread name = %s, Points method call.", Thread.currentThread().getName()));
+
+//        long[] buckets0 = new long[bucketsCnt.get()];
+        long[] buckets0 = new long[initBucketsCnt.get()];
 
         for (ThreadAgent agent : agents) {
             long[] b0 = agent.reset();
@@ -111,9 +131,9 @@ public class PercentileProbe implements BenchmarkExecutionAwareProbe, BenchmarkT
                 buckets0[i] += b0[i];
         }
 
-        Collection<BenchmarkProbePoint> ret = new ArrayList<>(bucketsCnt + 1);
+        Collection<BenchmarkProbePoint> ret = new ArrayList<>(bucketsCnt.get() + 1);
 
-        if (bucketsCnt > 0)
+        if (bucketsCnt.get() > 0)
             ret.add(new BenchmarkProbePoint(0, new double[] {0}));
 
         long sum = 0;
@@ -189,7 +209,7 @@ public class PercentileProbe implements BenchmarkExecutionAwareProbe, BenchmarkT
         private long beforeTs;
 
         /** */
-        private volatile long[] buckets = new long[bucketsCnt];
+        private volatile long[] buckets = new long[initBucketsCnt.get()];
 
         /**
          *
@@ -208,41 +228,53 @@ public class PercentileProbe implements BenchmarkExecutionAwareProbe, BenchmarkT
 
             long bucketIdx = timeUnit.convert(latency, NANOSECONDS) / bucketInterval;
 
-            int bucketIdxInt = (int) bucketIdx;
+            int bucketIdxInt = (int)bucketIdx;
 
-            System.out.println(String.format("Thread name = %s, Bucket index = %d", Thread.currentThread().getName(), bucketIdxInt));
+//            System.out.println(String.format("Thread name = %s, Bucket index = %d", Thread.currentThread().getName(), bucketIdxInt));
 
             long[] newArr;
 
-            if(bucketIdxInt >= bucketsCnt){
-                synchronized (PercentileProbe.class) {
-                System.out.println(String.format("Thread name = %s, Bucket index = %d, BucketsCnt = %d", Thread.currentThread().getName(), bucketIdxInt, bucketsCnt));
+            if (bucketIdxInt >= bucketsCnt.get()) {
+//                synchronized (this) {
+                    System.out.println(String.format("Inside if. Thread name = %s, Bucket index = %d, BucketsCnt = %d", Thread.currentThread().getName(), bucketIdxInt, bucketsCnt.get()));
 
-                newArr = new long[(int)(bucketIdxInt*1.50)];
+                    newArr = new long[(int)(bucketIdxInt * 1.2)];
 
-                System.out.println("bl = " + buckets.length);
+                    System.arraycopy(buckets, 0, newArr, 0, buckets.length);
 
-                System.arraycopy( buckets, 0, newArr, 0, buckets.length );
+                    bucketsCnt.set(newArr.length);
 
-//                for(int i = 0; i < buckets.length; i++)
-//                    newArr[i] = buckets[i];
+                    try {
+                        newArr[bucketIdxInt]++;
+                    }
+                    catch (Exception e) {
+                        System.out.println(String.format("Inside if. AIOOB! Thread name = %s, Array length = %d,idx = %d", Thread.currentThread().getName(), newArr.length, bucketIdxInt));
+                    }
 
+                    buckets = newArr;
+                synchronized (lock) {
+                    if(initBucketsCnt.get() < newArr.length)
+                        initBucketsCnt.getAndSet(newArr.length);
 
-                    if (bucketsCnt < newArr.length)
-                        bucketsCnt = newArr.length;
                 }
+//                }
             }
-            else
-                newArr = buckets;
+            else {
+                    newArr = buckets;
+
+                    try {
+                        newArr[bucketIdxInt]++;
+                    }
+                    catch (Exception e) {
+                        System.out.println();
+                        System.out.println(String.format("Inside else. AIOOB! Thread name = %s, Array length = %d,idx = %d", Thread.currentThread().getName(), newArr.length, bucketIdxInt));
+                        System.out.println();
+                    }
+                    buckets = newArr;
 
 
-            try {
-                newArr[bucketIdxInt]++;
             }
-            catch (Exception e){
-                System.out.println(String.format("AIOOB! Thread name = %s, Array length = %d,idx = %d", Thread.currentThread().getName(), newArr.length, bucketIdxInt));
-            }
-            buckets = newArr;
+
         }
 
         /**
@@ -251,7 +283,7 @@ public class PercentileProbe implements BenchmarkExecutionAwareProbe, BenchmarkT
         public long[] reset() {
             long[] b = buckets;
 
-            buckets = new long[bucketsCnt];
+            buckets = new long[bucketsCnt.get()];
 
             return b;
         }
