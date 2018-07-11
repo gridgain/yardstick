@@ -68,7 +68,7 @@ public class EchoQaooBenchmark extends BenchmarkDriverAdapter {
 
         st = st - (st % 100);
 
-        Thread.sleep(st * 10L);
+        Thread.sleep(st * 2L);
 
         return true;
     }

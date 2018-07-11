@@ -19,6 +19,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import org.yardstickframework.BenchmarkConfiguration;
 import org.yardstickframework.BenchmarkDriver;
 import org.yardstickframework.BenchmarkExecutionAwareProbe;
@@ -65,13 +66,18 @@ public class PercentileProbe implements BenchmarkExecutionAwareProbe, BenchmarkT
     private AtomicInteger initBucketsCnt = new AtomicInteger();
 
     /** */
+    private AtomicInteger maxBucketsCnt = new AtomicInteger();
+
+    /** */
     private ThreadLocal<Integer> bucketsCnt = new ThreadLocal<Integer>(){
         @Override
         protected Integer initialValue(){
-            System.out.println(String.format("Thread name = %s, INITIAL VALUE SET (%d).",
-                Thread.currentThread().getName(), initBucketsCnt.get()));
+            Integer locVal = initBucketsCnt.get();
 
-            return initBucketsCnt.get();
+            System.out.println(String.format("Thread name = %s, INITIAL VALUE SET (%d).",
+                Thread.currentThread().getName(), locVal));
+
+            return locVal;
         }
     };;
 
@@ -122,7 +128,7 @@ public class PercentileProbe implements BenchmarkExecutionAwareProbe, BenchmarkT
         System.out.println(String.format("Thread name = %s, Points method call.", Thread.currentThread().getName()));
 
 //        long[] buckets0 = new long[bucketsCnt.get()];
-        long[] buckets0 = new long[initBucketsCnt.get()];
+        long[] buckets0 = new long[maxBucketsCnt.get()];
 
         for (ThreadAgent agent : agents) {
             long[] b0 = agent.reset();
@@ -252,11 +258,40 @@ public class PercentileProbe implements BenchmarkExecutionAwareProbe, BenchmarkT
                     }
 
                     buckets = newArr;
+
                 synchronized (lock) {
-                    if(initBucketsCnt.get() < newArr.length)
-                        initBucketsCnt.getAndSet(newArr.length);
+                    if(maxBucketsCnt.get() < newArr.length)
+                        maxBucketsCnt.getAndSet(newArr.length);
 
                 }
+//
+//                int newLen = newArr.length;
+//                int curr = initBucketsCnt.get();
+//
+//                if (curr < newLen) {
+//                    while (!initBucketsCnt.compareAndSet(curr, newLen)){
+//                        curr = initBucketsCnt.get();
+//
+//                        if ( !(curr < newLen))
+//                            break;
+//                    }
+//                }
+
+
+//                int newLen, curr;
+//                newLen = newArr.length;
+//
+//                do{
+//                    curr = initBucketsCnt.get();
+//
+//                    if (!(curr < newLen))
+//                        break;
+//
+//                } while (!initBucketsCnt.compareAndSet(curr, newLen));
+
+
+
+
 //                }
             }
             else {
@@ -283,7 +318,7 @@ public class PercentileProbe implements BenchmarkExecutionAwareProbe, BenchmarkT
         public long[] reset() {
             long[] b = buckets;
 
-            buckets = new long[bucketsCnt.get()];
+//            buckets = new long[bucketsCnt.get()];
 
             return b;
         }
