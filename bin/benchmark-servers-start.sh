@@ -113,6 +113,9 @@ DS=""
 id=0
 
 IFS=',' read -ra hosts0 <<< "${SERVER_HOSTS}"
+
+JVM_OPTS_ORIG="$JVM_OPTS"
+
 for host_name in "${hosts0[@]}";
 do
     CONFIG_PRM="-id ${id} ${CONFIG}"
@@ -144,10 +147,10 @@ do
         JVM_OPTS=${JVM_OPTS}" -Xloggc:${LOGS_DIR}/gc-${now}-server-id${id}-${host_name}-${DS}.log"
     fi
 
-    if [[ ${JVM_OPTS} == *"#filename#"* ]]
+    if [[ ${JVM_OPTS_ORIG} == *"#filename#"* ]]
     then
         filename_ptrn=${LOGS_DIR}/${now0}-server-id${id}-${host_name}-${DS}
-        JVM_OPTS="$(echo $JVM_OPTS | sed s=#filename#=${filename_ptrn}=g)"
+        JVM_OPTS="$(echo $JVM_OPTS_ORIG | sed s=#filename#=${filename_ptrn}=g)"
     fi
 
     export JAVA_HOME=${JAVA_HOME}

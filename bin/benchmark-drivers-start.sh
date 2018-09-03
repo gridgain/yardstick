@@ -119,6 +119,8 @@ drvNum=$((`echo ${DRIVER_HOSTS} | tr ',' '\n' | wc -l`))
 
 IFS=',' read -ra hosts0 <<< "${DRIVER_HOSTS}"
 
+JVM_OPTS_ORIG="$JVM_OPTS"
+
 for host_name in "${hosts0[@]}";
 do
     if ((${drvNum} > 1)); then
@@ -163,7 +165,7 @@ do
     if [[ ${JVM_OPTS} == *"#filename#"* ]]
     then
         filename_ptrn="${LOGS_DIR}/${now0}-driver-id${id}-${host_name}-${DS}"
-        JVM_OPTS="$(echo $JVM_OPTS | sed s=#filename#=${filename_ptrn}=g)"
+        JVM_OPTS="$(echo $JVM_OPTS_ORIG | sed s=#filename#=${filename_ptrn}=g)"
     fi
 
 
