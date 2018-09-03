@@ -157,15 +157,15 @@ do
 
     file_log=${LOGS_DIR}"/"${now}"-id"${id}"-"${host_name}"-"${DS}".log"
 
-    if [[ ${JVM_OPTS} == *"PrintGC"* ]]
-    then
-        JVM_OPTS=${JVM_OPTS}" -Xloggc:${LOGS_DIR}/gc-${now}-driver-id${id}-${host_name}-${DS}.log"
-    fi
-
     if [[ ${JVM_OPTS} == *"#filename#"* ]]
     then
         filename_ptrn="${LOGS_DIR}/${now0}-driver-id${id}-${host_name}-${DS}"
         JVM_OPTS="$(echo $JVM_OPTS_ORIG | sed s=#filename#=${filename_ptrn}=g)"
+    fi
+
+    if [[ ${JVM_OPTS} == *"PrintGC"* ]]
+    then
+        JVM_OPTS=${JVM_OPTS}" -Xloggc:${LOGS_DIR}/gc-${now}-driver-id${id}-${host_name}-${DS}.log"
     fi
 
 
