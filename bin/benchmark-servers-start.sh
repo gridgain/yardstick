@@ -144,6 +144,12 @@ do
         JVM_OPTS=${JVM_OPTS}" -Xloggc:${LOGS_DIR}/gc-${now}-server-id${id}-${host_name}-${DS}.log"
     fi
 
+    if [[ ${JVM_OPTS} == *"#filename#"* ]]
+    then
+        filename_ptrn=${LOGS_DIR}/${now0}-server-id${id}-${host_name}-${DS}
+        JVM_OPTS="$(echo $JVM_OPTS | sed s=#filename#=${filename_ptrn}=g)"
+    fi
+
     export JAVA_HOME=${JAVA_HOME}
     export MAIN_CLASS='org.yardstickframework.BenchmarkServerStartUp'
     export JVM_OPTS="${JVM_OPTS}${SERVER_JVM_OPTS} -Dyardstick.server${id}"
