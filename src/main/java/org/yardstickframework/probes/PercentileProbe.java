@@ -137,7 +137,8 @@ public class PercentileProbe implements BenchmarkExecutionAwareProbe, BenchmarkT
                 buckets0[i] += b0[i];
         }
 
-        Collection<BenchmarkProbePoint> ret = new ArrayList<>(bucketsCnt.get() + 1);
+//        Collection<BenchmarkProbePoint> ret = new ArrayList<>(bucketsCnt.get() + 1);
+        Collection<BenchmarkProbePoint> ret = new ArrayList<>();
 
         if (bucketsCnt.get() > 0)
             ret.add(new BenchmarkProbePoint(0, new double[] {0}));
@@ -147,9 +148,12 @@ public class PercentileProbe implements BenchmarkExecutionAwareProbe, BenchmarkT
         for (long b : buckets0)
             sum += b;
 
-        for (int i = 0; i < buckets0.length; i++)
-            ret.add(new BenchmarkProbePoint((i + 1) * bucketInterval, new double[] {((double)buckets0[i]) / sum}));
+        for (int i = 0; i < buckets0.length; i++) {
+            double val = (double)buckets0[i] / sum;
 
+            if(val > 0.001D)
+                ret.add(new BenchmarkProbePoint((i + 1) * bucketInterval, new double[] {val}));
+        }
         return ret;
     }
 
@@ -228,15 +232,18 @@ public class PercentileProbe implements BenchmarkExecutionAwareProbe, BenchmarkT
          *
          */
         public void afterExecute() {
-            long latency = System.nanoTime() - beforeTs;
+            long afterTs = System.nanoTime();
+
+            long latency = afterTs - beforeTs;
+
+            long latencyNano = timeUnit.convert(latency, NANOSECONDS);
 
             beforeTs = 0;
 
-            long bucketIdx = timeUnit.convert(latency, NANOSECONDS) / bucketInterval;
+            long bucketIdx = latencyNano / bucketInterval;
 
             int bucketIdxInt = (int)bucketIdx;
 
-//            System.out.println(String.format("Thread name = %s, Bucket index = %d", Thread.currentThread().getName(), bucketIdxInt));
 
             long[] newArr;
 
