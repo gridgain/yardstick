@@ -164,7 +164,7 @@ do
 
         SAVED_JVM_OPTS=${JVM_OPTS}
 
-        BOOTSTRAP_JAVA_HOME=${BOOTSTRAP_JAVA_HOME} MAIN_CLASS='org.yardstickframework.BenchmarkDriverStartUp' \
+        REMOTE_JAVA_HOME=${REMOTE_JAVA_HOME} MAIN_CLASS='org.yardstickframework.BenchmarkDriverStartUp' \
         JVM_OPTS="${JVM_OPTS} ${GC_JVM_OPTS} ${DRIVER_JVM_OPTS} -Dyardstick.driver${id} " CP=${CP} CUR_DIR=${CUR_DIR} \
         PROPS_ENV0=${PROPS_ENV} HOST_NAME=${host_name} nohup ${SCRIPT_DIR}/benchmark-bootstrap.sh \
         ${cfg} "--config" ${CONFIG_INCLUDE} "--logsFolder" ${LOGS_DIR} > ${file_log} 2>& 1 &
@@ -176,7 +176,7 @@ do
         ssh -o StrictHostKeyChecking=no -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} mkdir -p ${LOGS_DIR}
 
         ssh -o StrictHostKeyChecking=no -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} \
-            "BOOTSTRAP_JAVA_HOME='${BOOTSTRAP_JAVA_HOME}'" \
+            "REMOTE_JAVA_HOME='${REMOTE_JAVA_HOME}'" \
             "MAIN_CLASS='org.yardstickframework.BenchmarkDriverStartUp'" "JVM_OPTS='${JVM_OPTS} ${GC_JVM_OPTS} ${DRIVER_JVM_OPTS} -Dyardstick.driver${id} '" \
             "CP='${CP}'" "CUR_DIR='${CUR_DIR}'" "PROPS_ENV0='${PROPS_ENV}'" \
             "nohup ${SCRIPT_DIR}/benchmark-bootstrap.sh ${cfg} "--config" ${CONFIG_INCLUDE} "--logsFolder" ${LOGS_DIR} > ${file_log} 2>& 1 &"

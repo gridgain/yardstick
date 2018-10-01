@@ -33,7 +33,7 @@ fi
 # The function exports JAVA variable with path to Java executable.
 #
 checkJava() {
-    if [ "$BOOTSTRAP_JAVA_HOME" = "" ]; then
+    if [ "$REMOTE_JAVA_HOME" = "" ]; then
         JAVA=`which java`
         RETCODE=$?
 
@@ -47,7 +47,7 @@ checkJava() {
 
         JAVA_HOME=
     else
-        JAVA=${BOOTSTRAP_JAVA_HOME}/bin/java
+        JAVA=${REMOTE_JAVA_HOME}/bin/java
     fi
 
     if [ ! -e "$JAVA" ]; then

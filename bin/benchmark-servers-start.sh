@@ -148,7 +148,7 @@ do
 
         SAVED_JVM_OPTS=${JVM_OPTS}
 
-        BOOTSTRAP_JAVA_HOME=${BOOTSTRAP_JAVA_HOME} MAIN_CLASS='org.yardstickframework.BenchmarkServerStartUp' \
+        REMOTE_JAVA_HOME=${REMOTE_JAVA_HOME} MAIN_CLASS='org.yardstickframework.BenchmarkServerStartUp' \
         JVM_OPTS="${JVM_OPTS} ${GC_JVM_OPTS} ${SERVER_JVM_OPTS} -Dyardstick.server${id} " CP=${CP} CUR_DIR=${CUR_DIR} \
         PROPS_ENV0=${PROPS_ENV} nohup ${SCRIPT_DIR}/benchmark-bootstrap.sh \
         ${CONFIG_PRM} "--config" ${CONFIG_INCLUDE} "--logsFolder" ${LOGS_DIR} \
@@ -158,8 +158,11 @@ do
     else
         ssh -o StrictHostKeyChecking=no -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} mkdir -p ${LOGS_DIR}
 
+        echo "<"$(date +"%H:%M:%S")"><yardstick> Starting server with id ${id} on the host ${host_name}"
+        echo "<"$(date +"%H:%M:%S")"><yardstick> JVM_OPTS = ${JVM_OPTS}"
+
         ssh -o StrictHostKeyChecking=no -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} \
-            "BOOTSTRAP_JAVA_HOME='${BOOTSTRAP_JAVA_HOME}'" \
+            "REMOTE_JAVA_HOME='${REMOTE_JAVA_HOME}'" \
             "MAIN_CLASS='org.yardstickframework.BenchmarkServerStartUp'" "JVM_OPTS='${JVM_OPTS} ${GC_JVM_OPTS} ${SERVER_JVM_OPTS} -Dyardstick.server${id} '" \
             "CP='${CP}'" "CUR_DIR='${CUR_DIR}'" "PROPS_ENV0='${PROPS_ENV}'" \
             "nohup ${SCRIPT_DIR}/benchmark-bootstrap.sh ${CONFIG_PRM} "--config" ${CONFIG_INCLUDE} "--logsFolder" ${LOGS_DIR} \
