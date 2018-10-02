@@ -162,7 +162,7 @@ do
 
     now=`date +'%H%M%S'`
 
-    server_file_log=${SERVERS_LOGS_DIR}"/"${now}"_id"${ID}"-"${cntr}"_"${HOST_NAME}"-"${DS}".log"
+    server_file_log=${SERVERS_LOGS_DIR}"/"${now}"_id"${ID}"-"${cntr}"_"${HOST_NAME}"_"${DS}".log"
 
     if [[ ${JVM_OPTS} == *"PrintGC"* ]]; then
         GC_JVM_OPTS=" -Xloggc:${SERVERS_LOGS_DIR}/gc-${now}-server-id${ID}-${HOST_NAME}-${DS}.log"
