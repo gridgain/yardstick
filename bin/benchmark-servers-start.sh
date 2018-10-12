@@ -113,6 +113,9 @@ DS=""
 id=0
 
 IFS=',' read -ra hosts0 <<< "${SERVER_HOSTS}"
+
+JVM_OPTS_ORIG="$JVM_OPTS"
+
 for host_name in "${hosts0[@]}";
 do
     CONFIG_PRM="-id ${id} ${CONFIG}"
@@ -139,7 +142,13 @@ do
 
     file_log=${LOGS_DIR}"/"${now}"-id"${id}"-"${host_name}"-"${DS}".log"
 
-    if [[ ${JVM_OPTS} == *"PrintGC"* ]]; then
+    if [[ ${JVM_OPTS_ORIG} == *"#filename#"* ]]
+    then
+        filename_ptrn=${LOGS_DIR}/${now0}-server-id${id}-${host_name}-${DS}
+        JVM_OPTS="$(echo $JVM_OPTS_ORIG | sed s=#filename#=${filename_ptrn}=g)"
+    fi
+
+     if [[ ${JVM_OPTS} == *"PrintGC"* ]]; then
         GC_JVM_OPTS=" -Xloggc:${LOGS_DIR}/gc-${now}-server-id${id}-${host_name}-${DS}.log"
     fi
 
