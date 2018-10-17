@@ -123,7 +123,7 @@ if [[ ${HOST_NAME} = "127.0.0.1" || ${HOST_NAME} = "localhost" ]]
 DS=""
 
 # Extract description.
-if [[ "${RESTART_SERVERS}" != "" ]]; then
+if [[ "${RESTART_SERVERS}" != "false" ]]; then
     IFS=' ' read -ra cfg0 <<< "${CONFIG}"
     for cfg00 in "${cfg0[@]}";
     do

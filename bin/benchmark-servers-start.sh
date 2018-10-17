@@ -102,7 +102,7 @@ if [ "${RESTARTERS_LOGS_DIR}" = "" ]; then
     RESTARTERS_LOGS_DIR=${LOGS_BASE}/logs_restarters
 fi
 
-if [[ "${RESTART_SERVERS}" != "" ]] && [[ "${RESTART_SERVERS}" != "true" ]]; then
+if [[ "${RESTART_SERVERS}" != "false" ]] && [[ "${RESTART_SERVERS}" != "true" ]] && [[ "${RESTART_SERVERS}" != "" ]]; then
     mkdir -p ${RESTARTERS_LOGS_DIR}
 fi
 
@@ -176,7 +176,7 @@ do
     fi
 
     # Start a restarter if needed.
-    if [[ "${RESTART_SERVERS}" != "" ]] && [[ "${RESTART_SERVERS}" != "true" ]]; then
+    if [[ "${RESTART_SERVERS}" != "true" ]] && [[ "${RESTART_SERVERS}" != "false" ]]; then
         IFS=',' read -ra hostsToRestart0 <<< "${RESTART_SERVERS}"
         for host2Timeout in "${hostsToRestart0[@]}";
         do

@@ -121,7 +121,13 @@ LOGS_BASE=${SCRIPT_DIR}/../output/$log_dir_name
 
 export LOGS_BASE
 
-if [ -z "$RESTART_SERVERS" ]; then
+if [[ "$RESTART_SERVERS" == "" ]]; then
+    RESTART_SERVERS="true"
+fi
+
+
+if [[ "$RESTART_SERVERS" == "false" ]]; then
+    echo "First condition"
     /bin/bash ${SCRIPT_DIR}/benchmark-servers-start.sh ${CONFIG_INCLUDE}
 
     sleep 3s
@@ -139,7 +145,8 @@ do
     export CONFIG
     export OUTPUT_FOLDER
 
-    if [ -n "$RESTART_SERVERS" ]; then
+    if [[ "$RESTART_SERVERS" == "true" || "$RESTART_SERVERS" != "" ]] && [[ "$RESTART_SERVERS" != "false" ]]; then
+        echo "Second condition"
         /bin/bash ${SCRIPT_DIR}/benchmark-servers-start.sh ${CONFIG_INCLUDE}
 
         sleep 3s
@@ -147,14 +154,14 @@ do
 
     /bin/bash ${SCRIPT_DIR}/benchmark-drivers-start.sh ${CONFIG_INCLUDE}
 
-    if [ -n "$RESTART_SERVERS" ]; then
+    if [[ "$RESTART_SERVERS" == "true" ]]; then
         /bin/bash ${SCRIPT_DIR}/benchmark-servers-stop.sh ${CONFIG_INCLUDE}
 
         sleep 1s
     fi
 done
 
-if [ -z "$RESTART_SERVERS" ]; then
+if [[ "$RESTART_SERVERS" == "false" ]]; then
     /bin/bash ${SCRIPT_DIR}/benchmark-servers-stop.sh ${CONFIG_INCLUDE}
 
     sleep 1s

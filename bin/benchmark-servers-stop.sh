@@ -69,7 +69,7 @@ fi
 
 pkill -9 -f "benchmark-server-restarter-start.sh"
 
-if [[ "${RESTART_SERVERS}" != "" ]] && [[ "${RESTART_SERVERS}" != "true" ]]; then
+if [[ "${RESTART_SERVERS}" != "true" ]] && [[ "${RESTART_SERVERS}" != "false" ]]; then
     echo "<"$(date +"%H:%M:%S")"><yardstick> All server restartets are stopped."
 fi
 
