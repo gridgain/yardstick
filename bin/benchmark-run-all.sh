@@ -127,7 +127,6 @@ fi
 
 
 if [[ "$RESTART_SERVERS" == "false" ]]; then
-    echo "First condition"
     /bin/bash ${SCRIPT_DIR}/benchmark-servers-start.sh ${CONFIG_INCLUDE}
 
     sleep 3s
@@ -146,7 +145,6 @@ do
     export OUTPUT_FOLDER
 
     if [[ "$RESTART_SERVERS" == "true" || "$RESTART_SERVERS" != "" ]] && [[ "$RESTART_SERVERS" != "false" ]]; then
-        echo "Second condition"
         /bin/bash ${SCRIPT_DIR}/benchmark-servers-start.sh ${CONFIG_INCLUDE}
 
         sleep 3s
