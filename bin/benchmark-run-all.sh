@@ -152,7 +152,7 @@ do
 
     /bin/bash ${SCRIPT_DIR}/benchmark-drivers-start.sh ${CONFIG_INCLUDE}
 
-    if [[ "$RESTART_SERVERS" == "true" ]]; then
+    if [[ "$RESTART_SERVERS" != "false" ]]; then
         /bin/bash ${SCRIPT_DIR}/benchmark-servers-stop.sh ${CONFIG_INCLUDE}
 
         sleep 1s
