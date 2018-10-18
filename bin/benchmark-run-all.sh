@@ -122,7 +122,7 @@ LOGS_BASE=${SCRIPT_DIR}/../output/$log_dir_name
 export LOGS_BASE
 
 if [[ "$RESTART_SERVERS" == "" ]]; then
-    RESTART_SERVERS="true"
+    RESTART_SERVERS="false"
 fi
 
 
