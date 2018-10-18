@@ -60,6 +60,10 @@ chmod +x $CONFIG_TMP
 . $CONFIG_TMP
 rm $CONFIG_TMP
 
+if [[ "$RESTART_SERVERS" == "" ]]; then
+    RESTART_SERVERS="false"
+fi
+
 # Define user to establish remote ssh session.
 if [ "${REMOTE_USER}" == "" ]; then
     REMOTE_USER=$(whoami)
