@@ -106,7 +106,7 @@ if [ "${RESTARTERS_LOGS_DIR}" = "" ]; then
     RESTARTERS_LOGS_DIR=${LOGS_BASE}/logs_restarters
 fi
 
-if [[ "${RESTART_SERVERS}" != "false" ]] && [[ "${RESTART_SERVERS}" != "true" ]] && [[ "${RESTART_SERVERS}" != "" ]]; then
+if [[ "${RESTART_SERVERS}" != "false" ]] && [[ "${RESTART_SERVERS}" != "true" ]]; then
     mkdir -p ${RESTARTERS_LOGS_DIR}
 fi
 
