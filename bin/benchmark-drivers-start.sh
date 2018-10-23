@@ -159,7 +159,7 @@ do
 
     if [[ ${JVM_OPTS} == *"#filename#"* ]]
     then
-        filename_ptrn="${LOGS_DIR}/${now0}-driver-id${id}-${host_name}-${DS}"
+        filename_ptrn="${LOGS_DIR}/${now}-driver-id${id}-${host_name}-${DS}"
         JVM_OPTS="$(echo $JVM_OPTS_ORIG | sed s=#filename#=${filename_ptrn}=g)"
     fi
 
