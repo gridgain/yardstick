@@ -60,6 +60,10 @@ chmod +x $CONFIG_TMP
 . $CONFIG_TMP
 rm $CONFIG_TMP
 
+if [[ "$RESTART_SERVERS" == "" ]]; then
+    RESTART_SERVERS="false"
+fi
+
 # Define user to establish remote ssh session.
 if [ "${REMOTE_USER}" == "" ]; then
     REMOTE_USER=$(whoami)
@@ -123,7 +127,7 @@ if [[ ${HOST_NAME} = "127.0.0.1" || ${HOST_NAME} = "localhost" ]]
 DS=""
 
 # Extract description.
-if [[ "${RESTART_SERVERS}" != "" ]]; then
+if [[ "${RESTART_SERVERS}" != "false" ]]; then
     IFS=' ' read -ra cfg0 <<< "${CONFIG}"
     for cfg00 in "${cfg0[@]}";
     do

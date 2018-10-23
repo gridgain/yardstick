@@ -50,6 +50,10 @@ chmod +x $CONFIG_TMP
 . $CONFIG_TMP
 rm $CONFIG_TMP
 
+if [[ "$RESTART_SERVERS" == "" ]]; then
+    RESTART_SERVERS="false"
+fi
+
 # Define user to establish remote ssh session.
 if [ "${REMOTE_USER}" == "" ]; then
     REMOTE_USER=$(whoami)
@@ -69,7 +73,7 @@ fi
 
 pkill -9 -f "benchmark-server-restarter-start.sh"
 
-if [[ "${RESTART_SERVERS}" != "" ]] && [[ "${RESTART_SERVERS}" != "true" ]]; then
+if [[ "${RESTART_SERVERS}" != "true" ]] && [[ "${RESTART_SERVERS}" != "false" ]]; then
     echo "<"$(date +"%H:%M:%S")"><yardstick> All server restartets are stopped."
 fi
 
