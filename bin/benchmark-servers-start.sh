@@ -163,7 +163,7 @@ do
 
         JAVA_HOME=${JAVA_HOME} MAIN_CLASS='org.yardstickframework.BenchmarkServerStartUp' \
         JVM_OPTS="${JVM_OPTS} ${GC_JVM_OPTS} ${SERVER_JVM_OPTS} -Dyardstick.server${id} " CP=${CP} CUR_DIR=${CUR_DIR} \
-        PROPS_ENV0=${PROPS_ENV} nohup $SERVER_START_PREFIX ${SCRIPT_DIR}/benchmark-bootstrap.sh \
+        PROPS_ENV0=${PROPS_ENV} nohup $( eval echo ${SERVER_START_PREFIX} ) ${SCRIPT_DIR}/benchmark-bootstrap.sh \
         ${CONFIG_PRM} "--config" ${CONFIG_INCLUDE} "--logsFolder" ${LOGS_DIR} \
         "--remoteuser" ${REMOTE_USER} "--remoteHostName" ${host_name} > ${file_log} 2>& 1 &
 
@@ -175,7 +175,7 @@ do
             "JAVA_HOME='${JAVA_HOME}'" \
             "MAIN_CLASS='org.yardstickframework.BenchmarkServerStartUp'" "JVM_OPTS='${JVM_OPTS} ${GC_JVM_OPTS} ${SERVER_JVM_OPTS} -Dyardstick.server${id} '" \
             "CP='${CP}'" "CUR_DIR='${CUR_DIR}'" "PROPS_ENV0='${PROPS_ENV}'" \
-            "nohup $SERVER_START_PREFIX ${SCRIPT_DIR}/benchmark-bootstrap.sh ${CONFIG_PRM} "--config" ${CONFIG_INCLUDE} "--logsFolder" ${LOGS_DIR} \
+            "nohup $( eval echo ${SERVER_START_PREFIX} ) ${SCRIPT_DIR}/benchmark-bootstrap.sh ${CONFIG_PRM} "--config" ${CONFIG_INCLUDE} "--logsFolder" ${LOGS_DIR} \
             "--remoteuser" ${REMOTE_USER} "--remoteHostName" ${host_name} > ${file_log} 2>& 1 &"
     fi
 
@@ -196,7 +196,7 @@ do
                 if [[ "${delay}" != "" ]] && [[ "${pause}" != "" ]] && [[ "${period}" != "" ]] ; then
                     file_log=${RESTARTERS_LOGS_DIR}"/"${now}"_id"${id}"_"${host_name}".log"
 
-                    nohup $SERVER_START_PREFIX ${SCRIPT_DIR}/benchmark-server-restarter-start.sh "${host_name}" "${id}" "${CONFIG_PRM}" \
+                    nohup $( eval echo ${SERVER_START_PREFIX} ) ${SCRIPT_DIR}/benchmark-server-restarter-start.sh "${host_name}" "${id}" "${CONFIG_PRM}" \
                     "${delay}" "${pause}" "${period}" "${CONFIG_INCLUDE}" > ${file_log} 2>& 1 &
 
                     echo "<"$(date +"%H:%M:%S")"><yardstick> Server restarter is started for ${host_to_restart} \
