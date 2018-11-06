@@ -156,6 +156,14 @@ do
         GC_JVM_OPTS=" -Xloggc:${LOGS_DIR}/gc-${now}-server-id${id}-${host_name}-${DS}.log"
     fi
 
+    if [[ ${host_name} =~ (.*)\*([0-9]*)$ ]]; then
+      host_name=${BASH_REMATCH[1]}
+      node_count=${BASH_REMATCH[2]}
+    else
+      node_count=1
+    fi
+    
+    for SERVER_NODE in $( seq 0 $(( $node_count - 1 )) ); do
     if [[ ${host_name} = "127.0.0.1" || ${host_name} = "localhost" ]]; then
         mkdir -p ${LOGS_DIR}
 
@@ -208,6 +216,8 @@ do
             fi
         done
     fi
+    done
+
     # End of restarter logic.
 
     id=$((1 + $id))
