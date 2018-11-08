@@ -80,6 +80,7 @@ fi
 IFS=',' read -ra hosts0 <<< "${SERVER_HOSTS}"
 for host_name in "${hosts0[@]}";
 do
+    host_name=$(echo $host_name | sed 's/\*[0-9]*$//')
     if [[ ${host_name} = "127.0.0.1" || ${host_name} = "localhost" ]]
         then
             pkill -9 -f "Dyardstick.server"
