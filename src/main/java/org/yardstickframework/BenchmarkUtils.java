@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -358,6 +359,14 @@ public class BenchmarkUtils {
      */
     private BenchmarkUtils() {
         // No-op.
+    }
+
+    public static String dateTime() {
+        Date date = new Date(System.currentTimeMillis());
+
+        DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
+
+        return formatter.format(date);
     }
 
     /**
