@@ -10,6 +10,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import org.yardstickframework.BenchmarkUtils;
 
 import static org.yardstickframework.BenchmarkUtils.dateTime;
 
@@ -22,12 +23,18 @@ public abstract class Worker extends AbstractRunner{
 
     public abstract List<String> getHostList();
 
+    public void beforeWork(){
+        BenchmarkUtils.println(String.format("%s started.", getClass().getSimpleName()));
+    }
+
     /**
      * Executes start method defined in worker class asynchronously.
      *
      */
     protected void workOnHosts() {
-        final String dateTime = dateTime();
+        beforeWork();
+
+        final String dateTime = getMainDateTime();
 
         final List<String> hostList = getHostList();
 
@@ -59,6 +66,12 @@ public abstract class Worker extends AbstractRunner{
         }
 
         execServ.shutdown();
+
+        afterWork();
+    }
+
+    public void afterWork(){
+        BenchmarkUtils.println(String.format("%s finished.", getClass().getSimpleName()));
     }
 
 

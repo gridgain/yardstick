@@ -3,6 +3,7 @@ package org.yardstickframework.runners;
 import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
+import org.yardstickframework.BenchmarkUtils;
 
 public class FullRunner extends AbstractRunner{
 
@@ -31,6 +32,9 @@ public class FullRunner extends AbstractRunner{
 
             runner.runProps.setProperty("WORK_DIR", new File(args[1]).getParent());
         }
+
+        runner.runProps.setProperty("MAIN_DATE_TIME", BenchmarkUtils.dateTime());
+
         runner.run();
     }
 
@@ -38,8 +42,6 @@ public class FullRunner extends AbstractRunner{
      *
      */
     public int run(){
-
-
         Worker deployWorker = new DeployWorker(runProps);
 
         deployWorker.workOnHosts();

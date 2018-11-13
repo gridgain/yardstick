@@ -18,6 +18,13 @@ public class DeployWorker extends Worker{
 
         BenchmarkUtils.println(String.format("Deploying on the host %s", ip));
 
+        for(String name : toClean){
+            String cleanCmd = String.format("ssh -o StrictHostKeyChecking=no %s rm -rf %s/%s",
+                ip, getMainDir(), name);
+
+            runCmd(cleanCmd);
+        }
+
         for(String name : toDeploy) {
             String cpCmd = String.format("scp -o StrictHostKeyChecking=no -rq %s/%s %s:%s",
                 getMainDir(), name, ip, getMainDir());

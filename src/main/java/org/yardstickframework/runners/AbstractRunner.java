@@ -23,6 +23,7 @@ public class AbstractRunner {
     protected Properties runProps;
 
     protected String[] toDeploy = new String[]{"bin", "config", "libs"};
+    protected String[] toClean = new String[]{"bin", "config", "libs", "output", "work"};
 
     protected String mainDir;
 
@@ -38,6 +39,10 @@ public class AbstractRunner {
 
     protected String getMainDir(){
         return runProps.getProperty("WORK_DIR");
+    }
+
+    protected String getMainDateTime(){
+        return runProps.getProperty("MAIN_DATE_TIME");
     }
 
     protected List<String> runCmd(String cmd){
