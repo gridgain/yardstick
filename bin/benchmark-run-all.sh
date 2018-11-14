@@ -104,9 +104,6 @@ function copy_to_hosts()
             ssh -o StrictHostKeyChecking=no $ip mkdir -p $MAIN_DIR
             clear_remote_work_directory $ip
             scp -o StrictHostKeyChecking=no -rq $MAIN_DIR/* $ip:$MAIN_DIR
-            scp -o StrictHostKeyChecking=no -rq $MAIN_DIR/bin/Dockerfile $ip:$MAIN_DIR/../Dockerfile
-
-            ssh -o StrictHostKeyChecking=no $ip cd $MAIN_DIR/../; docker build -t yardstick:1.1 .
         fi
     done
 }

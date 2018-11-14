@@ -369,6 +369,14 @@ public class BenchmarkUtils {
         return formatter.format(date);
     }
 
+    public static String hms() {
+        Date date = new Date(System.currentTimeMillis());
+
+        DateFormat formatter = new SimpleDateFormat("HH-mm-ss");
+
+        return formatter.format(date);
+    }
+
     /**
      * Result of executed command.
      */

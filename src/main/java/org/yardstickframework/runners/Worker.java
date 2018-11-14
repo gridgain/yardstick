@@ -23,6 +23,9 @@ public abstract class Worker extends AbstractRunner{
 
     public abstract List<String> getHostList();
 
+    /**
+     * Executes before workOnHosts()
+     */
     public void beforeWork(){
         BenchmarkUtils.println(String.format("%s started.", getClass().getSimpleName()));
     }
