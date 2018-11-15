@@ -21,6 +21,8 @@
 
 FROM openjdk:8-jre-alpine
 
+ARG COMMON_PATH
+
 # Add missing software
 
 RUN apk --update add \
@@ -33,10 +35,10 @@ RUN apk --update add \
 
 # Set Product name
 
-ENV PRODUCT assembly
+ENV PRODUCT /assembly
 
-COPY assembly ${PRODUCT}
+COPY assembly $COMMON_PATH/assembly
 
-WORKDIR /${PRODUCT}
+WORKDIR $COMMON_PATH
 
 # ENTRYPOINT ["bin/benchmark-run-all.sh"]

@@ -12,8 +12,8 @@ public class FullRunner extends AbstractRunner{
     }
 
     public static void main(String[] args) {
-        for(String a : args)
-            System.out.println(a);
+//        for(String a : args)
+//            System.out.println(a);
 
         FullRunner runner = new FullRunner(null);
 
@@ -23,7 +23,7 @@ public class FullRunner extends AbstractRunner{
         try {
             runner.setRunProps(new File(arg));
 
-            System.out.println(String.format("setting arg = %s", arg));
+//            System.out.println(String.format("setting arg = %s", arg));
 
             runner.setPropPath(arg);
         }
@@ -61,11 +61,11 @@ public class FullRunner extends AbstractRunner{
 
             startServWorker.workOnHosts();
 
-            StartNodeWorker startDrvrWorker = new StartDrvrWorker(runProps, cfgStr.replace("\"", ""));
-
-            startDrvrWorker.setPropPath(getPropPath());
-
-            startDrvrWorker.workOnHosts();
+//            StartNodeWorker startDrvrWorker = new StartDrvrWorker(runProps, cfgStr.replace("\"", ""));
+//
+//            startDrvrWorker.setPropPath(getPropPath());
+//
+//            startDrvrWorker.workOnHosts();
 
 
         }

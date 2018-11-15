@@ -30,8 +30,8 @@ public class StartServWorker extends StartNodeWorker {
 
         BenchmarkUtils.println(String.format("Starting server node on the host %s with id %d", ip, cnt));
 
-        System.out.println(String.format("full str = %s", getCfgFullStr()));
-        System.out.println(String.format("prop path = %s", getPropPath()));
+//        System.out.println(String.format("full str = %s", getCfgFullStr()));
+//        System.out.println(String.format("prop path = %s", getPropPath()));
 
         String mkdirCmd = String.format("ssh -o StrictHostKeyChecking=no %s mkdir -p %s", ip, servLogDirFullName);
 
@@ -58,10 +58,24 @@ public class StartServWorker extends StartNodeWorker {
             getMainDir(),
             logFileName);
 
-        NodeStarter starter = new PlainNodeStarter(runProps);
+//        String startCmd = String.format("%s/bin/java -Dyardstick.server%d -cp :%s/libs/* %s -id %d %s --config %s " +
+//                "--logsFolder %s --remoteuser %s --currentFolder %s --scriptsFolder %s/bin ",
+//            getRemJava(),
+//            cnt,
+//            getMainDir(),
+//            mainClass,
+//            cnt,
+//            getCfgFullStr(),
+//            getPropPath(),
+//            servLogDirFullName,
+//            getRemUser(),
+//            getMainDir(),
+//            getMainDir());
 
-        System.out.println("Start cmd:");
-        System.out.println(startCmd);
+        NodeStarter starter = new InDockerNodeStarter(runProps);
+
+//        System.out.println("Start cmd:");
+//        System.out.println(startCmd);
 
         starter.startNode(ip, startCmd);
     }

@@ -184,7 +184,7 @@ function collect_results()
 
             scp -o StrictHostKeyChecking=no -rq $ip:$LOGS_BASE/../../output/$log_dir_name/* $MAIN_DIR/output/$log_dir_name
 
-            clear_remote_work_directory $ip
+            #clear_remote_work_directory $ip
         fi
     done
 }

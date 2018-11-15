@@ -102,8 +102,12 @@ public class AbstractRunner {
 
             String line = "";
 
-            while ((line = reader.readLine())!= null)
+            while ((line = reader.readLine())!= null) {
                 res.add(line);
+
+//                if(line.contains("Successfully built "))
+                    System.out.println(line);
+            }
         }
         catch (Exception e) {
             e.printStackTrace();

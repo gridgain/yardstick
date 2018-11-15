@@ -12,9 +12,13 @@ public class KillWorker extends Worker{
 
     @Override public void doWork(String ip, String dateTime, int cnt, int total) {
 
-        String killCmd = String.format("ssh -o StrictHostKeyChecking=no %s pkill -9 -f \"Dyardstick.server\"", ip);
+        String killServCmd = String.format("ssh -o StrictHostKeyChecking=no %s pkill -9 -f \"Dyardstick.server\"", ip);
 
-        runCmd(killCmd);
+        runCmd(killServCmd);
+
+        String killDrvrCmd = String.format("ssh -o StrictHostKeyChecking=no %s pkill -9 -f \"Dyardstick.driver\"", ip);
+
+        runCmd(killDrvrCmd);
     }
 
     @Override public List<String> getHostList() {
