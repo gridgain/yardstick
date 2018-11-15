@@ -19,7 +19,7 @@ public abstract class StartNodeWorker extends Worker {
     protected String baseLogDirFullName;
 
     /** */
-    private String cfgFullStr;
+    protected String cfgFullStr;
 
     /** */
     private BenchmarkConfiguration iterCfg;
@@ -35,6 +35,9 @@ public abstract class StartNodeWorker extends Worker {
         this.cfgFullStr = parseCfgStr(cfgFullStr);
     }
 
+    public String getCfgFullStr() {
+        return cfgFullStr;
+    }
 
     @Override public void beforeWork() {
         super.beforeWork();
@@ -53,6 +56,8 @@ public abstract class StartNodeWorker extends Worker {
 
         if(src.contains("${SCRIPT_DIR}/.."))
             res = res.replace("${SCRIPT_DIR}/..", getMainDir());
+        if(src.contains("${nodesNum}"))
+            res = res.replace("${nodesNum}", String.valueOf(getNodesNum()));
 
         for(String propName : runProps.stringPropertyNames()){
             if(src.contains(String.format("${%s}", propName)))
@@ -61,6 +66,13 @@ public abstract class StartNodeWorker extends Worker {
             if(src.contains(String.format("$%s", propName)))
                 res = res.replace(String.format("$%s", propName), runProps.get(propName).toString());
         }
+
+        iterCfg = new BenchmarkConfiguration();
+
+        String[] argArr = res.split(" ");
+
+        for(String s : argArr)
+            System.out.println(s);
 
         jcommander(res.split(" "), iterCfg, "<runner>");
 

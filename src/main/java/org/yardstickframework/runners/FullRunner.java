@@ -22,6 +22,10 @@ public class FullRunner extends AbstractRunner{
 
         try {
             runner.setRunProps(new File(arg));
+
+            System.out.println(String.format("setting arg = %s", arg));
+
+            runner.setPropPath(arg);
         }
         catch (IOException e) {
             e.printStackTrace();
@@ -42,9 +46,21 @@ public class FullRunner extends AbstractRunner{
      *
      */
     public int run(){
+        Worker killWorker = new KillWorker(runProps);
+
+        killWorker.workOnHosts();
+
         Worker deployWorker = new DeployWorker(runProps);
 
         deployWorker.workOnHosts();
+
+        for(String cfgStr : runProps.getProperty("CONFIGS").split(",")) {
+            StartNodeWorker startWorker = new StartServWorker(runProps, cfgStr.replace("\"", ""));
+
+            startWorker.setPropPath(getPropPath());
+
+            startWorker.workOnHosts();
+        }
 
         return 0;
     }

@@ -22,13 +22,25 @@ public class AbstractRunner {
 
     protected Properties runProps;
 
+    /** */
+    private String propPath;
+
     protected String[] toDeploy = new String[]{"bin", "config", "libs"};
+
     protected String[] toClean = new String[]{"bin", "config", "libs", "output", "work"};
 
     protected String mainDir;
 
     public AbstractRunner(Properties runProps) {
         this.runProps = runProps;
+    }
+
+    public String getPropPath() {
+        return propPath;
+    }
+
+    public void setPropPath(String propPath) {
+        this.propPath = propPath;
     }
 
     protected void setRunProps(File propPath) throws FileNotFoundException, IOException {
@@ -39,6 +51,20 @@ public class AbstractRunner {
 
     protected String getMainDir(){
         return runProps.getProperty("WORK_DIR");
+    }
+
+    protected String getRemUser(){
+        if(runProps.getProperty("REMOTE_USER") == null)
+            runProps.setProperty("REMOTE_USER", System.getProperty("user.name"));
+
+        return runProps.getProperty("REMOTE_USER");
+    }
+
+    protected String getRemJava(){
+        if(runProps.getProperty("JAVA_HOME") == null)
+            runProps.setProperty("JAVA_HOME", System.getProperty("java.home"));
+
+        return runProps.getProperty("JAVA_HOME");
     }
 
     protected String getMainDateTime(){
@@ -56,7 +82,7 @@ public class AbstractRunner {
 
         try {
             p = Runtime.getRuntime().exec(cmd);
-            p.waitFor();
+//            p.waitFor();
             BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
 
 
@@ -94,6 +120,18 @@ public class AbstractRunner {
         res.addAll(getDrvrList());
 
         return makeUniq(res);
+    }
+
+    protected List<String> getFullHostList(){
+        List<String> res = getServList();
+
+        res.addAll(getDrvrList());
+
+        return res;
+    }
+
+    protected int getNodesNum(){
+        return getFullHostList().size();
     }
 
     protected List<String> getServUniqList(){

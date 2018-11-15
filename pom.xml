@@ -21,7 +21,7 @@
     <groupId>org.yardstickframework</groupId>
     <artifactId>yardstick</artifactId>
     <name>Yardstick</name>
-    <version>0.8.9</version>
+    <version>0.8.7</version>
 
     <url>https://github.com/gridgain/yardstick</url>
     <description>Framework for benchmarks writing.</description>
