@@ -55,11 +55,19 @@ public class FullRunner extends AbstractRunner{
         deployWorker.workOnHosts();
 
         for(String cfgStr : runProps.getProperty("CONFIGS").split(",")) {
-            StartNodeWorker startWorker = new StartServWorker(runProps, cfgStr.replace("\"", ""));
+            StartNodeWorker startServWorker = new StartServWorker(runProps, cfgStr.replace("\"", ""));
 
-            startWorker.setPropPath(getPropPath());
+            startServWorker.setPropPath(getPropPath());
 
-            startWorker.workOnHosts();
+            startServWorker.workOnHosts();
+
+            StartNodeWorker startDrvrWorker = new StartDrvrWorker(runProps, cfgStr.replace("\"", ""));
+
+            startDrvrWorker.setPropPath(getPropPath());
+
+            startDrvrWorker.workOnHosts();
+
+
         }
 
         return 0;
