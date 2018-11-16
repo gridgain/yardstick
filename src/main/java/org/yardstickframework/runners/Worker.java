@@ -19,7 +19,7 @@ public abstract class Worker extends AbstractRunner{
         super(runProps);
     }
 
-    public abstract void doWork(String ip, String dateTime, int cnt, int total);
+    public abstract WorkResult doWork(String ip, int cnt, int total, WorkContext workCtx);
 
     public abstract List<String> getHostList();
 
@@ -34,34 +34,32 @@ public abstract class Worker extends AbstractRunner{
      * Executes start method defined in worker class asynchronously.
      *
      */
-    protected void workOnHosts() {
+    protected Collection<WorkResult> workOnHosts(final WorkContext workCtx) {
         beforeWork();
-
-        final String dateTime = getMainDateTime();
 
         final List<String> hostList = getHostList();
 
+        List<WorkResult> res = new ArrayList<>(hostList.size());
+
         ExecutorService execServ = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
-        Collection<Future<?>> futList = new ArrayList<>();
+        Collection<Future<WorkResult>> futList = new ArrayList<>();
 
         for (int cntr = 0; cntr < hostList.size(); cntr++) {
             final int cntrF = cntr;
 
-            futList.add(execServ.submit(new Callable<Object>() {
-                @Override public Object call() throws Exception {
-                    Thread.currentThread().setName(String.format("Starter-%s", hostList.get(cntrF)));
+            futList.add(execServ.submit(new Callable<WorkResult>() {
+                @Override public WorkResult call() throws Exception {
+                    Thread.currentThread().setName(String.format("Worker-%s", hostList.get(cntrF)));
 
-                    doWork(hostList.get(cntrF), dateTime, cntrF, hostList.size());
-
-                    return null;
+                    return doWork(hostList.get(cntrF), cntrF, hostList.size(), workCtx);
                 }
             }));
         }
 
-        for (Future f : futList) {
+        for (Future<WorkResult> f : futList) {
             try {
-                f.get(DFLT_TIMEOUT, TimeUnit.MILLISECONDS);
+                res.add(f.get(DFLT_TIMEOUT, TimeUnit.MILLISECONDS));
             }
             catch (Exception e) {
                 e.printStackTrace();
@@ -71,6 +69,8 @@ public abstract class Worker extends AbstractRunner{
         execServ.shutdown();
 
         afterWork();
+
+        return res;
     }
 
     public void afterWork(){

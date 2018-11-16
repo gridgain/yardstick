@@ -25,7 +25,7 @@ public class StartDrvrWorker extends StartNodeWorker {
         drvrLogDirFullName = String.format("%s/log_drivers", baseLogDirFullName);
     }
 
-    @Override public void doWork(String ip, String dateTime, int cnt, int total) {
+    @Override public void doWork(String ip, int cnt, int total, WorkContext workCtx) {
         final String drvrStartTime = BenchmarkUtils.dateTime();
 
 //        BenchmarkUtils.println(String.format("Starting driver node on the host %s with id %d", ip, cnt));
@@ -70,7 +70,9 @@ public class StartDrvrWorker extends StartNodeWorker {
 //        System.out.println("Start cmd:");
 //        System.out.println(startCmd);
 
-        starter.startNode(ip, startCmd);
+        NodeInfo nodeInfo = new NodeInfo(NodeType.DRIVER, ip, null, String.valueOf(cnt), startCmd, logFileName );
+
+        starter.startNode(nodeInfo);
 
 
     }
