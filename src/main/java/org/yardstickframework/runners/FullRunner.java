@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Properties;
 import org.yardstickframework.BenchmarkUtils;
 
-public class FullRunner extends AbstractRunner{
+public class FullRunner extends AbstractRunner {
 
     public FullRunner(Properties runProps) {
         super(runProps);
@@ -33,7 +33,7 @@ public class FullRunner extends AbstractRunner{
             e.printStackTrace();
         }
 
-        if(runner.runProps.getProperty("WORK_DIR") == null) {
+        if (runner.runProps.getProperty("WORK_DIR") == null) {
             runner.mainDir = new File(args[1]).getParent();
 
             runner.runProps.setProperty("WORK_DIR", new File(args[1]).getParent());
@@ -47,7 +47,7 @@ public class FullRunner extends AbstractRunner{
     /**
      *
      */
-    public int run(){
+    public int run() {
         Worker killWorker = new KillWorker(runProps, new CommonWorkContext(getFullUniqList()));
 
         killWorker.workOnHosts();
@@ -57,38 +57,81 @@ public class FullRunner extends AbstractRunner{
         deployWorker.workOnHosts();
 
         List<WorkResult> buildServResList = buildDockerImages(NodeType.SERVER);
-//        buildDockerImages(NodeType.DRIVER);
 
-        for(String cfgStr : runProps.getProperty("CONFIGS").split(",")) {
-            String parsedCfgStr = parseCfgStr(cfgStr);
+        List<WorkResult> buildDrvrResList = buildDockerImages(NodeType.DRIVER);
 
-            StartMode servStartMode = runProps.getProperty("SERVER_DOCKER_IMAGE_NAME") == null ?
-                StartMode.PLAIN:
-                StartMode.IN_DOCKER;
+        for (String cfgStr : runProps.getProperty("CONFIGS").split(",")) {
+            List<WorkResult> servRes = startServNodes(cfgStr, buildServResList);
 
-            StartNodeWorkContext nodeWorkCtx = new StartNodeWorkContext(getServList(), servStartMode, parsedCfgStr,
-                getPropPath());
-
-            if(buildServResList != null && !buildServResList.isEmpty())
-                nodeWorkCtx.setDockerInfo((BuildDockerResult)buildServResList.get(0));
-
-            StartNodeWorker startServWorker = new StartServWorker(runProps, nodeWorkCtx);
-
-            startServWorker.workOnHosts();
-
-//            StartNodeWorker startDrvrWorker = new StartDrvrWorker(runProps, cfgStr.replace("\"", ""));
-//
-//            startDrvrWorker.setPropPath(getPropPath());
-//
-//            startDrvrWorker.workOnHosts();
+            List<WorkResult> drvrRes = startDrvrNodes(cfgStr, buildDrvrResList);
 
 
+            try {
+                Thread.sleep(120_000L);
+            }
+            catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+
+
+            killNodes(servRes);
         }
 
         return 0;
     }
 
-    private List<WorkResult> buildDockerImages(NodeType type){
+    private List<WorkResult> startServNodes(String cfgStr, List<WorkResult> buildDocList) {
+        String parsedCfgStr = parseCfgStr(cfgStr);
+
+        StartMode servStartMode = runProps.getProperty("SERVER_DOCKER_IMAGE_NAME") == null ?
+            StartMode.PLAIN :
+            StartMode.IN_DOCKER;
+
+        StartNodeWorkContext nodeWorkCtx = new StartNodeWorkContext(getServList(), servStartMode, parsedCfgStr,
+            getPropPath());
+
+        if (buildDocList != null && !buildDocList.isEmpty())
+            nodeWorkCtx.setDockerInfo((BuildDockerResult)buildDocList.get(0));
+
+        StartNodeWorker startServWorker = new StartServWorker(runProps, nodeWorkCtx);
+
+        List<WorkResult> startServResList = startServWorker.workOnHosts();
+
+        return startServResList;
+    }
+
+    private List<WorkResult> startDrvrNodes(String cfgStr, List<WorkResult> buildDocList) {
+        String parsedCfgStr = parseCfgStr(cfgStr);
+
+        StartMode drvrStartMode = runProps.getProperty("DRIVER_DOCKER_IMAGE_NAME") == null ?
+            StartMode.PLAIN :
+            StartMode.IN_DOCKER;
+
+        StartNodeWorkContext nodeWorkCtx = new StartNodeWorkContext(getDrvrList(), drvrStartMode, parsedCfgStr,
+            getPropPath());
+
+        if (buildDocList != null && !buildDocList.isEmpty())
+            nodeWorkCtx.setDockerInfo((BuildDockerResult)buildDocList.get(0));
+
+        StartNodeWorker startDrvrWorker = new StartDrvrWorker(runProps, nodeWorkCtx);
+
+        startDrvrWorker.setPropPath(getPropPath());
+
+        return startDrvrWorker.workOnHosts();
+    }
+
+    private List<WorkResult> killNodes(List<WorkResult> nodeList){
+        KillWorker killWorker = new KillWorker(runProps, null);
+
+        for(WorkResult nodeInfo : nodeList)
+            killWorker.killNode((NodeInfo)nodeInfo);
+
+        return null;
+    }
+
+
+    private List<WorkResult> buildDockerImages(NodeType type) {
         String imageNameProp = String.format("%s_DOCKER_IMAGE_NAME", type);
 
         String imageName = runProps.getProperty(imageNameProp);
@@ -96,7 +139,7 @@ public class FullRunner extends AbstractRunner{
         String nameProp = String.format("%s_DOCKERFILE_NAME", type);
         String pathProp = String.format("%s_DOCKERFILE_PATH", type);
 
-        if(runProps.getProperty(nameProp) == null &&
+        if (runProps.getProperty(nameProp) == null &&
             runProps.getProperty(pathProp) == null)
             throw new IllegalArgumentException("Dockerfile name and path is not defined in property file.");
 
@@ -107,8 +150,8 @@ public class FullRunner extends AbstractRunner{
         String imageVer = getMainDateTime();
 
         List<String> hostList = type == NodeType.SERVER ?
-            getServList():
-            getDrvrList();
+            getServUniqList():
+            getDrvrUniqList();
 
         BuildDockerWorkContext docCtx = new BuildDockerWorkContext(hostList, dockerfilePath, imageName, imageVer);
 

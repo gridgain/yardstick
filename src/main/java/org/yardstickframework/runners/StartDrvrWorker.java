@@ -64,7 +64,9 @@ public class StartDrvrWorker extends StartNodeWorker {
             getMainDir(),
             logFileName);
 
-        NodeStarter starter = new PlainNodeStarter(runProps);
+        NodeStarter starter = startCtx.getStartMode() == StartMode.PLAIN ?
+            new PlainNodeStarter(runProps):
+            new InDockerNodeStarter(runProps, startCtx);
 
 //        System.out.println("Start cmd:");
 //        System.out.println(startCmd);
