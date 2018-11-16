@@ -6,11 +6,11 @@ import org.yardstickframework.BenchmarkUtils;
 
 public class DeployWorker extends Worker{
 
-    public DeployWorker(Properties runProps) {
-        super(runProps);
+    public DeployWorker(Properties runProps, WorkContext workCtx) {
+        super(runProps, workCtx);
     }
 
-    @Override public void doWork(String ip, String dateTime, int cnt, int total) {
+    @Override public WorkResult doWork(String ip, int cnt) {
 
         String createCmd = String.format("ssh -o StrictHostKeyChecking=no %s mkdir -p %s", ip, getMainDir());
 
@@ -32,9 +32,7 @@ public class DeployWorker extends Worker{
             runCmd(cpCmd);
         }
 
-    }
+        return null;
 
-    @Override public List<String> getHostList() {
-        return getFullUniqList();
     }
 }

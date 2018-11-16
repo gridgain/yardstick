@@ -16,6 +16,9 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import org.yardstickframework.BenchmarkConfiguration;
+
+import static org.yardstickframework.BenchmarkUtils.jcommander;
 
 public class AbstractRunner {
     protected static final long DFLT_TIMEOUT = 300_000L;
@@ -185,5 +188,24 @@ public class AbstractRunner {
 
     private void check(String ip){
         //TODO
+    }
+
+    protected String parseCfgStr(String src){
+        String res = src.replace("\"", "");
+
+        if(src.contains("${SCRIPT_DIR}/.."))
+            res = res.replace("${SCRIPT_DIR}/..", getMainDir());
+        if(src.contains("${nodesNum}"))
+            res = res.replace("${nodesNum}", String.valueOf(getNodesNum()));
+
+        for(String propName : runProps.stringPropertyNames()){
+            if(src.contains(String.format("${%s}", propName)))
+                res = res.replace(String.format("${%s}", propName), runProps.get(propName).toString());
+
+            if(src.contains(String.format("$%s", propName)))
+                res = res.replace(String.format("$%s", propName), runProps.get(propName).toString());
+        }
+
+        return res;
     }
 }

@@ -18,33 +18,12 @@
 
 SCRIPT_DIR=$(cd $(dirname "$0"); pwd)
 
-DOCKER_FILE_PATH=$1
+cd ${SCRIPT_DIR}/../
 
-IMAGE_NAME=$2
+mvn clean install -DskipTests
 
-IMAGE_VER=$3
+cp /home/oostanin/.m2/repository/org/yardstickframework/yardstick/0.8.7/yardstick-0.8.7.jar /home/oostanin/gg/incubator-ignite/modules/yardstick/target/assembly/libs/yardstick-0.8.7.jar
 
-docker system prune -f
+cp -r /home/oostanin/yardstick/bin/* /home/oostanin/gg/incubator-ignite/modules/yardstick/target/assembly/bin/
 
-docker rmi $(docker images | grep 'none\|yardstick' | awk '{print $3}')
-
-echo "PATH"
-
-echo $DOCKER_FILE_PATH
-
-rm ${SCRIPT_DIR}/../../Dockerfile
-
-cp ${DOCKER_FILE_PATH} ${SCRIPT_DIR}/../../Dockerfile
-
-cd ${SCRIPT_DIR}/../../
-
-echo "IMAGE NAME"
-
-echo $IMAGE_NAME
-
-
-echo "IMAGE VER"
-
-echo $IMAGE_VER
-
-docker build -t ${IMAGE_NAME}:${IMAGE_VER} --no-cache --build-arg COMMON_PATH=${SCRIPT_DIR}/../../ .
+cp /home/oostanin/gg/incubator-ignite/modules/yardstick/config/benchmark.properties /home/oostanin/gg/incubator-ignite/modules/yardstick/target/assembly/config/benchmark.properties

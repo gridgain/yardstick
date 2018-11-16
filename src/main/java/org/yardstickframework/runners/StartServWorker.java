@@ -11,12 +11,8 @@ public class StartServWorker extends StartNodeWorker {
     private String mainClass = "org.yardstickframework.BenchmarkServerStartUp";
 
 
-    public StartServWorker(Properties runProps) {
-        super(runProps);
-    }
-
-    public StartServWorker(Properties runProps, String cfgFullStr) {
-        super(runProps, cfgFullStr);
+    public StartServWorker(Properties runProps, WorkContext workCtx) {
+        super(runProps, workCtx);
     }
 
     @Override public void beforeWork() {
@@ -25,8 +21,10 @@ public class StartServWorker extends StartNodeWorker {
         servLogDirFullName = String.format("%s/log_servers", baseLogDirFullName);
     }
 
-    @Override public void doWork(String ip, String dateTime, int cnt, int total) {
+    @Override public WorkResult doWork(String ip, int cnt) {
         final String servStartTime = BenchmarkUtils.hms();
+
+        StartNodeWorkContext startCtx = (StartNodeWorkContext)getWorkContext();
 
         BenchmarkUtils.println(String.format("Starting server node on the host %s with id %d", ip, cnt));
 
@@ -50,37 +48,20 @@ public class StartServWorker extends StartNodeWorker {
             getMainDir(),
             mainClass,
             cnt,
-            getCfgFullStr(),
-            getPropPath(),
+            startCtx.getFullCfgStr(),
+            startCtx.getPropPath(),
             servLogDirFullName,
             getRemUser(),
             getMainDir(),
             getMainDir(),
             logFileName);
 
-//        String startCmd = String.format("%s/bin/java -Dyardstick.server%d -cp :%s/libs/* %s -id %d %s --config %s " +
-//                "--logsFolder %s --remoteuser %s --currentFolder %s --scriptsFolder %s/bin ",
-//            getRemJava(),
-//            cnt,
-//            getMainDir(),
-//            mainClass,
-//            cnt,
-//            getCfgFullStr(),
-//            getPropPath(),
-//            servLogDirFullName,
-//            getRemUser(),
-//            getMainDir(),
-//            getMainDir());
+        NodeStarter starter = startCtx.getStartMode() == StartMode.PLAIN ?
+            new PlainNodeStarter(runProps):
+            new InDockerNodeStarter(runProps, startCtx);
 
-        NodeStarter starter = new InDockerNodeStarter(runProps);
+        NodeInfo nodeInfo = new NodeInfo(NodeType.SERVER, ip, null, String.valueOf(cnt), startCmd, logFileName );
 
-//        System.out.println("Start cmd:");
-//        System.out.println(startCmd);
-
-        starter.startNode(ip, startCmd);
-    }
-
-    @Override public List<String> getHostList() {
-        return getServList();
+        return starter.startNode(nodeInfo);
     }
 }

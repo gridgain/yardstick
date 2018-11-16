@@ -10,18 +10,26 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import javax.annotation.Nullable;
 import org.yardstickframework.BenchmarkUtils;
 
 import static org.yardstickframework.BenchmarkUtils.dateTime;
 
 public abstract class Worker extends AbstractRunner{
-    public Worker(Properties runProps) {
+    private WorkContext workContext;
+
+    /** */
+    public Worker(Properties runProps, WorkContext workContext) {
         super(runProps);
+
+        this.workContext = workContext;
     }
 
-    public abstract WorkResult doWork(String ip, int cnt, int total, WorkContext workCtx);
+    public abstract WorkResult doWork(String ip, int cnt);
 
-    public abstract List<String> getHostList();
+    public WorkContext getWorkContext(){
+        return workContext;
+    }
 
     /**
      * Executes before workOnHosts()
@@ -34,10 +42,10 @@ public abstract class Worker extends AbstractRunner{
      * Executes start method defined in worker class asynchronously.
      *
      */
-    protected Collection<WorkResult> workOnHosts(final WorkContext workCtx) {
+    protected List<WorkResult> workOnHosts() {
         beforeWork();
 
-        final List<String> hostList = getHostList();
+        final List<String> hostList = workContext.getHostList();
 
         List<WorkResult> res = new ArrayList<>(hostList.size());
 
@@ -52,7 +60,7 @@ public abstract class Worker extends AbstractRunner{
                 @Override public WorkResult call() throws Exception {
                     Thread.currentThread().setName(String.format("Worker-%s", hostList.get(cntrF)));
 
-                    return doWork(hostList.get(cntrF), cntrF, hostList.size(), workCtx);
+                    return doWork(hostList.get(cntrF), cntrF);
                 }
             }));
         }

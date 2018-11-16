@@ -1,26 +1,27 @@
 package org.yardstickframework.runners;
 
-import java.util.List;
 import java.util.Properties;
 
 public class BuildDockerWorker extends Worker{
 
-    public BuildDockerWorker(Properties runProps) {
-        super(runProps);
+    public BuildDockerWorker(Properties runProps, WorkContext workCtx) {
+        super(runProps, workCtx);
     }
 
-    @Override public WorkResult doWork(String ip, int cnt, int total, WorkContext workCtx) {
-        WorkResult res = new BuildDockerResult();
+    @Override public WorkResult doWork(String ip, int cnt) {
+        BuildDockerWorkContext ctx = (BuildDockerWorkContext)getWorkContext();
 
-        String buildDockerCmd = String.format("ssh -o StrictHostKeyChecking=no %s %s/bin/build-docker.sh",
-            ip, getMainDir());
+        String path = ctx.getDockerFilePath();
+
+        String imageName = ctx.getImageName();
+
+        String imageVer = ctx.getImageVer();
+
+        String buildDockerCmd = String.format("ssh -o StrictHostKeyChecking=no %s %s/bin/build-docker.sh %s %s %s",
+            ip, getMainDir(), path, imageName, imageVer);
 
         runCmd(buildDockerCmd);
 
-        return res;
-    }
-
-    @Override public List<String> getHostList() {
-        return getFullUniqList();
+        return new BuildDockerResult(imageName, imageVer, ip, cnt);
     }
 }

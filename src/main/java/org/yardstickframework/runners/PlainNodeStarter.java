@@ -7,9 +7,12 @@ public class PlainNodeStarter extends AbstractRunner implements NodeStarter  {
         super(runProps);
     }
 
-    @Override public NodeInfo startNode(String ip, String startCmd) {
-        String cmd = String.format("ssh -o StrictHostKeyChecking=no %s nohup %s", ip, startCmd);
+    @Override public NodeInfo startNode(NodeInfo nodeInfo) {
+        String cmd = String.format("ssh -o StrictHostKeyChecking=no %s nohup %s",
+            nodeInfo.getHost(), nodeInfo.getStartCmd());
 
         runCmd(cmd);
+
+        return nodeInfo;
     }
 }

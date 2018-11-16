@@ -1,6 +1,6 @@
 package org.yardstickframework.runners;
 
-public class NodeInfo {
+public class NodeInfo implements WorkResult {
 
     private NodeType nodeType;
 

@@ -11,12 +11,8 @@ public class StartDrvrWorker extends StartNodeWorker {
     private String mainClass = "org.yardstickframework.BenchmarkDriverStartUp";
 
 
-    public StartDrvrWorker(Properties runProps) {
-        super(runProps);
-    }
-
-    public StartDrvrWorker(Properties runProps, String cfgFullStr) {
-        super(runProps, cfgFullStr);
+    public StartDrvrWorker(Properties runProps, WorkContext workContext) {
+        super(runProps, workContext);
     }
 
     @Override public void beforeWork() {
@@ -25,8 +21,11 @@ public class StartDrvrWorker extends StartNodeWorker {
         drvrLogDirFullName = String.format("%s/log_drivers", baseLogDirFullName);
     }
 
-    @Override public void doWork(String ip, int cnt, int total, WorkContext workCtx) {
+    @Override public WorkResult doWork(String ip, int cnt) {
         final String drvrStartTime = BenchmarkUtils.dateTime();
+
+        StartNodeWorkContext startCtx = (StartNodeWorkContext)getWorkContext();
+
 
 //        BenchmarkUtils.println(String.format("Starting driver node on the host %s with id %d", ip, cnt));
 
@@ -45,7 +44,7 @@ public class StartDrvrWorker extends StartNodeWorker {
 
         String drvrResDir = String.format("%s/output/result-%s", getMainDir(), drvrStartTime);
 
-        String outputFolderParam = getHostList().size() > 1 ?
+        String outputFolderParam = getWorkContext().getHostList().size() > 1 ?
             String.format("--outputFolder %s/%d-%s", drvrResDir, cnt, ip) :
             String.format("--outputFolder %s", drvrResDir);
 
@@ -57,8 +56,8 @@ public class StartDrvrWorker extends StartNodeWorker {
             mainClass,
             cnt,
             outputFolderParam,
-            getCfgFullStr(),
-            getPropPath(),
+            startCtx.getFullCfgStr(),
+            startCtx.getPropPath(),
             drvrLogDirFullName,
             getRemUser(),
             getMainDir(),
@@ -74,10 +73,6 @@ public class StartDrvrWorker extends StartNodeWorker {
 
         starter.startNode(nodeInfo);
 
-
-    }
-
-    @Override public List<String> getHostList() {
-        return getDrvrList();
+        return null;
     }
 }

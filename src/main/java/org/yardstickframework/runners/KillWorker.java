@@ -6,11 +6,11 @@ import org.yardstickframework.BenchmarkUtils;
 
 public class KillWorker extends Worker{
 
-    public KillWorker(Properties runProps) {
-        super(runProps);
+    public KillWorker(Properties runProps, WorkContext workCtx) {
+        super(runProps, workCtx);
     }
 
-    @Override public void doWork(String ip, String dateTime, int cnt, int total) {
+    @Override public WorkResult doWork(String ip, int cnt) {
 
         String killServCmd = String.format("ssh -o StrictHostKeyChecking=no %s pkill -9 -f \"Dyardstick.server\"", ip);
 
@@ -19,9 +19,7 @@ public class KillWorker extends Worker{
         String killDrvrCmd = String.format("ssh -o StrictHostKeyChecking=no %s pkill -9 -f \"Dyardstick.driver\"", ip);
 
         runCmd(killDrvrCmd);
-    }
 
-    @Override public List<String> getHostList() {
-        return getFullUniqList();
+        return null;
     }
 }
