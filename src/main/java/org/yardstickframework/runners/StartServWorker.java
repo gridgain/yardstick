@@ -56,11 +56,10 @@ public class StartServWorker extends StartNodeWorker {
             getMainDir(),
             logFileName);
 
-        NodeStarter starter = startCtx.getStartMode() == StartMode.PLAIN ?
-            new PlainNodeStarter(runProps):
-            new InDockerNodeStarter(runProps, startCtx);
+        NodeInfo nodeInfo = new NodeInfo(NodeType.SERVER, ip, null, String.valueOf(cnt),
+            startCtx, startCmd, logFileName );
 
-        NodeInfo nodeInfo = new NodeInfo(NodeType.SERVER, ip, null, String.valueOf(cnt), startCmd, logFileName );
+        NodeStarter starter = getNodeStarter(nodeInfo);
 
         return starter.startNode(nodeInfo);
     }

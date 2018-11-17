@@ -19,21 +19,26 @@
 
 # Start from JDK 8 based on Alpine Linux image (~5Mb)
 
-FROM openjdk:8-jre-alpine
+FROM openjdk:12-ea-19-jdk-oraclelinux7
 
 ARG COMMON_PATH
 
 # Add missing software
 
-RUN apk --update add \
-    bash \
-    net-tools \
-    fontconfig \
-    && rm -rfv /var/cache/apk/*
+#RUN apk --update add \
+#    bash \
+#    net-tools \
+#    fontconfig \
+#    && rm -rfv /var/cache/apk/*
 
-ENV USER $USER_NAME
 
-RUN useradd -m -d /home/${USER} ${USER} && chown -R ${USER} /home/${USER}
+ARG COMMON_PATH
+ARG USER_NAME
+
+RUN echo $JAVA_HOME
+RUN echo $USER_NAME
+
+RUN useradd -m -d /home/$USER_NAME $USER_NAME && chown -R $USER_NAME /home/$USER_NAME
 
 # Set Product name
 

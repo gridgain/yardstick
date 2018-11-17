@@ -27,7 +27,7 @@ public class StartDrvrWorker extends StartNodeWorker {
         StartNodeWorkContext startCtx = (StartNodeWorkContext)getWorkContext();
 
 
-//        BenchmarkUtils.println(String.format("Starting driver node on the host %s with id %d", ip, cnt));
+        BenchmarkUtils.println(String.format("Starting driver node on the host %s with id %d", ip, cnt));
 
 //        System.out.println(String.format("full str = %s", getCfgFullStr()));
 //        System.out.println(String.format("prop path = %s", getPropPath()));
@@ -64,14 +64,10 @@ public class StartDrvrWorker extends StartNodeWorker {
             getMainDir(),
             logFileName);
 
-        NodeStarter starter = startCtx.getStartMode() == StartMode.PLAIN ?
-            new PlainNodeStarter(runProps):
-            new InDockerNodeStarter(runProps, startCtx);
+        NodeInfo nodeInfo = new NodeInfo(NodeType.DRIVER, ip, null, String.valueOf(cnt),
+            startCtx, startCmd, logFileName );
 
-//        System.out.println("Start cmd:");
-//        System.out.println(startCmd);
-
-        NodeInfo nodeInfo = new NodeInfo(NodeType.DRIVER, ip, null, String.valueOf(cnt), startCmd, logFileName );
+        NodeStarter starter = getNodeStarter(nodeInfo);
 
         starter.startNode(nodeInfo);
 

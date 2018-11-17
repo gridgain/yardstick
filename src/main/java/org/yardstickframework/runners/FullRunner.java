@@ -60,23 +60,30 @@ public class FullRunner extends AbstractRunner {
 
         List<WorkResult> buildDrvrResList = buildDockerImages(NodeType.DRIVER);
 
+        String cfgStr0 = runProps.getProperty("CONFIGS").split(",")[0];
+
+        List<WorkResult> servRes = null;
+
+        if(!Boolean.valueOf(runProps.getProperty("RESTART_SERVERS")))
+            servRes = startServNodes(cfgStr0, buildServResList);
+
         for (String cfgStr : runProps.getProperty("CONFIGS").split(",")) {
-            List<WorkResult> servRes = startServNodes(cfgStr, buildServResList);
+            if(cfgStr.length() < 10)
+                continue;
+
+            if(Boolean.valueOf(runProps.getProperty("RESTART_SERVERS")))
+                servRes = startServNodes(cfgStr, buildServResList);
 
             List<WorkResult> drvrRes = startDrvrNodes(cfgStr, buildDrvrResList);
 
+            waitForNodes(drvrRes);
 
-            try {
-                Thread.sleep(120_000L);
-            }
-            catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-
-
-            killNodes(servRes);
+            if(Boolean.valueOf(runProps.getProperty("RESTART_SERVERS")))
+                killNodes(servRes);
         }
+
+        if(!Boolean.valueOf(runProps.getProperty("RESTART_SERVERS")))
+            killNodes(servRes);
 
         return 0;
     }
@@ -128,6 +135,31 @@ public class FullRunner extends AbstractRunner {
             killWorker.killNode((NodeInfo)nodeInfo);
 
         return null;
+    }
+
+    private void waitForNodes(List<WorkResult> nodeInfoList){
+        boolean dead = true;
+
+        NodeChecker checker = new InDockerNodeChecker(runProps);
+
+        while(!dead) {
+            dead = true;
+
+            for (WorkResult nodeInfo : nodeInfoList) {
+                NodeCheckResult res = (NodeCheckResult)checker.checkNode((NodeInfo)nodeInfo);
+
+                if (res.getNodeStatus() == NodeStatus.ACTIVE) {
+                    dead = false;
+
+                    try {
+                        Thread.sleep(1000L);
+                    }
+                    catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
     }
 
 

@@ -24,15 +24,24 @@ IMAGE_NAME=$2
 
 IMAGE_VER=$3
 
+CURRENT_USER_NAME=$4
+
+# Define user.
+if [ "${CURRENT_USER_NAME}" == "" ]; then
+    CURRENT_USER_NAME=$(whoami)
+fi
+
 docker system prune -f
 
-docker rmi $(docker images | grep 'none\|yardstick' | awk '{print $3}')
+docker rmi $(docker images | grep 'none\|yardstickserver\|yardstickdriver' | awk '{print $3}')
 
 echo "PATH"
 
 echo $DOCKER_FILE_PATH
 
 rm ${SCRIPT_DIR}/../../Dockerfile
+
+echo "User = ${CURRENT_USER_NAME}"
 
 cp ${DOCKER_FILE_PATH} ${SCRIPT_DIR}/../../Dockerfile
 
@@ -47,4 +56,4 @@ echo "IMAGE VER"
 
 echo $IMAGE_VER
 
-docker build -t ${IMAGE_NAME}:${IMAGE_VER} --no-cache --build-arg COMMON_PATH=${SCRIPT_DIR}/../../ .
+docker build -t ${IMAGE_NAME}:${IMAGE_VER} --no-cache --build-arg USER_NAME=${CURRENT_USER_NAME} --build-arg COMMON_PATH=${SCRIPT_DIR}/../../ .

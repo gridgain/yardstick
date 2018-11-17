@@ -1,5 +1,7 @@
 package org.yardstickframework.runners;
 
+import javax.annotation.Nullable;
+
 public class NodeInfo implements WorkResult {
 
     private NodeType nodeType;
@@ -14,13 +16,17 @@ public class NodeInfo implements WorkResult {
 
     private String logPath;
 
+    private StartNodeWorkContext startCtx;
+
     private DockerInfo dockerInfo;
 
-    public NodeInfo(NodeType nodeType, String host, String port, String id, String startCmd, String logPath) {
+    public NodeInfo(NodeType nodeType, String host, @Nullable String port, String id, StartNodeWorkContext startCtx,
+        String startCmd, String logPath) {
         this.nodeType = nodeType;
         this.host = host;
         this.port = port;
         this.id = id;
+        this.startCtx = startCtx;
         this.startCmd = startCmd;
         this.logPath = logPath;
     }
@@ -55,6 +61,10 @@ public class NodeInfo implements WorkResult {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public StartNodeWorkContext getStartCtx() {
+        return startCtx;
     }
 
     public String getStartCmd() {

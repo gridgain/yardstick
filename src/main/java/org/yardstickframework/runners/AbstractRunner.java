@@ -208,4 +208,17 @@ public class AbstractRunner {
 
         return res;
     }
+
+    protected NodeStarter getNodeStarter(NodeInfo nodeInfo){
+        StartMode mode = nodeInfo.getStartCtx().getStartMode();
+
+        switch(mode) {
+            case PLAIN:
+                return new PlainNodeStarter(runProps);
+            case IN_DOCKER:
+                return new InDockerNodeStarter(runProps, nodeInfo.getStartCtx());
+            default:
+                throw new IllegalArgumentException(String.format("Unknown start mode: %s", mode.toString()));
+        }
+    }
 }
