@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.List;
 import java.util.Properties;
 import java.util.Random;
+import org.yardstickframework.BenchmarkUtils;
 
 public class InDockerNodeStarter extends AbstractRunner implements NodeStarter  {
     private StartNodeWorkContext workCtx;
@@ -43,12 +44,19 @@ public class InDockerNodeStarter extends AbstractRunner implements NodeStarter  
 
         contId = getContId(resList, docContName);
 
+        String nodeOutDir = String.format("%s/output", getMainDir());
+
+        String mkdirCmd = String.format("ssh -o StrictHostKeyChecking=no %s docker exec %s mkdir -p %s",
+            nodeInfo.getHost(), docContName, nodeOutDir);
+
+        runCmd(mkdirCmd);
+
         String cmd = String.format("ssh -o StrictHostKeyChecking=no %s docker exec %s %s",
             nodeInfo.getHost(),
             docContName,
             nodeInfo.getStartCmd());
 
-        System.out.println(cmd);
+        BenchmarkUtils.println("Running start node cmd: " + cmd);
 
         runCmd(cmd);
 
@@ -59,10 +67,10 @@ public class InDockerNodeStarter extends AbstractRunner implements NodeStarter  
 
     private String getContId(List<String> resList, String docContName){
         for (String str : resList){
-            System.out.println("String is " + str);
+//            System.out.println("String is " + str);
 
             if(str.contains(docContName)) {
-                System.out.println("Returning " + str.substring(0, str.indexOf(' ')));
+//                System.out.println("Returning " + str.substring(0, str.indexOf(' ')));
 
                 return str.substring(0, str.indexOf(' '));
 

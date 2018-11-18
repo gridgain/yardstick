@@ -41,9 +41,33 @@ public class StartServWorker extends StartNodeWorker {
             cnt,
             ip);
 
-        String startCmd = String.format("%s/bin/java -Dyardstick.server%d -cp :%s/libs/* %s -id %d %s --config %s " +
+        String jvmOptsStr = runProps.getProperty("JVM_OPTS") != null ?
+            runProps.getProperty("JVM_OPTS"):
+            "";
+
+        String nodeJvmOptsProp = String.format("%s_JVM_OPTS", "SERVER");
+
+        String nodeJvmOptsStr = runProps.getProperty(nodeJvmOptsProp) != null ?
+            runProps.getProperty(nodeJvmOptsProp):
+            "";
+
+        String concJvmOpts = jvmOptsStr + " " + nodeJvmOptsStr;
+
+        String gcJvmOpts = concJvmOpts.contains("PrintGC") ?
+            String.format(" -Xloggc:%s/gc-%s-server-id%d-%s-%s.log",
+                servLogDirFullName,
+                servStartTime,
+                cnt,
+                ip,
+                "desc"):
+            "";
+
+        String fullJvmOpts = (concJvmOpts + " " + gcJvmOpts).replace("\"", "");
+
+        String startCmd = String.format("%s/bin/java %s -Dyardstick.server%d -cp :%s/libs/* %s -id %d %s --config %s " +
             "--logsFolder %s --remoteuser %s --currentFolder %s --scriptsFolder %s/bin > %s 2>& 1 &",
             getRemJava(),
+            fullJvmOpts,
             cnt,
             getMainDir(),
             mainClass,

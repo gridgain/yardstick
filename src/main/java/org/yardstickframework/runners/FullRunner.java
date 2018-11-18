@@ -17,9 +17,13 @@ public class FullRunner extends AbstractRunner {
 //        for(String a : args)
 //            System.out.println(a);
 
+        if(args.length == 0)
+            args = new String[]{"/home/oostanin/gg/incubator-ignite/modules/yardstick/target/assembly/config/benchmark.properties",
+            "/home/oostanin/gg/incubator-ignite/modules/yardstick/target/assembly/bin"};
+
         FullRunner runner = new FullRunner(null);
 
-        String arg = args.length == 0 ? "/home/oostanin/yardstick/config/benchmark.properties" :
+        String arg = args.length == 0 ? "/home/oostanin/gg/incubator-ignite/modules/yardstick/target/assembly/config/benchmark.properties" :
             args[0];
 
         try {
@@ -64,19 +68,45 @@ public class FullRunner extends AbstractRunner {
 
         List<WorkResult> servRes = null;
 
-        if(!Boolean.valueOf(runProps.getProperty("RESTART_SERVERS")))
+        List<WorkResult> drvrRes = null;
+
+        if(!Boolean.valueOf(runProps.getProperty("RESTART_SERVERS"))) {
             servRes = startServNodes(cfgStr0, buildServResList);
+
+            System.out.println("Restart false");
+        }
 
         for (String cfgStr : runProps.getProperty("CONFIGS").split(",")) {
             if(cfgStr.length() < 10)
                 continue;
 
-            if(Boolean.valueOf(runProps.getProperty("RESTART_SERVERS")))
-                servRes = startServNodes(cfgStr, buildServResList);
+            if(Boolean.valueOf(runProps.getProperty("RESTART_SERVERS"))) {
+                servRes = startServNodes(cfgStr0, buildServResList);
 
-            List<WorkResult> drvrRes = startDrvrNodes(cfgStr, buildDrvrResList);
+                System.out.println("Restart true");
+            }
+
+            try {
+                Thread.sleep(5000L);
+            }
+            catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            drvrRes = startDrvrNodes(cfgStr, buildDrvrResList);
+
+            try {
+                Thread.sleep(5000L);
+            }
+            catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            BenchmarkUtils.println("Waiting for driver node");
 
             waitForNodes(drvrRes);
+
+            BenchmarkUtils.println("Driver node stopped");
 
             if(Boolean.valueOf(runProps.getProperty("RESTART_SERVERS")))
                 killNodes(servRes);
@@ -84,6 +114,10 @@ public class FullRunner extends AbstractRunner {
 
         if(!Boolean.valueOf(runProps.getProperty("RESTART_SERVERS")))
             killNodes(servRes);
+
+        collectResults(servRes);
+
+        collectResults(drvrRes);
 
         return 0;
     }
@@ -138,20 +172,22 @@ public class FullRunner extends AbstractRunner {
     }
 
     private void waitForNodes(List<WorkResult> nodeInfoList){
-        boolean dead = true;
+        boolean active = true;
 
         NodeChecker checker = new InDockerNodeChecker(runProps);
 
-        while(!dead) {
-            dead = true;
+        while(active) {
+            active = false;
 
             for (WorkResult nodeInfo : nodeInfoList) {
                 NodeCheckResult res = (NodeCheckResult)checker.checkNode((NodeInfo)nodeInfo);
 
                 if (res.getNodeStatus() == NodeStatus.ACTIVE) {
-                    dead = false;
+                    active = true;
 
                     try {
+//                        BenchmarkUtils.println("Waiting for driver node");
+
                         Thread.sleep(1000L);
                     }
                     catch (InterruptedException e) {
@@ -190,5 +226,41 @@ public class FullRunner extends AbstractRunner {
         Worker buildDocWorker = new BuildDockerWorker(runProps, docCtx);
 
         return buildDocWorker.workOnHosts();
+    }
+
+    private void collectResults(List<WorkResult> resList){
+        File outDir = new File(String.format("%s/output", getMainDir()));
+
+        if(!outDir.exists())
+            outDir.mkdirs();
+
+        for(WorkResult res : resList){
+            NodeInfo nodeInfo = (NodeInfo)res;
+
+            String nodeOutDir = String.format("%s/output", getMainDir());
+
+            String mkdirCmd = String.format("ssh -o StrictHostKeyChecking=no %s mkdir -p %s",
+                nodeInfo.getHost(), nodeOutDir);
+
+            runCmd(mkdirCmd);
+
+            if(nodeInfo.getDockerInfo() != null){
+                String contId = nodeInfo.getDockerInfo().getContId();
+
+                String cpFromDockerCmd = String.format("ssh -o StrictHostKeyChecking=no %s docker cp %s:%s/output %s",
+                    nodeInfo.getHost(), contId, getMainDir(), getMainDir());
+
+                BenchmarkUtils.println(String.format("Running cp from docker cmd: %s", cpFromDockerCmd));
+
+                runCmd(cpFromDockerCmd);
+            }
+
+            String collectCmd = String.format("scp -r -o StrictHostKeyChecking=no %s:%s/* %s",
+                nodeInfo.getHost(), nodeOutDir, outDir.getAbsolutePath());
+
+            BenchmarkUtils.println(String.format("Running cp from host cmd: %s", collectCmd));
+
+            runCmd(collectCmd);
+        }
     }
 }

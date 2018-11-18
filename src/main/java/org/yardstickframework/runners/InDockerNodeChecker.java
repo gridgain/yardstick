@@ -9,8 +9,9 @@ public class InDockerNodeChecker extends AbstractRunner implements NodeChecker {
     }
 
     @Override public WorkResult checkNode(NodeInfo nodeInfo) {
-        String checkCmd = String.format("ssh -o StrictHostKeyChecking=no %s pgrep -f \"Dyardstick.%s%s \"",
-            nodeInfo.getHost(), nodeInfo.getNodeType().toString().toLowerCase(), nodeInfo.getId());
+        String checkCmd = String.format("ssh -o StrictHostKeyChecking=no %s docker exec %s pgrep -f \"Dyardstick.%s%s \"",
+            nodeInfo.getHost(), nodeInfo.getDockerInfo().getContName(), nodeInfo.getNodeType().toString().toLowerCase(),
+            nodeInfo.getId());
 
         List<String> resList = runCmd(checkCmd);
 

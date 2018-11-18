@@ -108,7 +108,7 @@ public class AbstractRunner {
             while ((line = reader.readLine())!= null) {
                 res.add(line);
 
-//                if(line.contains("Successfully built "))
+                if(line.contains("Successfully built "))
                     System.out.println(line);
             }
         }

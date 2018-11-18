@@ -33,7 +33,7 @@ public class KillWorker extends Worker{
             String.format("ssh -o StrictHostKeyChecking=no %s %s",
                 nodeInfo.getHost(), actualKillCmd);
 
-        System.out.println(String.format("Runing kill cmd: %s", killCmd));
+        BenchmarkUtils.println(String.format("Running kill cmd: %s", killCmd));
 
         runCmd(killCmd);
 
