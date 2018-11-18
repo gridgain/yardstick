@@ -72,13 +72,23 @@ public class FullRunner extends AbstractRunner {
             StartMode.valueOf(runProps.getProperty("RUN_DRIVER_MODE")):
             StartMode.PLAIN;
 
-        if(servStartMode == StartMode.IN_DOCKER)
+        if(servStartMode == StartMode.IN_DOCKER) {
+            Worker cleanUpWorker = new CleanUpWorker(runProps, new CommonWorkContext(getServUniqList()));
+
+            cleanUpWorker.workOnHosts();
+
             buildServResList = buildDockerImages(NodeType.SERVER);
+        }
 
         List<WorkResult> buildDrvrResList = null;
 
-        if(drvrStartMode == StartMode.IN_DOCKER)
+        if(drvrStartMode == StartMode.IN_DOCKER) {
+            Worker cleanUpWorker = new CleanUpWorker(runProps, new CommonWorkContext(getDrvrUniqList()));
+
+            cleanUpWorker.workOnHosts();
+
             buildDrvrResList = buildDockerImages(NodeType.DRIVER);
+        }
 
         String cfgStr0 = runProps.getProperty("CONFIGS").split(",")[0];
 
@@ -134,6 +144,10 @@ public class FullRunner extends AbstractRunner {
         collectResults(servRes);
 
         collectResults(drvrRes);
+
+        Worker cleanUpWorker = new CleanUpWorker(runProps, new CommonWorkContext(getFullUniqList()));
+
+        cleanUpWorker.workOnHosts();
 
         return 0;
     }

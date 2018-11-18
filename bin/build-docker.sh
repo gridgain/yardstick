@@ -33,27 +33,29 @@ fi
 
 docker system prune -f
 
-docker rmi $(docker images | grep 'none\|yardstickserver\|yardstickdriver' | awk '{print $3}')
+#docker rmi $(docker images | grep 'none\|yardstickserver\|yardstickdriver' | awk '{print $3}')
 
-echo "PATH"
+#echo "PATH"
 
-echo $DOCKER_FILE_PATH
+#echo $DOCKER_FILE_PATH
 
-rm ${SCRIPT_DIR}/../../Dockerfile
+if [ -f ${SCRIPT_DIR}/../../Dockerfile ]; then
+    rm ${SCRIPT_DIR}/../../Dockerfile
+fi
 
-echo "User = ${CURRENT_USER_NAME}"
+#echo "User = ${CURRENT_USER_NAME}"
 
 cp ${DOCKER_FILE_PATH} ${SCRIPT_DIR}/../../Dockerfile
 
 cd ${SCRIPT_DIR}/../../
 
-echo "IMAGE NAME"
+#echo "IMAGE NAME"
 
-echo $IMAGE_NAME
+#echo $IMAGE_NAME
 
 
-echo "IMAGE VER"
+#echo "IMAGE VER"
 
-echo $IMAGE_VER
+#echo $IMAGE_VER
 
 docker build -t ${IMAGE_NAME}:${IMAGE_VER} --no-cache --build-arg USER_NAME=${CURRENT_USER_NAME} --build-arg COMMON_PATH=${SCRIPT_DIR}/../../ .
