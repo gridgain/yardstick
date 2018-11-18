@@ -26,6 +26,11 @@ public class StartDrvrWorker extends StartNodeWorker {
 
         StartNodeWorkContext startCtx = (StartNodeWorkContext)getWorkContext();
 
+        String javaHome = getRemJava();
+
+        if(startCtx.getDockerInfo() != null && startCtx.getDockerInfo().getJavaHome() != null)
+            javaHome = startCtx.getDockerInfo().getJavaHome();
+
         BenchmarkUtils.println(String.format("Starting driver node on the host %s with id %d", ip, cnt));
 
         String mkdirCmd = String.format("ssh -o StrictHostKeyChecking=no %s mkdir -p %s", ip, drvrLogDirFullName);
@@ -72,7 +77,7 @@ public class StartDrvrWorker extends StartNodeWorker {
 
         String startCmd = String.format("%s/bin/java %s -Dyardstick.driver%d -cp :%s/libs/* %s -id %d %s %s --config %s " +
             "--logsFolder %s --remoteuser %s --currentFolder %s --scriptsFolder %s/bin > %s 2>& 1 &",
-            getRemJava(),
+            javaHome,
             fullJvmOpts,
             cnt,
             getMainDir(),

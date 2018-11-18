@@ -75,7 +75,7 @@ public class AbstractRunner {
         return runProps.getProperty("MAIN_DATE_TIME");
     }
 
-    protected List<String> runCmd(String cmd){
+    protected List<String> runCmd(final String cmd){
 
         List<String> res = new ArrayList<>();
 
@@ -86,7 +86,7 @@ public class AbstractRunner {
 
         try {
             p = Runtime.getRuntime().exec(cmd);
-//            p.waitFor();
+            p.waitFor();
             BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
 
 
@@ -98,7 +98,7 @@ public class AbstractRunner {
                     BufferedReader errReader = new BufferedReader(new InputStreamReader(p.getErrorStream()));
 
                     while ((line = errReader.readLine())!= null)
-                        System.out.println(line);
+                        System.out.println(String.format("Command %s returned error line %s:", cmd, line));
 
                     return null;
                 }
@@ -110,7 +110,7 @@ public class AbstractRunner {
                 res.add(line);
 
                 if(line.contains("Successfully built "))
-                    System.out.println(line);
+                     BenchmarkUtils.println(line);
             }
         }
         catch (Exception e) {

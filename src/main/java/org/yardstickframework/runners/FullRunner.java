@@ -8,6 +8,9 @@ import org.yardstickframework.BenchmarkUtils;
 
 public class FullRunner extends AbstractRunner {
 
+    protected StartMode servStartMode;
+    protected StartMode drvrStartMode;
+
     public FullRunner(Properties runProps) {
         super(runProps);
     }
@@ -59,9 +62,23 @@ public class FullRunner extends AbstractRunner {
 
         deployWorker.workOnHosts();
 
-        List<WorkResult> buildServResList = buildDockerImages(NodeType.SERVER);
+        List<WorkResult> buildServResList = null;
 
-        List<WorkResult> buildDrvrResList = buildDockerImages(NodeType.DRIVER);
+        servStartMode = runProps.getProperty("RUN_SERVER_MODE") != null ?
+            StartMode.valueOf(runProps.getProperty("RUN_SERVER_MODE")):
+            StartMode.PLAIN;
+
+        drvrStartMode = runProps.getProperty("RUN_DRIVER_MODE") != null ?
+            StartMode.valueOf(runProps.getProperty("RUN_DRIVER_MODE")):
+            StartMode.PLAIN;
+
+        if(servStartMode == StartMode.IN_DOCKER)
+            buildServResList = buildDockerImages(NodeType.SERVER);
+
+        List<WorkResult> buildDrvrResList = null;
+
+        if(drvrStartMode == StartMode.IN_DOCKER)
+            buildDrvrResList = buildDockerImages(NodeType.DRIVER);
 
         String cfgStr0 = runProps.getProperty("CONFIGS").split(",")[0];
 
@@ -72,7 +89,7 @@ public class FullRunner extends AbstractRunner {
         if(!Boolean.valueOf(runProps.getProperty("RESTART_SERVERS"))) {
             servRes = startServNodes(cfgStr0, buildServResList);
 
-            System.out.println("Restart false");
+            BenchmarkUtils.println("RESTART_SERVERS=false");
         }
 
         for (String cfgStr : runProps.getProperty("CONFIGS").split(",")) {
@@ -82,7 +99,7 @@ public class FullRunner extends AbstractRunner {
             if(Boolean.valueOf(runProps.getProperty("RESTART_SERVERS"))) {
                 servRes = startServNodes(cfgStr0, buildServResList);
 
-                System.out.println("Restart true");
+                BenchmarkUtils.println("RESTART_SERVERS=true");
             }
 
             try {
@@ -124,10 +141,6 @@ public class FullRunner extends AbstractRunner {
     private List<WorkResult> startServNodes(String cfgStr, List<WorkResult> buildDocList) {
         String parsedCfgStr = parseCfgStr(cfgStr);
 
-        StartMode servStartMode = runProps.getProperty("SERVER_DOCKER_IMAGE_NAME") == null ?
-            StartMode.PLAIN :
-            StartMode.IN_DOCKER;
-
         StartNodeWorkContext nodeWorkCtx = new StartNodeWorkContext(getServList(), servStartMode, parsedCfgStr,
             getPropPath());
 
@@ -143,10 +156,6 @@ public class FullRunner extends AbstractRunner {
 
     private List<WorkResult> startDrvrNodes(String cfgStr, List<WorkResult> buildDocList) {
         String parsedCfgStr = parseCfgStr(cfgStr);
-
-        StartMode drvrStartMode = runProps.getProperty("DRIVER_DOCKER_IMAGE_NAME") == null ?
-            StartMode.PLAIN :
-            StartMode.IN_DOCKER;
 
         StartNodeWorkContext nodeWorkCtx = new StartNodeWorkContext(getDrvrList(), drvrStartMode, parsedCfgStr,
             getPropPath());

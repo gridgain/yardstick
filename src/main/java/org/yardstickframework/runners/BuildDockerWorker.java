@@ -36,7 +36,53 @@ public class BuildDockerWorker extends Worker{
 
         runCmd(buildDockerCmd);
 
-        return new BuildDockerResult(imageName, imageVer, ip, cnt);
+        String stopCmd = String.format("ssh -o StrictHostKeyChecking=no %s docker stop TO_CHECK_JAVA", ip);
+
+        runCmd(stopCmd);
+
+        String startToChek = String.format("ssh -o StrictHostKeyChecking=no %s docker run -d --name TO_CHECK_JAVA " +
+                "%s:%s sleep infinity",
+            ip,
+            imageName,
+            imageVer);
+
+
+        runCmd(startToChek);
+
+        String remJavaHome = getRemJava();
+
+        String testCmd = String.format("ssh -o StrictHostKeyChecking=no %s docker exec TO_CHECK_JAVA " +
+                "test -f %s/bin/java && echo java_found || echo not_found", ip, getRemJava());
+
+        List<String> res = runCmd(testCmd);
+
+        boolean foundJava = false;
+
+        for(String resp : res)
+            if(resp.endsWith("java_found"))
+                foundJava = true;
+
+        if(!foundJava) {
+            String getJavaHome = String.format("ssh -o StrictHostKeyChecking=no %s docker exec TO_CHECK_JAVA " +
+                "echo $JAVA_HOME", ip);
+
+            res = runCmd(getJavaHome);
+
+            if (!res.isEmpty() && !res.get(0).isEmpty()) {
+                if (!remJavaHome.equals(res.get(0))) {
+                    BenchmarkUtils.println(String.format("WARNING! Docker's JAVA_HOME %s in not equal defined JAVA_HOME" +
+                        " in property file %s.", res.get(0), remJavaHome));
+
+                    BenchmarkUtils.println(String.format("Will use for running nodes in docker JAVA_HOME=%s.", res.get(0)));
+
+                    remJavaHome = res.get(0);
+                }
+            }
+        }
+
+        runCmd(stopCmd);
+
+        return new BuildDockerResult(imageName, imageVer, remJavaHome, ip, cnt);
     }
 
     private List<String> getIdList(String ip){

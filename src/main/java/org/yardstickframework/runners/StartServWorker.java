@@ -26,6 +26,11 @@ public class StartServWorker extends StartNodeWorker {
 
         StartNodeWorkContext startCtx = (StartNodeWorkContext)getWorkContext();
 
+        String javaHome = getRemJava();
+
+        if(startCtx.getDockerInfo() != null && startCtx.getDockerInfo().getJavaHome() != null)
+            javaHome = startCtx.getDockerInfo().getJavaHome();
+
         BenchmarkUtils.println(String.format("Starting server node on the host %s with id %d", ip, cnt));
 
 //        System.out.println(String.format("full str = %s", getCfgFullStr()));
@@ -69,7 +74,7 @@ public class StartServWorker extends StartNodeWorker {
 
         String startCmd = String.format("%s/bin/java %s -Dyardstick.server%d -cp :%s/libs/* %s -id %d %s --config %s " +
             "--logsFolder %s --remoteuser %s --currentFolder %s --scriptsFolder %s/bin > %s 2>& 1 &",
-            getRemJava(),
+            javaHome,
             fullJvmOpts,
             cnt,
             getMainDir(),
