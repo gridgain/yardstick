@@ -149,6 +149,8 @@ public class FullRunner extends AbstractRunner {
 
         cleanUpWorker.workOnHosts();
 
+        createCharts();
+
         return 0;
     }
 
@@ -288,5 +290,33 @@ public class FullRunner extends AbstractRunner {
 
             runCmd(collectCmd);
         }
+    }
+
+    private void createCharts(){
+        String mainResDir = String.format("%s/result-%s", getMainDir(), getMainDateTime());
+
+        String createStdCmd = String.format("%s/jfreechart-graph-gen.sh -gm STANDARD -i %s >> /dev/null",
+                getMainDir(), mainResDir);
+
+        runCmd(createStdCmd);
+
+        String createCmd = String.format("%s/jfreechart-graph-gen.sh -i %s >> /dev/null",
+                getMainDir(), mainResDir);
+
+        runCmd(createCmd);
+
+        String mvCmd = String.format("mv %s/output/results-compound* %s",
+                getMainDir(), mainResDir);
+
+        runCmd(mvCmd);
+
+
+
+//        OUT_DIR=$(cd $results_folder/../; pwd)
+//        echo "<"$(date +"%H:%M:%S")"><yardstick> Creating charts"
+//                . ${SCRIPT_DIR}/jfreechart-graph-gen.sh -gm STANDARD -i $results_folder >> /dev/null
+//                . ${SCRIPT_DIR}/jfreechart-graph-gen.sh -i $results_folder >> /dev/null
+//        echo "<"$(date +"%H:%M:%S")"><yardstick> Moving chart directory to the ${MAIN_DIR}/output/results-${date_time} directory."
+//        mv $MAIN_DIR/output/results-compound* $MAIN_DIR/output/results-$date_time
     }
 }
