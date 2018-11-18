@@ -30,12 +30,17 @@ public class InDockerNodeStarter extends AbstractRunner implements NodeStarter  
         String contId = getContId(resList, docContName);
 
         if(contId.equals("Unknown")) {
+            BenchmarkUtils.println(String.format("No running container on the host %s for node %s-%s.",
+                nodeInfo.getHost(), nodeInfo.getNodeType(), nodeInfo.getId()));
+
             String sleepCmd = String.format("ssh -o StrictHostKeyChecking=no %s docker run -d --name %s " +
                     " --network host %s:%s sleep infinity",
                 nodeInfo.getHost(),
                 docContName,
                 docImageName,
                 docImageVer);
+
+            BenchmarkUtils.println("Running start docker cmd: " + sleepCmd);
 
             runCmd(sleepCmd);
         }
@@ -44,10 +49,10 @@ public class InDockerNodeStarter extends AbstractRunner implements NodeStarter  
 
         contId = getContId(resList, docContName);
 
-        String nodeOutDir = String.format("%s/output", getMainDir());
+        String nodeLogDir = new File(nodeInfo.getLogPath()).getParent();
 
         String mkdirCmd = String.format("ssh -o StrictHostKeyChecking=no %s docker exec %s mkdir -p %s",
-            nodeInfo.getHost(), docContName, nodeOutDir);
+            nodeInfo.getHost(), docContName, nodeLogDir);
 
         runCmd(mkdirCmd);
 
