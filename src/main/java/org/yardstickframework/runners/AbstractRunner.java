@@ -17,6 +17,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.yardstickframework.BenchmarkConfiguration;
+import org.yardstickframework.BenchmarkUtils;
 
 import static org.yardstickframework.BenchmarkUtils.jcommander;
 
@@ -210,7 +211,7 @@ public class AbstractRunner {
     }
 
     protected NodeStarter getNodeStarter(NodeInfo nodeInfo){
-        StartMode mode = nodeInfo.getStartCtx().getStartMode();
+        StartMode mode = getStartMode(nodeInfo);
 
         switch(mode) {
             case PLAIN:
@@ -220,5 +221,43 @@ public class AbstractRunner {
             default:
                 throw new IllegalArgumentException(String.format("Unknown start mode: %s", mode.toString()));
         }
+    }
+
+    protected NodeChecker getNodeChecker(NodeInfo nodeInfo){
+        StartMode mode = getStartMode(nodeInfo);
+
+        switch(mode) {
+            case PLAIN:
+                return new PlainNodeChecker(runProps);
+            case IN_DOCKER:
+                return new InDockerNodeChecker(runProps, nodeInfo.getStartCtx());
+            default:
+                throw new IllegalArgumentException(String.format("Unknown start mode: %s", mode.toString()));
+        }
+
+    }
+
+    private StartMode getStartMode(NodeInfo nodeInfo){
+        return nodeInfo.getStartCtx().getStartMode();
+    }
+
+    protected String getDescription(String src){
+        String[] argArr = src.split(" ");
+
+        String res = "Unknown";
+
+        for(int i = 0; i < argArr.length; i++){
+            if(argArr[i].equals("-ds") || argArr[i].equals("--descriptions")){
+                if(argArr.length < i + 2){
+                    BenchmarkUtils.println("Failed to get description");
+
+                    return res;
+                }
+                else
+                    res = argArr[i+1];
+            }
+        }
+
+        return res;
     }
 }

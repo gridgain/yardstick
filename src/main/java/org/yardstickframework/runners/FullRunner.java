@@ -2,7 +2,6 @@ package org.yardstickframework.runners;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
 import org.yardstickframework.BenchmarkUtils;
@@ -174,7 +173,13 @@ public class FullRunner extends AbstractRunner {
     private void waitForNodes(List<WorkResult> nodeInfoList){
         boolean active = true;
 
-        NodeChecker checker = new InDockerNodeChecker(runProps);
+        if(nodeInfoList.isEmpty()){
+            BenchmarkUtils.println("List of nodes to wait is empty.");
+
+            return;
+        }
+
+        NodeChecker checker = getNodeChecker((NodeInfo)nodeInfoList.get(0));
 
         while(active) {
             active = false;
@@ -186,8 +191,6 @@ public class FullRunner extends AbstractRunner {
                     active = true;
 
                     try {
-//                        BenchmarkUtils.println("Waiting for driver node");
-
                         Thread.sleep(1000L);
                     }
                     catch (InterruptedException e) {

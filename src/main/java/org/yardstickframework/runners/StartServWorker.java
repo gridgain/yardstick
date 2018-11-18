@@ -35,11 +35,14 @@ public class StartServWorker extends StartNodeWorker {
 
         runCmd(mkdirCmd);
 
-        String logFileName = String.format("%s/%s-id%d-%s.log",
+        String descr = getDescription(startCtx.getFullCfgStr());
+
+        String logFileName = String.format("%s/%s-id%d-%s-%s.log",
             servLogDirFullName,
             servStartTime,
             cnt,
-            ip);
+            ip,
+            descr);
 
         String jvmOptsStr = runProps.getProperty("JVM_OPTS") != null ?
             runProps.getProperty("JVM_OPTS"):
@@ -59,7 +62,7 @@ public class StartServWorker extends StartNodeWorker {
                 servStartTime,
                 cnt,
                 ip,
-                "desc"):
+                descr):
             "";
 
         String fullJvmOpts = (concJvmOpts + " " + gcJvmOpts).replace("\"", "");

@@ -26,23 +26,22 @@ public class StartDrvrWorker extends StartNodeWorker {
 
         StartNodeWorkContext startCtx = (StartNodeWorkContext)getWorkContext();
 
-
         BenchmarkUtils.println(String.format("Starting driver node on the host %s with id %d", ip, cnt));
-
-//        System.out.println(String.format("full str = %s", getCfgFullStr()));
-//        System.out.println(String.format("prop path = %s", getPropPath()));
 
         String mkdirCmd = String.format("ssh -o StrictHostKeyChecking=no %s mkdir -p %s", ip, drvrLogDirFullName);
 
         runCmd(mkdirCmd);
 
-        String logFileName = String.format("%s/%s-id%d-%s.log",
+        String descr = getDescription(startCtx.getFullCfgStr());
+
+        String logFileName = String.format("%s/%s-id%d-%s-%s.log",
             drvrLogDirFullName,
             drvrStartTime,
             cnt,
-            ip);
+            ip,
+            descr);
 
-        String drvrResDir = String.format("%s/output/result-%s", getMainDir(), drvrStartTime);
+        String drvrResDir = String.format("%s/output/result-%s", getMainDir(), getMainDateTime());
 
         String outputFolderParam = getWorkContext().getHostList().size() > 1 ?
             String.format("--outputFolder %s/%d-%s", drvrResDir, cnt, ip) :
@@ -66,7 +65,7 @@ public class StartDrvrWorker extends StartNodeWorker {
                 drvrStartTime,
                 cnt,
                 ip,
-                "desc"):
+                descr):
             "";
 
         String fullJvmOpts = (concJvmOpts + " " + gcJvmOpts).replace("\"", "");

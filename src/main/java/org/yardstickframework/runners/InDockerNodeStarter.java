@@ -15,8 +15,6 @@ public class InDockerNodeStarter extends AbstractRunner implements NodeStarter  
     }
 
     @Override public NodeInfo startNode(NodeInfo nodeInfo) {
-
-
         String docImageName = workCtx.getDockerInfo().getImageName();
 
         String docImageVer = workCtx.getDockerInfo().getImageVer();
