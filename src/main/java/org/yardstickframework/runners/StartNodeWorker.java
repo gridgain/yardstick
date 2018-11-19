@@ -44,4 +44,8 @@ public abstract class StartNodeWorker extends Worker {
 
         baseLogDirFullName = String.format("%s/output/%s", getMainDir(), logDirName);
     }
+
+    @Override public String getWorkerName() {
+        return getClass().getSimpleName();
+    }
 }

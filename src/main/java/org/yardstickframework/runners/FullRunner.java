@@ -109,7 +109,7 @@ public class FullRunner extends AbstractRunner {
             if(Boolean.valueOf(runProps.getProperty("RESTART_SERVERS"))) {
                 servRes = startServNodes(cfgStr0, buildServResList);
 
-                BenchmarkUtils.println("RESTART_SERVERS=true");
+//                BenchmarkUtils.println("RESTART_SERVERS=true");
             }
 
             try {
@@ -145,9 +145,12 @@ public class FullRunner extends AbstractRunner {
 
         collectResults(drvrRes);
 
-        Worker cleanUpWorker = new CleanUpWorker(runProps, new CommonWorkContext(getFullUniqList()));
+        if(servStartMode == StartMode.IN_DOCKER || drvrStartMode == StartMode.IN_DOCKER) {
 
-        cleanUpWorker.workOnHosts();
+            Worker cleanUpWorker = new CleanUpWorker(runProps, new CommonWorkContext(getFullUniqList()));
+
+            cleanUpWorker.workOnHosts();
+        }
 
         createCharts();
 
@@ -295,12 +298,12 @@ public class FullRunner extends AbstractRunner {
     private void createCharts(){
         String mainResDir = String.format("%s/result-%s", getMainDir(), getMainDateTime());
 
-        String createStdCmd = String.format("%s/jfreechart-graph-gen.sh -gm STANDARD -i %s >> /dev/null",
+        String createStdCmd = String.format("%s/bin/jfreechart-graph-gen.sh -gm STANDARD -i %s",
                 getMainDir(), mainResDir);
 
         runCmd(createStdCmd);
 
-        String createCmd = String.format("%s/jfreechart-graph-gen.sh -i %s >> /dev/null",
+        String createCmd = String.format("%s/bin/jfreechart-graph-gen.sh -i %s",
                 getMainDir(), mainResDir);
 
         runCmd(createCmd);

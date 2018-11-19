@@ -35,4 +35,8 @@ public class DeployWorker extends Worker{
         return null;
 
     }
+
+    @Override public String getWorkerName() {
+        return getClass().getSimpleName();
+    }
 }

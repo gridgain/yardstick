@@ -31,6 +31,8 @@ public class BuildDockerWorker extends Worker{
             runCmd(stopCmd);
         }
 
+        BenchmarkUtils.println(String.format("Building docker image %s:%s on the host %s", imageName, imageVer, ip));
+
         String buildDockerCmd = String.format("ssh -o StrictHostKeyChecking=no %s %s/bin/build-docker.sh %s %s %s",
             ip, getMainDir(), path, imageName, imageVer);
 
@@ -100,5 +102,9 @@ public class BuildDockerWorker extends Worker{
                 res.add(response.split(" ")[0]);
 
         return res;
+    }
+
+    @Override public String getWorkerName() {
+        return getClass().getSimpleName();
     }
 }

@@ -98,7 +98,7 @@ public class AbstractRunner {
                     BufferedReader errReader = new BufferedReader(new InputStreamReader(p.getErrorStream()));
 
                     while ((line = errReader.readLine())!= null)
-                        System.out.println(String.format("Command %s returned error line %s:", cmd, line));
+                        System.out.println(String.format("Command '%s' returned error line: %s:", cmd, line));
 
                     return null;
                 }

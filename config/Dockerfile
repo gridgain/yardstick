@@ -31,16 +31,12 @@ RUN apk --update add \
     fontconfig \
     && rm -rfv /var/cache/apk/*
 
-ENV USER $USER_NAME
-
-RUN useradd -m -d /home/${USER} ${USER} && chown -R ${USER} /home/${USER}
-
 # Set Product name
 
 ENV PRODUCT /assembly
 
 COPY assembly $COMMON_PATH/assembly
 
-WORKDIR $COMMON_PATH
+WORKDIR /
 
 # ENTRYPOINT ["bin/benchmark-run-all.sh"]

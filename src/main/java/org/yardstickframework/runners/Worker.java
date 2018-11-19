@@ -27,6 +27,8 @@ public abstract class Worker extends AbstractRunner{
 
     public abstract WorkResult doWork(String ip, int cnt);
 
+    public abstract String getWorkerName();
+
     public WorkContext getWorkContext(){
         return workContext;
     }
@@ -58,7 +60,8 @@ public abstract class Worker extends AbstractRunner{
 
             futList.add(execServ.submit(new Callable<WorkResult>() {
                 @Override public WorkResult call() throws Exception {
-                    Thread.currentThread().setName(String.format("Worker-%s", hostList.get(cntrF)));
+                    Thread.currentThread().setName(String.format("%s-%s",
+                        getWorkerName(), hostList.get(cntrF)));
 
                     return doWork(hostList.get(cntrF), cntrF);
                 }

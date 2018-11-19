@@ -39,4 +39,8 @@ public class KillWorker extends Worker{
 
         return nodeInfo;
     }
+
+    @Override public String getWorkerName() {
+        return getClass().getSimpleName();
+    }
 }
