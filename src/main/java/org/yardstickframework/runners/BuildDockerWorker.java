@@ -51,7 +51,18 @@ public class BuildDockerWorker extends Worker{
 //
 //        runCmd(startToChek);
 
-        String remJavaHome = getRemJava();
+        String dockerJavaHome;
+
+        if (getDockerJava() != null)
+            dockerJavaHome = getDockerJava();
+        else {
+            BenchmarkUtils.println("DOCKER_JAVA_HOME is not defined in property file.");
+            BenchmarkUtils.println(String.format("Will use %s/bin/java to run nodes in docker.", getRemJava()));
+
+            dockerJavaHome = getRemJava();
+        }
+
+
 
 //        String testCmd = String.format("ssh -o StrictHostKeyChecking=no %s docker exec TO_CHECK_JAVA " +
 //                "test -f %s/bin/java && echo java_found || echo not_found", ip, getRemJava());
@@ -84,7 +95,7 @@ public class BuildDockerWorker extends Worker{
 //
 //        runCmd(stopCmd);
 
-        return new BuildDockerResult(imageName, imageVer, remJavaHome, ip, cnt);
+        return new BuildDockerResult(imageName, imageVer, dockerJavaHome, ip, cnt);
     }
 
     private List<String> getIdList(String ip){

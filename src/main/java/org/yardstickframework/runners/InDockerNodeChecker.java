@@ -16,8 +16,8 @@ public class InDockerNodeChecker extends AbstractRunner implements NodeChecker {
         List<String> resList = runCmd(checkCmd);
 
         if(!resList.isEmpty())
-            return new NodeCheckResult(NodeStatus.ACTIVE);
+            return new NodeCheckResult(NodeStatus.RUNNING);
         else
-            return new NodeCheckResult(NodeStatus.NOT_EXIST);
+            return new NodeCheckResult(NodeStatus.NOT_RUNNING);
     }
 }

@@ -121,18 +121,17 @@ public class FullRunner extends AbstractRunner {
 
             drvrRes = startDrvrNodes(cfgStr, buildDrvrResList);
 
-            try {
-                Thread.sleep(5000L);
-            }
-            catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            BenchmarkUtils.println("Waiting for driver nodes to start.");
 
-            BenchmarkUtils.println("Waiting for driver node");
+            waitForNodes(drvrRes, NodeStatus.RUNNING);
 
-            waitForNodes(drvrRes);
+            BenchmarkUtils.println("Driver nodes started.");
 
-            BenchmarkUtils.println("Driver node stopped");
+            BenchmarkUtils.println("Waiting for driver nodes to stop.");
+
+            waitForNodes(drvrRes, NodeStatus.NOT_RUNNING);
+
+            BenchmarkUtils.println("Driver node stopped.");
 
             if(Boolean.valueOf(runProps.getProperty("RESTART_SERVERS")))
                 killNodes(servRes);
@@ -152,7 +151,7 @@ public class FullRunner extends AbstractRunner {
             cleanUpWorker.workOnHosts();
         }
 
-        createCharts();
+//        createCharts();
 
         return 0;
     }
@@ -198,8 +197,8 @@ public class FullRunner extends AbstractRunner {
         return null;
     }
 
-    private void waitForNodes(List<WorkResult> nodeInfoList){
-        boolean active = true;
+    private void waitForNodes(List<WorkResult> nodeInfoList, NodeStatus expectedStatus){
+        boolean unexpected = true;
 
         if(nodeInfoList.isEmpty()){
             BenchmarkUtils.println("List of nodes to wait is empty.");
@@ -209,14 +208,14 @@ public class FullRunner extends AbstractRunner {
 
         NodeChecker checker = getNodeChecker((NodeInfo)nodeInfoList.get(0));
 
-        while(active) {
-            active = false;
+        while(unexpected) {
+            unexpected = false;
 
             for (WorkResult nodeInfo : nodeInfoList) {
                 NodeCheckResult res = (NodeCheckResult)checker.checkNode((NodeInfo)nodeInfo);
 
-                if (res.getNodeStatus() == NodeStatus.ACTIVE) {
-                    active = true;
+                if (res.getNodeStatus() != expectedStatus) {
+                    unexpected = true;
 
                     try {
                         Thread.sleep(1000L);

@@ -65,10 +65,18 @@ public class AbstractRunner {
     }
 
     protected String getRemJava(){
-        if(runProps.getProperty("JAVA_HOME") == null)
+        if(runProps.getProperty("JAVA_HOME") == null) {
+            BenchmarkUtils.println("JAVA_HOME is not defined in property file.");
+            BenchmarkUtils.println(String.format("Will use %s/bin/java to run nodes.", System.getProperty("java.home")));
+
             runProps.setProperty("JAVA_HOME", System.getProperty("java.home"));
+        }
 
         return runProps.getProperty("JAVA_HOME");
+    }
+
+    protected String getDockerJava(){
+        return runProps.getProperty("DOCKER_JAVA_HOME");
     }
 
     protected String getMainDateTime(){

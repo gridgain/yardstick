@@ -1,8 +1,8 @@
 package org.yardstickframework.runners;
 
 public enum NodeStatus {
-    ACTIVE("ACTIVE"),
-    NOT_EXIST("NOT_EXIST")
+    RUNNING("RUNNING"),
+    NOT_RUNNING("NOT_RUNNING")
     ;
 
     private final String text;
