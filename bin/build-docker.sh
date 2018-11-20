@@ -33,7 +33,12 @@ fi
 
 docker system prune -f
 
-#docker rmi $(docker images | grep 'none\|yardstickserver\|yardstickdriver' | awk '{print $3}')
+IMAGES=$(docker images | grep 'none\|yardstickserver\|yardstickdriver' | awk '{print $3}')
+
+if [ "${IMAGES}" == "" ]; then
+    docker rmi $(docker images | grep 'none\|yardstickserver\|yardstickdriver' | awk '{print $3}')
+fi
+
 
 #echo "PATH"
 

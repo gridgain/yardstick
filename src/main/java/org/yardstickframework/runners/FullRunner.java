@@ -131,7 +131,7 @@ public class FullRunner extends AbstractRunner {
 
             waitForNodes(drvrRes, NodeStatus.NOT_RUNNING);
 
-            BenchmarkUtils.println("Driver node stopped.");
+            BenchmarkUtils.println("Driver nodes stopped.");
 
             if(Boolean.valueOf(runProps.getProperty("RESTART_SERVERS")))
                 killNodes(servRes);
@@ -151,7 +151,7 @@ public class FullRunner extends AbstractRunner {
             cleanUpWorker.workOnHosts();
         }
 
-//        createCharts();
+        createCharts();
 
         return 0;
     }
@@ -295,24 +295,35 @@ public class FullRunner extends AbstractRunner {
     }
 
     private void createCharts(){
-        String mainResDir = String.format("%s/result-%s", getMainDir(), getMainDateTime());
+        String mainResDir = String.format("%s/output/result-%s", getMainDir(), getMainDateTime());
 
-        String createStdCmd = String.format("%s/bin/jfreechart-graph-gen.sh -gm STANDARD -i %s",
-                getMainDir(), mainResDir);
+        String createStdCmd = String.format("/bin/bash %s/bin/jfreechart-graph-gen.sh -gm STANDARD -i %s",
+            getMainDir(), mainResDir);
 
         runCmd(createStdCmd);
 
-        String createCmd = String.format("%s/bin/jfreechart-graph-gen.sh -i %s",
-                getMainDir(), mainResDir);
+
+        String createCmd = String.format("/bin/bash %s/bin/jfreechart-graph-gen.sh -i %s",
+            getMainDir(), mainResDir);
 
         runCmd(createCmd);
 
-        String mvCmd = String.format("mv %s/output/results-compound* %s",
-                getMainDir(), mainResDir);
+        File outDir = new File(mainResDir).getParentFile();
 
-        runCmd(mvCmd);
+        if(outDir.exists() && outDir.isDirectory()) {
+            File[] arr = outDir.listFiles();
+
+            for(File resComp : arr){
+                if(resComp.getName().startsWith("results-compound")){
+                    String mvCmd = String.format("mv %s %s",
+                        resComp.getAbsolutePath(), mainResDir);
+
+                    runCmd(mvCmd);
+                }
+            }
 
 
+        }
 
 //        OUT_DIR=$(cd $results_folder/../; pwd)
 //        echo "<"$(date +"%H:%M:%S")"><yardstick> Creating charts"

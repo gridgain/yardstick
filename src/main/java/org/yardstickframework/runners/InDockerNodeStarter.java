@@ -34,14 +34,14 @@ public class InDockerNodeStarter extends AbstractRunner implements NodeStarter  
             BenchmarkUtils.println(String.format("Starting docker container on the host %s for node %s-%s.",
                 nodeInfo.getHost(), nodeInfo.getNodeType(), nodeInfo.getId()));
 
-            String sleepCmd = String.format("ssh -o StrictHostKeyChecking=no %s docker run -d --name %s " +
+            String sleepCmd = String.format("ssh -o StrictHostKeyChecking=no %s docker run %s -d --name %s " +
                     " --network host %s:%s sleep 365d",
                 nodeInfo.getHost(),
                 docContName,
                 docImageName,
                 docImageVer);
 
-            BenchmarkUtils.println("Running start docker cmd: " + sleepCmd);
+//            BenchmarkUtils.println("Running start docker cmd: " + sleepCmd);
 
             runCmd(sleepCmd);
         }
