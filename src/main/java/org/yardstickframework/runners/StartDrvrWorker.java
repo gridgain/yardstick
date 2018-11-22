@@ -1,7 +1,5 @@
 package org.yardstickframework.runners;
 
-import java.util.List;
-import java.util.Properties;
 import org.yardstickframework.BenchmarkUtils;
 
 public class StartDrvrWorker extends StartNodeWorker {
@@ -10,9 +8,8 @@ public class StartDrvrWorker extends StartNodeWorker {
 
     private String mainClass = "org.yardstickframework.BenchmarkDriverStartUp";
 
-
-    public StartDrvrWorker(Properties runProps, WorkContext workContext) {
-        super(runProps, workContext);
+    public StartDrvrWorker(RunContext runCtx, StartNodeWorkContext workCtx) {
+        super(runCtx, workCtx);
     }
 
     @Override public void beforeWork() {
@@ -24,9 +21,9 @@ public class StartDrvrWorker extends StartNodeWorker {
     @Override public WorkResult doWork(String ip, int cnt) {
         final String drvrStartTime = BenchmarkUtils.dateTime();
 
-        StartNodeWorkContext startCtx = (StartNodeWorkContext)getWorkContext();
+        StartNodeWorkContext startCtx = (StartNodeWorkContext)getWorkCtx();
 
-        String javaHome = getRemJava();
+        String javaHome = runCtx.getRemJavaHome();
 
         if(startCtx.getDockerInfo() != null && startCtx.getDockerInfo().getJavaHome() != null)
             javaHome = startCtx.getDockerInfo().getJavaHome();
@@ -37,7 +34,8 @@ public class StartDrvrWorker extends StartNodeWorker {
 
         runCmd(mkdirCmd);
 
-        String descr = getDescription(startCtx.getFullCfgStr());
+//        String descr = getDescription(startCtx.getFullCfgStr());
+        String descr = "TO_DO";
 
         String logFileName = String.format("%s/%s-id%d-%s-%s.log",
             drvrLogDirFullName,
@@ -46,20 +44,20 @@ public class StartDrvrWorker extends StartNodeWorker {
             ip,
             descr);
 
-        String drvrResDir = String.format("%s/output/result-%s", getMainDir(), getMainDateTime());
+        String drvrResDir = String.format("%s/output/result-%s", runCtx.getRemWorkDir(), runCtx.getMainDateTime());
 
-        String outputFolderParam = getWorkContext().getHostList().size() > 1 ?
+        String outputFolderParam = getWorkCtx().getHostList().size() > 1 ?
             String.format("--outputFolder %s/%d-%s", drvrResDir, cnt, ip) :
             String.format("--outputFolder %s", drvrResDir);
 
-        String jvmOptsStr = runProps.getProperty("JVM_OPTS") != null ?
-            runProps.getProperty("JVM_OPTS"):
+        String jvmOptsStr = runCtx.getProps().getProperty("JVM_OPTS") != null ?
+            runCtx.getProps().getProperty("JVM_OPTS"):
             "";
 
         String nodeJvmOptsProp = String.format("%s_JVM_OPTS", "DRIVER");
 
-        String nodeJvmOptsStr = runProps.getProperty(nodeJvmOptsProp) != null ?
-            runProps.getProperty(nodeJvmOptsProp):
+        String nodeJvmOptsStr = runCtx.getProps().getProperty(nodeJvmOptsProp) != null ?
+            runCtx.getProps().getProperty(nodeJvmOptsProp):
             "";
 
         String concJvmOpts = jvmOptsStr + " " + nodeJvmOptsStr;
@@ -80,22 +78,22 @@ public class StartDrvrWorker extends StartNodeWorker {
             javaHome,
             fullJvmOpts,
             cnt,
-            getMainDir(),
+            runCtx.getRemWorkDir(),
             mainClass,
             cnt,
             outputFolderParam,
             startCtx.getFullCfgStr(),
-            startCtx.getPropPath(),
+            runCtx.getPropPath(),
             drvrLogDirFullName,
-            getRemUser(),
-            getMainDir(),
-            getMainDir(),
+            runCtx.getRemUser(),
+            runCtx.getRemWorkDir(),
+            runCtx.getRemWorkDir(),
             logFileName);
 
         NodeInfo nodeInfo = new NodeInfo(NodeType.DRIVER, ip, null, String.valueOf(cnt),
             startCtx, startCmd, logFileName );
 
-        NodeStarter starter = getNodeStarter(nodeInfo);
+        NodeStarter starter = runCtx.getNodeStarter(nodeInfo);
 
         return starter.startNode(nodeInfo);
     }

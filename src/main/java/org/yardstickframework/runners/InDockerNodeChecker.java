@@ -4,8 +4,8 @@ import java.util.List;
 import java.util.Properties;
 
 public class InDockerNodeChecker extends AbstractRunner implements NodeChecker {
-    public InDockerNodeChecker(Properties runProps, StartNodeWorkContext ctx) {
-        super(runProps);
+    public InDockerNodeChecker(RunContext runCtx, StartNodeWorkContext ctx) {
+        super(runCtx);
     }
 
     @Override public WorkResult checkNode(NodeInfo nodeInfo) {

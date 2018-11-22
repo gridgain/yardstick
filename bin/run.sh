@@ -95,4 +95,4 @@ fi
 
 export JAVA
 
-"$JAVA" ${JVM_OPTS} -cp ${CP} org.yardstickframework.runners.FullRunner ${ARGS} $SCRIPT_DIR
+"$JAVA" ${JVM_OPTS} -cp ${CP} org.yardstickframework.runners.FullRunner $SCRIPT_DIR ${ARGS}

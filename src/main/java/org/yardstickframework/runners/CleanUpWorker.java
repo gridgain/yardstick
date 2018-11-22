@@ -7,8 +7,8 @@ import java.util.Properties;
 
 public class CleanUpWorker extends Worker{
 
-    public CleanUpWorker(Properties runProps, WorkContext workCtx) {
-        super(runProps, workCtx);
+    public CleanUpWorker(RunContext runCtx, WorkContext workCtx) {
+        super(runCtx, workCtx);
     }
 
     @Override public WorkResult doWork(String ip, int cnt) {

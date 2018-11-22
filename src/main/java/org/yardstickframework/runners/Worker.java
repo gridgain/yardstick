@@ -3,34 +3,28 @@ package org.yardstickframework.runners;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Properties;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-import javax.annotation.Nullable;
 import org.yardstickframework.BenchmarkUtils;
 
-import static org.yardstickframework.BenchmarkUtils.dateTime;
-
 public abstract class Worker extends AbstractRunner{
-    private WorkContext workContext;
+    protected WorkContext workCtx;
 
     /** */
-    public Worker(Properties runProps, WorkContext workContext) {
-        super(runProps);
-
-        this.workContext = workContext;
+    public Worker(RunContext runCtx, WorkContext workCtx) {
+        super(runCtx);
+        this.workCtx = workCtx;
     }
 
     public abstract WorkResult doWork(String ip, int cnt);
 
     public abstract String getWorkerName();
 
-    public WorkContext getWorkContext(){
-        return workContext;
+    public WorkContext getWorkCtx(){
+        return workCtx;
     }
 
     /**
@@ -47,7 +41,7 @@ public abstract class Worker extends AbstractRunner{
     protected List<WorkResult> workOnHosts() {
         beforeWork();
 
-        final List<String> hostList = workContext.getHostList();
+        final List<String> hostList = workCtx.getHostList();
 
         List<WorkResult> res = new ArrayList<>(hostList.size());
 

@@ -2,17 +2,15 @@ package org.yardstickframework.runners;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 import org.yardstickframework.BenchmarkUtils;
 
 public class BuildDockerWorker extends Worker{
 
-    public BuildDockerWorker(Properties runProps, WorkContext workCtx) {
-        super(runProps, workCtx);
+    public BuildDockerWorker(RunContext runCtx, WorkContext workCtx) {
+        super(runCtx, workCtx);
     }
-
     @Override public WorkResult doWork(String ip, int cnt) {
-        BuildDockerWorkContext ctx = (BuildDockerWorkContext)getWorkContext();
+        BuildDockerWorkContext ctx = (BuildDockerWorkContext)getWorkCtx();
 
         String path = ctx.getDockerFilePath();
 
@@ -34,7 +32,7 @@ public class BuildDockerWorker extends Worker{
         BenchmarkUtils.println(String.format("Building docker image %s:%s on the host %s", imageName, imageVer, ip));
 
         String buildDockerCmd = String.format("ssh -o StrictHostKeyChecking=no %s %s/bin/build-docker.sh %s %s %s",
-            ip, getMainDir(), path, imageName, imageVer);
+            ip, runCtx.getRemWorkDir(), path, imageName, imageVer);
 
         runCmd(buildDockerCmd);
 
@@ -52,17 +50,6 @@ public class BuildDockerWorker extends Worker{
 //        runCmd(startToChek);
 
         String dockerJavaHome;
-
-        if (getDockerJava() != null)
-            dockerJavaHome = getDockerJava();
-        else {
-            BenchmarkUtils.println("DOCKER_JAVA_HOME is not defined in property file.");
-            BenchmarkUtils.println(String.format("Will use %s/bin/java to run nodes in docker.", getRemJava()));
-
-            dockerJavaHome = getRemJava();
-        }
-
-
 
 //        String testCmd = String.format("ssh -o StrictHostKeyChecking=no %s docker exec TO_CHECK_JAVA " +
 //                "test -f %s/bin/java && echo java_found || echo not_found", ip, getRemJava());
@@ -95,7 +82,7 @@ public class BuildDockerWorker extends Worker{
 //
 //        runCmd(stopCmd);
 
-        return new BuildDockerResult(imageName, imageVer, dockerJavaHome, ip, cnt);
+        return new BuildDockerResult(imageName, imageVer, runCtx.getRemJavaHome(), ip, cnt);
     }
 
     private List<String> getIdList(String ip){

@@ -25,8 +25,8 @@ public abstract class StartNodeWorker extends Worker {
     private BenchmarkConfiguration iterCfg;
 
 
-    public StartNodeWorker(Properties runProps, WorkContext workCtx) {
-        super(runProps, workCtx);
+    public StartNodeWorker(RunContext runCtx, WorkContext workCtx) {
+        super(runCtx, workCtx);
     }
 
     public String getCfgFullStr() {
@@ -36,13 +36,13 @@ public abstract class StartNodeWorker extends Worker {
     @Override public void beforeWork() {
         super.beforeWork();
 
-        dateTime = runProps.getProperty("MAIN_DATE_TIME");
+        dateTime = runCtx.getMainDateTime();
 
         resDirName = String.format("results-%s", dateTime);
 
         logDirName = String.format("logs-%s", dateTime);
 
-        baseLogDirFullName = String.format("%s/output/%s", getMainDir(), logDirName);
+        baseLogDirFullName = String.format("%s/output/%s", runCtx.getRemWorkDir(), logDirName);
     }
 
     @Override public String getWorkerName() {

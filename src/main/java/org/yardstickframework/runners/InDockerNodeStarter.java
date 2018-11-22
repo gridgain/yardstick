@@ -9,8 +9,8 @@ import org.yardstickframework.BenchmarkUtils;
 public class InDockerNodeStarter extends AbstractRunner implements NodeStarter  {
     private StartNodeWorkContext workCtx;
 
-    public InDockerNodeStarter(Properties runProps, StartNodeWorkContext workCtx) {
-        super(runProps);
+    public InDockerNodeStarter(RunContext runCtx, StartNodeWorkContext workCtx) {
+        super(runCtx);
         this.workCtx = workCtx;
     }
 
@@ -63,7 +63,7 @@ public class InDockerNodeStarter extends AbstractRunner implements NodeStarter  
             nodeInfo.getStartCmd());
 
 //        BenchmarkUtils.println("Running start node cmd: " + cmd);
-        BenchmarkUtils.println("Running start node cmd: " + cmd.replaceAll(getMainDir(), "<MAIN_DIR>"));
+        BenchmarkUtils.println("Running start node cmd: " + cmd.replaceAll(runCtx.getRemWorkDir(), "<MAIN_DIR>"));
 
         runCmd(cmd);
 

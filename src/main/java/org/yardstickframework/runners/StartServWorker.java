@@ -1,7 +1,5 @@
 package org.yardstickframework.runners;
 
-import java.util.List;
-import java.util.Properties;
 import org.yardstickframework.BenchmarkUtils;
 
 public class StartServWorker extends StartNodeWorker {
@@ -10,9 +8,8 @@ public class StartServWorker extends StartNodeWorker {
 
     private String mainClass = "org.yardstickframework.BenchmarkServerStartUp";
 
-
-    public StartServWorker(Properties runProps, WorkContext workCtx) {
-        super(runProps, workCtx);
+    public StartServWorker(RunContext runCtx, StartNodeWorkContext workCtx) {
+        super(runCtx, workCtx);
     }
 
     @Override public void beforeWork() {
@@ -24,9 +21,9 @@ public class StartServWorker extends StartNodeWorker {
     @Override public WorkResult doWork(String ip, int cnt) {
         final String servStartTime = BenchmarkUtils.hms();
 
-        StartNodeWorkContext startCtx = (StartNodeWorkContext)getWorkContext();
+        StartNodeWorkContext startCtx = (StartNodeWorkContext)getWorkCtx();
 
-        String javaHome = getRemJava();
+        String javaHome = runCtx.getRemJavaHome();
 
         if(startCtx.getDockerInfo() != null && startCtx.getDockerInfo().getJavaHome() != null)
             javaHome = startCtx.getDockerInfo().getJavaHome();
@@ -40,7 +37,8 @@ public class StartServWorker extends StartNodeWorker {
 
         runCmd(mkdirCmd);
 
-        String descr = getDescription(startCtx.getFullCfgStr());
+//        String descr = getDescription(startCtx.getFullCfgStr());
+        String descr = "TO_DO";
 
         String logFileName = String.format("%s/%s-id%d-%s-%s.log",
             servLogDirFullName,
@@ -49,14 +47,14 @@ public class StartServWorker extends StartNodeWorker {
             ip,
             descr);
 
-        String jvmOptsStr = runProps.getProperty("JVM_OPTS") != null ?
-            runProps.getProperty("JVM_OPTS"):
+        String jvmOptsStr = runCtx.getProps().getProperty("JVM_OPTS") != null ?
+            runCtx.getProps().getProperty("JVM_OPTS"):
             "";
 
         String nodeJvmOptsProp = String.format("%s_JVM_OPTS", "SERVER");
 
-        String nodeJvmOptsStr = runProps.getProperty(nodeJvmOptsProp) != null ?
-            runProps.getProperty(nodeJvmOptsProp):
+        String nodeJvmOptsStr = runCtx.getProps().getProperty(nodeJvmOptsProp) != null ?
+            runCtx.getProps().getProperty(nodeJvmOptsProp):
             "";
 
         String concJvmOpts = jvmOptsStr + " " + nodeJvmOptsStr;
@@ -77,21 +75,21 @@ public class StartServWorker extends StartNodeWorker {
             javaHome,
             fullJvmOpts,
             cnt,
-            getMainDir(),
+            runCtx.getRemWorkDir(),
             mainClass,
             cnt,
             startCtx.getFullCfgStr(),
-            startCtx.getPropPath(),
+            runCtx.getPropPath(),
             servLogDirFullName,
-            getRemUser(),
-            getMainDir(),
-            getMainDir(),
+            runCtx.getRemUser(),
+            runCtx.getRemWorkDir(),
+            runCtx.getRemWorkDir(),
             logFileName);
 
         NodeInfo nodeInfo = new NodeInfo(NodeType.SERVER, ip, null, String.valueOf(cnt),
             startCtx, startCmd, logFileName );
 
-        NodeStarter starter = getNodeStarter(nodeInfo);
+        NodeStarter starter = runCtx.getNodeStarter(nodeInfo);
 
         return starter.startNode(nodeInfo);
     }

@@ -6,13 +6,12 @@ import org.yardstickframework.BenchmarkUtils;
 
 public class DeployWorker extends Worker{
 
-    public DeployWorker(Properties runProps, WorkContext workCtx) {
-        super(runProps, workCtx);
+    public DeployWorker(RunContext runCtx, WorkContext workCtx) {
+        super(runCtx, workCtx);
     }
-
     @Override public WorkResult doWork(String ip, int cnt) {
 
-        String createCmd = String.format("ssh -o StrictHostKeyChecking=no %s mkdir -p %s", ip, getMainDir());
+        String createCmd = String.format("ssh -o StrictHostKeyChecking=no %s mkdir -p %s", ip, runCtx.getRemWorkDir());
 
         runCmd(createCmd);
 
@@ -20,14 +19,14 @@ public class DeployWorker extends Worker{
 
         for(String name : toClean){
             String cleanCmd = String.format("ssh -o StrictHostKeyChecking=no %s rm -rf %s/%s",
-                ip, getMainDir(), name);
+                ip, runCtx.getRemWorkDir(), name);
 
             runCmd(cleanCmd);
         }
 
         for(String name : toDeploy) {
             String cpCmd = String.format("scp -o StrictHostKeyChecking=no -rq %s/%s %s:%s",
-                getMainDir(), name, ip, getMainDir());
+                runCtx.getRemWorkDir(), name, ip, runCtx.getRemWorkDir());
 
             runCmd(cpCmd);
         }

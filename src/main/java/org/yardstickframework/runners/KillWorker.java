@@ -5,8 +5,8 @@ import org.yardstickframework.BenchmarkUtils;
 
 public class KillWorker extends Worker{
 
-    public KillWorker(Properties runProps, WorkContext workCtx) {
-        super(runProps, workCtx);
+    public KillWorker(RunContext runCtx, WorkContext workCtx) {
+        super(runCtx, workCtx);
     }
 
     @Override public WorkResult doWork(String ip, int cnt) {

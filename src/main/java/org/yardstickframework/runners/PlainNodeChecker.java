@@ -4,8 +4,8 @@ import java.util.List;
 import java.util.Properties;
 
 public class PlainNodeChecker extends AbstractRunner implements NodeChecker {
-    public PlainNodeChecker(Properties runProps) {
-        super(runProps);
+    public PlainNodeChecker(RunContext runCtx) {
+        super(runCtx);
     }
 
     @Override public WorkResult checkNode(NodeInfo nodeInfo) {

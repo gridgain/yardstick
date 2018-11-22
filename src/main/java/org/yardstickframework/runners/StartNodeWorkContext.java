@@ -12,11 +12,10 @@ public class StartNodeWorkContext extends CommonWorkContext{
 
     private BuildDockerResult dockerInfo;
 
-    public StartNodeWorkContext(List<String> hostList, RunMode runMode, String fullCfgStr, String propPath) {
+    public StartNodeWorkContext(List<String> hostList, RunMode runMode, String fullCfgStr) {
         super(hostList);
         this.runMode = runMode;
         this.fullCfgStr = fullCfgStr;
-        this.propPath = propPath;
     }
 
     public RunMode getRunMode() {
