@@ -6,7 +6,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -16,10 +15,7 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import org.yardstickframework.BenchmarkConfiguration;
 import org.yardstickframework.BenchmarkUtils;
-
-import static org.yardstickframework.BenchmarkUtils.jcommander;
 
 public class AbstractRunner {
     protected static final long DFLT_TIMEOUT = 300_000L;
@@ -219,7 +215,7 @@ public class AbstractRunner {
     }
 
     protected NodeStarter getNodeStarter(NodeInfo nodeInfo){
-        StartMode mode = getStartMode(nodeInfo);
+        RunMode mode = getStartMode(nodeInfo);
 
         switch(mode) {
             case PLAIN:
@@ -232,7 +228,7 @@ public class AbstractRunner {
     }
 
     protected NodeChecker getNodeChecker(NodeInfo nodeInfo){
-        StartMode mode = getStartMode(nodeInfo);
+        RunMode mode = getStartMode(nodeInfo);
 
         switch(mode) {
             case PLAIN:
@@ -245,8 +241,8 @@ public class AbstractRunner {
 
     }
 
-    private StartMode getStartMode(NodeInfo nodeInfo){
-        return nodeInfo.getStartCtx().getStartMode();
+    private RunMode getStartMode(NodeInfo nodeInfo){
+        return nodeInfo.getStartCtx().getRunMode();
     }
 
     protected String getDescription(String src){

@@ -1,6 +1,6 @@
 package org.yardstickframework.runners;
 
-public enum StartMode {
+public enum RunMode {
     PLAIN("PLAIN"),
     IN_DOCKER("IN_DOCKER")
     ;
@@ -10,7 +10,7 @@ public enum StartMode {
     /**
      * @param text
      */
-    StartMode(final String text) {
+    RunMode(final String text) {
         this.text = text;
     }
 

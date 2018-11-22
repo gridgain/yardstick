@@ -1,6 +1,5 @@
 package org.yardstickframework.runners;
 
-import java.util.List;
 import java.util.Properties;
 import org.yardstickframework.BenchmarkUtils;
 
@@ -27,7 +26,7 @@ public class KillWorker extends Worker{
         String actualKillCmd = String.format("pkill -9 -f \"Dyardstick.%s%s \"",
             nodeInfo.getNodeType().toString().toLowerCase(), nodeInfo.getId());
 
-        String killCmd = nodeInfo.getStartCtx().getStartMode() == StartMode.IN_DOCKER ?
+        String killCmd = nodeInfo.getStartCtx().getRunMode() == RunMode.IN_DOCKER ?
             String.format("ssh -o StrictHostKeyChecking=no %s docker exec %s %s",
                 nodeInfo.getHost(), nodeInfo.getDockerInfo().getContName(), actualKillCmd):
             String.format("ssh -o StrictHostKeyChecking=no %s %s",

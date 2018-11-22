@@ -8,8 +8,8 @@ import org.yardstickframework.BenchmarkUtils;
 
 public class FullRunner extends AbstractRunner {
 
-    protected StartMode servStartMode;
-    protected StartMode drvrStartMode;
+    protected RunMode servRunMode;
+    protected RunMode drvrRunMode;
 
     public FullRunner(Properties runProps) {
         super(runProps);
@@ -64,15 +64,15 @@ public class FullRunner extends AbstractRunner {
 
         List<WorkResult> buildServResList = null;
 
-        servStartMode = runProps.getProperty("RUN_SERVER_MODE") != null ?
-            StartMode.valueOf(runProps.getProperty("RUN_SERVER_MODE")):
-            StartMode.PLAIN;
+        servRunMode = runProps.getProperty("RUN_SERVER_MODE") != null ?
+            RunMode.valueOf(runProps.getProperty("RUN_SERVER_MODE")):
+            RunMode.PLAIN;
 
-        drvrStartMode = runProps.getProperty("RUN_DRIVER_MODE") != null ?
-            StartMode.valueOf(runProps.getProperty("RUN_DRIVER_MODE")):
-            StartMode.PLAIN;
+        drvrRunMode = runProps.getProperty("RUN_DRIVER_MODE") != null ?
+            RunMode.valueOf(runProps.getProperty("RUN_DRIVER_MODE")):
+            RunMode.PLAIN;
 
-        if(servStartMode == StartMode.IN_DOCKER) {
+        if(servRunMode == RunMode.IN_DOCKER) {
             Worker cleanUpWorker = new CleanUpWorker(runProps, new CommonWorkContext(getServUniqList()));
 
             cleanUpWorker.workOnHosts();
@@ -82,7 +82,7 @@ public class FullRunner extends AbstractRunner {
 
         List<WorkResult> buildDrvrResList = null;
 
-        if(drvrStartMode == StartMode.IN_DOCKER) {
+        if(drvrRunMode == RunMode.IN_DOCKER) {
             Worker cleanUpWorker = new CleanUpWorker(runProps, new CommonWorkContext(getDrvrUniqList()));
 
             cleanUpWorker.workOnHosts();
@@ -144,7 +144,7 @@ public class FullRunner extends AbstractRunner {
 
         collectResults(drvrRes);
 
-        if(servStartMode == StartMode.IN_DOCKER || drvrStartMode == StartMode.IN_DOCKER) {
+        if(servRunMode == RunMode.IN_DOCKER || drvrRunMode == RunMode.IN_DOCKER) {
 
             Worker cleanUpWorker = new CleanUpWorker(runProps, new CommonWorkContext(getFullUniqList()));
 
@@ -159,7 +159,7 @@ public class FullRunner extends AbstractRunner {
     private List<WorkResult> startServNodes(String cfgStr, List<WorkResult> buildDocList) {
         String parsedCfgStr = parseCfgStr(cfgStr);
 
-        StartNodeWorkContext nodeWorkCtx = new StartNodeWorkContext(getServList(), servStartMode, parsedCfgStr,
+        StartNodeWorkContext nodeWorkCtx = new StartNodeWorkContext(getServList(), servRunMode, parsedCfgStr,
             getPropPath());
 
         if (buildDocList != null && !buildDocList.isEmpty())
@@ -175,7 +175,7 @@ public class FullRunner extends AbstractRunner {
     private List<WorkResult> startDrvrNodes(String cfgStr, List<WorkResult> buildDocList) {
         String parsedCfgStr = parseCfgStr(cfgStr);
 
-        StartNodeWorkContext nodeWorkCtx = new StartNodeWorkContext(getDrvrList(), drvrStartMode, parsedCfgStr,
+        StartNodeWorkContext nodeWorkCtx = new StartNodeWorkContext(getDrvrList(), drvrRunMode, parsedCfgStr,
             getPropPath());
 
         if (buildDocList != null && !buildDocList.isEmpty())

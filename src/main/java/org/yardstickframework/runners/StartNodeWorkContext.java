@@ -1,14 +1,10 @@
 package org.yardstickframework.runners;
 
 import java.util.List;
-import java.util.Properties;
-import org.yardstickframework.BenchmarkConfiguration;
-
-import static org.yardstickframework.BenchmarkUtils.jcommander;
 
 public class StartNodeWorkContext extends CommonWorkContext{
 
-    private StartMode startMode;
+    private RunMode runMode;
 
     private String fullCfgStr;
 
@@ -16,15 +12,15 @@ public class StartNodeWorkContext extends CommonWorkContext{
 
     private BuildDockerResult dockerInfo;
 
-    public StartNodeWorkContext(List<String> hostList, StartMode startMode, String fullCfgStr, String propPath) {
+    public StartNodeWorkContext(List<String> hostList, RunMode runMode, String fullCfgStr, String propPath) {
         super(hostList);
-        this.startMode = startMode;
+        this.runMode = runMode;
         this.fullCfgStr = fullCfgStr;
         this.propPath = propPath;
     }
 
-    public StartMode getStartMode() {
-        return startMode;
+    public RunMode getRunMode() {
+        return runMode;
     }
 
     public String getFullCfgStr() {
