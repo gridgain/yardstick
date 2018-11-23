@@ -4,9 +4,7 @@ import org.yardstickframework.BenchmarkUtils;
 
 public class StartServWorker extends StartNodeWorker {
 
-    private String servLogDirFullName;
 
-    private String mainClass = "org.yardstickframework.BenchmarkServerStartUp";
 
     public StartServWorker(RunContext runCtx, StartNodeWorkContext workCtx) {
         super(runCtx, workCtx);
@@ -15,7 +13,6 @@ public class StartServWorker extends StartNodeWorker {
     @Override public void beforeWork() {
         super.beforeWork();
 
-        servLogDirFullName = String.format("%s/log_servers", baseLogDirFullName);
     }
 
     @Override public WorkResult doWork(String ip, int cnt) {
