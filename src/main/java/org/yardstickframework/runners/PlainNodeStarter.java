@@ -1,7 +1,6 @@
 package org.yardstickframework.runners;
 
-import java.util.Properties;
-import org.yardstickframework.BenchmarkUtils;
+import java.io.IOException;
 
 public class PlainNodeStarter extends AbstractRunner implements NodeStarter  {
     public PlainNodeStarter(RunContext runCtx) {
@@ -9,13 +8,26 @@ public class PlainNodeStarter extends AbstractRunner implements NodeStarter  {
     }
 
     @Override public NodeInfo startNode(NodeInfo nodeInfo) {
-        String cmd = String.format("ssh -o StrictHostKeyChecking=no %s nohup %s",
-            nodeInfo.getHost(), nodeInfo.getStartCmd());
+        CommandHandler hndl = new CommandHandler(runCtx);
+
+        String host = nodeInfo.getHost();
+
+        String cmd = nodeInfo.getStartCmd();
+
+
 
         //        BenchmarkUtils.println("Running start node cmd: " + cmd);
 //        BenchmarkUtils.println("Running start node cmd: " + cmd.replaceAll(runCtx.getRemWorkDir(), "<MAIN_DIR>"));
 
-        runCmd(cmd);
+        try {
+            hndl.startNode(host, cmd, nodeInfo.getLogPath());
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         return nodeInfo;
     }

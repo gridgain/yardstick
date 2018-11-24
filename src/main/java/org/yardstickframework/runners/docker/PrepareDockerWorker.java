@@ -1,22 +1,31 @@
-package org.yardstickframework.runners;
+package org.yardstickframework.runners.docker;
 
 import java.util.ArrayList;
 import java.util.List;
 import org.yardstickframework.BenchmarkUtils;
+import org.yardstickframework.runners.RunContext;
+import org.yardstickframework.runners.WorkContext;
+import org.yardstickframework.runners.WorkResult;
+import org.yardstickframework.runners.Worker;
 
-public class BuildDockerWorker extends Worker{
+public class PrepareDockerWorker extends DockerWorker {
 
-    public BuildDockerWorker(RunContext runCtx, WorkContext workCtx) {
+    public PrepareDockerWorker(RunContext runCtx, WorkContext workCtx) {
         super(runCtx, workCtx);
     }
     @Override public WorkResult doWork(String ip, int cnt) {
-        BuildDockerWorkContext ctx = (BuildDockerWorkContext)getWorkCtx();
 
-        String path = ctx.getDockerFilePath();
+        DockerContext dockerCtx = dockerWorkCtx.getDockerCtx();
 
-        String imageName = ctx.getImageName();
+        if(dockerCtx.isDeleteImageBeforeRun())
+            deleteImage(ip);
 
-        String imageVer = ctx.getImageVer();
+
+        String path = dockerWorkCtx.getDockerFilePath();
+
+        String imageName = dockerWorkCtx.getImageName();
+
+        String imageVer = dockerWorkCtx.getImageVer();
 
         List<String> runningContIds = getIdList(ip);
 
@@ -82,7 +91,7 @@ public class BuildDockerWorker extends Worker{
 //
 //        runCmd(stopCmd);
 
-        return new BuildDockerResult(imageName, imageVer, runCtx.getRemJavaHome(), ip, cnt);
+        return new PrepareDockerResult(imageName, imageVer, runCtx.getRemJavaHome(), ip, cnt);
     }
 
     private List<String> getIdList(String ip){
@@ -101,6 +110,8 @@ public class BuildDockerWorker extends Worker{
 
         return res;
     }
+
+
 
     @Override public String getWorkerName() {
         return getClass().getSimpleName();

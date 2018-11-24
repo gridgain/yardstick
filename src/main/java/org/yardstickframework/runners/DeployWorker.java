@@ -10,6 +10,8 @@ public class DeployWorker extends Worker{
         super(runCtx, workCtx);
     }
     @Override public WorkResult doWork(String ip, int cnt) {
+        if (ip.equals("localhost") && runCtx.getLocWorkDir().equals(runCtx.getRemWorkDir()))
+            return null;
 
         String createCmd = String.format("ssh -o StrictHostKeyChecking=no %s mkdir -p %s", ip, runCtx.getRemWorkDir());
 

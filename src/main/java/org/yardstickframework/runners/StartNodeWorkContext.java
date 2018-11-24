@@ -1,6 +1,7 @@
 package org.yardstickframework.runners;
 
 import java.util.List;
+import org.yardstickframework.runners.docker.PrepareDockerResult;
 
 public class StartNodeWorkContext extends CommonWorkContext{
 
@@ -12,7 +13,7 @@ public class StartNodeWorkContext extends CommonWorkContext{
 
     private String propPath;
 
-    private BuildDockerResult dockerInfo;
+    private PrepareDockerResult dockerInfo;
 
     public StartNodeWorkContext(List<String> hostList, RunMode runMode, NodeType nodeType, String fullCfgStr) {
         super(hostList);
@@ -37,11 +38,11 @@ public class StartNodeWorkContext extends CommonWorkContext{
         return propPath;
     }
 
-    public BuildDockerResult getDockerInfo() {
+    public PrepareDockerResult getDockerInfo() {
         return dockerInfo;
     }
 
-    public void setDockerInfo(BuildDockerResult dockerInfo) {
+    public void setDockerInfo(PrepareDockerResult dockerInfo) {
         this.dockerInfo = dockerInfo;
     }
 }

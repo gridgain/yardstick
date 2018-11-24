@@ -1,5 +1,6 @@
 package org.yardstickframework.runners;
 
+import java.io.IOException;
 import java.util.Properties;
 import org.yardstickframework.BenchmarkUtils;
 
@@ -10,14 +11,23 @@ public class KillWorker extends Worker{
     }
 
     @Override public WorkResult doWork(String ip, int cnt) {
+        CommandHandler hndl = new CommandHandler(runCtx);
 
-        String killServCmd = String.format("ssh -o StrictHostKeyChecking=no %s pkill -9 -f \"Dyardstick.server\"", ip);
+        String killServCmd = "pkill -9 -f \"Dyardstick.server\"";
+        String killDrvrCmd = "pkill -9 -f \"Dyardstick.driver\"";
 
-        runCmd(killServCmd);
+        try {
+            hndl.runCmd(ip, killServCmd, "");
 
-        String killDrvrCmd = String.format("ssh -o StrictHostKeyChecking=no %s pkill -9 -f \"Dyardstick.driver\"", ip);
+            hndl.runCmd(ip, killDrvrCmd, "");
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
-        runCmd(killDrvrCmd);
 
         return null;
     }

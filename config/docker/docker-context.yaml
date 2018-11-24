@@ -1,0 +1,25 @@
+deleteImageBeforeRun: false
+buildImageIfNotExist: true
+deleteImageAfterRun: false
+useCommonImageName: true
+commonImageName: yardstickserver
+serverImageName: yardstickserver
+driverImageName: yardstickdriver
+copyYardctickIntoCont: true
+
+imagesToClean:
+ - yardstickserver
+ - yardstickdriver
+
+contToClean:
+ - YARDSTICK-DRIVER
+ - YARDSTICK-SERVER
+
+useStandartNodeToContMapping: true
+useCustomNodeToContMapping: false
+
+customNodeToContMap:
+   server0: YARDSTICK-SERVER-0
+   server1: YARDSTICK-SERVER-1
+   driver0: YARDSTICK-DRIVER-0
+   driver1: YARDSTICK-DRIVER-1

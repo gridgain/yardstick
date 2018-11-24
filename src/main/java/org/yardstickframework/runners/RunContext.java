@@ -9,16 +9,19 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
-//import org.apache.logging.log4j.LogManager;
-//import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.yardstickframework.BenchmarkUtils;
+import org.yardstickframework.runners.docker.DockerContext;
 
 /**
  *
  */
 public class RunContext {
     /** */
-//    private static final Logger LOG = LogManager.getLogger(RunContext.class.getName());
+    private static final Logger LOG = LogManager.getLogger(RunContext.class.getName());
+
+    private static RunContext instance;
 
     private Properties props;
 
@@ -49,6 +52,8 @@ public class RunContext {
     protected RunMode drvrRunMode;
 
     private List<String> cfgList;
+
+    private DockerContext dockerCtx;
 
     private RunContext() {
         //No_op
@@ -114,11 +119,13 @@ public class RunContext {
      *
      */
     public static RunContext getRunContext(String[] args) {
-        RunContext runCtx = new RunContext();
+        if (instance == null) {
+            instance = new RunContext();
 
-        runCtx.setContext(args);
+            instance.setContext(args);
+        }
 
-        return runCtx;
+        return instance;
     }
 
     private void setContext(String[] args) {
@@ -126,17 +133,17 @@ public class RunContext {
 
         handleArgs(args);
 
-        handleHosts();
+        setHosts();
 
-        handleProps();
+        setProps();
 
-        handleJavaHome();
+        setJavaHome();
 
-        handleRunModes();
+        setRunModes();
 
-        handleUser();
+        setUser();
 
-        handleCfgList();
+        setCfgList();
     }
 
     /**
@@ -187,7 +194,7 @@ public class RunContext {
     /**
      *
      */
-    private void handleProps() {
+    private void setProps() {
         props = parseProps(propsOrig);
 
         remWorkDir = props.getProperty("WORK_DIR") != null ?
@@ -198,7 +205,7 @@ public class RunContext {
     /**
      *
      */
-    private void handleHosts() {
+    private void setHosts() {
         servHosts = getHosts("SERVER_HOSTS");
 
         drvrHosts = getHosts("DRIVER_HOSTS");
@@ -207,7 +214,7 @@ public class RunContext {
     /**
      *
      */
-    private void handleJavaHome() {
+    private void setJavaHome() {
         locJavaHome = System.getProperty("java.home");
 
         if (props.getProperty("JAVA_HOME") != null)
@@ -215,6 +222,8 @@ public class RunContext {
         else {
             BenchmarkUtils.println(String.format("JAVA_HOME is not defined in property file. Will try to use %s",
                 locJavaHome));
+
+            remJavaHome = locJavaHome;
         }
 
         if (new File(String.format("%s/bin/java", remJavaHome)).exists())
@@ -224,7 +233,7 @@ public class RunContext {
     /**
      *
      */
-    private void handleRunModes() {
+    private void setRunModes() {
         servRunMode = props.getProperty("RUN_SERVER_MODE") != null ?
             RunMode.valueOf(props.getProperty("RUN_SERVER_MODE")) :
             RunMode.PLAIN;
@@ -238,7 +247,7 @@ public class RunContext {
      *
      * @return Value
      */
-    protected void handleUser(){
+    protected void setUser(){
         locUser = System.getProperty("user.name");
 
         if(props.getProperty("REMOTE_USER") != null)
@@ -251,7 +260,7 @@ public class RunContext {
         }
     }
 
-    protected void handleCfgList(){
+    protected void setCfgList(){
         cfgList = new ArrayList<>();
 
         for (String cfgStr : props.getProperty("CONFIGS").split(",")) {
@@ -264,7 +273,7 @@ public class RunContext {
 
     /** */
     public List<String> getFullHostList() {
-        List<String> res = getServList();
+        List<String> res = new ArrayList<>(getServList());
 
         res.addAll(getDrvrList());
 
@@ -409,6 +418,26 @@ public class RunContext {
         }
     }
 
+    public DockerContext getDockerContext(){
+        if (dockerCtx != null)
+            return dockerCtx;
+
+        String dockerCtxPropPath = null;
+
+        if(props.getProperty("DOCKER_CONTEXT_PATH") == null){
+            dockerCtxPropPath = String.format("%s/config/docker/docker-context.yaml", locWorkDir);
+
+            BenchmarkUtils.println(String.format("DOCKER_CONTEXT_PATH is not defined in property file. Will try " +
+                "to use default docker context configuration %s", dockerCtxPropPath));
+        }
+        else
+            dockerCtxPropPath = resolvePath(props.getProperty("DOCKER_CONTEXT_PATH"));
+
+        dockerCtx = DockerContext.getDockerContext(dockerCtxPropPath);
+
+        return dockerCtx;
+    }
+
     private RunMode getStartMode(NodeInfo nodeInfo) {
         return nodeInfo.getStartCtx().getRunMode();
     }
@@ -431,5 +460,22 @@ public class RunContext {
         }
 
         return res;
+    }
+
+    //TODO
+    private String resolvePath(String srcPath){
+        if(new File(srcPath).exists())
+            return srcPath;
+
+        String fullPath = String.format("%s/%s", locWorkDir, srcPath);
+
+        if(new File(fullPath).exists())
+            return fullPath;
+
+        BenchmarkUtils.println(String.format("Failed to find %s or %s.", srcPath, fullPath));
+
+        System.exit(1);
+
+        return null;
     }
 }

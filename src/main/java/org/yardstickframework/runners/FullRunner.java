@@ -1,10 +1,11 @@
 package org.yardstickframework.runners;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
-import java.util.Properties;
 import org.yardstickframework.BenchmarkUtils;
+import org.yardstickframework.runners.docker.PrepareDockerResult;
+import org.yardstickframework.runners.docker.DockerWorkContext;
+import org.yardstickframework.runners.docker.PrepareDockerWorker;
 
 public class FullRunner extends AbstractRunner {
 
@@ -122,12 +123,13 @@ public class FullRunner extends AbstractRunner {
     }
 
     private List<WorkResult> startServNodes(String cfgStr, List<WorkResult> buildDocList) {
-        StartNodeWorkContext nodeWorkCtx = new StartNodeWorkContext(runCtx.getServList(), runCtx.getServRunMode(), cfgStr);
+        StartNodeWorkContext nodeWorkCtx = new StartNodeWorkContext(runCtx.getServList(), runCtx.getServRunMode(),
+            NodeType.SERVER, cfgStr);
 
         if (buildDocList != null && !buildDocList.isEmpty())
-            nodeWorkCtx.setDockerInfo((BuildDockerResult)buildDocList.get(0));
+            nodeWorkCtx.setDockerInfo((PrepareDockerResult)buildDocList.get(0));
 
-        StartNodeWorker startServWorker = new StartServWorker(runCtx, nodeWorkCtx);
+        StartNodeWorker startServWorker = new StartNodeWorker(runCtx, nodeWorkCtx);
 
         List<WorkResult> startServResList = startServWorker.workOnHosts();
 
@@ -135,12 +137,13 @@ public class FullRunner extends AbstractRunner {
     }
 
     private List<WorkResult> startDrvrNodes(String cfgStr, List<WorkResult> buildDocList) {
-        StartNodeWorkContext nodeWorkCtx = new StartNodeWorkContext(runCtx.getDrvrList(), runCtx.getDrvrRunMode(), cfgStr);
+        StartNodeWorkContext nodeWorkCtx = new StartNodeWorkContext(runCtx.getDrvrList(), runCtx.getDrvrRunMode(),
+            NodeType.DRIVER, cfgStr);
 
         if (buildDocList != null && !buildDocList.isEmpty())
-            nodeWorkCtx.setDockerInfo((BuildDockerResult)buildDocList.get(0));
+            nodeWorkCtx.setDockerInfo((PrepareDockerResult)buildDocList.get(0));
 
-        StartNodeWorker startDrvrWorker = new StartDrvrWorker(runCtx, nodeWorkCtx);
+        StartNodeWorker startDrvrWorker = new StartNodeWorker(runCtx, nodeWorkCtx);
 
         return startDrvrWorker.workOnHosts();
     }
@@ -208,9 +211,9 @@ public class FullRunner extends AbstractRunner {
             runCtx.getServUniqList():
             runCtx.getDrvrUniqList();
 
-        BuildDockerWorkContext docCtx = new BuildDockerWorkContext(hostList, dockerfilePath, imageName, imageVer);
+        DockerWorkContext docCtx = new DockerWorkContext(hostList, dockerfilePath, imageName, imageVer);
 
-        Worker buildDocWorker = new BuildDockerWorker(runCtx, docCtx);
+        Worker buildDocWorker = new PrepareDockerWorker(runCtx, docCtx);
 
         return buildDocWorker.workOnHosts();
     }

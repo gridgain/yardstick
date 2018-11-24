@@ -26,4 +26,7 @@ cp /home/oostanin/.m2/repository/org/yardstickframework/yardstick/0.8.7/yardstic
 
 cp -r /home/oostanin/yardstick/bin/* /home/oostanin/gg/incubator-ignite/modules/yardstick/target/assembly/bin/
 
+cp -r /home/oostanin/yardstick/config/docker/* /home/oostanin/gg/incubator-ignite/modules/yardstick/config/docker/
+cp -r /home/oostanin/yardstick/config/docker/* /home/oostanin/gg/incubator-ignite/modules/yardstick/target/assembly/config/docker/
+
 cp /home/oostanin/gg/incubator-ignite/modules/yardstick/config/benchmark.properties /home/oostanin/gg/incubator-ignite/modules/yardstick/target/assembly/config/benchmark.properties

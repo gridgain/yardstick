@@ -19,24 +19,37 @@
 
 # Start from JDK 8 based on Alpine Linux image (~5Mb)
 
-FROM openjdk:8-jre-alpine
+FROM openjdk:8u181-jdk-stretch
 
 ARG COMMON_PATH
 
 # Add missing software
 
-RUN apk --update add \
-    bash \
-    net-tools \
-    fontconfig \
-    && rm -rfv /var/cache/apk/*
+#RUN apk --update add \
+#    bash \
+#    net-tools \
+#    fontconfig \
+#    && rm -rfv /var/cache/apk/*
+
+
+ARG COMMON_PATH
+ARG USER_NAME
+
+RUN echo $JAVA_HOME
+RUN echo $USER_NAME
+
+
+#RUN groupadd oostaningroup -g 2038
+
 
 # Set Product name
 
 ENV PRODUCT /assembly
 
-COPY assembly $COMMON_PATH/assembly
+#COPY assembly $COMMON_PATH/assembly
+
+#RUN chown -R 2038:2038 /home/$USER_NAME
 
 WORKDIR /
 
-# ENTRYPOINT ["bin/benchmark-run-all.sh"]
+#ENTRYPOINT ["/bin/echo $JAVA_HOME"]

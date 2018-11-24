@@ -1,6 +1,8 @@
-package org.yardstickframework.runners;
+package org.yardstickframework.runners.docker;
 
-public class BuildDockerResult implements WorkResult {
+import org.yardstickframework.runners.WorkResult;
+
+public class PrepareDockerResult implements WorkResult {
     private String imageName;
     private String imageVer;
     private String javaHome;
@@ -9,7 +11,7 @@ public class BuildDockerResult implements WorkResult {
 
     private int cnt;
 
-    public BuildDockerResult(String imageName, String imageVer, String javaHome, String host, int cnt) {
+    public PrepareDockerResult(String imageName, String imageVer, String javaHome, String host, int cnt) {
         this.imageName = imageName;
         this.imageVer = imageVer;
         this.javaHome = javaHome;
