@@ -1,25 +1,44 @@
-deleteImageBeforeRun: false
-buildImageIfNotExist: true
-deleteImageAfterRun: false
-useCommonImageName: true
-commonImageName: yardstickserver
+removeImagesBeforeRun: true
+
+removeContainersBeforeRun: true
+
+buildImagesIfNotExist: true #remove
+
+tagImageWithTime: false
+
+removeImagesAfterRun: false
+
+startContainersBeforeRun: true
+
+removeContainersAfterRun: true
+
+useCommonImageName: true #remove
+
+commonImageName: yardstickserver #remove
+
 serverImageName: yardstickserver
+
 driverImageName: yardstickdriver
-copyYardctickIntoCont: true
+
+copyYardctickIntoContainer: true
+
+serverDockerfilePath: config/docker/Dockerfile-server
+driverDockerfilePath: config/docker/Dockerfile-driver
 
 imagesToClean:
  - yardstickserver
  - yardstickdriver
 
-contToClean:
- - YARDSTICK-DRIVER
- - YARDSTICK-SERVER
+containersToClean:
+ - YARDSTICK_DRIVER
+ - YARDSTICK_SERVER
 
-useStandartNodeToContMapping: true
-useCustomNodeToContMapping: false
+useStandartNodeToContainerMapping: true #remove
 
-customNodeToContMap:
-   server0: YARDSTICK-SERVER-0
-   server1: YARDSTICK-SERVER-1
-   driver0: YARDSTICK-DRIVER-0
-   driver1: YARDSTICK-DRIVER-1
+useCustomNodeToContainerMapping: false
+
+customNodeToContainerMap:
+   server0: YARDSTICK_SERVER_0
+   server1: YARDSTICK_SERVER_1
+   driver0: YARDSTICK_DRIVER_0
+   driver1: YARDSTICK_DRIVER_1

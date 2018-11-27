@@ -79,6 +79,14 @@ public class AbstractRunner {
         return res;
     }
 
+    protected List<String> getHosts(NodeType type){
+        return type == NodeType.SERVER ? runCtx.getServList() : runCtx.getDrvrList();
+    }
+
+    protected List<String> getUniqHosts(NodeType type){
+        return type == NodeType.SERVER ? runCtx.getServUniqList() : runCtx.getDrvrUniqList();
+    }
+
 
 
 

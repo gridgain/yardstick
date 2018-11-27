@@ -27,7 +27,7 @@ public class RunContext {
 
     private Properties propsOrig;
 
-    private String locWorkDir;
+    private static String locWorkDir;
 
     private String remWorkDir;
 
@@ -144,6 +144,8 @@ public class RunContext {
         setUser();
 
         setCfgList();
+
+        setDockerCtx();
     }
 
     /**
@@ -269,6 +271,11 @@ public class RunContext {
 
             cfgList.add(cfgStr);
         }
+    }
+
+    private void setDockerCtx(){
+        if(getServRunMode() == RunMode.IN_DOCKER || getDrvrRunMode() == RunMode.IN_DOCKER)
+            dockerCtx = DockerContext.getDockerContext("/home/oostanin/yardstick/config/docker/docker-context.yaml");
     }
 
     /** */
@@ -463,7 +470,7 @@ public class RunContext {
     }
 
     //TODO
-    private String resolvePath(String srcPath){
+    public static String resolvePath(String srcPath){
         if(new File(srcPath).exists())
             return srcPath;
 

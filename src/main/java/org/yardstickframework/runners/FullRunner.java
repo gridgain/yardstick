@@ -1,11 +1,16 @@
 package org.yardstickframework.runners;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import org.yardstickframework.BenchmarkUtils;
+import org.yardstickframework.runners.docker.DockerCleanContWorker;
+import org.yardstickframework.runners.docker.DockerCleanImagesWorker;
+import org.yardstickframework.runners.docker.DockerStartContWorker;
+import org.yardstickframework.runners.docker.DockerWorker;
 import org.yardstickframework.runners.docker.PrepareDockerResult;
 import org.yardstickframework.runners.docker.DockerWorkContext;
-import org.yardstickframework.runners.docker.PrepareDockerWorker;
+import org.yardstickframework.runners.docker.DockerBuildImagesWorker;
 
 public class FullRunner extends AbstractRunner {
 
@@ -24,7 +29,87 @@ public class FullRunner extends AbstractRunner {
 
         FullRunner runner = new FullRunner(runCtx);
 
-        runner.run();
+//        DockerWorkContext dctx = new DockerWorkContext(runCtx.getServUniqList(), NodeType.SERVER);
+//
+//        DockerBuildImagesWorker pdw = new DockerBuildImagesWorker(runCtx, dctx);
+//
+//        pdw.workOnHosts();
+
+        runner.run1();
+    }
+
+    public int run1() {
+        Worker killWorker = new KillWorker(runCtx, new CommonWorkContext(runCtx.getFullUniqList()));
+
+        killWorker.workOnHosts();
+
+        Worker deployWorker = new DeployWorker(runCtx, new CommonWorkContext(runCtx.getFullUniqList()));
+
+        deployWorker.workOnHosts();
+
+        List<NodeType> forDockerPrep = new ArrayList<>();
+
+        if (runCtx.getServRunMode() == RunMode.IN_DOCKER)
+            forDockerPrep.add(NodeType.SERVER);
+
+        if (runCtx.getDrvrRunMode() == RunMode.IN_DOCKER)
+            forDockerPrep.add(NodeType.DRIVER);
+
+        DockerRunner dockerRunner = new DockerRunner(runCtx);
+
+        dockerRunner.prepare(forDockerPrep);
+
+        String cfgStr0 = runCtx.getProps().getProperty("CONFIGS").split(",")[0];
+
+        List<WorkResult> servRes = null;
+
+        List<WorkResult> drvrRes = null;
+
+        if(!Boolean.valueOf(runCtx.getProps().getProperty("RESTART_SERVERS"))) {
+            servRes = startServNodes(cfgStr0);
+
+            BenchmarkUtils.println("RESTART_SERVERS=false");
+        }
+
+        for (String cfgStr : runCtx.getCfgList()) {
+            if(Boolean.valueOf(runCtx.getProps().getProperty("RESTART_SERVERS"))) {
+                servRes = startServNodes(cfgStr);
+
+//                BenchmarkUtils.println("RESTART_SERVERS=true");
+            }
+
+            try {
+                Thread.sleep(5000L);
+            }
+            catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            drvrRes = startDrvrNodes(cfgStr);
+
+            BenchmarkUtils.println("Waiting for driver nodes to start.");
+
+            waitForNodes(drvrRes, NodeStatus.RUNNING);
+
+            BenchmarkUtils.println("Driver nodes started.");
+
+            BenchmarkUtils.println("Waiting for driver nodes to stop.");
+
+            waitForNodes(drvrRes, NodeStatus.NOT_RUNNING);
+
+            BenchmarkUtils.println("Driver nodes stopped.");
+
+            if(Boolean.valueOf(runCtx.getProps().getProperty("RESTART_SERVERS")))
+                killNodes(servRes);
+        }
+
+        dockerRunner.collect(forDockerPrep);
+
+        new CollectorWorker(runCtx, new CommonWorkContext(runCtx.getFullUniqList())).workOnHosts();
+
+        createCharts();
+
+        return 0;
     }
 
     /**
@@ -34,6 +119,16 @@ public class FullRunner extends AbstractRunner {
         Worker killWorker = new KillWorker(runCtx, new CommonWorkContext(runCtx.getFullUniqList()));
 
         killWorker.workOnHosts();
+
+        if(runCtx.getServRunMode() == RunMode.IN_DOCKER){
+            if(runCtx.getDockerContext().isRemoveContainersBeforeRun()){
+                DockerWorker dockerWorker = new DockerCleanContWorker(runCtx, new DockerWorkContext(
+                    runCtx.getServUniqList(),
+                    NodeType.SERVER));
+
+                dockerWorker.workOnHosts();
+            }
+        }
 
         Worker deployWorker = new DeployWorker(runCtx, new CommonWorkContext(runCtx.getFullUniqList()));
 
@@ -66,14 +161,14 @@ public class FullRunner extends AbstractRunner {
         List<WorkResult> drvrRes = null;
 
         if(!Boolean.valueOf(runCtx.getProps().getProperty("RESTART_SERVERS"))) {
-            servRes = startServNodes(cfgStr0, buildServResList);
+            servRes = startServNodes(cfgStr0);
 
             BenchmarkUtils.println("RESTART_SERVERS=false");
         }
 
         for (String cfgStr : runCtx.getCfgList()) {
             if(Boolean.valueOf(runCtx.getProps().getProperty("RESTART_SERVERS"))) {
-                servRes = startServNodes(cfgStr0, buildServResList);
+                servRes = startServNodes(cfgStr0);
 
 //                BenchmarkUtils.println("RESTART_SERVERS=true");
             }
@@ -85,7 +180,7 @@ public class FullRunner extends AbstractRunner {
                 e.printStackTrace();
             }
 
-            drvrRes = startDrvrNodes(cfgStr, buildDrvrResList);
+            drvrRes = startDrvrNodes(cfgStr);
 
             BenchmarkUtils.println("Waiting for driver nodes to start.");
 
@@ -106,9 +201,9 @@ public class FullRunner extends AbstractRunner {
         if(!Boolean.valueOf(runCtx.getProps().getProperty("RESTART_SERVERS")))
             killNodes(servRes);
 
-        collectResults(servRes);
-
-        collectResults(drvrRes);
+//        collectResults(servRes);
+//
+//        collectResults(drvrRes);
 
         if(runCtx.getServRunMode() == RunMode.IN_DOCKER || runCtx.getDrvrRunMode() == RunMode.IN_DOCKER) {
 
@@ -122,12 +217,9 @@ public class FullRunner extends AbstractRunner {
         return 0;
     }
 
-    private List<WorkResult> startServNodes(String cfgStr, List<WorkResult> buildDocList) {
+    private List<WorkResult> startServNodes(String cfgStr) {
         StartNodeWorkContext nodeWorkCtx = new StartNodeWorkContext(runCtx.getServList(), runCtx.getServRunMode(),
             NodeType.SERVER, cfgStr);
-
-        if (buildDocList != null && !buildDocList.isEmpty())
-            nodeWorkCtx.setDockerInfo((PrepareDockerResult)buildDocList.get(0));
 
         StartNodeWorker startServWorker = new StartNodeWorker(runCtx, nodeWorkCtx);
 
@@ -136,12 +228,9 @@ public class FullRunner extends AbstractRunner {
         return startServResList;
     }
 
-    private List<WorkResult> startDrvrNodes(String cfgStr, List<WorkResult> buildDocList) {
+    private List<WorkResult> startDrvrNodes(String cfgStr) {
         StartNodeWorkContext nodeWorkCtx = new StartNodeWorkContext(runCtx.getDrvrList(), runCtx.getDrvrRunMode(),
             NodeType.DRIVER, cfgStr);
-
-        if (buildDocList != null && !buildDocList.isEmpty())
-            nodeWorkCtx.setDockerInfo((PrepareDockerResult)buildDocList.get(0));
 
         StartNodeWorker startDrvrWorker = new StartNodeWorker(runCtx, nodeWorkCtx);
 
@@ -211,47 +300,35 @@ public class FullRunner extends AbstractRunner {
             runCtx.getServUniqList():
             runCtx.getDrvrUniqList();
 
-        DockerWorkContext docCtx = new DockerWorkContext(hostList, dockerfilePath, imageName, imageVer);
+        DockerWorkContext dockerWorkCtx = new DockerWorkContext(hostList, type);
 
-        Worker buildDocWorker = new PrepareDockerWorker(runCtx, docCtx);
+        Worker buildDocWorker = new DockerBuildImagesWorker(runCtx, dockerWorkCtx);
 
         return buildDocWorker.workOnHosts();
     }
 
-    private void collectResults(List<WorkResult> resList){
+    private void collectResults(){
         File outDir = new File(String.format("%s/output", runCtx.getRemWorkDir()));
 
-        if(!outDir.exists())
-            outDir.mkdirs();
 
-        for(WorkResult res : resList){
-            NodeInfo nodeInfo = (NodeInfo)res;
 
-            String nodeOutDir = String.format("%s/output", runCtx.getRemWorkDir());
-
-            String mkdirCmd = String.format("ssh -o StrictHostKeyChecking=no %s mkdir -p %s",
-                nodeInfo.getHost(), nodeOutDir);
-
-            runCmd(mkdirCmd);
-
-            if(nodeInfo.getDockerInfo() != null){
-                String contId = nodeInfo.getDockerInfo().getContId();
-
-                String cpFromDockerCmd = String.format("ssh -o StrictHostKeyChecking=no %s docker cp %s:%s/output %s",
-                    nodeInfo.getHost(), contId, runCtx.getRemWorkDir(), runCtx.getRemWorkDir());
-
-                BenchmarkUtils.println(String.format("Running cp from docker cmd: %s", cpFromDockerCmd));
-
-                runCmd(cpFromDockerCmd);
-            }
-
-            String collectCmd = String.format("scp -r -o StrictHostKeyChecking=no %s:%s/* %s",
-                nodeInfo.getHost(), nodeOutDir, outDir.getAbsolutePath());
-
-            BenchmarkUtils.println(String.format("Running cp from host cmd: %s", collectCmd));
-
-            runCmd(collectCmd);
-        }
+//        for(String res : resList){
+//            NodeInfo nodeInfo = (NodeInfo)res;
+//
+//            String nodeOutDir = String.format("%s/output", runCtx.getRemWorkDir());
+//
+//            String mkdirCmd = String.format("ssh -o StrictHostKeyChecking=no %s mkdir -p %s",
+//                nodeInfo.getHost(), nodeOutDir);
+//
+//            runCmd(mkdirCmd);
+//
+//            String collectCmd = String.format("scp -r -o StrictHostKeyChecking=no %s:%s/* %s",
+//                nodeInfo.getHost(), nodeOutDir, outDir.getAbsolutePath());
+//
+//            BenchmarkUtils.println(String.format("Running cp from host cmd: %s", collectCmd));
+//
+//            runCmd(collectCmd);
+//        }
     }
 
     private void createCharts(){
@@ -259,6 +336,8 @@ public class FullRunner extends AbstractRunner {
 
         String createStdCmd = String.format("/bin/bash %s/bin/jfreechart-graph-gen.sh -gm STANDARD -i %s",
             runCtx.getRemWorkDir(), mainResDir);
+
+        System.out.println(createStdCmd);
 
         runCmd(createStdCmd);
 

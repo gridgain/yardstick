@@ -129,26 +129,8 @@ public class StartNodeWorker extends Worker {
 
         String fullJvmOpts = (concJvmOpts + " " + gcJvmOpts).replace("\"", "");
 
-//        String startCmd = String.format("%s/bin/java %s -Dyardstick.%s%d -cp :%s/libs/* %s -id %d %s %s --config %s " +
-//                "--logsFolder %s --remoteuser %s --currentFolder %s --scriptsFolder %s/bin > %s 2>& 1 &",
-//            javaHome,
-//            fullJvmOpts,
-//            nodeTypeLowCase,
-//            cnt,
-//            runCtx.getRemWorkDir(),
-//            getMainClass(startCtx),
-//            cnt,
-//            outputFolderParam,
-//            startCtx.getFullCfgStr(),
-//            runCtx.getPropPath(),
-//            logDirFullName,
-//            runCtx.getRemUser(),
-//            runCtx.getRemWorkDir(),
-//            runCtx.getRemWorkDir(),
-//            logFileName);
-
         String startCmd = String.format("%s/bin/java %s -Dyardstick.%s%d -cp :%s/libs/* %s -id %d %s %s --config %s " +
-                "--logsFolder %s --remoteuser %s --currentFolder %s --scriptsFolder %s/bin &",
+                "--logsFolder %s --remoteuser %s --currentFolder %s --scriptsFolder %s/bin > %s 2>& 1 &",
             javaHome,
             fullJvmOpts,
             nodeTypeLowCase,
@@ -162,7 +144,25 @@ public class StartNodeWorker extends Worker {
             logDirFullName,
             runCtx.getRemUser(),
             runCtx.getRemWorkDir(),
-            runCtx.getRemWorkDir());
+            runCtx.getRemWorkDir(),
+            logFileName);
+
+//        String startCmd = String.format("%s/bin/java %s -Dyardstick.%s%d -cp :%s/libs/* %s -id %d %s %s --config %s " +
+//                "--logsFolder %s --remoteuser %s --currentFolder %s --scriptsFolder %s/bin &",
+//            javaHome,
+//            fullJvmOpts,
+//            nodeTypeLowCase,
+//            cnt,
+//            runCtx.getRemWorkDir(),
+//            getMainClass(startCtx),
+//            cnt,
+//            outputFolderParam,
+//            startCtx.getFullCfgStr(),
+//            runCtx.getPropPath(),
+//            logDirFullName,
+//            runCtx.getRemUser(),
+//            runCtx.getRemWorkDir(),
+//            runCtx.getRemWorkDir());
 
         NodeInfo nodeInfo = new NodeInfo(startCtx.getNodeType(), ip, null, String.valueOf(cnt),
             startCtx, startCmd, logFileName );

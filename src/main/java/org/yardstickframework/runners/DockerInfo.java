@@ -25,7 +25,7 @@ public class DockerInfo {
         return contName;
     }
 
-    public String getContId() {
-        return contId;
-    }
+//    public String getContId() {
+//        return contId;
+//    }
 }

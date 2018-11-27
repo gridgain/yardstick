@@ -1,6 +1,7 @@
 package org.yardstickframework.runners;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
 import java.util.Random;
@@ -15,59 +16,31 @@ public class InDockerNodeStarter extends AbstractRunner implements NodeStarter  
     }
 
     @Override public NodeInfo startNode(NodeInfo nodeInfo) {
-        String docImageName = workCtx.getDockerInfo().getImageName();
-
-        String docImageVer = workCtx.getDockerInfo().getImageVer();
-
-        String docContName = String.format("%s-%s-%s", nodeInfo.getNodeType(), nodeInfo.getHost(), nodeInfo.getId());
-
-        String checkCmd = String.format("ssh -o StrictHostKeyChecking=no %s docker ps -a", nodeInfo.getHost());
-
-        List<String> resList = runCmd(checkCmd);
-
-        String contId = getContId(resList, docContName);
-
-        if(contId.equals("Unknown")) {
-//            BenchmarkUtils.println(String.format("No running container on the host %s for node %s-%s.",
-//                nodeInfo.getHost(), nodeInfo.getNodeType(), nodeInfo.getId()));
-
-            BenchmarkUtils.println(String.format("Starting docker container on the host %s for node %s-%s.",
-                nodeInfo.getHost(), nodeInfo.getNodeType(), nodeInfo.getId()));
-
-            String sleepCmd = String.format("ssh -o StrictHostKeyChecking=no %s docker run %s -d --name %s " +
-                    " --network host %s:%s sleep 365d",
-                nodeInfo.getHost(),
-                docContName,
-                docImageName,
-                docImageVer);
-
-//            BenchmarkUtils.println("Running start docker cmd: " + sleepCmd);
-
-            runCmd(sleepCmd);
-        }
-
-        resList = runCmd(checkCmd);
-
-        contId = getContId(resList, docContName);
+        String contName = String.format("YARDSTICK_%s_%s", nodeInfo.getNodeType(), nodeInfo.getId());
 
         String nodeLogDir = new File(nodeInfo.getLogPath()).getParent();
 
-        String mkdirCmd = String.format("ssh -o StrictHostKeyChecking=no %s docker exec %s mkdir -p %s",
-            nodeInfo.getHost(), docContName, nodeLogDir);
+        CommandHandler hndl = new CommandHandler(runCtx);
 
-        runCmd(mkdirCmd);
+        try {
+            String mkdirCmd = String.format("exec %s mkdir -p %s", contName, nodeLogDir);
 
-        String cmd = String.format("ssh -o StrictHostKeyChecking=no %s docker exec %s %s",
-            nodeInfo.getHost(),
-            docContName,
-            nodeInfo.getStartCmd());
+            String cmd = String.format("exec %s nohup %s", contName, nodeInfo.getStartCmd());
 
-//        BenchmarkUtils.println("Running start node cmd: " + cmd);
-        BenchmarkUtils.println("Running start node cmd: " + cmd.replaceAll(runCtx.getRemWorkDir(), "<MAIN_DIR>"));
+            hndl.runDockerCmd(nodeInfo.getHost(), mkdirCmd);
 
-        runCmd(cmd);
+            BenchmarkUtils.println("Running start node cmd: " + cmd);
 
-        nodeInfo.setDockerInfo(new DockerInfo(docImageName, docImageVer, docContName, contId));
+            hndl.runDockerCmd(nodeInfo.getHost(), cmd);
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        nodeInfo.setDockerInfo(new DockerInfo(null, null, contName, null));
 
         return nodeInfo;
     }

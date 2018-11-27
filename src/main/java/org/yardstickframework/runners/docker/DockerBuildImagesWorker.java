@@ -1,49 +1,84 @@
 package org.yardstickframework.runners.docker;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import org.yardstickframework.BenchmarkUtils;
+import org.yardstickframework.runners.CommandHandler;
+import org.yardstickframework.runners.NodeType;
 import org.yardstickframework.runners.RunContext;
 import org.yardstickframework.runners.WorkContext;
 import org.yardstickframework.runners.WorkResult;
-import org.yardstickframework.runners.Worker;
 
-public class PrepareDockerWorker extends DockerWorker {
+public class DockerBuildImagesWorker extends DockerWorker {
 
-    public PrepareDockerWorker(RunContext runCtx, WorkContext workCtx) {
+    public DockerBuildImagesWorker(RunContext runCtx, WorkContext workCtx) {
         super(runCtx, workCtx);
     }
-    @Override public WorkResult doWork(String ip, int cnt) {
+    @Override public WorkResult doWork(String host, int cnt) {
+        NodeType type = dockerWorkCtx.getNodeType();
 
-        DockerContext dockerCtx = dockerWorkCtx.getDockerCtx();
+        String nameToUse = getImageNameToUse(type);
 
-        if(dockerCtx.isDeleteImageBeforeRun())
-            deleteImage(ip);
+        if(!checkIfImageExists(host, nameToUse)) {
+            String docFilePath = type == NodeType.SERVER ?
+                RunContext.resolvePath(dockerCtx.getServerDockerfilePath()):
+                RunContext.resolvePath(dockerCtx.getDriverDockerfilePath());
 
+            CommandHandler hndl = new CommandHandler(runCtx);
 
-        String path = dockerWorkCtx.getDockerFilePath();
+            String buildCmd = String.format("build -t %s -f %s .",nameToUse, docFilePath);
 
-        String imageName = dockerWorkCtx.getImageName();
+//            System.out.println(buildCmd);
 
-        String imageVer = dockerWorkCtx.getImageVer();
+            try {
+                hndl.runDockerCmd(host, buildCmd);
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }
+            catch (InterruptedException e) {
+                e.printStackTrace();
+            }
 
-        List<String> runningContIds = getIdList(ip);
-
-        for(String runningContId : runningContIds){
-            String stopCmd = String.format("ssh -o StrictHostKeyChecking=no %s docker stop %s",
-                ip, runningContId);
-
-            BenchmarkUtils.println(String.format("Stopping docker container %s on the host %s", runningContId, ip));
-
-            runCmd(stopCmd);
+            System.out.println();
         }
 
-        BenchmarkUtils.println(String.format("Building docker image %s:%s on the host %s", imageName, imageVer, ip));
 
-        String buildDockerCmd = String.format("ssh -o StrictHostKeyChecking=no %s %s/bin/build-docker.sh %s %s %s",
-            ip, runCtx.getRemWorkDir(), path, imageName, imageVer);
+//        getImages(host);
+//
+//        getProcesses(host);
+//
+//        System.out.println();
 
-        runCmd(buildDockerCmd);
+//        DockerContext dockerCtx = dockerWorkCtx.getDockerCtx();
+//
+//        if(dockerCtx.isRemoveImagesBeforeRun())
+//            deleteImage(ip);
+//
+//
+//        String path = dockerWorkCtx.getDockerFilePath();
+//
+//        String imageName = dockerWorkCtx.getImageName();
+//
+//        String imageVer = dockerWorkCtx.getImageVer();
+//
+//        List<String> runningContIds = getIdList(ip);
+//
+//        for(String runningContId : runningContIds){
+//            String stopCmd = String.format("ssh -o StrictHostKeyChecking=no %s docker stop %s",
+//                ip, runningContId);
+//
+//            BenchmarkUtils.println(String.format("Stopping docker container %s on the host %s", runningContId, ip));
+//
+//            runCmd(stopCmd);
+//        }
+//
+//        BenchmarkUtils.println(String.format("Building docker image %s:%s on the host %s", imageName, imageVer, ip));
+//
+//        String buildDockerCmd = String.format("ssh -o StrictHostKeyChecking=no %s %s/bin/build-docker.sh %s %s %s",
+//            ip, runCtx.getRemWorkDir(), path, imageName, imageVer);
+//
+//        runCmd(buildDockerCmd);
 
 //        String stopCmd = String.format("ssh -o StrictHostKeyChecking=no %s docker stop TO_CHECK_JAVA", ip);
 //
@@ -91,7 +126,8 @@ public class PrepareDockerWorker extends DockerWorker {
 //
 //        runCmd(stopCmd);
 
-        return new PrepareDockerResult(imageName, imageVer, runCtx.getRemJavaHome(), ip, cnt);
+//        return new PrepareDockerResult(imageName, imageVer, runCtx.getRemJavaHome(), ip, cnt);
+        return null;
     }
 
     private List<String> getIdList(String ip){
@@ -110,8 +146,6 @@ public class PrepareDockerWorker extends DockerWorker {
 
         return res;
     }
-
-
 
     @Override public String getWorkerName() {
         return getClass().getSimpleName();

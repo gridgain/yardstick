@@ -28,7 +28,7 @@ public class CommandHandler {
 
         String fullCmd = isLocal(host) ?
             cmd :
-            String.format("%s %s:%s %s", DFLT_SSH_PREF, host, runCtx.getRemUser(), cmd);
+            String.format("%s %s", getFullSSHPref(host), cmd);
 
         return runCmd(fullCmd);
     }
@@ -131,24 +131,34 @@ public class CommandHandler {
             return new CommandExecutionResult(errStream.size(), new ArrayList<String>(), errStream);
         }
         else{
-            String mkdirCmd = String.format("%s %s:%s mkdir -p %s",
-                DFLT_SSH_PREF,
-                host,
-                runCtx.getRemUser(),
+            String mkdirCmd = String.format("%s mkdir -p %s",
+                getFullSSHPref(host),
                 path);
 
             return runCmd(mkdirCmd);
         }
     }
 
-    public CommandExecutionResult runDockerCmd(String host, String cmd){
-        String fullCmd =
+    public CommandExecutionResult runDockerCmd(String host, String cmd) throws IOException, InterruptedException {
+        String fullCmd = String.format("docker %s", cmd);
 
         if(isLocal(host))
-            return
+            return runCmd(fullCmd);
+        else{
+            fullCmd = String.format("%s docker %s", getFullSSHPref(host), cmd);
+
+            return runCmd(fullCmd);
+        }
     }
 
     private boolean isLocal(String host) {
         return host.equalsIgnoreCase("localhost") || host.equals("127.0.0.1");
+    }
+
+    private String getFullSSHPref(String host){
+        if(runCtx.getRemUser() == null || runCtx.getRemUser().isEmpty())
+            return String.format("%s %s", DFLT_SSH_PREF, host);
+
+        return String.format("%s %s@%s", DFLT_SSH_PREF, runCtx.getRemUser(), host);
     }
 }
