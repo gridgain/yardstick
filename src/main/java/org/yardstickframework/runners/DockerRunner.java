@@ -2,6 +2,7 @@ package org.yardstickframework.runners;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.yardstickframework.BenchmarkUtils;
 import org.yardstickframework.runners.docker.DockerBuildImagesWorker;
 import org.yardstickframework.runners.docker.DockerCleanContWorker;
 import org.yardstickframework.runners.docker.DockerCleanImagesWorker;
@@ -22,10 +23,12 @@ public class DockerRunner extends AbstractRunner {
 
     public void clean(List<NodeType> nodeTypeList){
         for(NodeType type : nodeTypeList)
-            prepareForNodeType(type);
+            cleanForNodeType(type);
     }
 
     public void prepareForNodeType(NodeType type){
+        BenchmarkUtils.println(String.format("Preparing docker for %s nodes.", type.toString().toLowerCase()));
+
         DockerWorkContext uniqListWorkCtx = new DockerWorkContext(
             getUniqHosts(type), type);
 
@@ -38,8 +41,7 @@ public class DockerRunner extends AbstractRunner {
             workerList.add(new DockerCleanImagesWorker(runCtx, uniqListWorkCtx));
 
 
-        if (runCtx.getDockerContext().isBuildImagesIfNotExist())
-            workerList.add(new DockerBuildImagesWorker(runCtx, uniqListWorkCtx));
+        workerList.add(new DockerBuildImagesWorker(runCtx, uniqListWorkCtx));
 
         if (runCtx.getDockerContext().isStartContainersBeforeRun()){
             DockerWorkContext startCtx =new DockerWorkContext(

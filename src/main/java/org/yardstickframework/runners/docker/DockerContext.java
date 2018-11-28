@@ -12,7 +12,7 @@ public class DockerContext {
 
     private boolean removeContainersBeforeRun;
 
-    private boolean buildImagesIfNotExist;
+    private boolean rebuildImagesIfExist;
 
     private boolean tagImageWithTime;
 
@@ -48,12 +48,12 @@ public class DockerContext {
     public DockerContext() {
     }
 
-    public boolean isBuildImagesIfNotExist() {
-        return buildImagesIfNotExist;
+    public boolean isRebuildImagesIfExist() {
+        return rebuildImagesIfExist;
     }
 
-    public void setBuildImagesIfNotExist(boolean buildImagesIfNotExist) {
-        this.buildImagesIfNotExist = buildImagesIfNotExist;
+    public void setRebuildImagesIfExist(boolean rebuildImagesIfExist) {
+        this.rebuildImagesIfExist = rebuildImagesIfExist;
     }
 
     public boolean isTagImageWithTime() {

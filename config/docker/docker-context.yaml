@@ -1,8 +1,8 @@
-removeImagesBeforeRun: true
+removeImagesBeforeRun: false
 
 removeContainersBeforeRun: true
 
-buildImagesIfNotExist: true #remove
+rebuildImagesIfExist: false
 
 tagImageWithTime: false
 

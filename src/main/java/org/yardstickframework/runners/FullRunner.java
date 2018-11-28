@@ -2,6 +2,7 @@ package org.yardstickframework.runners;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.yardstickframework.BenchmarkUtils;
 import org.yardstickframework.runners.docker.DockerCleanContWorker;
@@ -43,9 +44,9 @@ public class FullRunner extends AbstractRunner {
 
         killWorker.workOnHosts();
 
-//        Worker deployWorker = new DeployWorker(runCtx, new CommonWorkContext(runCtx.getFullUniqList()));
-//
-//        deployWorker.workOnHosts();
+        Worker deployWorker = new DeployWorker(runCtx, new CommonWorkContext(runCtx.getFullUniqList()));
+
+        deployWorker.workOnHosts();
 
         List<NodeType> forDockerPrep = new ArrayList<>();
 
@@ -105,7 +106,8 @@ public class FullRunner extends AbstractRunner {
 
         dockerRunner.collect(forDockerPrep);
 
-        dockerRunner.clean(forDockerPrep);
+        if(!forDockerPrep.isEmpty())
+            dockerRunner.clean(Collections.singletonList(NodeType.DRIVER));
 
         new CollectorWorker(runCtx, new CommonWorkContext(runCtx.getFullUniqList())).workOnHosts();
 

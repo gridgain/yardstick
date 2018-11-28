@@ -19,7 +19,7 @@ public class DockerBuildImagesWorker extends DockerWorker {
 
         String nameToUse = getImageNameToUse(type);
 
-        if(!checkIfImageExists(host, nameToUse)) {
+        if(!checkIfImageExists(host, nameToUse)  || dockerCtx.isRebuildImagesIfExist()) {
             String docFilePath = type == NodeType.SERVER ?
                 RunContext.resolveRemotePath(dockerCtx.getServerDockerfilePath()):
                 RunContext.resolveRemotePath(dockerCtx.getDriverDockerfilePath());

@@ -10,7 +10,7 @@ public class PlainNodeChecker extends AbstractRunner implements NodeChecker {
     }
 
     @Override public WorkResult checkNode(NodeInfo nodeInfo) {
-        String checkCmd = String.format("pgrep -f \"-Dyardstick.%s%s\"",
+        String checkCmd = String.format("pgrep -f \"Dyardstick.%s%s \"",
             nodeInfo.getNodeType().toString().toLowerCase(),
             nodeInfo.getId());
 

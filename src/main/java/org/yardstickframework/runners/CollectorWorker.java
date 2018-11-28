@@ -25,7 +25,7 @@ public class CollectorWorker extends Worker{
         String collectCmd = String.format("scp -r -o StrictHostKeyChecking=no %s:%s/* %s",
             ip, nodeOutDir, outDir.getAbsolutePath());
 
-        BenchmarkUtils.println(String.format("Running cp from host cmd: %s", collectCmd));
+//        BenchmarkUtils.println(String.format("Running cp from host cmd: %s", collectCmd));
 
         runCmd(collectCmd);
 
