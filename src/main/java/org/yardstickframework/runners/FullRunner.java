@@ -43,9 +43,9 @@ public class FullRunner extends AbstractRunner {
 
         killWorker.workOnHosts();
 
-        Worker deployWorker = new DeployWorker(runCtx, new CommonWorkContext(runCtx.getFullUniqList()));
-
-        deployWorker.workOnHosts();
+//        Worker deployWorker = new DeployWorker(runCtx, new CommonWorkContext(runCtx.getFullUniqList()));
+//
+//        deployWorker.workOnHosts();
 
         List<NodeType> forDockerPrep = new ArrayList<>();
 
@@ -105,9 +105,11 @@ public class FullRunner extends AbstractRunner {
 
         dockerRunner.collect(forDockerPrep);
 
+        dockerRunner.clean(forDockerPrep);
+
         new CollectorWorker(runCtx, new CommonWorkContext(runCtx.getFullUniqList())).workOnHosts();
 
-        createCharts();
+//        createCharts();
 
         return 0;
     }

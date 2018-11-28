@@ -20,6 +20,11 @@ public class DockerRunner extends AbstractRunner {
             prepareForNodeType(type);
     }
 
+    public void clean(List<NodeType> nodeTypeList){
+        for(NodeType type : nodeTypeList)
+            prepareForNodeType(type);
+    }
+
     public void prepareForNodeType(NodeType type){
         DockerWorkContext uniqListWorkCtx = new DockerWorkContext(
             getUniqHosts(type), type);
@@ -29,12 +34,12 @@ public class DockerRunner extends AbstractRunner {
         if (runCtx.getDockerContext().isRemoveContainersBeforeRun())
             workerList.add(new DockerCleanContWorker(runCtx, uniqListWorkCtx));
 
-//        if (runCtx.getDockerContext().isRemoveImagesBeforeRun())
-//            workerList.add(new DockerCleanImagesWorker(runCtx, uniqListWorkCtx));
-//
-//
-//        if (runCtx.getDockerContext().isBuildImagesIfNotExist())
-//            workerList.add(new DockerBuildImagesWorker(runCtx, uniqListWorkCtx));
+        if (runCtx.getDockerContext().isRemoveImagesBeforeRun())
+            workerList.add(new DockerCleanImagesWorker(runCtx, uniqListWorkCtx));
+
+
+        if (runCtx.getDockerContext().isBuildImagesIfNotExist())
+            workerList.add(new DockerBuildImagesWorker(runCtx, uniqListWorkCtx));
 
         if (runCtx.getDockerContext().isStartContainersBeforeRun()){
             DockerWorkContext startCtx =new DockerWorkContext(
@@ -60,5 +65,12 @@ public class DockerRunner extends AbstractRunner {
             getHosts(type), type);
 
         new DockerCollectWorker(runCtx, workCtx).workOnHosts();
+    }
+
+    public void cleanForNodeType(NodeType type){
+        DockerWorkContext workCtx = new DockerWorkContext(
+            getHosts(type), type);
+
+        new DockerCleanContWorker(runCtx, workCtx).workOnHosts();
     }
 }

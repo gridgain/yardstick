@@ -137,7 +137,7 @@ public class DockerContext {
     }
 
     public String getServerDockerfilePath() {
-        return serverDockerfilePath;
+        return serverDockerfilePath == null ? serverDockerfilePath : "config/docker/Dockerfile-server";
     }
 
     public void setServerDockerfilePath(String serverDockerfilePath) {
@@ -145,8 +145,8 @@ public class DockerContext {
     }
 
     public String getDriverDockerfilePath() {
-        return driverDockerfilePath;
-    }
+        return driverDockerfilePath == null ? driverDockerfilePath : "config/docker/Dockerfile-driver";
+        }
 
     public void setDriverDockerfilePath(String driverDockerfilePath) {
         this.driverDockerfilePath = driverDockerfilePath;

@@ -22,7 +22,7 @@ public class InDockerNodeChecker extends AbstractRunner implements NodeChecker {
         CommandExecutionResult res = null;
 
         try {
-            System.out.println(checkCmd);
+//            System.out.println(checkCmd);
 
             res = hndl.runDockerCmd(host, checkCmd);
         }

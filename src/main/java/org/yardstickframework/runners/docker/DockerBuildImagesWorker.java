@@ -21,8 +21,8 @@ public class DockerBuildImagesWorker extends DockerWorker {
 
         if(!checkIfImageExists(host, nameToUse)) {
             String docFilePath = type == NodeType.SERVER ?
-                RunContext.resolvePath(dockerCtx.getServerDockerfilePath()):
-                RunContext.resolvePath(dockerCtx.getDriverDockerfilePath());
+                RunContext.resolveRemotePath(dockerCtx.getServerDockerfilePath()):
+                RunContext.resolveRemotePath(dockerCtx.getDriverDockerfilePath());
 
             CommandHandler hndl = new CommandHandler(runCtx);
 

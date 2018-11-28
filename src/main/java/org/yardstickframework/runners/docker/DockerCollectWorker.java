@@ -30,7 +30,7 @@ public class DockerCollectWorker extends DockerWorker{
 
         CommandHandler hndl = new CommandHandler(runCtx);
 
-        System.out.println(cpCmd);
+//        System.out.println(cpCmd);
 
         try {
 //            hndl.runDockerCmd(host, mkdirCmd);

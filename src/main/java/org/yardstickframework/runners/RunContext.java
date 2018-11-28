@@ -29,7 +29,7 @@ public class RunContext {
 
     private static String locWorkDir;
 
-    private String remWorkDir;
+    private static String remWorkDir;
 
     private String propPath;
 
@@ -152,11 +152,11 @@ public class RunContext {
      * @param args
      */
     private void handleArgs(String[] args) {
-        if (args.length == 0) {
-            args = new String[] {
-                "/home/oostanin/gg/incubator-ignite/modules/yardstick/target/assembly/bin",
-                "/home/oostanin/gg/incubator-ignite/modules/yardstick/target/assembly/config/benchmark.properties"};
-        }
+//        if (args.length == 0) {
+//            args = new String[] {
+//                "/home/oostanin/gg/incubator-ignite/modules/yardstick/target/assembly/bin",
+//                "/home/oostanin/gg/incubator-ignite/modules/yardstick/target/assembly/config/benchmark.properties"};
+//        }
 
         if (args.length == 0) {
             BenchmarkUtils.println("Work directory is not defined.");
@@ -275,7 +275,7 @@ public class RunContext {
 
     private void setDockerCtx(){
         if(getServRunMode() == RunMode.IN_DOCKER || getDrvrRunMode() == RunMode.IN_DOCKER)
-            dockerCtx = DockerContext.getDockerContext("/home/oostanin/yardstick/config/docker/docker-context.yaml");
+            dockerCtx = DockerContext.getDockerContext(String.format("%s/config/docker/docker-context.yaml", locWorkDir));
     }
 
     /** */
@@ -484,5 +484,12 @@ public class RunContext {
         System.exit(1);
 
         return null;
+    }
+
+    //TODO
+    public static String resolveRemotePath(String srcPath){
+        String fullPath = String.format("%s/%s", remWorkDir, srcPath);
+
+        return fullPath;
     }
 }

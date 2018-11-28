@@ -27,7 +27,7 @@ public class DockerStartContWorker extends DockerWorker {
 
         CommandHandler hndl = new CommandHandler(runCtx);
 
-        System.out.println(startCmd);
+//        System.out.println(startCmd);
 
         try {
             hndl.runDockerCmd(host, startCmd);
@@ -50,7 +50,7 @@ public class DockerStartContWorker extends DockerWorker {
 
             String cpCmd = String.format("cp %s %s:%s", remPath, contId, parentPath);
 
-            System.out.println(cpCmd);
+//            System.out.println(cpCmd);
 
             try {
                 hndl.runDockerCmd(host, mkdirCmd);
@@ -66,7 +66,7 @@ public class DockerStartContWorker extends DockerWorker {
         }
 
 
-        System.out.println();
+//        System.out.println();
 
 //        getImages(host);
 //
