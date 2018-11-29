@@ -14,13 +14,13 @@ public class PlainNodeStarter extends AbstractRunner implements NodeStarter  {
 
         String cmd = nodeInfo.getStartCmd();
 
-
+        String withJavaHome = String.format("%s/bin/java %s", runCtx.getRemJavaHome(), cmd);
 
         //        BenchmarkUtils.println("Running start node cmd: " + cmd);
 //        BenchmarkUtils.println("Running start node cmd: " + cmd.replaceAll(runCtx.getRemWorkDir(), "<MAIN_DIR>"));
 
         try {
-            hndl.runCmd(host, cmd, "");
+            hndl.runCmd(host, withJavaHome, "");
         }
         catch (IOException e) {
             e.printStackTrace();

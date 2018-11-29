@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Random;
 import org.yardstickframework.BenchmarkUtils;
+import org.yardstickframework.runners.docker.DockerContext;
 
 public class InDockerNodeStarter extends AbstractRunner implements NodeStarter  {
     private StartNodeWorkContext workCtx;
@@ -22,10 +23,20 @@ public class InDockerNodeStarter extends AbstractRunner implements NodeStarter  
 
         CommandHandler hndl = new CommandHandler(runCtx);
 
+        String javaParams = nodeInfo.getStartCmd();
+
+        NodeType type = nodeInfo.getNodeType();
+
+        String javaHome = type == NodeType.SERVER ?
+            runCtx.getDockerContext().getServerDockerJavaHome() :
+            runCtx.getDockerContext().getDriverDockerJavaHome() ;
+
+        String startNodeCmd = String.format("%s/bin/java %s", javaHome, javaParams);
+
         try {
             String mkdirCmd = String.format("exec %s mkdir -p %s", contName, nodeLogDir);
 
-            String cmd = String.format("exec %s nohup %s", contName, nodeInfo.getStartCmd());
+            String cmd = String.format("exec %s nohup %s", contName, startNodeCmd);
 
             hndl.runDockerCmd(nodeInfo.getHost(), mkdirCmd);
 

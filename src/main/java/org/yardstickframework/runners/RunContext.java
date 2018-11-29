@@ -145,7 +145,8 @@ public class RunContext {
 
         setCfgList();
 
-        setDockerCtx();
+        if(servRunMode == RunMode.DOCKER || drvrRunMode == RunMode.DOCKER)
+            setDockerCtx();
     }
 
     /**

@@ -113,6 +113,36 @@ public class CommandHandler {
         return null;
     }
 
+    public CommandExecutionResult runLocalJava(String args){
+        String fullCmd = "";
+
+        while(args.contains("  "))
+            args = args.replace("  ", " ");
+
+        String javaHome = System.getProperty("java.home");
+
+        String cmd = String.format("%s/bin/java %s", javaHome, args);
+
+        String[] cmdArr = cmd.split(" ");
+
+            ProcessBuilder pb = new ProcessBuilder()
+                .command(cmdArr);
+
+            pb.redirectErrorStream(true);
+
+            pb.directory(new File(runCtx.getLocWorkDir()));
+
+        try {
+            pb.start();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+
+//        return runCmd(fullCmd);
+        return null;
+    }
+
     public CommandExecutionResult runMkdirCmd(String host, String path) throws IOException, InterruptedException {
         if(isLocal(host)){
             File dirToMake = new File(path);
@@ -161,4 +191,6 @@ public class CommandHandler {
 
         return String.format("%s %s@%s", DFLT_SSH_PREF, runCtx.getRemUser(), host);
     }
+
+
 }

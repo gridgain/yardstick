@@ -2,14 +2,10 @@ package org.yardstickframework.runners;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import org.yardstickframework.BenchmarkUtils;
 import org.yardstickframework.runners.docker.DockerCleanContWorker;
-import org.yardstickframework.runners.docker.DockerCleanImagesWorker;
-import org.yardstickframework.runners.docker.DockerStartContWorker;
 import org.yardstickframework.runners.docker.DockerWorker;
-import org.yardstickframework.runners.docker.PrepareDockerResult;
 import org.yardstickframework.runners.docker.DockerWorkContext;
 import org.yardstickframework.runners.docker.DockerBuildImagesWorker;
 
@@ -56,13 +52,17 @@ public class FullRunner extends AbstractRunner {
         if (runCtx.getDrvrRunMode() == RunMode.DOCKER)
             forDockerPrep.add(NodeType.DRIVER);
 
-        DockerRunner dockerRunner = new DockerRunner(runCtx);
+        DockerRunner dockerRunner = null;
 
-        dockerRunner.cleanBefore(forDockerPrep);
+        if(!forDockerPrep.isEmpty()) {
+            dockerRunner = new DockerRunner(runCtx);
 
-        dockerRunner.prepare(forDockerPrep);
+            dockerRunner.cleanBefore(forDockerPrep);
 
-        dockerRunner.start(forDockerPrep);
+            dockerRunner.prepare(forDockerPrep);
+
+            dockerRunner.start(forDockerPrep);
+        }
 
         String cfgStr0 = runCtx.getProps().getProperty("CONFIGS").split(",")[0];
 
@@ -77,11 +77,8 @@ public class FullRunner extends AbstractRunner {
         }
 
         for (String cfgStr : runCtx.getCfgList()) {
-            if(Boolean.valueOf(runCtx.getProps().getProperty("RESTART_SERVERS"))) {
+            if(Boolean.valueOf(runCtx.getProps().getProperty("RESTART_SERVERS")))
                 servRes = startServNodes(cfgStr);
-
-//                BenchmarkUtils.println("RESTART_SERVERS=true");
-            }
 
             try {
                 Thread.sleep(5000L);
@@ -108,14 +105,15 @@ public class FullRunner extends AbstractRunner {
                 killNodes(servRes);
         }
 
-        dockerRunner.collect(forDockerPrep);
+        if(!forDockerPrep.isEmpty()) {
+            dockerRunner.collect(forDockerPrep);
 
-        if(!forDockerPrep.isEmpty())
             dockerRunner.clean(forDockerPrep);
+        }
 
-        new CollectorWorker(runCtx, new CommonWorkContext(runCtx.getFullUniqList())).workOnHosts();
+        new CollectWorker(runCtx, new CommonWorkContext(runCtx.getFullUniqList())).workOnHosts();
 
-//        createCharts();
+        createCharts();
 
         return 0;
     }
@@ -315,47 +313,33 @@ public class FullRunner extends AbstractRunner {
         return buildDocWorker.workOnHosts();
     }
 
-    private void collectResults(){
-        File outDir = new File(String.format("%s/output", runCtx.getRemWorkDir()));
-
-
-
-//        for(String res : resList){
-//            NodeInfo nodeInfo = (NodeInfo)res;
-//
-//            String nodeOutDir = String.format("%s/output", runCtx.getRemWorkDir());
-//
-//            String mkdirCmd = String.format("ssh -o StrictHostKeyChecking=no %s mkdir -p %s",
-//                nodeInfo.getHost(), nodeOutDir);
-//
-//            runCmd(mkdirCmd);
-//
-//            String collectCmd = String.format("scp -r -o StrictHostKeyChecking=no %s:%s/* %s",
-//                nodeInfo.getHost(), nodeOutDir, outDir.getAbsolutePath());
-//
-//            BenchmarkUtils.println(String.format("Running cp from host cmd: %s", collectCmd));
-//
-//            runCmd(collectCmd);
-//        }
-    }
-
     private void createCharts(){
         String mainResDir = String.format("%s/output/result-%s", runCtx.getRemWorkDir(), runCtx.getMainDateTime());
 
-        String createStdCmd = String.format("/bin/bash %s/bin/jfreechart-graph-gen.sh -gm STANDARD -i %s",
-            runCtx.getRemWorkDir(), mainResDir);
+        String cp = String.format("%s/libs/*", runCtx.getLocWorkDir());
 
-        System.out.println(createStdCmd);
+        String mainClass = "org.yardstickframework.report.jfreechart.JFreeChartGraphPlotter";
 
-        runCmd(createStdCmd);
+        String jvmOpts = "-Xmx1g";
 
+        String stdCharts = String.format("%s -cp %s %s -gm STANDARD -i %s", jvmOpts, cp, mainClass, mainResDir);
 
-        String createCmd = String.format("/bin/bash %s/bin/jfreechart-graph-gen.sh -i %s",
-            runCtx.getRemWorkDir(), mainResDir);
+        CommandHandler hndl = new CommandHandler(runCtx);
 
-        runCmd(createCmd);
+        hndl.runLocalJava(stdCharts);
+
+        String charts = String.format("%s -cp %s %s -i %s", jvmOpts, cp, mainClass, mainResDir);
+
+        hndl.runLocalJava(charts);
 
         File outDir = new File(mainResDir).getParentFile();
+
+        try {
+            Thread.sleep(3000L);
+        }
+        catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         if(outDir.exists() && outDir.isDirectory()) {
             File[] arr = outDir.listFiles();
@@ -368,15 +352,6 @@ public class FullRunner extends AbstractRunner {
                     runCmd(mvCmd);
                 }
             }
-
-
         }
-
-//        OUT_DIR=$(cd $results_folder/../; pwd)
-//        echo "<"$(date +"%H:%M:%S")"><yardstick> Creating charts"
-//                . ${SCRIPT_DIR}/jfreechart-graph-gen.sh -gm STANDARD -i $results_folder >> /dev/null
-//                . ${SCRIPT_DIR}/jfreechart-graph-gen.sh -i $results_folder >> /dev/null
-//        echo "<"$(date +"%H:%M:%S")"><yardstick> Moving chart directory to the ${MAIN_DIR}/output/results-${date_time} directory."
-//        mv $MAIN_DIR/output/results-compound* $MAIN_DIR/output/results-$date_time
     }
 }

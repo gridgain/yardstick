@@ -3,9 +3,9 @@ package org.yardstickframework.runners;
 import java.io.File;
 import org.yardstickframework.BenchmarkUtils;
 
-public class CollectorWorker extends Worker{
+public class CollectWorker extends Worker{
 
-    public CollectorWorker(RunContext runCtx, WorkContext workCtx) {
+    public CollectWorker(RunContext runCtx, WorkContext workCtx) {
         super(runCtx, workCtx);
     }
     @Override public WorkResult doWork(String host, int cnt) {
@@ -25,7 +25,7 @@ public class CollectorWorker extends Worker{
         String collectCmd = String.format("scp -r -o StrictHostKeyChecking=no %s:%s/* %s",
             host, nodeOutDir, outDir.getAbsolutePath());
 
-        BenchmarkUtils.println(String.format("Collecting data from host %s.", host));
+        BenchmarkUtils.println(String.format("Collecting data from the host %s.", host));
 
         runCmd(collectCmd);
 

@@ -1,51 +1,73 @@
+# Flag to remove images before run.
 removeImagesBeforeRun: true
 
+# Flag to remove containers before run.
 removeContainersBeforeRun: true
 
+# Flag to rebuild images even if they already exist.
 rebuildImagesIfExist: true
 
+# Flag to tag images with date and time of the run.
 tagImageWithTime: false
 
+# Flag to remove images after run.
 removeImagesAfterRun: false
 
+# Flag to start containers before run.
 startContainersBeforeRun: true
 
+# Flag to remove containers after run.
 removeContainersAfterRun: true
 
+# Server image name.
 serverImageName: yardstickserver
 
+# Driver image name.
 driverImageName: yardstickdriver
 
+# Flag to copy yardstick into containers after starting containers.
 copyYardctickIntoContainer: true
 
+# Java home path in server containers.
 serverDockerJavaHome: /docker-java-home
+
+# Java home path in driver containers.
 driverDockerJavaHome: /docker-java-home
 
+# Path to the Dockerfile for server nodes images build.
 serverDockerfilePath: config/docker/Dockerfile-server
+
+# Path to the Dockerfile for driver nodes images build.
 driverDockerfilePath: config/docker/Dockerfile-driver
 
+# List of arguments to use with docker 'run' command.
 dockerRunCmdArgs:
  - -d
  - --network
  - host
 
+# Command which starts docker container.
 startContCmd: sleep
 
+# List of arguments to use with command which starts docker container.
 startContCmdArgs:
  - 365d
 
+# List of images names to clean.
 imagesToClean:
  - yardstickserver
  - yardstickdriver
 
+# List of containers names to clean.
 containersToClean:
  - YARDSTICK_DRIVER
  - YARDSTICK_SERVER
 
-useStandartNodeToContainerMapping: true #remove
-
+# Flag for using custom node to container name mapping.
 useCustomNodeToContainerMapping: false
 
+
+# Custom node to container name map.
 customNodeToContainerMap:
    server0: YARDSTICK_SERVER_0
    server1: YARDSTICK_SERVER_1
