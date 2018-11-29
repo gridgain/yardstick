@@ -4,7 +4,7 @@ import org.yardstickframework.runners.RunContext;
 import org.yardstickframework.runners.WorkContext;
 import org.yardstickframework.runners.WorkResult;
 
-public class DockerCleanImagesWorker extends DockerWorker{
+public class DockerCleanImagesWorker extends DockerWorker {
     /**
      * @param runCtx
      * @param workCtx
@@ -21,6 +21,6 @@ public class DockerCleanImagesWorker extends DockerWorker{
     }
 
     @Override public String getWorkerName() {
-        return null;
+        return this.getClass().getSimpleName();
     }
 }

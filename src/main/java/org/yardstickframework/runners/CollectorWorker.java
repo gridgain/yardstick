@@ -8,8 +8,8 @@ public class CollectorWorker extends Worker{
     public CollectorWorker(RunContext runCtx, WorkContext workCtx) {
         super(runCtx, workCtx);
     }
-    @Override public WorkResult doWork(String ip, int cnt) {
-        if (ip.equals("localhost") && runCtx.getLocWorkDir().equals(runCtx.getRemWorkDir()))
+    @Override public WorkResult doWork(String host, int cnt) {
+        if (host.equals("localhost") && runCtx.getLocWorkDir().equals(runCtx.getRemWorkDir()))
             return null;
 
         File outDir = new File(String.format("%s/output", runCtx.getRemWorkDir()));
@@ -23,9 +23,9 @@ public class CollectorWorker extends Worker{
 
 
         String collectCmd = String.format("scp -r -o StrictHostKeyChecking=no %s:%s/* %s",
-            ip, nodeOutDir, outDir.getAbsolutePath());
+            host, nodeOutDir, outDir.getAbsolutePath());
 
-//        BenchmarkUtils.println(String.format("Running cp from host cmd: %s", collectCmd));
+        BenchmarkUtils.println(String.format("Collecting data from host %s.", host));
 
         runCmd(collectCmd);
 

@@ -21,6 +21,6 @@ public class DockerCleanContWorker extends DockerWorker{
     }
 
     @Override public String getWorkerName() {
-        return null;
+        return this.getClass().getSimpleName();
     }
 }

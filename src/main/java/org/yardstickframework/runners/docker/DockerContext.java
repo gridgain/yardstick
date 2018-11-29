@@ -32,7 +32,17 @@ public class DockerContext {
     private String serverDockerfilePath;
     private String driverDockerfilePath;
 
+    private List<String> dockerRunCmdArgs;
+
+    private String startContCmd;
+
+    private List<String> startContCmdArgs;
+
     private boolean copyYardctickIntoContainer;
+
+    private  String serverDockerJavaHome;
+
+    private  String driverDockerJavaHome;
 
     private List<String> imagesToClean;
 
@@ -152,12 +162,52 @@ public class DockerContext {
         this.driverDockerfilePath = driverDockerfilePath;
     }
 
+    public List<String> getDockerRunCmdArgs() {
+        return dockerRunCmdArgs;
+    }
+
+    public void setDockerRunCmdArgs(List<String> dockerRunCmdArgs) {
+        this.dockerRunCmdArgs = dockerRunCmdArgs;
+    }
+
+    public String getStartContCmd() {
+        return startContCmd;
+    }
+
+    public void setStartContCmd(String startContCmd) {
+        this.startContCmd = startContCmd;
+    }
+
+    public List<String> getStartContCmdArgs() {
+        return startContCmdArgs;
+    }
+
+    public void setStartContCmdArgs(List<String> startContCmdArgs) {
+        this.startContCmdArgs = startContCmdArgs;
+    }
+
     public boolean isCopyYardctickIntoContainer() {
         return copyYardctickIntoContainer;
     }
 
     public void setCopyYardctickIntoContainer(boolean copyYardctickIntoContainer) {
         this.copyYardctickIntoContainer = copyYardctickIntoContainer;
+    }
+
+    public String getServerDockerJavaHome() {
+        return serverDockerJavaHome;
+    }
+
+    public void setServerDockerJavaHome(String serverDockerJavaHome) {
+        this.serverDockerJavaHome = serverDockerJavaHome;
+    }
+
+    public String getDriverDockerJavaHome() {
+        return driverDockerJavaHome;
+    }
+
+    public void setDriverDockerJavaHome(String driverDockerJavaHome) {
+        this.driverDockerJavaHome = driverDockerJavaHome;
     }
 
     public List<String> getImagesToClean() {

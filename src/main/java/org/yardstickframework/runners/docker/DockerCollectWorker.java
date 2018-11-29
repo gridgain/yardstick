@@ -1,6 +1,7 @@
 package org.yardstickframework.runners.docker;
 
 import java.io.IOException;
+import org.yardstickframework.BenchmarkUtils;
 import org.yardstickframework.runners.CommandHandler;
 import org.yardstickframework.runners.NodeType;
 import org.yardstickframework.runners.RunContext;
@@ -32,6 +33,8 @@ public class DockerCollectWorker extends DockerWorker{
 
 //        System.out.println(cpCmd);
 
+        BenchmarkUtils.println(String.format("Collecting data from container %s on the host %s.", contName, host));
+
         try {
 //            hndl.runDockerCmd(host, mkdirCmd);
 
@@ -48,6 +51,6 @@ public class DockerCollectWorker extends DockerWorker{
     }
 
     @Override public String getWorkerName() {
-        return null;
+        return getClass().getSimpleName();
     }
 }

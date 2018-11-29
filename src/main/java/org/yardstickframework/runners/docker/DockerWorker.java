@@ -4,8 +4,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import org.yardstickframework.BenchmarkUtils;
 import org.yardstickframework.runners.CommandExecutionResult;
 import org.yardstickframework.runners.CommandHandler;
 import org.yardstickframework.runners.NodeType;
@@ -37,12 +40,17 @@ public abstract class DockerWorker extends Worker {
     protected void removeImages(String host) {
         Collection<Map<String, String>> imageMaps = getImages(host);
 
+        Map<String, String> toRemove = new HashMap<>();
+
         for (Map<String, String> imageMap : imageMaps) {
             for (String imageName : dockerCtx.getImagesToClean()) {
                 if (imageMap.get("REPOSITORY").contains(imageName))
-                    removeImage(host, imageMap.get("IMAGE ID"));
+                    toRemove.put(imageMap.get("IMAGE ID"), imageMap.get("REPOSITORY"));
             }
         }
+
+        for(String id : toRemove.keySet())
+            removeImage(host, id, toRemove.get(id));
     }
 
     protected void removeContainers(String host) {
@@ -50,8 +58,14 @@ public abstract class DockerWorker extends Worker {
 
         for (Map<String, String> contMap : contMaps) {
             for (String contName : dockerCtx.getContainersToClean()) {
-                if (contMap.get("NAMES").contains(contName))
+                String names = contMap.get("NAMES");
+
+                if (names.contains(contName)) {
+                    BenchmarkUtils.println(String.format("Removing container '%s' from the host %s.",
+                        names, host));
+
                     removeSingleCont(host, contMap.get("CONTAINER ID"));
+                }
             }
         }
     }
@@ -73,13 +87,16 @@ public abstract class DockerWorker extends Worker {
         return cmdRes;
     }
 
-    private CommandExecutionResult removeImage(String host, String imageId) {
+    private CommandExecutionResult removeImage(String host, String imageId, String imageName) {
         CommandHandler hndl = new CommandHandler(runCtx);
+
+        BenchmarkUtils.println(String.format("Removing image '%s' (id=%s) from the host %s",
+            imageName, imageId, host));
 
         CommandExecutionResult cmdRes = null;
 
         try {
-            cmdRes = hndl.runDockerCmd(host, String.format("rmi %s", imageId));
+            cmdRes = hndl.runDockerCmd(host, String.format("rmi -f %s", imageId));
         }
         catch (IOException | InterruptedException e) {
             e.printStackTrace();

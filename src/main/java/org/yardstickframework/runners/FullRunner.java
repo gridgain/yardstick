@@ -50,15 +50,19 @@ public class FullRunner extends AbstractRunner {
 
         List<NodeType> forDockerPrep = new ArrayList<>();
 
-        if (runCtx.getServRunMode() == RunMode.IN_DOCKER)
+        if (runCtx.getServRunMode() == RunMode.DOCKER)
             forDockerPrep.add(NodeType.SERVER);
 
-        if (runCtx.getDrvrRunMode() == RunMode.IN_DOCKER)
+        if (runCtx.getDrvrRunMode() == RunMode.DOCKER)
             forDockerPrep.add(NodeType.DRIVER);
 
         DockerRunner dockerRunner = new DockerRunner(runCtx);
 
+        dockerRunner.cleanBefore(forDockerPrep);
+
         dockerRunner.prepare(forDockerPrep);
+
+        dockerRunner.start(forDockerPrep);
 
         String cfgStr0 = runCtx.getProps().getProperty("CONFIGS").split(",")[0];
 
@@ -107,7 +111,7 @@ public class FullRunner extends AbstractRunner {
         dockerRunner.collect(forDockerPrep);
 
         if(!forDockerPrep.isEmpty())
-            dockerRunner.clean(Collections.singletonList(NodeType.DRIVER));
+            dockerRunner.clean(forDockerPrep);
 
         new CollectorWorker(runCtx, new CommonWorkContext(runCtx.getFullUniqList())).workOnHosts();
 
@@ -124,7 +128,7 @@ public class FullRunner extends AbstractRunner {
 
         killWorker.workOnHosts();
 
-        if(runCtx.getServRunMode() == RunMode.IN_DOCKER){
+        if(runCtx.getServRunMode() == RunMode.DOCKER){
             if(runCtx.getDockerContext().isRemoveContainersBeforeRun()){
                 DockerWorker dockerWorker = new DockerCleanContWorker(runCtx, new DockerWorkContext(
                     runCtx.getServUniqList(),
@@ -140,7 +144,7 @@ public class FullRunner extends AbstractRunner {
 
         List<WorkResult> buildServResList = null;
 
-        if(runCtx.getServRunMode() == RunMode.IN_DOCKER) {
+        if(runCtx.getServRunMode() == RunMode.DOCKER) {
             Worker cleanUpWorker = new CleanUpWorker(runCtx, new CommonWorkContext(runCtx.getServUniqList()));
 
             cleanUpWorker.workOnHosts();
@@ -150,7 +154,7 @@ public class FullRunner extends AbstractRunner {
 
         List<WorkResult> buildDrvrResList = null;
 
-        if(runCtx.getDrvrRunMode() == RunMode.IN_DOCKER) {
+        if(runCtx.getDrvrRunMode() == RunMode.DOCKER) {
             Worker cleanUpWorker = new CleanUpWorker(runCtx, new CommonWorkContext(runCtx.getServUniqList()));
 
             cleanUpWorker.workOnHosts();
@@ -209,7 +213,7 @@ public class FullRunner extends AbstractRunner {
 //
 //        collectResults(drvrRes);
 
-        if(runCtx.getServRunMode() == RunMode.IN_DOCKER || runCtx.getDrvrRunMode() == RunMode.IN_DOCKER) {
+        if(runCtx.getServRunMode() == RunMode.DOCKER || runCtx.getDrvrRunMode() == RunMode.DOCKER) {
 
             Worker cleanUpWorker = new CleanUpWorker(runCtx, new CommonWorkContext(runCtx.getFullUniqList()));
 

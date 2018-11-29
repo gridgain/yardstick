@@ -36,7 +36,7 @@ public class KillWorker extends Worker{
         String actualKillCmd = String.format("pkill -9 -f \"Dyardstick.%s%s \"",
             nodeInfo.getNodeType().toString().toLowerCase(), nodeInfo.getId());
 
-        String killCmd = nodeInfo.getStartCtx().getRunMode() == RunMode.IN_DOCKER ?
+        String killCmd = nodeInfo.getStartCtx().getRunMode() == RunMode.DOCKER ?
             String.format("ssh -o StrictHostKeyChecking=no %s docker exec %s %s",
                 nodeInfo.getHost(), nodeInfo.getDockerInfo().getContName(), actualKillCmd):
             String.format("ssh -o StrictHostKeyChecking=no %s %s",

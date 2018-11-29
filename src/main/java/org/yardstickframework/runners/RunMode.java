@@ -2,7 +2,7 @@ package org.yardstickframework.runners;
 
 public enum RunMode {
     PLAIN("PLAIN"),
-    IN_DOCKER("IN_DOCKER")
+    DOCKER("DOCKER")
     ;
 
     private final String text;

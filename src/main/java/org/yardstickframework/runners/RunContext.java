@@ -274,7 +274,7 @@ public class RunContext {
     }
 
     private void setDockerCtx(){
-        if(getServRunMode() == RunMode.IN_DOCKER || getDrvrRunMode() == RunMode.IN_DOCKER)
+        if(getServRunMode() == RunMode.DOCKER || getDrvrRunMode() == RunMode.DOCKER)
             dockerCtx = DockerContext.getDockerContext(String.format("%s/config/docker/docker-context.yaml", locWorkDir));
     }
 
@@ -405,7 +405,7 @@ public class RunContext {
         switch (mode) {
             case PLAIN:
                 return new PlainNodeStarter(this);
-            case IN_DOCKER:
+            case DOCKER:
                 return new InDockerNodeStarter(this, nodeInfo.getStartCtx());
             default:
                 throw new IllegalArgumentException(String.format("Unknown start mode: %s", mode.toString()));
@@ -418,7 +418,7 @@ public class RunContext {
         switch (mode) {
             case PLAIN:
                 return new PlainNodeChecker(this);
-            case IN_DOCKER:
+            case DOCKER:
                 return new InDockerNodeChecker(this, nodeInfo.getStartCtx());
             default:
                 throw new IllegalArgumentException(String.format("Unknown start mode: %s", mode.toString()));
@@ -491,5 +491,13 @@ public class RunContext {
         String fullPath = String.format("%s/%s", remWorkDir, srcPath);
 
         return fullPath;
+    }
+
+    public boolean checkIfDifferentHosts(){
+        for(String host : getServUniqList())
+            if(getDrvrUniqList().contains(host))
+                return false;
+
+        return true;
     }
 }

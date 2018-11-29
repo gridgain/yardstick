@@ -1,8 +1,8 @@
-removeImagesBeforeRun: false
+removeImagesBeforeRun: true
 
 removeContainersBeforeRun: true
 
-rebuildImagesIfExist: false
+rebuildImagesIfExist: true
 
 tagImageWithTime: false
 
@@ -12,18 +12,27 @@ startContainersBeforeRun: true
 
 removeContainersAfterRun: true
 
-useCommonImageName: true #remove
-
-commonImageName: yardstickserver #remove
-
 serverImageName: yardstickserver
 
 driverImageName: yardstickdriver
 
 copyYardctickIntoContainer: true
 
+serverDockerJavaHome: /docker-java-home
+driverDockerJavaHome: /docker-java-home
+
 serverDockerfilePath: config/docker/Dockerfile-server
 driverDockerfilePath: config/docker/Dockerfile-driver
+
+dockerRunCmdArgs:
+ - -d
+ - --network
+ - host
+
+startContCmd: sleep
+
+startContCmdArgs:
+ - 365d
 
 imagesToClean:
  - yardstickserver

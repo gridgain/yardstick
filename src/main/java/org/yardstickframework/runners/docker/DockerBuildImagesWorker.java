@@ -3,6 +3,7 @@ package org.yardstickframework.runners.docker;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import org.yardstickframework.BenchmarkUtils;
 import org.yardstickframework.runners.CommandHandler;
 import org.yardstickframework.runners.NodeType;
 import org.yardstickframework.runners.RunContext;
@@ -14,6 +15,13 @@ public class DockerBuildImagesWorker extends DockerWorker {
     public DockerBuildImagesWorker(RunContext runCtx, WorkContext workCtx) {
         super(runCtx, workCtx);
     }
+
+    @Override public void beforeWork() {
+        super.beforeWork();
+
+
+    }
+
     @Override public WorkResult doWork(String host, int cnt) {
         NodeType type = dockerWorkCtx.getNodeType();
 
@@ -26,11 +34,14 @@ public class DockerBuildImagesWorker extends DockerWorker {
 
             CommandHandler hndl = new CommandHandler(runCtx);
 
-            String buildCmd = String.format("build -t %s -f %s .",nameToUse, docFilePath);
+            BenchmarkUtils.println(String.format("Building image '%s' on the host %s.", nameToUse, host));
+
 
 //            System.out.println(buildCmd);
 
             try {
+                String buildCmd = String.format("build -t %s -f %s .",nameToUse, docFilePath);
+
                 hndl.runDockerCmd(host, buildCmd);
             }
             catch (IOException e) {
@@ -39,8 +50,6 @@ public class DockerBuildImagesWorker extends DockerWorker {
             catch (InterruptedException e) {
                 e.printStackTrace();
             }
-
-            System.out.println();
         }
 
 
