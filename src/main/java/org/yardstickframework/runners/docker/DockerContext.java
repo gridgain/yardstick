@@ -8,7 +8,10 @@ import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 
 public class DockerContext {
-    private boolean removeImagesBeforeRun;
+    private List<String> removeImagesBeforeRunList;
+
+    private List<String> removeImagesAfterRunList;
+
 
     private boolean removeContainersBeforeRun;
 
@@ -16,7 +19,6 @@ public class DockerContext {
 
     private boolean tagImageWithTime;
 
-    private boolean removeImagesAfterRun;
 
     private boolean startContainersBeforeRun;
     private boolean removeContainersAfterRun;
@@ -32,7 +34,7 @@ public class DockerContext {
     private String serverDockerfilePath;
     private String driverDockerfilePath;
 
-    private List<String> dockerRunCmdArgs;
+    private String dockerRunCmdArgs;
 
     private String startContCmd;
 
@@ -58,6 +60,22 @@ public class DockerContext {
     public DockerContext() {
     }
 
+    public List<String> getRemoveImagesBeforeRunList() {
+        return removeImagesBeforeRunList;
+    }
+
+    public void setRemoveImagesBeforeRunList(List<String> removeImagesBeforeRunList) {
+        this.removeImagesBeforeRunList = removeImagesBeforeRunList;
+    }
+
+    public List<String> getRemoveImagesAfterRunList() {
+        return removeImagesAfterRunList;
+    }
+
+    public void setRemoveImagesAfterRunList(List<String> removeImagesAfterRunList) {
+        this.removeImagesAfterRunList = removeImagesAfterRunList;
+    }
+
     public boolean isRebuildImagesIfExist() {
         return rebuildImagesIfExist;
     }
@@ -74,13 +92,7 @@ public class DockerContext {
         this.tagImageWithTime = tagImageWithTime;
     }
 
-    public boolean isRemoveImagesBeforeRun() {
-        return removeImagesBeforeRun;
-    }
 
-    public void setRemoveImagesBeforeRun(boolean removeImagesBeforeRun) {
-        this.removeImagesBeforeRun = removeImagesBeforeRun;
-    }
 
     public boolean isRemoveContainersBeforeRun() {
         return removeContainersBeforeRun;
@@ -98,13 +110,7 @@ public class DockerContext {
         this.removeContainersAfterRun = removeContainersAfterRun;
     }
 
-    public boolean isRemoveImagesAfterRun() {
-        return removeImagesAfterRun;
-    }
 
-    public void setRemoveImagesAfterRun(boolean removeImagesAfterRun) {
-        this.removeImagesAfterRun = removeImagesAfterRun;
-    }
 
     public boolean isStartContainersBeforeRun() {
         return startContainersBeforeRun;
@@ -162,11 +168,11 @@ public class DockerContext {
         this.driverDockerfilePath = driverDockerfilePath;
     }
 
-    public List<String> getDockerRunCmdArgs() {
+    public String getDockerRunCmdArgs() {
         return dockerRunCmdArgs;
     }
 
-    public void setDockerRunCmdArgs(List<String> dockerRunCmdArgs) {
+    public void setDockerRunCmdArgs(String dockerRunCmdArgs) {
         this.dockerRunCmdArgs = dockerRunCmdArgs;
     }
 

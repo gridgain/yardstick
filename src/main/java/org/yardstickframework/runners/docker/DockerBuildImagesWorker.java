@@ -34,13 +34,13 @@ public class DockerBuildImagesWorker extends DockerWorker {
 
             CommandHandler hndl = new CommandHandler(runCtx);
 
-            BenchmarkUtils.println(String.format("Building image '%s' on the host %s.", nameToUse, host));
+            BenchmarkUtils.println(String.format("Building the image '%s' on the host %s.", nameToUse, host));
 
 
 //            System.out.println(buildCmd);
 
             try {
-                String buildCmd = String.format("build -t %s -f %s .",nameToUse, docFilePath);
+                String buildCmd = String.format("build --no-cache -t %s -f %s .",nameToUse, docFilePath);
 
                 hndl.runDockerCmd(host, buildCmd);
             }

@@ -222,14 +222,8 @@ public class RunContext {
 
         if (props.getProperty("JAVA_HOME") != null)
             remJavaHome = props.getProperty("JAVA_HOME");
-        else {
-            BenchmarkUtils.println(String.format("JAVA_HOME is not defined in property file. Will try to use %s",
-                locJavaHome));
 
-            remJavaHome = locJavaHome;
-        }
-
-        if (new File(String.format("%s/bin/java", remJavaHome)).exists())
+        if (props.getProperty("JAVA_HOME") != null && new File(String.format("%s/bin/java", remJavaHome)).exists())
             locJavaHome = String.format("%s/bin/java", remJavaHome);
     }
 
@@ -500,5 +494,17 @@ public class RunContext {
                 return false;
 
         return true;
+    }
+
+    public List<NodeType> getRunModeTypes(RunMode mode){
+        List<NodeType> res = new ArrayList<>();
+
+        if(getServRunMode() == mode)
+            res.add(NodeType.SERVER);
+
+        if(getDrvrRunMode() == mode)
+            res.add(NodeType.DRIVER);
+
+        return res;
     }
 }

@@ -3,22 +3,21 @@ package org.yardstickframework.runners.docker;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import org.yardstickframework.BenchmarkUtils;
+import org.yardstickframework.runners.CommandExecutionResult;
 import org.yardstickframework.runners.CommandHandler;
+import org.yardstickframework.runners.DockerRunner;
 import org.yardstickframework.runners.NodeType;
 import org.yardstickframework.runners.RunContext;
+import org.yardstickframework.runners.RunMode;
 import org.yardstickframework.runners.WorkContext;
 import org.yardstickframework.runners.WorkResult;
 
 public class DockerStartContWorker extends DockerWorker {
-    private static final String DFLT_START_CMD = "sleep";
+    private static final String DFLT_START_CMD = "sleep 365d";
 
-    private static final List<String> DFLT_START_CMD_ARGS = Collections.singletonList("365d");
-
-    private static final List<String> DFLT_RUN_CMD_ARGS = Arrays.asList("-d", "--network", "host");
+    private static final String DFLT_RUN_CMD_ARGS = "-d --network host";
 
     public DockerStartContWorker(RunContext runCtx, WorkContext workCtx) {
         super(runCtx, workCtx);
@@ -31,7 +30,7 @@ public class DockerStartContWorker extends DockerWorker {
 
         String contName = String.format("YARDSTICK_%s_%d", type, cnt);
 
-        BenchmarkUtils.println(String.format("Starting container %s on the host %s", contName, host));
+        BenchmarkUtils.println(String.format("Starting the container %s on the host %s", contName, host));
 
         String startContCmd = getStartContCmd();
 
@@ -46,20 +45,20 @@ public class DockerStartContWorker extends DockerWorker {
 
 //        System.out.println(startCmd);
 
+
+
         try {
             hndl.runDockerCmd(host, startCmd);
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
-        catch (InterruptedException e) {
-            e.printStackTrace();
-        }
 
-        if(dockerCtx.isCopyYardctickIntoContainer()){
             String contId = getContId(host, contName);
 
             String mkdirCmd = String.format("exec %s mkdir -p %s", contName, runCtx.getRemWorkDir());
+
+            synchronized (this) {
+                setDockerJavaHome(host, contName);
+            }
+
+            hndl.runDockerCmd(host, mkdirCmd);
 
             String remPath = runCtx.getRemWorkDir();
 
@@ -67,17 +66,13 @@ public class DockerStartContWorker extends DockerWorker {
 
             String cpCmd = String.format("cp %s %s:%s", remPath, contId, parentPath);
 
-            try {
-                hndl.runDockerCmd(host, mkdirCmd);
-
-                hndl.runDockerCmd(host, cpCmd);
-            }
-            catch (IOException e) {
-                e.printStackTrace();
-            }
-            catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            hndl.runDockerCmd(host, cpCmd);
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        catch (InterruptedException e) {
+            e.printStackTrace();
         }
 
         return null;
@@ -100,39 +95,61 @@ public class DockerStartContWorker extends DockerWorker {
         return res;
     }
 
-    private String getStartContCmd(){
-        String name = dockerCtx.getStartContCmd() != null ? dockerCtx.getStartContCmd() : DFLT_START_CMD;
-
-        List<String> args = dockerCtx.getStartContCmdArgs() != null  ?
-            dockerCtx.getStartContCmdArgs() :
-            DFLT_START_CMD_ARGS;
-
-
-        StringBuilder sb = new StringBuilder(name);
-
-        for(String arg : args) {
-            sb.append(" ");
-
-            sb.append(arg);
-        }
-
-        return sb.toString();
+    private String getStartContCmd() {
+        return dockerCtx.getStartContCmd() != null ? dockerCtx.getStartContCmd() : DFLT_START_CMD;
     }
 
-    private String getRunArgs(){
-        List<String> args = dockerCtx.getDockerRunCmdArgs() != null  ?
+    private String getRunArgs() {
+        return dockerCtx.getDockerRunCmdArgs() != null ?
             dockerCtx.getDockerRunCmdArgs() :
             DFLT_RUN_CMD_ARGS;
+    }
 
-        StringBuilder sb = new StringBuilder();
+    private void setDockerJavaHome(String host, String contName) throws IOException, InterruptedException {
+        NodeType type = dockerWorkCtx.getNodeType();
 
-        for(String arg : args) {
-            sb.append(" ");
+        String echoCmd = String.format("exec %s sh -c 'echo $JAVA_HOME'", contName);
 
-            sb.append(arg);
+        CommandHandler hndl = new CommandHandler(runCtx);
+
+        CommandExecutionResult res = hndl.runDockerCmd(host, echoCmd);
+
+        if(!res.getOutStream().isEmpty()){
+            String javaHome = res.getOutStream().get(0);
+
+            switch (type){
+                case SERVER:
+                    if(dockerCtx.getServerDockerJavaHome() == null) {
+                        BenchmarkUtils.println(String.format("Using docker JAVA_HOME for server nodes: %s",
+                            javaHome));
+
+                        dockerCtx.setServerDockerJavaHome(javaHome);
+                    }
+                    break;
+                case DRIVER:
+                    if(dockerCtx.getDriverDockerJavaHome() == null) {
+                        BenchmarkUtils.println(String.format("Using docker JAVA_HOME for driver nodes: %s",
+                            javaHome));
+
+                        dockerCtx.setDriverDockerJavaHome(javaHome);
+                    }
+                    break;
+                default:
+                    BenchmarkUtils.println("Unknown node type " + type);
+            }
+        }
+        else{
+            BenchmarkUtils.println(String.format("Failed to get JAVA_HOME variable from docker container %s", contName));
+
+            BenchmarkUtils.println("Will clean up docker and exit.");
+
+            DockerRunner runner = new DockerRunner(runCtx);
+
+            runner.cleanAfter(runCtx.getRunModeTypes(RunMode.DOCKER));
+
+            System.exit(1);
         }
 
-        return sb.toString();
     }
 
     @Override public String getWorkerName() {

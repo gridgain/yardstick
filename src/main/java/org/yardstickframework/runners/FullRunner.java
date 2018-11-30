@@ -36,6 +36,16 @@ public class FullRunner extends AbstractRunner {
     }
 
     public int run1() {
+
+        checkPlain();
+
+        List<NodeType> forDockerPrep = runCtx.getRunModeTypes(RunMode.DOCKER);
+
+        DockerRunner dockerRunner = new DockerRunner(runCtx);
+
+        if(!forDockerPrep.isEmpty())
+            dockerRunner.check(forDockerPrep);
+
         Worker killWorker = new KillWorker(runCtx, new CommonWorkContext(runCtx.getFullUniqList()));
 
         killWorker.workOnHosts();
@@ -44,19 +54,9 @@ public class FullRunner extends AbstractRunner {
 
         deployWorker.workOnHosts();
 
-        List<NodeType> forDockerPrep = new ArrayList<>();
 
-        if (runCtx.getServRunMode() == RunMode.DOCKER)
-            forDockerPrep.add(NodeType.SERVER);
-
-        if (runCtx.getDrvrRunMode() == RunMode.DOCKER)
-            forDockerPrep.add(NodeType.DRIVER);
-
-        DockerRunner dockerRunner = null;
 
         if(!forDockerPrep.isEmpty()) {
-            dockerRunner = new DockerRunner(runCtx);
-
             dockerRunner.cleanBefore(forDockerPrep);
 
             dockerRunner.prepare(forDockerPrep);
@@ -80,12 +80,11 @@ public class FullRunner extends AbstractRunner {
             if(Boolean.valueOf(runCtx.getProps().getProperty("RESTART_SERVERS")))
                 servRes = startServNodes(cfgStr);
 
-            try {
-                Thread.sleep(5000L);
-            }
-            catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            BenchmarkUtils.println("Waiting for server nodes to start.");
+
+            waitForNodes(servRes, NodeStatus.RUNNING);
+
+            BenchmarkUtils.println("Server nodes started.");
 
             drvrRes = startDrvrNodes(cfgStr);
 
@@ -108,7 +107,7 @@ public class FullRunner extends AbstractRunner {
         if(!forDockerPrep.isEmpty()) {
             dockerRunner.collect(forDockerPrep);
 
-            dockerRunner.clean(forDockerPrep);
+            dockerRunner.cleanAfter(forDockerPrep);
         }
 
         new CollectWorker(runCtx, new CommonWorkContext(runCtx.getFullUniqList())).workOnHosts();
@@ -116,6 +115,23 @@ public class FullRunner extends AbstractRunner {
         createCharts();
 
         return 0;
+    }
+
+    private void checkPlain(){
+        Worker checkWorker = new CheckWorker(runCtx, new CommonWorkContext(runCtx.getFullUniqList()));
+
+        List<WorkResult> checks = checkWorker.workOnHosts();
+
+        for(WorkResult check : checks){
+            CheckWorkResult res = (CheckWorkResult) check;
+
+            if(!res.getErrMsgs().isEmpty()){
+                for(String msg : res.getErrMsgs())
+                    BenchmarkUtils.println(msg);
+
+                System.exit(1);
+            }
+        }
     }
 
     /**

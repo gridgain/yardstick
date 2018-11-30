@@ -37,13 +37,13 @@ public abstract class DockerWorker extends Worker {
         dockerCtx = runCtx.getDockerContext();
     }
 
-    protected void removeImages(String host) {
+    protected void removeImages(String host, List<String> imagesToClean) {
         Collection<Map<String, String>> imageMaps = getImages(host);
 
         Map<String, String> toRemove = new HashMap<>();
 
         for (Map<String, String> imageMap : imageMaps) {
-            for (String imageName : dockerCtx.getImagesToClean()) {
+            for (String imageName : imagesToClean) {
                 if (imageMap.get("REPOSITORY").contains(imageName))
                     toRemove.put(imageMap.get("IMAGE ID"), imageMap.get("REPOSITORY"));
             }
@@ -61,7 +61,7 @@ public abstract class DockerWorker extends Worker {
                 String names = contMap.get("NAMES");
 
                 if (names.contains(contName)) {
-                    BenchmarkUtils.println(String.format("Removing container '%s' from the host %s.",
+                    BenchmarkUtils.println(String.format("Removing the container '%s' from the host %s.",
                         names, host));
 
                     removeSingleCont(host, contMap.get("CONTAINER ID"));
@@ -90,7 +90,7 @@ public abstract class DockerWorker extends Worker {
     private CommandExecutionResult removeImage(String host, String imageId, String imageName) {
         CommandHandler hndl = new CommandHandler(runCtx);
 
-        BenchmarkUtils.println(String.format("Removing image '%s' (id=%s) from the host %s",
+        BenchmarkUtils.println(String.format("Removing the image '%s' (id=%s) from the host %s",
             imageName, imageId, host));
 
         CommandExecutionResult cmdRes = null;
@@ -192,12 +192,8 @@ public abstract class DockerWorker extends Worker {
     }
 
     protected String getImageNameToUse(NodeType type){
-        String pref = type == NodeType.SERVER ?
+        return type == NodeType.SERVER ?
             dockerCtx.getServerImageName():
             dockerCtx.getDriverImageName();
-
-        return dockerCtx.isTagImageWithTime() ?
-            String.format("%s:%s", pref, runCtx.getMainDateTime()):
-            pref;
     }
 }
