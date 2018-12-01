@@ -36,7 +36,7 @@ public class InDockerNodeStarter extends AbstractRunner implements NodeStarter  
         try {
             String mkdirCmd = String.format("exec %s mkdir -p %s", contName, nodeLogDir);
 
-            String cmd = String.format("exec %s nohup %s", contName, startNodeCmd);
+            String cmd = String.format("exec %s nohup %s > %s 2>& 1 &", contName, startNodeCmd, nodeInfo.getLogPath());
 
             hndl.runDockerCmd(nodeInfo.getHost(), mkdirCmd);
 

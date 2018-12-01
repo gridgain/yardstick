@@ -22,8 +22,7 @@ public class CommandHandler {
         this.runCtx = runCtx;
     }
 
-    public CommandExecutionResult runCmd(String host, String cmd,
-        String args) throws IOException, InterruptedException {
+    public CommandExecutionResult runCmd(String host, String cmd) throws IOException, InterruptedException {
 
         while (cmd.contains("  "))
             cmd = cmd.replace("  ", " ");
@@ -110,7 +109,6 @@ public class CommandHandler {
             pb.directory(new File(runCtx.getLocWorkDir()));
 
             pb.start();
-
         }
 
 //        return runCmd(fullCmd);
@@ -205,8 +203,9 @@ public class CommandHandler {
             String echoCmd = "echo $JAVA_HOME";
 
             CommandExecutionResult res = null;
+
             try {
-                res = runCmd(host, echoCmd, "");
+                res = runCmd(host, echoCmd);
             }
             catch (IOException e) {
                 e.printStackTrace();

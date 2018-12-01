@@ -58,7 +58,7 @@ public class PlainNodeStarter extends AbstractRunner implements NodeStarter {
 //        BenchmarkUtils.println("Running start node cmd: " + cmd.replaceAll(runCtx.getRemWorkDir(), "<MAIN_DIR>"));
 
         try {
-            hndl.runCmd(host, withJavaHome, "");
+            hndl.runCmd(host, withJavaHome);
         }
         catch (IOException e) {
             e.printStackTrace();

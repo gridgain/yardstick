@@ -17,9 +17,9 @@ public class KillWorker extends Worker{
         String killDrvrCmd = "pkill -9 -f \"Dyardstick.driver\"";
 
         try {
-            hndl.runCmd(ip, killServCmd, "");
+            hndl.runCmd(ip, killServCmd);
 
-            hndl.runCmd(ip, killDrvrCmd, "");
+            hndl.runCmd(ip, killDrvrCmd);
         }
         catch (IOException e) {
             e.printStackTrace();
