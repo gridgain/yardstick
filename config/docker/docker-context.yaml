@@ -4,7 +4,7 @@
 # - yardstickdriver
 
 # Flag to rebuild images even if they already exist.
-rebuildImagesIfExist: true
+rebuildImagesIfExist: false
 
 # Flag to remove images after run.
 #removeImagesAfterRunList:

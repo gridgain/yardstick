@@ -71,5 +71,4 @@ public class InDockerNodeStarter extends AbstractRunner implements NodeStarter  
 
         return "Unknown";
     }
-
 }

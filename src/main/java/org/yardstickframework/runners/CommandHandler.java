@@ -27,14 +27,68 @@ public class CommandHandler {
         while (cmd.contains("  "))
             cmd = cmd.replace("  ", " ");
 
-        String fullCmd = isLocal(host) ?
-            cmd :
-            String.format("%s %s", getFullSSHPref(host), cmd);
+        if(isLocal(host))
+            return runLocCmd(cmd);
 
-        return runCmd(fullCmd);
+        String fullCmd = String.format("%s %s", getFullSSHPref(host), cmd);
+
+        return runRmtCmd(fullCmd);
     }
 
-    protected CommandExecutionResult runCmd(final String cmd) throws IOException, InterruptedException {
+    protected CommandExecutionResult runLocCmd(String cmd) throws IOException, InterruptedException {
+        System.out.println(String.format("Running local cmd %s", cmd));
+
+        while (cmd.contains("  "))
+            cmd = cmd.replace("  ", " ");
+
+        String[] cmdArr = cmd.split(" ");
+
+        final ProcessBuilder pb = new ProcessBuilder()
+            .command(cmdArr);
+
+        pb.directory(new File(runCtx.getLocWorkDir()));
+
+        Process p = pb.start();
+
+        int exitCode = p.waitFor();
+
+        BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
+
+        String lineE = "";
+
+        List<String> errList = new ArrayList<>();
+
+        BufferedReader errReader = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+
+        while ((lineE = errReader.readLine()) != null) {
+            System.out.println(String.format("Command '%s' returned error line: %s:", cmd, lineE));
+
+            errList.add(lineE);
+        }
+
+        List<String> errStr = errList;
+
+        String lineO = "";
+
+        final List<String> outStr = new ArrayList<>();
+
+        while ((lineO = reader.readLine()) != null) {
+            outStr.add(lineO);
+
+            if (lineO.contains("Successfully built "))
+                BenchmarkUtils.println(lineO);
+        }
+
+        CommandExecutionResult res = new CommandExecutionResult(exitCode, outStr, errStr);
+
+        System.out.println(res.toString());
+
+        return res;
+    }
+
+    protected CommandExecutionResult runRmtCmd(final String cmd) throws IOException, InterruptedException {
+        System.out.println(String.format("Running cmd %s", cmd));
+
         ExecutorService errStreamPrinter = Executors.newSingleThreadExecutor();
 
         final Process p = Runtime.getRuntime().exec(cmd);
@@ -83,35 +137,58 @@ public class CommandHandler {
                 BenchmarkUtils.println(line);
         }
 
-        return new CommandExecutionResult(exitCode, outStr, errStr);
+        CommandExecutionResult res = new CommandExecutionResult(exitCode, outStr, errStr);
+
+        System.out.println(res.toString());
+
+        return res;
     }
 
     public CommandExecutionResult startNode(String host, String cmd,
         String logPath) throws IOException, InterruptedException {
-        String fullCmd = "";
+        if (isLocal(host))
+            return startNodeLocal(cmd, logPath);
+
+        String startNodeCmd = String.format("%s nohup %s > %s 2>& 1 &", getFullSSHPref(host), cmd, logPath);
+
+        return runRmtCmd(startNodeCmd);
+    }
+
+    private CommandExecutionResult startNodeLocal(String cmd,
+        String logPath) throws IOException, InterruptedException {
+//        cmd = "nohup " + cmd;
 
         while (cmd.contains("  "))
             cmd = cmd.replace("  ", " ");
 
         String[] cmdArr = cmd.split(" ");
 
-        if (isLocal(host)) {
-            File logFile = new File(logPath);
+        File logFile = new File(logPath);
 
-            logFile.createNewFile();
+        logFile.createNewFile();
 
-            ProcessBuilder pb = new ProcessBuilder()
-                .command(cmdArr);
+        final ProcessBuilder pb = new ProcessBuilder()
+            .command(cmdArr);
 
-            pb.redirectErrorStream(true);
-            pb.redirectOutput(logFile);
+        pb.redirectErrorStream(true);
+        pb.redirectOutput(logFile);
 
-            pb.directory(new File(runCtx.getLocWorkDir()));
+        pb.directory(new File(runCtx.getLocWorkDir()));
 
-            pb.start();
-        }
+        Executors.newSingleThreadExecutor().submit(new Runnable() {
+            @Override public void run() {
+                try {
+                    Process p = pb.start();
 
-//        return runCmd(fullCmd);
+                    p.waitFor();
+                }
+                catch (IOException | InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        });
+
         return null;
     }
 
@@ -167,7 +244,7 @@ public class CommandHandler {
                 getFullSSHPref(host),
                 path);
 
-            return runCmd(mkdirCmd);
+            return runRmtCmd(mkdirCmd);
         }
     }
 
@@ -175,11 +252,11 @@ public class CommandHandler {
         String fullCmd = String.format("docker %s", cmd);
 
         if (isLocal(host))
-            return runCmd(fullCmd);
+            return runRmtCmd(fullCmd);
         else {
             fullCmd = String.format("%s docker %s", getFullSSHPref(host), cmd);
 
-            return runCmd(fullCmd);
+            return runRmtCmd(fullCmd);
         }
     }
 
@@ -230,7 +307,7 @@ public class CommandHandler {
         String checkCmd = String.format("%s echo check", getFullSSHPref(host));
 
         try {
-            res = runCmd(checkCmd);
+            res = runRmtCmd(checkCmd);
         }
         catch (IOException | InterruptedException e) {
             e.printStackTrace();
@@ -244,13 +321,13 @@ public class CommandHandler {
             && res.getOutStream().get(0).equals("check");
     }
 
-    public boolean checkRemJava(String host, String javaHome){
+    public boolean checkRemJava(String host, String javaHome) {
         String checkCmd = String.format("%s test -f %s/bin/java", getFullSSHPref(host), javaHome);
 
         CommandExecutionResult res = null;
 
         try {
-            res = runCmd(checkCmd);
+            res = runRmtCmd(checkCmd);
         }
         catch (IOException e) {
             e.printStackTrace();

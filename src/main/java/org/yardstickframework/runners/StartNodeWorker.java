@@ -64,11 +64,6 @@ public class StartNodeWorker extends Worker {
 
         StartNodeWorkContext startCtx = (StartNodeWorkContext)getWorkCtx();
 
-        String javaHome = runCtx.getRemJavaHome();
-
-//        if(startCtx.getDockerInfo() != null && startCtx.getDockerInfo().getJavaHome() != null)
-//            javaHome = startCtx.getDockerInfo().getJavaHome();
-
         String nodeTypeLowCase = startCtx.getNodeType().toString().toLowerCase();
 
         BenchmarkUtils.println(String.format("Starting %s node on the host %s with id %d",
@@ -130,7 +125,7 @@ public class StartNodeWorker extends Worker {
         String fullJvmOpts = (concJvmOpts + " " + gcJvmOpts).replace("\"", "");
 
         String startCmd = String.format("%s -Dyardstick.%s%d -cp :%s/libs/* %s -id %d %s %s --config %s " +
-                "--logsFolder %s --remoteuser %s --currentFolder %s --scriptsFolder %s/bin > %s 2>& 1 &",
+                "--logsFolder %s --remoteuser %s --currentFolder %s --scriptsFolder %s/bin",
             fullJvmOpts,
             nodeTypeLowCase,
             cnt,
@@ -143,8 +138,7 @@ public class StartNodeWorker extends Worker {
             logDirFullName,
             runCtx.getRemUser(),
             runCtx.getRemWorkDir(),
-            runCtx.getRemWorkDir(),
-            logFileName);
+            runCtx.getRemWorkDir());
 
 //        String startCmd = String.format("%s/bin/java %s -Dyardstick.%s%d -cp :%s/libs/* %s -id %d %s %s --config %s " +
 //                "--logsFolder %s --remoteuser %s --currentFolder %s --scriptsFolder %s/bin &",
@@ -192,7 +186,6 @@ public class StartNodeWorker extends Worker {
                 throw new IllegalArgumentException("Unknown node type");
         }
     }
-
 
     @Override public String getWorkerName() {
         return getClass().getSimpleName();

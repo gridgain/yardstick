@@ -14,6 +14,8 @@ public class CommandExecutionResult {
 
     private List<String> errStream;
 
+    private Process proc;
+
     public CommandExecutionResult(int exitCode, List<String> outStream,
         List<String> errStream) {
         this.exitCode = exitCode;
@@ -31,5 +33,13 @@ public class CommandExecutionResult {
 
     public List<String> getErrStream() {
         return errStream;
+    }
+
+    @Override public String toString() {
+        return "CommandExecutionResult{" +
+            "exitCode=" + exitCode +
+            ", outStream=" + outStream +
+            ", errStream=" + errStream +
+            '}';
     }
 }

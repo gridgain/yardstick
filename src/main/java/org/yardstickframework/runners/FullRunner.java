@@ -52,7 +52,7 @@ public class FullRunner extends AbstractRunner {
 
         Worker deployWorker = new DeployWorker(runCtx, new CommonWorkContext(runCtx.getFullUniqList()));
 
-        deployWorker.workOnHosts();
+//        deployWorker.workOnHosts();
 
 
 
