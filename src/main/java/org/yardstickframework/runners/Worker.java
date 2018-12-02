@@ -93,6 +93,10 @@ public abstract class Worker extends AbstractRunner{
         return res;
     }
 
+    protected boolean isLocal(String host) {
+        return host.equalsIgnoreCase("localhost") || host.equals("127.0.0.1");
+    }
+
     public void afterWork(){
         BenchmarkUtils.println(String.format("%s finished.", getClass().getSimpleName()));
     }

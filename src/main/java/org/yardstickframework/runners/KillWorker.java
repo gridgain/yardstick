@@ -33,20 +33,14 @@ public class KillWorker extends Worker{
     }
 
     public WorkResult killNode(NodeInfo nodeInfo){
-        String actualKillCmd = String.format("pkill -9 -f \"Dyardstick.%s%s \"",
-            nodeInfo.getNodeType().toString().toLowerCase(), nodeInfo.getId());
+        CommandHandler hndl = new CommandHandler(runCtx);
 
-        String killCmd = nodeInfo.getStartCtx().getRunMode() == RunMode.DOCKER ?
-            String.format("ssh -o StrictHostKeyChecking=no %s docker exec %s %s",
-                nodeInfo.getHost(), nodeInfo.getDockerInfo().getContName(), actualKillCmd):
-            String.format("ssh -o StrictHostKeyChecking=no %s %s",
-                nodeInfo.getHost(), actualKillCmd);
-
-        BenchmarkUtils.println(String.format("Killing node -Dyardstick.%s-%s",
-            nodeInfo.getNodeType().toString().toLowerCase(), nodeInfo.getId()));
-//        BenchmarkUtils.println(String.format("Running kill cmd: %s", killCmd));
-
-        runCmd(killCmd);
+        try {
+            return hndl.killNode(nodeInfo);
+        }
+        catch (InterruptedException | IOException e) {
+            e.printStackTrace();
+        }
 
         return nodeInfo;
     }

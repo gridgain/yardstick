@@ -9,7 +9,7 @@ public class CollectWorker extends Worker{
         super(runCtx, workCtx);
     }
     @Override public WorkResult doWork(String host, int cnt) {
-        if (host.equals("localhost") && runCtx.getLocWorkDir().equals(runCtx.getRemWorkDir()))
+        if (isLocal(host) && runCtx.getLocWorkDir().equals(runCtx.getRemWorkDir()))
             return null;
 
         File outDir = new File(String.format("%s/output", runCtx.getRemWorkDir()));

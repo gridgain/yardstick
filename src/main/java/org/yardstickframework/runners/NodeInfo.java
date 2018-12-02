@@ -20,6 +20,8 @@ public class NodeInfo implements WorkResult {
 
     private DockerInfo dockerInfo;
 
+    private CommandExecutionResult cmdExRes;
+
     public NodeInfo(NodeType nodeType, String host, @Nullable String port, String id, StartNodeWorkContext startCtx,
         String startCmd, String logPath) {
         this.nodeType = nodeType;
@@ -89,5 +91,17 @@ public class NodeInfo implements WorkResult {
 
     public void setDockerInfo(DockerInfo dockerInfo) {
         this.dockerInfo = dockerInfo;
+    }
+
+    public void setStartCtx(StartNodeWorkContext startCtx) {
+        this.startCtx = startCtx;
+    }
+
+    public CommandExecutionResult getCmdExRes() {
+        return cmdExRes;
+    }
+
+    public void setCmdExRes(CommandExecutionResult cmdExRes) {
+        this.cmdExRes = cmdExRes;
     }
 }

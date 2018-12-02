@@ -16,11 +16,11 @@ public class CommandExecutionResult {
 
     private Process proc;
 
-    public CommandExecutionResult(int exitCode, List<String> outStream,
-        List<String> errStream) {
+    public CommandExecutionResult(int exitCode, List<String> outStream, List<String> errStream, Process proc) {
         this.exitCode = exitCode;
         this.outStream = outStream;
         this.errStream = errStream;
+        this.proc = proc;
     }
 
     public int getExitCode() {
@@ -33,6 +33,10 @@ public class CommandExecutionResult {
 
     public List<String> getErrStream() {
         return errStream;
+    }
+
+    public Process getProc() {
+        return proc;
     }
 
     @Override public String toString() {

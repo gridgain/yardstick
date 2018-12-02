@@ -23,11 +23,10 @@ public class CommandHandler {
     }
 
     public CommandExecutionResult runCmd(String host, String cmd) throws IOException, InterruptedException {
-
         while (cmd.contains("  "))
             cmd = cmd.replace("  ", " ");
 
-        if(isLocal(host))
+        if (isLocal(host))
             return runLocCmd(cmd);
 
         String fullCmd = String.format("%s %s", getFullSSHPref(host), cmd);
@@ -35,8 +34,8 @@ public class CommandHandler {
         return runRmtCmd(fullCmd);
     }
 
-    protected CommandExecutionResult runLocCmd(String cmd) throws IOException, InterruptedException {
-        System.out.println(String.format("Running local cmd %s", cmd));
+    private CommandExecutionResult runLocCmd(String cmd) throws IOException, InterruptedException {
+//        System.out.println(String.format("Running local cmd %s", cmd));
 
         while (cmd.contains("  "))
             cmd = cmd.replace("  ", " ");
@@ -79,15 +78,15 @@ public class CommandHandler {
                 BenchmarkUtils.println(lineO);
         }
 
-        CommandExecutionResult res = new CommandExecutionResult(exitCode, outStr, errStr);
+        CommandExecutionResult res = new CommandExecutionResult(exitCode, outStr, errStr, p);
 
-        System.out.println(res.toString());
+//        System.out.println(res.toString());
 
         return res;
     }
 
     protected CommandExecutionResult runRmtCmd(final String cmd) throws IOException, InterruptedException {
-        System.out.println(String.format("Running cmd %s", cmd));
+//        System.out.println(String.format("Running cmd %s", cmd));
 
         ExecutorService errStreamPrinter = Executors.newSingleThreadExecutor();
 
@@ -95,7 +94,7 @@ public class CommandHandler {
 
         int exitCode = p.waitFor();
 
-        BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
+        BufferedReader outReader = new BufferedReader(new InputStreamReader(p.getInputStream()));
 
         Future<List<String>> resFut = errStreamPrinter.submit(new Callable<List<String>>() {
             @Override public List<String> call() throws IOException {
@@ -130,16 +129,16 @@ public class CommandHandler {
 
         final List<String> outStr = new ArrayList<>();
 
-        while ((line = reader.readLine()) != null) {
+        while ((line = outReader.readLine()) != null) {
             outStr.add(line);
 
             if (line.contains("Successfully built "))
                 BenchmarkUtils.println(line);
         }
 
-        CommandExecutionResult res = new CommandExecutionResult(exitCode, outStr, errStr);
+        CommandExecutionResult res = new CommandExecutionResult(exitCode, outStr, errStr, p);
 
-        System.out.println(res.toString());
+//        System.out.println(res.toString());
 
         return res;
     }
@@ -156,7 +155,6 @@ public class CommandHandler {
 
     private CommandExecutionResult startNodeLocal(String cmd,
         String logPath) throws IOException, InterruptedException {
-//        cmd = "nohup " + cmd;
 
         while (cmd.contains("  "))
             cmd = cmd.replace("  ", " ");
@@ -165,31 +163,92 @@ public class CommandHandler {
 
         File logFile = new File(logPath);
 
-        logFile.createNewFile();
+        if(!logFile.exists())
+            logFile.createNewFile();
 
-        final ProcessBuilder pb = new ProcessBuilder()
-            .command(cmdArr);
+        final ProcessBuilder pb = new ProcessBuilder().command(cmdArr);
 
         pb.redirectErrorStream(true);
         pb.redirectOutput(logFile);
 
         pb.directory(new File(runCtx.getLocWorkDir()));
 
-        Executors.newSingleThreadExecutor().submit(new Runnable() {
+        final Process p = pb.start();
+
+        ExecutorService nodeServ = Executors.newSingleThreadExecutor();
+
+        nodeServ.submit(new Runnable() {
             @Override public void run() {
                 try {
-                    Process p = pb.start();
-
                     p.waitFor();
                 }
-                catch (IOException | InterruptedException e) {
+                catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-
             }
         });
 
-        return null;
+        nodeServ.shutdown();
+
+        return new CommandExecutionResult(0, null, null, p);
+    }
+
+    public NodeCheckResult checkPlainNode(NodeInfo nodeInfo) throws IOException, InterruptedException {
+        String host = nodeInfo.getHost();
+
+        if (isLocal(host)) {
+            Process proc = nodeInfo.getCmdExRes().getProc();
+
+            if (proc != null && proc.isAlive())
+                return new NodeCheckResult(NodeStatus.RUNNING);
+            else
+                return new NodeCheckResult(NodeStatus.NOT_RUNNING);
+        }
+        String checkCmd = String.format("%s pgrep -f \"Dyardstick.%s%s \"",
+            getFullSSHPref(host),
+            nodeInfo.getNodeType().toString().toLowerCase(),
+            nodeInfo.getId());
+
+        CommandExecutionResult res = runRmtCmd(checkCmd);
+
+        if (!res.getOutStream().isEmpty())
+            return new NodeCheckResult(NodeStatus.RUNNING);
+        else
+            return new NodeCheckResult(NodeStatus.NOT_RUNNING);
+    }
+
+    public WorkResult killNode(NodeInfo nodeInfo) throws IOException, InterruptedException {
+        BenchmarkUtils.println(String.format("Killing node -Dyardstick.%s%s",
+            nodeInfo.getNodeType().toString().toLowerCase(), nodeInfo.getId()));
+
+        String host = nodeInfo.getHost();
+
+        RunMode runMode = nodeInfo.getStartCtx().getRunMode();
+
+        if (isLocal(host) && runMode == RunMode.PLAIN) {
+            Process proc = nodeInfo.getCmdExRes().getProc();
+
+            proc.destroyForcibly();
+
+            return nodeInfo;
+        }
+
+        String killCmd = String.format("pkill -9 -f \"Dyardstick.%s%s \"",
+            nodeInfo.getNodeType().toString().toLowerCase(), nodeInfo.getId());
+
+        if (runMode == RunMode.DOCKER) {
+            String contName = nodeInfo.getDockerInfo().getContName();
+
+            String docKillCmd = String.format("exec %s %s", contName, killCmd);
+
+            runDockerCmd(host, docKillCmd);
+
+            return nodeInfo;
+        }
+
+        runCmd(host, killCmd);
+
+        return nodeInfo;
     }
 
     public CommandExecutionResult runLocalJava(String args) {
@@ -217,8 +276,6 @@ public class CommandHandler {
         catch (IOException e) {
             e.printStackTrace();
         }
-
-//        return runCmd(fullCmd);
         return null;
     }
 
@@ -237,7 +294,7 @@ public class CommandHandler {
                 errStream.add(e.getMessage());
             }
 
-            return new CommandExecutionResult(errStream.size(), new ArrayList<String>(), errStream);
+            return new CommandExecutionResult(errStream.size(), new ArrayList<String>(), errStream, null);
         }
         else {
             String mkdirCmd = String.format("%s mkdir -p %s",

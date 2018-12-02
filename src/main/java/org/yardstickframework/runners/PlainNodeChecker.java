@@ -10,20 +10,12 @@ public class PlainNodeChecker extends AbstractRunner implements NodeChecker {
     }
 
     @Override public WorkResult checkNode(NodeInfo nodeInfo) {
-        String checkCmd = String.format("pgrep -f \"Dyardstick.%s%s\"",
-            nodeInfo.getNodeType().toString().toLowerCase(),
-            nodeInfo.getId());
-
         CommandHandler hndl = new CommandHandler(runCtx);
 
-        String host = nodeInfo.getHost();
-
-        CommandExecutionResult res = null;
-
-//        System.out.println(checkCmd);
+        NodeCheckResult res = null;
 
         try {
-            res = hndl.runCmd(host, checkCmd);
+             res = hndl.checkPlainNode(nodeInfo);
         }
         catch (IOException e) {
             e.printStackTrace();
@@ -32,9 +24,6 @@ public class PlainNodeChecker extends AbstractRunner implements NodeChecker {
             e.printStackTrace();
         }
 
-        if(!res.getOutStream().isEmpty())
-            return new NodeCheckResult(NodeStatus.RUNNING);
-        else
-            return new NodeCheckResult(NodeStatus.NOT_RUNNING);
+        return res;
     }
 }
