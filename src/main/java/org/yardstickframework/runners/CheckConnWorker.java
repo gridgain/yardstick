@@ -3,9 +3,9 @@ package org.yardstickframework.runners;
 import java.io.File;
 import org.yardstickframework.BenchmarkUtils;
 
-public class CheckWorker extends Worker{
+public class CheckConnWorker extends Worker{
 
-    public CheckWorker(RunContext runCtx, WorkContext workCtx) {
+    public CheckConnWorker(RunContext runCtx, WorkContext workCtx) {
         super(runCtx, workCtx);
     }
     @Override public WorkResult doWork(String host, int cnt) {

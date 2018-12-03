@@ -10,8 +10,10 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import org.apache.log4j.ConsoleAppender;
@@ -50,6 +52,8 @@ public class RunContext {
     private String locJavaHome;
 
     private String remJavaHome;
+
+    private Map<String, String> hostJavaHomeMap = new HashMap<>();
 
     private String locUser;
 
@@ -97,6 +101,10 @@ public class RunContext {
 
     public String getRemJavaHome() {
         return remJavaHome;
+    }
+
+    public Map<String, String> getHostJavaHomeMap() {
+        return hostJavaHomeMap;
     }
 
     public String getLocUser() {
@@ -563,7 +571,7 @@ public class RunContext {
         return true;
     }
 
-    public List<NodeType> getRunModeTypes(RunMode mode) {
+    public List<NodeType> getNodeTypes(RunMode mode) {
         List<NodeType> res = new ArrayList<>();
 
         if (getServRunMode() == mode)
@@ -573,6 +581,18 @@ public class RunContext {
             res.add(NodeType.DRIVER);
 
         return res;
+    }
+
+    public List<String> getHostsByType(NodeType type){
+        return type == NodeType.SERVER ? servHosts : drvrHosts;
+    }
+
+    public List<String> getUniqHostsByType(NodeType type){
+        return makeUniq(getHostsByType(type));
+    }
+
+    public String getHostJava(String host){
+        return hostJavaHomeMap.get(host);
     }
 
     private void configLog() {

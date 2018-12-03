@@ -20,37 +20,7 @@ public class PlainNodeStarter extends AbstractRunner implements NodeStarter {
 
         String cmd = nodeInfo.getStartCmd();
 
-        String javaHome = null;
-
-        if (runCtx.getRemJavaHome() != null)
-            javaHome = runCtx.getRemJavaHome();
-        else {
-            if (!checked(host)) {
-                javaHome = getHostJavaHome(host);
-
-                synchronized (this) {
-                    hostJavaHomeMap.put(host, javaHome);
-                }
-
-                if (javaHome == null || javaHome.isEmpty()) {
-                    printNoJavaError(host);
-
-                    return null;
-                }
-                else{
-                    BenchmarkUtils.println(String.format("JAVA_HOME is not defined in property file. Using default " +
-                        "JAVA_HOME %s on the host %s", javaHome, host));
-                }
-            }
-            else
-                javaHome = hostJavaHomeMap.get(host);
-
-            if (javaHome == null || javaHome.isEmpty()) {
-                printNoJavaError(host);
-
-                return null;
-            }
-        }
+        String javaHome = runCtx.getHostJava(host);
 
         String withJavaHome = String.format("%s/bin/java %s", javaHome, cmd);
 

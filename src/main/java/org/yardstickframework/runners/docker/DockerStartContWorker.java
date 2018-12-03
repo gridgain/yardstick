@@ -145,7 +145,7 @@ public class DockerStartContWorker extends DockerWorker {
 
             DockerRunner runner = new DockerRunner(runCtx);
 
-            runner.cleanAfter(runCtx.getRunModeTypes(RunMode.DOCKER));
+            runner.cleanAfter(runCtx.getNodeTypes(RunMode.DOCKER));
 
             System.exit(1);
         }
