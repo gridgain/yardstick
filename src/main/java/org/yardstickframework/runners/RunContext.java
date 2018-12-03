@@ -59,7 +59,7 @@ public class RunContext {
 
     private List<String> drvrHosts;
 
-    private String currentHost = "127.0.0.1";
+    private String currentHost;
 
     private String mainDateTime;
 
@@ -270,6 +270,12 @@ public class RunContext {
                     currentHost = adr;
                 }
             }
+        }
+
+        if(currentHost == null){
+            LOG.info("Setting current host address as 127.0.0.1");
+
+            currentHost = "127.0.0.1";
         }
     }
 
