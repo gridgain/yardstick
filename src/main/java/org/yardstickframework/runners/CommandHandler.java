@@ -395,4 +395,22 @@ public class CommandHandler {
 
         return res != null && res.getExitCode() == 0;
     }
+
+    public boolean checkRemFile(String host, String path){
+        String checkCmd = String.format("%s test -f %s", getFullSSHPref(host), path);
+
+        CommandExecutionResult res = null;
+
+        try {
+            res = runRmtCmd(checkCmd);
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        return res != null && res.getExitCode() == 0;
+    }
 }

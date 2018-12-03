@@ -12,7 +12,7 @@ public class CollectWorker extends Worker{
         if (isLocal(host) && runCtx.getLocWorkDir().equals(runCtx.getRemWorkDir()))
             return null;
 
-        File outDir = new File(String.format("%s/output", runCtx.getRemWorkDir()));
+        File outDir = new File(String.format("%s/output", runCtx.getLocWorkDir()));
 
         synchronized (this) {
             if (!outDir.exists())

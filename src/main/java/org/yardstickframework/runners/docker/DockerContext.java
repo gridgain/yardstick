@@ -262,8 +262,8 @@ public class DockerContext {
         DockerContext docCtx = null;
 
         try {
-            docCtx = yaml.load(new FileInputStream("/home/oostanin/yardstick/config/docker/docker-context.yaml"));
-//            docCtx = yaml.load(new FileInputStream(yamlPath));
+//            docCtx = yaml.load(new FileInputStream("/home/oostanin/yardstick/config/docker/docker-context.yaml"));
+            docCtx = yaml.load(new FileInputStream(yamlPath));
         }
         catch (FileNotFoundException e) {
             e.printStackTrace();

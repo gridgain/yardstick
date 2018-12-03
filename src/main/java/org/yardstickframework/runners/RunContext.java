@@ -3,23 +3,33 @@ package org.yardstickframework.runners;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.apache.log4j.ConsoleAppender;
+import org.apache.log4j.FileAppender;
+import org.apache.log4j.Level;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+import org.apache.log4j.PatternLayout;
+import org.apache.log4j.RollingFileAppender;
+//import org.slf4j.Logger;
+//import org.slf4j.LoggerFactory;
 import org.yardstickframework.BenchmarkUtils;
 import org.yardstickframework.runners.docker.DockerContext;
+
+import static org.yardstickframework.BenchmarkUtils.dateTime;
 
 /**
  *
  */
 public class RunContext {
     /** */
-    private static final Logger LOG = LogManager.getLogger(RunContext.class.getName());
+    private static final Logger LOG = LogManager.getLogger(RunContext.class);
 
     private static RunContext instance;
 
@@ -129,7 +139,7 @@ public class RunContext {
     }
 
     private void setContext(String[] args) {
-        mainDateTime = BenchmarkUtils.dateTime();
+        mainDateTime = dateTime();
 
         handleArgs(args);
 
@@ -145,8 +155,8 @@ public class RunContext {
 
         setCfgList();
 
-        if(servRunMode == RunMode.DOCKER || drvrRunMode == RunMode.DOCKER)
-            setDockerCtx();
+//        if(servRunMode == RunMode.DOCKER || drvrRunMode == RunMode.DOCKER)
+//            setDockerCtx();
     }
 
     /**
@@ -167,6 +177,8 @@ public class RunContext {
 
         locWorkDir = new File(args[0]).getParentFile().getAbsolutePath();
 
+        configLog();
+
         if (args.length == 1) {
             String dfltPropPath = String.format("%s/config/benchmark.properties", locWorkDir);
 
@@ -176,7 +188,9 @@ public class RunContext {
         }
         else {
             if (new File(args[1]).exists())
-                propPath = args[1];
+                propPath = new File(args[1]).getAbsolutePath();
+            else if (Paths.get(locWorkDir, args[1]).toFile().exists())
+                propPath = Paths.get(locWorkDir, args[1]).toAbsolutePath().toString();
             else {
                 BenchmarkUtils.println(String.format("Error. Failed to find property %s", args[1]));
 
@@ -269,8 +283,12 @@ public class RunContext {
     }
 
     private void setDockerCtx(){
-        if(getServRunMode() == RunMode.DOCKER || getDrvrRunMode() == RunMode.DOCKER)
+        if(getServRunMode() == RunMode.DOCKER || getDrvrRunMode() == RunMode.DOCKER) {
+
+
+
             dockerCtx = DockerContext.getDockerContext(String.format("%s/config/docker/docker-context.yaml", locWorkDir));
+        }
     }
 
     /** */
@@ -506,5 +524,27 @@ public class RunContext {
             res.add(NodeType.DRIVER);
 
         return res;
+    }
+
+    private void configLog(){
+        ConsoleAppender console = new ConsoleAppender(); //create appender
+        //configure the appender
+        String PATTERN = "%d [%p|%c|%C{1}] %m%n";
+        console.setLayout(new PatternLayout(PATTERN));
+        console.setThreshold(Level.INFO);
+        console.activateOptions();
+        //add appender to any Logger (here is root)
+//        Logger.getRootLogger().addAppender(console);
+
+        FileAppender fa = new FileAppender();
+        fa.setName("FileLogger");
+        fa.setFile(Paths.get(locWorkDir, String.format("log-run-%s.log", mainDateTime)).toString());
+        fa.setLayout(new PatternLayout("[%d{yyyy-MM-dd HH:mm:ss,SSS}][%-5p][%t] %m%n"));
+        fa.setThreshold(Level.INFO);
+        fa.setAppend(true);
+        fa.activateOptions();
+
+        //add appender to any Logger (here is root)
+        Logger.getRootLogger().addAppender(fa);
     }
 }

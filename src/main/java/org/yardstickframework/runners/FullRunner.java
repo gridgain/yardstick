@@ -3,6 +3,9 @@ package org.yardstickframework.runners;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.log4j.FileAppender;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.RollingFileAppender;
 import org.yardstickframework.BenchmarkUtils;
 import org.yardstickframework.runners.docker.DockerCleanContWorker;
 import org.yardstickframework.runners.docker.DockerWorker;
@@ -18,6 +21,7 @@ public class FullRunner extends AbstractRunner {
     }
 
     public static void main(String[] args) {
+//        FileAppender
 //        for(String a : args)
 //            System.out.println(a);
 
@@ -52,9 +56,7 @@ public class FullRunner extends AbstractRunner {
 
         Worker deployWorker = new DeployWorker(runCtx, new CommonWorkContext(runCtx.getFullUniqList()));
 
-//        deployWorker.workOnHosts();
-
-
+        deployWorker.workOnHosts();
 
         if(!forDockerPrep.isEmpty()) {
             dockerRunner.cleanBefore(forDockerPrep);
@@ -330,7 +332,7 @@ public class FullRunner extends AbstractRunner {
     }
 
     private void createCharts(){
-        String mainResDir = String.format("%s/output/result-%s", runCtx.getRemWorkDir(), runCtx.getMainDateTime());
+        String mainResDir = String.format("%s/output/result-%s", runCtx.getLocWorkDir(), runCtx.getMainDateTime());
 
         String cp = String.format("%s/libs/*", runCtx.getLocWorkDir());
 

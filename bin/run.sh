@@ -95,4 +95,10 @@ fi
 
 export JAVA
 
-"$JAVA" ${JVM_OPTS} -cp ${CP} org.yardstickframework.runners.FullRunner $SCRIPT_DIR ${ARGS}
+PROP_PATH=$(readlink -m $1)
+
+DATE=$(date +'%H%M%S')
+
+LOG_FILE=":${SCRIPT_DIR}/../log-run-${DATE}"
+
+LOG_FILE_NAME=${LOG_FILE} "$JAVA" ${JVM_OPTS} -Dlog4j.appender.file.File=${LOG_FILE} -cp ${CP} org.yardstickframework.runners.FullRunner $SCRIPT_DIR $1

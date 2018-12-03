@@ -59,16 +59,14 @@ public class StartNodeWorker extends Worker {
         drvrLogDirFullName = String.format("%s/log_drivers", baseLogDirFullName);
     }
 
-    @Override public WorkResult doWork(String ip, int cnt) {
+    @Override public WorkResult doWork(String host, int cnt) {
         final String nodeStartTime = BenchmarkUtils.dateTime();
 
         StartNodeWorkContext startCtx = (StartNodeWorkContext)getWorkCtx();
 
-        String nodeTypeLowCase = startCtx.getNodeType().toString().toLowerCase();
-
         BenchmarkUtils.println(String.format("Starting %s node on the host %s with id %d",
-            nodeTypeLowCase,
-            ip,
+            getNodeTypeLowCase(startCtx),
+            host,
             cnt));
 
         String logDirFullName = getLogDirFullName(startCtx);
@@ -76,7 +74,7 @@ public class StartNodeWorker extends Worker {
         CommandHandler hndl = new CommandHandler(runCtx);
 
         try {
-            hndl.runMkdirCmd(ip, logDirFullName);
+            hndl.runMkdirCmd(host, logDirFullName);
         }
         catch (IOException e) {
             e.printStackTrace();
@@ -91,9 +89,20 @@ public class StartNodeWorker extends Worker {
             logDirFullName,
             nodeStartTime,
             cnt,
-            ip,
+            host,
             descr);
 
+        String paramStr = getParamStr(host, cnt, nodeStartTime, startCtx, descr);
+
+        NodeInfo nodeInfo = new NodeInfo(startCtx.getNodeType(), host, null, String.valueOf(cnt),
+            startCtx, paramStr, logFileName );
+
+        NodeStarter starter = runCtx.getNodeStarter(nodeInfo);
+
+        return starter.startNode(nodeInfo);
+    }
+
+    private String getParamStr(String ip, int cnt, String nodeStartTime, StartNodeWorkContext startCtx, String descr){
         String drvrResDir = String.format("%s/output/result-%s", runCtx.getRemWorkDir(), runCtx.getMainDateTime());
 
         String outputFolderParam = getWorkCtx().getHostList().size() > 1 ?
@@ -114,9 +123,9 @@ public class StartNodeWorker extends Worker {
 
         String gcJvmOpts = concJvmOpts.contains("PrintGC") ?
             String.format(" -Xloggc:%s/gc-%s-%s-id%d-%s-%s.log",
-                logDirFullName,
+                getLogDirFullName(startCtx),
                 nodeStartTime,
-                nodeTypeLowCase,
+                getNodeTypeLowCase(startCtx),
                 cnt,
                 ip,
                 descr):
@@ -124,45 +133,32 @@ public class StartNodeWorker extends Worker {
 
         String fullJvmOpts = (concJvmOpts + " " + gcJvmOpts).replace("\"", "");
 
-        String startCmd = String.format("%s -Dyardstick.%s%d -cp :%s/libs/* %s -id %d %s %s --config %s " +
+        String propPath = runCtx.getPropPath().replace(runCtx.getLocWorkDir(), runCtx.getRemWorkDir());
+
+        String cfgStr = startCtx.getFullCfgStr().replace(runCtx.getLocWorkDir(), runCtx.getRemWorkDir());
+
+
+        String paramStr = String.format("%s -Dyardstick.%s%d -cp :%s/libs/* %s -id %d %s %s --config %s " +
                 "--logsFolder %s --remoteuser %s --currentFolder %s --scriptsFolder %s/bin",
             fullJvmOpts,
-            nodeTypeLowCase,
+            getNodeTypeLowCase(startCtx),
             cnt,
             runCtx.getRemWorkDir(),
             getMainClass(startCtx),
             cnt,
             outputFolderParam,
-            startCtx.getFullCfgStr(),
-            runCtx.getPropPath(),
-            logDirFullName,
+            cfgStr,
+            propPath,
+            getLogDirFullName(startCtx),
             runCtx.getRemUser(),
             runCtx.getRemWorkDir(),
             runCtx.getRemWorkDir());
 
-//        String startCmd = String.format("%s/bin/java %s -Dyardstick.%s%d -cp :%s/libs/* %s -id %d %s %s --config %s " +
-//                "--logsFolder %s --remoteuser %s --currentFolder %s --scriptsFolder %s/bin &",
-//            javaHome,
-//            fullJvmOpts,
-//            nodeTypeLowCase,
-//            cnt,
-//            runCtx.getRemWorkDir(),
-//            getMainClass(startCtx),
-//            cnt,
-//            outputFolderParam,
-//            startCtx.getFullCfgStr(),
-//            runCtx.getPropPath(),
-//            logDirFullName,
-//            runCtx.getRemUser(),
-//            runCtx.getRemWorkDir(),
-//            runCtx.getRemWorkDir());
+        return paramStr;
+    }
 
-        NodeInfo nodeInfo = new NodeInfo(startCtx.getNodeType(), ip, null, String.valueOf(cnt),
-            startCtx, startCmd, logFileName );
-
-        NodeStarter starter = runCtx.getNodeStarter(nodeInfo);
-
-        return starter.startNode(nodeInfo);
+    private String getNodeTypeLowCase(StartNodeWorkContext startCtx){
+        return startCtx.getNodeType().toString().toLowerCase();
     }
 
     private String getLogDirFullName(StartNodeWorkContext startCtx){
