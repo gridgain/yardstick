@@ -33,7 +33,7 @@ driverDockerfilePath: config/docker/Dockerfile-driver
 dockerRunCmdArgs: "-d --network host"
 
 # Command which starts docker container.
-startContCmd: "sleep 356d"
+startContCmd: "sleep 1d"
 
 # List of containers names to clean.
 containersToClean:

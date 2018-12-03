@@ -33,9 +33,9 @@ cp /home/oostanin/gg/incubator-ignite/modules/yardstick/config/benchmark.propert
 
 cd /home/oostanin/gg/incubator-ignite/modules/yardstick/target/assembly
 
-/home/oostanin/gg/incubator-ignite/modules/yardstick/target/assembly/bin/run.sh config/docker/benchmark.properties
-
-/home/oostanin/gg/incubator-ignite/modules/yardstick/target/assembly/bin/run.sh
-
-/home/oostanin/gg/incubator-ignite/modules/yardstick/target/assembly/bin/run.sh /home/oostanin/gg/incubator-ignite/modules/yardstick/target/assembly/config/docker/benchmark.properties
-
+#/home/oostanin/gg/incubator-ignite/modules/yardstick/target/assembly/bin/run.sh config/docker/benchmark.properties
+#
+#/home/oostanin/gg/incubator-ignite/modules/yardstick/target/assembly/bin/run.sh
+#
+#/home/oostanin/gg/incubator-ignite/modules/yardstick/target/assembly/bin/run.sh /home/oostanin/gg/incubator-ignite/modules/yardstick/target/assembly/config/docker/benchmark.properties
+#

@@ -3,9 +3,13 @@ package org.yardstickframework.runners;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
@@ -54,6 +58,8 @@ public class RunContext {
     private List<String> servHosts;
 
     private List<String> drvrHosts;
+
+    private String currentHost;
 
     private String mainDateTime;
 
@@ -107,6 +113,10 @@ public class RunContext {
 
     public List<String> getDrvrHosts() {
         return drvrHosts;
+    }
+
+    public String getCurrentHost() {
+        return currentHost;
     }
 
     public String getMainDateTime() {
@@ -219,7 +229,7 @@ public class RunContext {
         props = parseProps(propsOrig);
 
         remWorkDir = props.getProperty("WORK_DIR") != null ?
-            props.getProperty("WORK_DIR"):
+            props.getProperty("WORK_DIR") :
             locWorkDir;
 
         LOG.info(String.format("Remote work directory is %s", remWorkDir));
@@ -232,6 +242,35 @@ public class RunContext {
         servHosts = getHosts("SERVER_HOSTS");
 
         drvrHosts = getHosts("DRIVER_HOSTS");
+
+        List<String> allHosts = getFullUniqList();
+
+        Enumeration e = null;
+
+        try {
+            e = NetworkInterface.getNetworkInterfaces();
+        }
+        catch (SocketException e1) {
+            e1.printStackTrace();
+        }
+
+        while (e.hasMoreElements()) {
+            NetworkInterface n = (NetworkInterface)e.nextElement();
+
+            Enumeration ee = n.getInetAddresses();
+
+            while (ee.hasMoreElements()) {
+                InetAddress i = (InetAddress)ee.nextElement();
+
+                String adr = i.getHostAddress();
+
+                if (allHosts.contains(adr)) {
+                    LOG.info(String.format("Setting current host address as %s.", adr));
+
+                    currentHost = adr;
+                }
+            }
+        }
     }
 
     /**
@@ -265,13 +304,12 @@ public class RunContext {
     }
 
     /**
-     *
      * @return Value
      */
-    protected void setUser(){
+    protected void setUser() {
         locUser = System.getProperty("user.name");
 
-        if(props.getProperty("REMOTE_USER") != null)
+        if (props.getProperty("REMOTE_USER") != null)
             remUser = props.getProperty("REMOTE_USER");
         else {
             BenchmarkUtils.println(String.format("REMOTE_USER is not defined in property file. Will use '%s' " +
@@ -281,7 +319,7 @@ public class RunContext {
         }
     }
 
-    protected void setCfgList(){
+    protected void setCfgList() {
         cfgList = new ArrayList<>();
 
         for (String cfgStr : props.getProperty("CONFIGS").split(",")) {
@@ -292,8 +330,8 @@ public class RunContext {
         }
     }
 
-    private void setDockerCtx(){
-        if(getServRunMode() == RunMode.DOCKER || getDrvrRunMode() == RunMode.DOCKER)
+    private void setDockerCtx() {
+        if (getServRunMode() == RunMode.DOCKER || getDrvrRunMode() == RunMode.DOCKER)
             dockerCtx = DockerContext.getDockerContext(String.format("%s/config/docker/docker-context.yaml", locWorkDir));
 
     }
@@ -307,7 +345,6 @@ public class RunContext {
         return res;
     }
 
-
     /** */
     public List<String> getFullUniqList() {
         List<String> res = new ArrayList<>();
@@ -318,6 +355,7 @@ public class RunContext {
 
         return makeUniq(res);
     }
+
     private int getNodesNum() {
         return getFullHostList().size();
     }
@@ -365,7 +403,6 @@ public class RunContext {
     }
 
     /**
-     *
      * @param src
      * @return Value
      */
@@ -396,7 +433,6 @@ public class RunContext {
     }
 
     /**
-     *
      * @param src
      * @return Value
      */
@@ -445,13 +481,13 @@ public class RunContext {
         }
     }
 
-    public DockerContext getDockerContext(){
+    public DockerContext getDockerContext() {
         if (dockerCtx != null)
             return dockerCtx;
 
         String dockerCtxPropPath = null;
 
-        if(props.getProperty("DOCKER_CONTEXT_PATH") == null){
+        if (props.getProperty("DOCKER_CONTEXT_PATH") == null) {
             dockerCtxPropPath = String.format("%s/config/docker/docker-context.yaml", locWorkDir);
 
             BenchmarkUtils.println(String.format("DOCKER_CONTEXT_PATH is not defined in property file. Will try " +
@@ -490,13 +526,13 @@ public class RunContext {
     }
 
     //TODO
-    public static String resolvePath(String srcPath){
-        if(new File(srcPath).exists())
+    public static String resolvePath(String srcPath) {
+        if (new File(srcPath).exists())
             return srcPath;
 
         String fullPath = String.format("%s/%s", locWorkDir, srcPath);
 
-        if(new File(fullPath).exists())
+        if (new File(fullPath).exists())
             return fullPath;
 
         BenchmarkUtils.println(String.format("Failed to find %s or %s.", srcPath, fullPath));
@@ -507,33 +543,33 @@ public class RunContext {
     }
 
     //TODO
-    public static String resolveRemotePath(String srcPath){
+    public static String resolveRemotePath(String srcPath) {
         String fullPath = String.format("%s/%s", remWorkDir, srcPath);
 
         return fullPath;
     }
 
-    public boolean checkIfDifferentHosts(){
-        for(String host : getServUniqList())
-            if(getDrvrUniqList().contains(host))
+    public boolean checkIfDifferentHosts() {
+        for (String host : getServUniqList())
+            if (getDrvrUniqList().contains(host))
                 return false;
 
         return true;
     }
 
-    public List<NodeType> getRunModeTypes(RunMode mode){
+    public List<NodeType> getRunModeTypes(RunMode mode) {
         List<NodeType> res = new ArrayList<>();
 
-        if(getServRunMode() == mode)
+        if (getServRunMode() == mode)
             res.add(NodeType.SERVER);
 
-        if(getDrvrRunMode() == mode)
+        if (getDrvrRunMode() == mode)
             res.add(NodeType.DRIVER);
 
         return res;
     }
 
-    private void configLog(){
+    private void configLog() {
         ConsoleAppender console = new ConsoleAppender(); //create appender
         //configure the appender
         String PATTERN = "%d [%p|%c|%C{1}] %m%n";
@@ -554,4 +590,5 @@ public class RunContext {
         //add appender to any Logger (here is root)
         Logger.getRootLogger().addAppender(fa);
     }
+
 }

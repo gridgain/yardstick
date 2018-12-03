@@ -190,17 +190,23 @@ public class CommandHandler {
                 return new NodeCheckResult(NodeStatus.NOT_RUNNING);
         }
 
-        String checkCmd = String.format("%s pgrep -f \"Dyardstick.%s%s \"",
-            getFullSSHPref(host),
-            nodeInfo.getNodeType().toString().toLowerCase(),
-            nodeInfo.getId());
+        String checkCmd = String.format("%s ps -ax|grep 'java'", getFullSSHPref(host));
 
         CommandExecutionResult res = runRmtCmd(checkCmd);
 
-        if (!res.getOutStream().isEmpty())
-            return new NodeCheckResult(NodeStatus.RUNNING);
-        else
-            return new NodeCheckResult(NodeStatus.NOT_RUNNING);
+        boolean found = false;
+
+        String toLook = String.format("-Dyardstick.%s%s ",
+            nodeInfo.getNodeType().toString().toLowerCase(),
+            nodeInfo.getId());
+
+        for (String str : res.getOutStream())
+            if (str.contains(toLook))
+                found = true;
+
+        return found ?
+            new NodeCheckResult(NodeStatus.RUNNING) :
+            new NodeCheckResult(NodeStatus.NOT_RUNNING);
     }
 
     public WorkResult killNode(NodeInfo nodeInfo) throws IOException, InterruptedException {
@@ -308,6 +314,9 @@ public class CommandHandler {
     }
 
     private String getFullSSHPref(String host) {
+//        if (host.equals(runCtx.getCurrentHost()))
+//            return "";
+
         if (runCtx.getRemUser() == null || runCtx.getRemUser().isEmpty())
             return String.format("%s %s", DFLT_SSH_PREF, host);
 
