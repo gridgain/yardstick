@@ -59,7 +59,7 @@ public class RunContext {
 
     private List<String> drvrHosts;
 
-    private String currentHost;
+    private String currentHost = "127.0.0.1";
 
     private String mainDateTime;
 
