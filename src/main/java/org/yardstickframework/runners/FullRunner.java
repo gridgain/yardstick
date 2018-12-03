@@ -59,7 +59,7 @@ public class FullRunner extends AbstractRunner {
         deployWorker.workOnHosts();
 
         if (!dockerList.isEmpty()) {
-            dockerRunner.cleanBefore(dockerList);
+            dockerRunner.cleanUp(dockerList, "before");
 
             dockerRunner.prepare(dockerList);
 
@@ -109,7 +109,7 @@ public class FullRunner extends AbstractRunner {
         if (!dockerList.isEmpty()) {
             dockerRunner.collect(dockerList);
 
-            dockerRunner.cleanAfter(dockerList);
+            dockerRunner.cleanUp(dockerList, "after");
         }
 
         new CollectWorker(runCtx, new CommonWorkContext(runCtx.getFullUniqList())).workOnHosts();
@@ -132,111 +132,6 @@ public class FullRunner extends AbstractRunner {
                 System.exit(1);
             }
         }
-    }
-
-    /**
-     *
-     */
-    public int run() {
-        Worker killWorker = new KillWorker(runCtx, new CommonWorkContext(runCtx.getFullUniqList()));
-
-        killWorker.workOnHosts();
-
-        if (runCtx.getServRunMode() == RunMode.DOCKER) {
-            if (runCtx.getDockerContext().isRemoveContainersBeforeRun()) {
-                DockerWorker dockerWorker = new DockerCleanContWorker(runCtx, new DockerWorkContext(
-                    runCtx.getServUniqList(),
-                    NodeType.SERVER));
-
-                dockerWorker.workOnHosts();
-            }
-        }
-
-        Worker deployWorker = new DeployWorker(runCtx, new CommonWorkContext(runCtx.getFullUniqList()));
-
-        deployWorker.workOnHosts();
-
-        List<WorkResult> buildServResList = null;
-
-        if (runCtx.getServRunMode() == RunMode.DOCKER) {
-            Worker cleanUpWorker = new CleanUpWorker(runCtx, new CommonWorkContext(runCtx.getServUniqList()));
-
-            cleanUpWorker.workOnHosts();
-
-            buildServResList = buildDockerImages(NodeType.SERVER);
-        }
-
-        List<WorkResult> buildDrvrResList = null;
-
-        if (runCtx.getDrvrRunMode() == RunMode.DOCKER) {
-            Worker cleanUpWorker = new CleanUpWorker(runCtx, new CommonWorkContext(runCtx.getServUniqList()));
-
-            cleanUpWorker.workOnHosts();
-
-            buildDrvrResList = buildDockerImages(NodeType.DRIVER);
-        }
-
-        String cfgStr0 = runCtx.getProps().getProperty("CONFIGS").split(",")[0];
-
-        List<WorkResult> servRes = null;
-
-        List<WorkResult> drvrRes = null;
-
-        if (!Boolean.valueOf(runCtx.getProps().getProperty("RESTART_SERVERS"))) {
-            servRes = startServNodes(cfgStr0);
-
-            BenchmarkUtils.println("RESTART_SERVERS=false");
-        }
-
-        for (String cfgStr : runCtx.getCfgList()) {
-            if (Boolean.valueOf(runCtx.getProps().getProperty("RESTART_SERVERS"))) {
-                servRes = startServNodes(cfgStr0);
-
-//                BenchmarkUtils.println("RESTART_SERVERS=true");
-            }
-
-            try {
-                Thread.sleep(5000L);
-            }
-            catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-            drvrRes = startDrvrNodes(cfgStr);
-
-            BenchmarkUtils.println("Waiting for driver nodes to start.");
-
-            waitForNodes(drvrRes, NodeStatus.RUNNING);
-
-            BenchmarkUtils.println("Driver nodes started.");
-
-            BenchmarkUtils.println("Waiting for driver nodes to stop.");
-
-            waitForNodes(drvrRes, NodeStatus.NOT_RUNNING);
-
-            BenchmarkUtils.println("Driver nodes stopped.");
-
-            if (Boolean.valueOf(runCtx.getProps().getProperty("RESTART_SERVERS")))
-                killNodes(servRes);
-        }
-
-        if (!Boolean.valueOf(runCtx.getProps().getProperty("RESTART_SERVERS")))
-            killNodes(servRes);
-
-//        collectResults(servRes);
-//
-//        collectResults(drvrRes);
-
-        if (runCtx.getServRunMode() == RunMode.DOCKER || runCtx.getDrvrRunMode() == RunMode.DOCKER) {
-
-            Worker cleanUpWorker = new CleanUpWorker(runCtx, new CommonWorkContext(runCtx.getFullUniqList()));
-
-            cleanUpWorker.workOnHosts();
-        }
-
-        createCharts();
-
-        return 0;
     }
 
     private List<WorkResult> startServNodes(String cfgStr) {

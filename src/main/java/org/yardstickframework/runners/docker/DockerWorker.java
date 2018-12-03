@@ -57,7 +57,7 @@ public abstract class DockerWorker extends Worker {
         Collection<Map<String, String>> contMaps = getProcesses(host);
 
         for (Map<String, String> contMap : contMaps) {
-            for (String contName : dockerCtx.getContainersToClean()) {
+            for (String contName : dockerCtx.getContainersToRemove()) {
                 String names = contMap.get("NAMES");
 
                 if (names.contains(contName)) {

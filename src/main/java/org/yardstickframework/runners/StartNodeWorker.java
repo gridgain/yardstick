@@ -64,10 +64,16 @@ public class StartNodeWorker extends Worker {
 
         StartNodeWorkContext startCtx = (StartNodeWorkContext)getWorkCtx();
 
-        BenchmarkUtils.println(String.format("Starting %s node on the host %s with id %d",
+        String mode = "";
+
+        if(startCtx.getRunMode() != RunMode.PLAIN)
+            mode = String.format(" (Run mode - %s)", startCtx.getRunMode());
+
+        BenchmarkUtils.println(String.format("Starting %s node on the host %s with id %d%s",
             getNodeTypeLowCase(startCtx),
             host,
-            cnt));
+            cnt,
+            mode));
 
         String logDirFullName = getLogDirFullName(startCtx);
 

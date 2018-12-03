@@ -8,31 +8,19 @@ import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 
 public class DockerContext {
-    private List<String> removeImagesBeforeRunList;
+    private String serverDockerfilePath;
 
-    private List<String> removeImagesAfterRunList;
-
-
-    private boolean removeContainersBeforeRun;
-
-    private boolean rebuildImagesIfExist;
-
-    private boolean tagImageWithTime;
-
-
-    private boolean startContainersBeforeRun;
-    private boolean removeContainersAfterRun;
-
-    private boolean useCommonImageName;
-
-    private String commonImageName;
+    private String driverDockerfilePath;
 
     private String serverImageName;
 
     private String driverImageName;
 
-    private String serverDockerfilePath;
-    private String driverDockerfilePath;
+    private boolean rebuildImagesIfExist;
+
+    private Map<String, Boolean> removeImagesFlags;
+
+    private List<String> imagesToRemove;
 
     private String dockerRunCmdArgs;
 
@@ -40,100 +28,31 @@ public class DockerContext {
 
     private List<String> startContCmdArgs;
 
-    private boolean copyYardctickIntoContainer;
+    private Map<String, Boolean> removeContainersFlags;
 
-    private  String serverDockerJavaHome;
+    private List<String> containersToRemove;
 
-    private  String driverDockerJavaHome;
+    private String serverDockerJavaHome;
+    private String driverDockerJavaHome;
 
-    private List<String> imagesToClean;
-
-    private List<String> containersToClean;
-
-    private boolean useStandartNodeToContainerMapping;
-
-    private boolean useCustomNodeToContainerMapping;
-
-
-    private Map<String, String> customNodeToContainerMap;
 
     public DockerContext() {
     }
 
-    public List<String> getRemoveImagesBeforeRunList() {
-        return removeImagesBeforeRunList;
+    public String getServerDockerfilePath() {
+        return serverDockerfilePath == null ? serverDockerfilePath : "config/docker/Dockerfile-server";
     }
 
-    public void setRemoveImagesBeforeRunList(List<String> removeImagesBeforeRunList) {
-        this.removeImagesBeforeRunList = removeImagesBeforeRunList;
+    public void setServerDockerfilePath(String serverDockerfilePath) {
+        this.serverDockerfilePath = serverDockerfilePath;
     }
 
-    public List<String> getRemoveImagesAfterRunList() {
-        return removeImagesAfterRunList;
+    public String getDriverDockerfilePath() {
+        return driverDockerfilePath == null ? driverDockerfilePath : "config/docker/Dockerfile-driver";
     }
 
-    public void setRemoveImagesAfterRunList(List<String> removeImagesAfterRunList) {
-        this.removeImagesAfterRunList = removeImagesAfterRunList;
-    }
-
-    public boolean isRebuildImagesIfExist() {
-        return rebuildImagesIfExist;
-    }
-
-    public void setRebuildImagesIfExist(boolean rebuildImagesIfExist) {
-        this.rebuildImagesIfExist = rebuildImagesIfExist;
-    }
-
-    public boolean isTagImageWithTime() {
-        return tagImageWithTime;
-    }
-
-    public void setTagImageWithTime(boolean tagImageWithTime) {
-        this.tagImageWithTime = tagImageWithTime;
-    }
-
-
-
-    public boolean isRemoveContainersBeforeRun() {
-        return removeContainersBeforeRun;
-    }
-
-    public void setRemoveContainersBeforeRun(boolean removeContainersBeforeRun) {
-        this.removeContainersBeforeRun = removeContainersBeforeRun;
-    }
-
-    public boolean isRemoveContainersAfterRun() {
-        return removeContainersAfterRun;
-    }
-
-    public void setRemoveContainersAfterRun(boolean removeContainersAfterRun) {
-        this.removeContainersAfterRun = removeContainersAfterRun;
-    }
-
-
-
-    public boolean isStartContainersBeforeRun() {
-        return startContainersBeforeRun;
-    }
-
-    public void setStartContainersBeforeRun(boolean startContainersBeforeRun) {
-        this.startContainersBeforeRun = startContainersBeforeRun;
-    }
-
-    public boolean isUseCommonImageName() {
-        return useCommonImageName;
-    }
-
-    public void setUseCommonImageName(boolean useCommonImageName) {
-        this.useCommonImageName = useCommonImageName;
-    }
-
-    public String getCommonImageName() {
-        return commonImageName;
-    }
-
-    public void setCommonImageName(String commonImageName) {
-        this.commonImageName = commonImageName;
+    public void setDriverDockerfilePath(String driverDockerfilePath) {
+        this.driverDockerfilePath = driverDockerfilePath;
     }
 
     public String getServerImageName() {
@@ -152,20 +71,28 @@ public class DockerContext {
         this.driverImageName = driverImageName;
     }
 
-    public String getServerDockerfilePath() {
-        return serverDockerfilePath == null ? serverDockerfilePath : "config/docker/Dockerfile-server";
+    public boolean isRebuildImagesIfExist() {
+        return rebuildImagesIfExist;
     }
 
-    public void setServerDockerfilePath(String serverDockerfilePath) {
-        this.serverDockerfilePath = serverDockerfilePath;
+    public void setRebuildImagesIfExist(boolean rebuildImagesIfExist) {
+        this.rebuildImagesIfExist = rebuildImagesIfExist;
     }
 
-    public String getDriverDockerfilePath() {
-        return driverDockerfilePath == null ? driverDockerfilePath : "config/docker/Dockerfile-driver";
-        }
+    public Map<String, Boolean> getRemoveImagesFlags() {
+        return removeImagesFlags;
+    }
 
-    public void setDriverDockerfilePath(String driverDockerfilePath) {
-        this.driverDockerfilePath = driverDockerfilePath;
+    public void setRemoveImagesFlags(Map<String, Boolean> removeImagesFlags) {
+        this.removeImagesFlags = removeImagesFlags;
+    }
+
+    public List<String> getImagesToRemove() {
+        return imagesToRemove;
+    }
+
+    public void setImagesToRemove(List<String> imagesToRemove) {
+        this.imagesToRemove = imagesToRemove;
     }
 
     public String getDockerRunCmdArgs() {
@@ -192,12 +119,20 @@ public class DockerContext {
         this.startContCmdArgs = startContCmdArgs;
     }
 
-    public boolean isCopyYardctickIntoContainer() {
-        return copyYardctickIntoContainer;
+    public Map<String, Boolean> getRemoveContainersFlags() {
+        return removeContainersFlags;
     }
 
-    public void setCopyYardctickIntoContainer(boolean copyYardctickIntoContainer) {
-        this.copyYardctickIntoContainer = copyYardctickIntoContainer;
+    public void setRemoveContainersFlags(Map<String, Boolean> removeContainersFlags) {
+        this.removeContainersFlags = removeContainersFlags;
+    }
+
+    public List<String> getContainersToRemove() {
+        return containersToRemove;
+    }
+
+    public void setContainersToRemove(List<String> containersToRemove) {
+        this.containersToRemove = containersToRemove;
     }
 
     public String getServerDockerJavaHome() {
@@ -214,46 +149,6 @@ public class DockerContext {
 
     public void setDriverDockerJavaHome(String driverDockerJavaHome) {
         this.driverDockerJavaHome = driverDockerJavaHome;
-    }
-
-    public List<String> getImagesToClean() {
-        return imagesToClean;
-    }
-
-    public void setImagesToClean(List<String> imagesToClean) {
-        this.imagesToClean = imagesToClean;
-    }
-
-    public List<String> getContainersToClean() {
-        return containersToClean;
-    }
-
-    public void setContainersToClean(List<String> containersToClean) {
-        this.containersToClean = containersToClean;
-    }
-
-    public boolean isUseStandartNodeToContainerMapping() {
-        return useStandartNodeToContainerMapping;
-    }
-
-    public void setUseStandartNodeToContainerMapping(boolean useStandartNodeToContainerMapping) {
-        this.useStandartNodeToContainerMapping = useStandartNodeToContainerMapping;
-    }
-
-    public boolean isUseCustomNodeToContainerMapping() {
-        return useCustomNodeToContainerMapping;
-    }
-
-    public void setUseCustomNodeToContainerMapping(boolean useCustomNodeToContainerMapping) {
-        this.useCustomNodeToContainerMapping = useCustomNodeToContainerMapping;
-    }
-
-    public Map<String, String> getCustomNodeToContainerMap() {
-        return customNodeToContainerMap;
-    }
-
-    public void setCustomNodeToContainerMap(Map<String, String> customNodeToContainerMap) {
-        this.customNodeToContainerMap = customNodeToContainerMap;
     }
 
     public static DockerContext getDockerContext(String yamlPath){

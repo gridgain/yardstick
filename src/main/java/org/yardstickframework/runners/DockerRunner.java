@@ -85,30 +85,25 @@ public class DockerRunner extends AbstractRunner {
         prepareServ.shutdown();
     }
 
-    public void cleanBefore(List<NodeType> nodeTypeList){
+    public void cleanUp(List<NodeType> nodeTypeList, String flag){
         for(final NodeType type : nodeTypeList)
-            cleanBeforeForNodeType(type);
+            cleanForNodeType(type, flag);
     }
 
-    public void cleanAfter(List<NodeType> nodeTypeList){
-        for(NodeType type : nodeTypeList)
-            cleanAfterForNodeType(type);
-    }
-
-    public void cleanBeforeForNodeType(NodeType type){
+    public void cleanForNodeType(NodeType type, String flag){
         BenchmarkUtils.println(String.format("Cleaning up docker for %s nodes.", type.toString().toLowerCase()));
 
         DockerWorkContext workCtx = new DockerWorkContext(
             getUniqHosts(type), type);
 
-        new DockerCleanContWorker(runCtx, workCtx).workOnHosts();
+        if(runCtx.getDockerContext().getRemoveContainersFlags().get(flag))
+            new DockerCleanContWorker(runCtx, workCtx).workOnHosts();
 
-        if(runCtx.getDockerContext().getRemoveImagesAfterRunList() != null)
+        if(runCtx.getDockerContext().getRemoveImagesFlags().get(flag))
             new DockerCleanImagesWorker(
                 runCtx,
                 workCtx,
-                runCtx.getDockerContext().getRemoveImagesBeforeRunList()).workOnHosts();
-
+                runCtx.getDockerContext().getImagesToRemove()).workOnHosts();
     }
 
 
@@ -150,20 +145,5 @@ public class DockerRunner extends AbstractRunner {
             getHosts(type), type);
 
         new DockerCollectWorker(runCtx, workCtx).workOnHosts();
-    }
-
-    public void cleanAfterForNodeType(NodeType type){
-        BenchmarkUtils.println(String.format("Cleaning up docker for %s nodes.", type.toString().toLowerCase()));
-
-        DockerWorkContext workCtx = new DockerWorkContext(
-            getUniqHosts(type), type);
-
-        new DockerCleanContWorker(runCtx, workCtx).workOnHosts();
-
-        if(runCtx.getDockerContext().getRemoveImagesAfterRunList() != null)
-            new DockerCleanImagesWorker(
-                runCtx,
-                workCtx,
-                runCtx.getDockerContext().getRemoveImagesAfterRunList()).workOnHosts();
     }
 }

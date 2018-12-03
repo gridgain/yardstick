@@ -502,7 +502,7 @@ public class RunContext {
         String dockerCtxPropPath = null;
 
         if (props.getProperty("DOCKER_CONTEXT_PATH") == null) {
-            dockerCtxPropPath = String.format("%s/config/docker/docker-context.yaml", locWorkDir);
+            dockerCtxPropPath = String.format("%s/config/docker/docker-context-default.yaml", locWorkDir);
 
             BenchmarkUtils.println(String.format("DOCKER_CONTEXT_PATH is not defined in property file. Will try " +
                 "to use default docker context configuration %s", dockerCtxPropPath));

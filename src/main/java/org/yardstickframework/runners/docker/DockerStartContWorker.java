@@ -38,8 +38,11 @@ public class DockerStartContWorker extends DockerWorker {
 
 //        System.out.println(startContCmd);
 
-        String startCmd = String.format("run %s --name %s %s %s",
-            runCmdArgs, contName, imageName, startContCmd);
+        if(runCmdArgs.contains("NAME_PLACEHOLDER"))
+            runCmdArgs = runCmdArgs.replace("NAME_PLACEHOLDER", contName);
+
+        String startCmd = String.format("run %s %s %s",
+            runCmdArgs, imageName, startContCmd);
 
         CommandHandler hndl = new CommandHandler(runCtx);
 
@@ -145,7 +148,7 @@ public class DockerStartContWorker extends DockerWorker {
 
             DockerRunner runner = new DockerRunner(runCtx);
 
-            runner.cleanAfter(runCtx.getNodeTypes(RunMode.DOCKER));
+            runner.cleanUp(runCtx.getNodeTypes(RunMode.DOCKER), "after");
 
             System.exit(1);
         }

@@ -1,0 +1,41 @@
+# Path to the Dockerfile for server nodes images build.
+serverDockerfilePath: config/docker/Dockerfile-server
+
+# Path to the Dockerfile for driver nodes images build.
+driverDockerfilePath: config/docker/Dockerfile-driver
+
+# Server image name.
+serverImageName: yardstickserver
+
+# Driver image name.
+driverImageName: yardstickdriver
+
+# Flag to rebuild images even if they already exist.
+rebuildImagesIfExist: false
+
+# Flags to remove images.
+removeImagesFlags:
+  before: false
+  after: false
+
+# List of images to remove.
+imagesToRemove:
+ - yardstickserver
+ - yardstickdriver
+
+# List of arguments to use with docker 'run' command. If 'NAME_PLACE_HOLDER' is present it will be replaced with
+# YARDSTICK-<NODETYPE>-<ID> name.
+dockerRunCmdArgs: "-d --network host --name NAME_PLACEHOLDER"
+
+# Command which starts docker container.
+startContCmd: "sleep 1d"
+
+# Flags to remove containers.
+removeContainersFlags:
+  before: true
+  after: true
+
+# List of containers names to remove.
+containersToRemove:
+ - YARDSTICK_DRIVER
+ - YARDSTICK_SERVER
