@@ -90,53 +90,38 @@ public class CommandHandler {
 
         ExecutorService errStreamPrinter = Executors.newSingleThreadExecutor();
 
-        final Process p = Runtime.getRuntime().exec(cmd);
+        final Process proc = Runtime.getRuntime().exec(cmd);
 
-        int exitCode = p.waitFor();
+        int exitCode = proc.waitFor();
 
-        BufferedReader outReader = new BufferedReader(new InputStreamReader(p.getInputStream()));
+        BufferedReader outReader = new BufferedReader(new InputStreamReader(proc.getInputStream()));
 
-        Future<List<String>> resFut = errStreamPrinter.submit(new Callable<List<String>>() {
-            @Override public List<String> call() throws IOException {
-                String line = "";
-
-                List<String> resList = new ArrayList<>();
-
-                BufferedReader errReader = new BufferedReader(new InputStreamReader(p.getErrorStream()));
-
-                while ((line = errReader.readLine()) != null) {
-                    System.out.println(String.format("Command '%s' returned error line: %s:", cmd, line));
-
-                    resList.add(line);
-                }
-
-                return resList;
-            }
-        });
+        String lineE = "";
 
         List<String> errStr = new ArrayList<>();
 
-        try {
-            errStr = resFut.get();
-        }
-        catch (ExecutionException e) {
-            e.printStackTrace();
+        BufferedReader errReader = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
+
+        while ((lineE = errReader.readLine()) != null) {
+            System.out.println(String.format("Command '%s' returned error line: %s:", cmd, lineE));
+
+            errStr.add(lineE);
         }
 
         errStreamPrinter.shutdown();
 
-        String line = "";
+        String lineO = "";
 
         final List<String> outStr = new ArrayList<>();
 
-        while ((line = outReader.readLine()) != null) {
-            outStr.add(line);
+        while ((lineO = outReader.readLine()) != null) {
+            outStr.add(lineO);
 
-            if (line.contains("Successfully built "))
-                BenchmarkUtils.println(line);
+            if (lineO.contains("Successfully built "))
+                BenchmarkUtils.println(lineO);
         }
 
-        CommandExecutionResult res = new CommandExecutionResult(exitCode, outStr, errStr, p);
+        CommandExecutionResult res = new CommandExecutionResult(exitCode, outStr, errStr, proc);
 
 //        System.out.println(res.toString());
 
@@ -163,7 +148,7 @@ public class CommandHandler {
 
         File logFile = new File(logPath);
 
-        if(!logFile.exists())
+        if (!logFile.exists())
             logFile.createNewFile();
 
         final ProcessBuilder pb = new ProcessBuilder().command(cmdArr);
@@ -173,14 +158,14 @@ public class CommandHandler {
 
         pb.directory(new File(runCtx.getLocWorkDir()));
 
-        final Process p = pb.start();
+        final Process proc = pb.start();
 
         ExecutorService nodeServ = Executors.newSingleThreadExecutor();
 
         nodeServ.submit(new Runnable() {
             @Override public void run() {
                 try {
-                    p.waitFor();
+                    proc.waitFor();
                 }
                 catch (InterruptedException e) {
                     e.printStackTrace();
@@ -190,7 +175,7 @@ public class CommandHandler {
 
         nodeServ.shutdown();
 
-        return new CommandExecutionResult(0, null, null, p);
+        return new CommandExecutionResult(0, null, null, proc);
     }
 
     public NodeCheckResult checkPlainNode(NodeInfo nodeInfo) throws IOException, InterruptedException {
@@ -204,6 +189,7 @@ public class CommandHandler {
             else
                 return new NodeCheckResult(NodeStatus.NOT_RUNNING);
         }
+
         String checkCmd = String.format("%s pgrep -f \"Dyardstick.%s%s \"",
             getFullSSHPref(host),
             nodeInfo.getNodeType().toString().toLowerCase(),
@@ -396,7 +382,7 @@ public class CommandHandler {
         return res != null && res.getExitCode() == 0;
     }
 
-    public boolean checkRemFile(String host, String path){
+    public boolean checkRemFile(String host, String path) {
         String checkCmd = String.format("%s test -f %s", getFullSSHPref(host), path);
 
         CommandExecutionResult res = null;

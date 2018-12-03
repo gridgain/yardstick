@@ -179,6 +179,8 @@ public class RunContext {
 
         configLog();
 
+        LOG.info(String.format("Local work directory is %s", locWorkDir));
+
         if (args.length == 1) {
             String dfltPropPath = String.format("%s/config/benchmark.properties", locWorkDir);
 
@@ -197,6 +199,8 @@ public class RunContext {
                 System.exit(1);
             }
         }
+
+        LOG.info(String.format("Property file path is %s", propPath));
 
         try {
             propsOrig = new Properties();
@@ -217,6 +221,8 @@ public class RunContext {
         remWorkDir = props.getProperty("WORK_DIR") != null ?
             props.getProperty("WORK_DIR"):
             locWorkDir;
+
+        LOG.info(String.format("Remote work directory is %s", remWorkDir));
     }
 
     /**
@@ -249,9 +255,13 @@ public class RunContext {
             RunMode.valueOf(props.getProperty("RUN_SERVER_MODE")) :
             RunMode.PLAIN;
 
+        LOG.info(String.format("Server run mode set as %s", servRunMode));
+
         drvrRunMode = props.getProperty("RUN_DRIVER_MODE") != null ?
             RunMode.valueOf(props.getProperty("RUN_DRIVER_MODE")) :
             RunMode.PLAIN;
+
+        LOG.info(String.format("Driver run mode set as %s", drvrRunMode));
     }
 
     /**
@@ -283,12 +293,9 @@ public class RunContext {
     }
 
     private void setDockerCtx(){
-        if(getServRunMode() == RunMode.DOCKER || getDrvrRunMode() == RunMode.DOCKER) {
-
-
-
+        if(getServRunMode() == RunMode.DOCKER || getDrvrRunMode() == RunMode.DOCKER)
             dockerCtx = DockerContext.getDockerContext(String.format("%s/config/docker/docker-context.yaml", locWorkDir));
-        }
+
     }
 
     /** */
@@ -538,7 +545,7 @@ public class RunContext {
 
         FileAppender fa = new FileAppender();
         fa.setName("FileLogger");
-        fa.setFile(Paths.get(locWorkDir, String.format("log-run-%s.log", mainDateTime)).toString());
+        fa.setFile(Paths.get(locWorkDir, "output", String.format("%s-run.log", mainDateTime)).toString());
         fa.setLayout(new PatternLayout("[%d{yyyy-MM-dd HH:mm:ss,SSS}][%-5p][%t] %m%n"));
         fa.setThreshold(Level.INFO);
         fa.setAppend(true);
