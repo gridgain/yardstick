@@ -104,4 +104,8 @@ public class NodeInfo implements WorkResult {
     public void setCmdExRes(CommandExecutionResult cmdExRes) {
         this.cmdExRes = cmdExRes;
     }
+
+    public String typeLow(){
+        return nodeType.toString().toLowerCase();
+    }
 }

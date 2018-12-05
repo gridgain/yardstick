@@ -5,6 +5,10 @@ import org.yardstickframework.BenchmarkUtils;
 
 public class CheckConnWorker extends Worker{
 
+    @Override public void beforeWork() {
+        //NO_OP
+    }
+
     public CheckConnWorker(RunContext runCtx, WorkContext workCtx) {
         super(runCtx, workCtx);
     }
@@ -13,21 +17,19 @@ public class CheckConnWorker extends Worker{
 
         CommandHandler hndl = new CommandHandler(runCtx);
 
+        BenchmarkUtils.println(String.format("Checking ssh connection to the host %s", host));
+
         if(!hndl.checkConn(host)){
-            res.getErrMsgs().add(String.format("Failed to establish connection to the host %s.", host));
+            BenchmarkUtils.println(String.format("Failed to establish connection to the host %s.", host));
 
-            return res;
+            res.exit(true);
         }
-
-        if(runCtx.getRemJavaHome() != null && !hndl.checkRemJava(host, runCtx.getRemJavaHome())){
-            res.getErrMsgs().add(String.format("Failed find %s/bin/java on the host %s.",
-                runCtx.getRemJavaHome(), host));
-
-            return res;
-        }
-
 
         return res;
+    }
+
+    @Override public void afterWork() {
+        //NO_OP
     }
 
     @Override public String getWorkerName() {

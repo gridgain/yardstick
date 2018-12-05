@@ -23,6 +23,14 @@ public class DockerStartContWorker extends DockerWorker {
         super(runCtx, workCtx);
     }
 
+    @Override public void beforeWork() {
+        //NO_OP
+    }
+
+    @Override public void afterWork() {
+        //NO_OP
+    }
+
     @Override public WorkResult doWork(String host, int cnt) {
         NodeType type = dockerWorkCtx.getNodeType();
 

@@ -210,8 +210,8 @@ public class CommandHandler {
     }
 
     public WorkResult killNode(NodeInfo nodeInfo) throws IOException, InterruptedException {
-        BenchmarkUtils.println(String.format("Killing node -Dyardstick.%s%s",
-            nodeInfo.getNodeType().toString().toLowerCase(), nodeInfo.getId()));
+//        BenchmarkUtils.println(String.format("Killing node -Dyardstick.%s%s",
+//            nodeInfo.getNodeType().toString().toLowerCase(), nodeInfo.getId()));
 
         String host = nodeInfo.getHost();
 

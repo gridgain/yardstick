@@ -10,16 +10,16 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import org.yardstickframework.BenchmarkUtils;
 
-public abstract class Worker extends AbstractRunner{
+public abstract class NodeServiceWorker extends AbstractRunner{
     protected WorkContext workCtx;
 
     /** */
-    public Worker(RunContext runCtx, WorkContext workCtx) {
+    public NodeServiceWorker(RunContext runCtx, WorkContext workCtx) {
         super(runCtx);
         this.workCtx = workCtx;
     }
 
-    public abstract WorkResult doWork(String host, int cnt);
+    public abstract WorkResult doWork(NodeInfo nodeInfo);
 
     public abstract String getWorkerName();
 
@@ -38,12 +38,12 @@ public abstract class Worker extends AbstractRunner{
      * Executes start method defined in worker class asynchronously.
      *
      */
-    protected List<WorkResult> workOnHosts() {
+    protected List<WorkResult> workForNodes() {
         beforeWork();
 
-        final List<?> hostList = workCtx.getList();
+        final List<?> nodeInfoList = workCtx.getList();
 
-        List<WorkResult> res = new ArrayList<>(hostList.size());
+        List<WorkResult> res = new ArrayList<>(nodeInfoList.size());
 
         ExecutorService execServ = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
@@ -51,28 +51,15 @@ public abstract class Worker extends AbstractRunner{
 
         String lastHost = null;
 
-        for (int cntr = 0; cntr < hostList.size(); cntr++) {
-            final int cntrF = cntr;
-
-            final String host = (String) hostList.get(cntrF);
-
-            if(host.equals(lastHost)){
-                try {
-                    Thread.sleep(1000L);
-                }
-                catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            lastHost = host;
+        for (Object nodeInfoObj : nodeInfoList) {
+            NodeInfo nodeInfo = (NodeInfo) nodeInfoObj;
 
             futList.add(execServ.submit(new Callable<WorkResult>() {
                 @Override public WorkResult call() throws Exception {
                     Thread.currentThread().setName(String.format("%s-%s",
-                        getWorkerName(), host));
+                        getWorkerName(), nodeInfo.getHost()));
 
-                    return doWork(host, cntrF);
+                    return doWork(nodeInfo);
                 }
             }));
         }

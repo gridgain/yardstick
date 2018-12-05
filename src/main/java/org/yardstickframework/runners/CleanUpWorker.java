@@ -11,9 +11,9 @@ public class CleanUpWorker extends Worker{
         super(runCtx, workCtx);
     }
 
-    @Override public WorkResult doWork(String ip, int cnt) {
+    @Override public WorkResult doWork(String host, int cnt) {
 
-        String getConts = String.format("ssh -o StrictHostKeyChecking=no %s docker ps -a", ip);
+        String getConts = String.format("ssh -o StrictHostKeyChecking=no %s docker ps -a", host);
 
         List<String> conts = runCmd(getConts);
 
@@ -24,9 +24,9 @@ public class CleanUpWorker extends Worker{
                 String contId = conts.get(i).split(" ")[0];
 
                 String stopContCmd = String.format("ssh -o StrictHostKeyChecking=no %s docker stop %s",
-                        ip, contId);
+                    host, contId);
 
-                BenchmarkUtils.println(String.format("Running stop cmd on the host %s: %s", ip, stopContCmd));
+                BenchmarkUtils.println(String.format("Running stop cmd on the host %s: %s", host, stopContCmd));
 
                 runCmd(stopContCmd);
             }

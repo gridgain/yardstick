@@ -3,8 +3,6 @@ package org.yardstickframework.runners;
 import java.io.File;
 import java.util.List;
 import org.yardstickframework.BenchmarkUtils;
-import org.yardstickframework.runners.docker.DockerCleanContWorker;
-import org.yardstickframework.runners.docker.DockerWorker;
 import org.yardstickframework.runners.docker.DockerWorkContext;
 import org.yardstickframework.runners.docker.DockerBuildImagesWorker;
 
@@ -15,33 +13,20 @@ public class FullRunner extends AbstractRunner {
     }
 
     public static void main(String[] args) {
-//        FileAppender
-//        for(String a : args)
-//            System.out.println(a);
-
         RunContext runCtx = RunContext.getRunContext(args);
 
         FullRunner runner = new FullRunner(runCtx);
-
-//        DockerWorkContext dctx = new DockerWorkContext(runCtx.getServUniqList(), NodeType.SERVER);
-//
-//        DockerBuildImagesWorker pdw = new DockerBuildImagesWorker(runCtx, dctx);
-//
-//        pdw.workOnHosts();
 
         runner.run1();
     }
 
     public int run1() {
-
         checkPlain(new CheckConnWorker(runCtx, new CommonWorkContext(runCtx.getFullUniqList())));
 
         List<NodeType> plainList = runCtx.getNodeTypes(RunMode.PLAIN);
 
         for (NodeType type : plainList)
             checkPlain(new CheckJavaWorker(runCtx, new CommonWorkContext(runCtx.getUniqHostsByType(type))));
-
-        checkPlain(new CheckConnWorker(runCtx, new CommonWorkContext(runCtx.getFullUniqList())));
 
         List<NodeType> dockerList = runCtx.getNodeTypes(RunMode.DOCKER);
 
@@ -82,28 +67,23 @@ public class FullRunner extends AbstractRunner {
             if (Boolean.valueOf(runCtx.getProps().getProperty("RESTART_SERVERS")))
                 servRes = startServNodes(cfgStr);
 
-            BenchmarkUtils.println("Waiting for server nodes to start.");
+            checkLogs(servRes);
 
             waitForNodes(servRes, NodeStatus.RUNNING);
 
-            BenchmarkUtils.println("Server nodes started.");
-
             drvrRes = startDrvrNodes(cfgStr);
 
-            BenchmarkUtils.println("Waiting for driver nodes to start.");
+            checkLogs(drvrRes);
 
             waitForNodes(drvrRes, NodeStatus.RUNNING);
 
-            BenchmarkUtils.println("Driver nodes started.");
-
-            BenchmarkUtils.println("Waiting for driver nodes to stop.");
-
             waitForNodes(drvrRes, NodeStatus.NOT_RUNNING);
 
-            BenchmarkUtils.println("Driver nodes stopped.");
+            if (Boolean.valueOf(runCtx.getProps().getProperty("RESTART_SERVERS"))) {
+                stopNodes(servRes);
 
-            if (Boolean.valueOf(runCtx.getProps().getProperty("RESTART_SERVERS")))
-                killNodes(servRes);
+                waitForNodes(servRes, NodeStatus.NOT_RUNNING);
+            }
         }
 
         if (!dockerList.isEmpty()) {
@@ -125,12 +105,21 @@ public class FullRunner extends AbstractRunner {
         for (WorkResult check : checks) {
             CheckWorkResult res = (CheckWorkResult)check;
 
-            if (!res.getErrMsgs().isEmpty()) {
-                for (String msg : res.getErrMsgs())
-                    BenchmarkUtils.println(msg);
-
+            if (res.exit())
                 System.exit(1);
-            }
+        }
+    }
+
+    private void checkLogs(List<WorkResult> list){
+        NodeServiceWorker checkWorker = new CheckLogWorker(runCtx, new CommonWorkContext(list));
+
+        List<WorkResult> resList = checkWorker.workForNodes();
+
+        for (WorkResult res : resList){
+            CheckWorkResult checkRes = (CheckWorkResult) res;
+
+            if(checkRes.exit())
+                System.exit(1);
         }
     }
 
@@ -154,44 +143,20 @@ public class FullRunner extends AbstractRunner {
         return startDrvrWorker.workOnHosts();
     }
 
-    private List<WorkResult> killNodes(List<WorkResult> nodeList) {
-        KillWorker killWorker = new KillWorker(runCtx, null);
+    private List<WorkResult> stopNodes(List<WorkResult> nodeList) {
+        NodeServiceWorker stopWorker = new StopNodeWorker(runCtx, new CommonWorkContext(nodeList));
 
-        for (WorkResult nodeInfo : nodeList)
-            killWorker.killNode((NodeInfo)nodeInfo);
+        stopWorker.workForNodes();
 
         return null;
     }
 
-    private void waitForNodes(List<WorkResult> nodeInfoList, NodeStatus expectedStatus) {
-        boolean unexpected = true;
+    private void waitForNodes(List<WorkResult> nodeInfoList, NodeStatus expStatus) {
+        WorkContext waitCtx = new WaitNodeWorkContext(nodeInfoList, expStatus);
 
-        if (nodeInfoList.isEmpty()) {
-            BenchmarkUtils.println("List of nodes to wait is empty.");
+        NodeServiceWorker waitWorker = new WaitNodeWorker(runCtx, waitCtx);
 
-            return;
-        }
-
-        NodeChecker checker = runCtx.getNodeChecker((NodeInfo)nodeInfoList.get(0));
-
-        while (unexpected) {
-            unexpected = false;
-
-            for (WorkResult nodeInfo : nodeInfoList) {
-                NodeCheckResult res = (NodeCheckResult)checker.checkNode((NodeInfo)nodeInfo);
-
-                if (res.getNodeStatus() != expectedStatus) {
-                    unexpected = true;
-
-                    try {
-                        Thread.sleep(1000L);
-                    }
-                    catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }
+        waitWorker.workForNodes();
     }
 
     private List<WorkResult> buildDockerImages(NodeType type) {

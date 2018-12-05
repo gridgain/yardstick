@@ -3,13 +3,13 @@ package org.yardstickframework.runners;
 import java.util.List;
 
 public class CommonWorkContext implements WorkContext {
-    private List<String> hostList;
+    private List<?> list;
 
-    public CommonWorkContext(List<String> hostList) {
-        this.hostList = hostList;
+    public CommonWorkContext(List<?> list) {
+        this.list = list;
     }
 
-    @Override public List<String> getHostList() {
-        return hostList;
+    @Override public List<?> getList() {
+        return list;
     }
 }

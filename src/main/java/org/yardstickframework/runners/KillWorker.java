@@ -10,16 +10,24 @@ public class KillWorker extends Worker{
         super(runCtx, workCtx);
     }
 
-    @Override public WorkResult doWork(String ip, int cnt) {
+    @Override public void beforeWork() {
+        //NO_OP
+    }
+
+    @Override public void afterWork() {
+        //NO_OP
+    }
+
+    @Override public WorkResult doWork(String host, int cnt) {
         CommandHandler hndl = new CommandHandler(runCtx);
 
         String killServCmd = "pkill -9 -f \"Dyardstick.server\"";
         String killDrvrCmd = "pkill -9 -f \"Dyardstick.driver\"";
 
         try {
-            hndl.runCmd(ip, killServCmd);
+            hndl.runCmd(host, killServCmd);
 
-            hndl.runCmd(ip, killDrvrCmd);
+            hndl.runCmd(host, killDrvrCmd);
         }
         catch (IOException e) {
             e.printStackTrace();
@@ -35,14 +43,18 @@ public class KillWorker extends Worker{
     public WorkResult killNode(NodeInfo nodeInfo){
         CommandHandler hndl = new CommandHandler(runCtx);
 
+        NodeInfo res = nodeInfo;
+
         try {
-            return hndl.killNode(nodeInfo);
+            res = (NodeInfo) hndl.killNode(nodeInfo);
+
+
         }
         catch (InterruptedException | IOException e) {
             e.printStackTrace();
         }
 
-        return nodeInfo;
+        return res;
     }
 
     @Override public String getWorkerName() {

@@ -204,6 +204,12 @@ public class RunContext {
 
             BenchmarkUtils.println(String.format("Using as a default property file %s", dfltPropPath));
 
+            if(!new File(dfltPropPath).exists()){
+                BenchmarkUtils.println(String.format("Failed to find default property file %s", dfltPropPath));
+
+                System.exit(1);
+            }
+
             propPath = dfltPropPath;
         }
         else {
@@ -607,7 +613,8 @@ public class RunContext {
 
         FileAppender fa = new FileAppender();
         fa.setName("FileLogger");
-        fa.setFile(Paths.get(locWorkDir, "output", String.format("%s-run.log", mainDateTime)).toString());
+        fa.setFile(Paths.get(locWorkDir, "output", String.format("logs-%s/%s-run.log",
+            mainDateTime, mainDateTime)).toString());
         fa.setLayout(new PatternLayout("[%d{yyyy-MM-dd HH:mm:ss,SSS}][%-5p][%t] %m%n"));
         fa.setThreshold(Level.INFO);
         fa.setAppend(true);

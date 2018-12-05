@@ -14,6 +14,14 @@ public class DockerCleanContWorker extends DockerWorker{
         super(runCtx, workCtx);
     }
 
+    @Override public void beforeWork() {
+        //NO_OP
+    }
+
+    @Override public void afterWork() {
+        //NO_OP
+    }
+
     @Override public WorkResult doWork(String host, int cnt) {
         removeContainers(host);
 

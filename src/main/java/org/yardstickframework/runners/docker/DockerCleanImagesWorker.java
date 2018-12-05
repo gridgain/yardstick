@@ -20,6 +20,14 @@ public class DockerCleanImagesWorker extends DockerWorker {
         this.imagesToClean = imagesToClean;
     }
 
+    @Override public void beforeWork() {
+        //NO_OP
+    }
+
+    @Override public void afterWork() {
+        //NO_OP
+    }
+
     @Override public WorkResult doWork(String host, int cnt) {
         removeImages(host, imagesToClean);
 

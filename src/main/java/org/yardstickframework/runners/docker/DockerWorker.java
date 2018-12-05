@@ -61,8 +61,8 @@ public abstract class DockerWorker extends Worker {
                 String names = contMap.get("NAMES");
 
                 if (names.contains(contName)) {
-                    BenchmarkUtils.println(String.format("Removing the container '%s' from the host %s.",
-                        names, host));
+                    BenchmarkUtils.println(String.format("Removing the container '%s' (id = %s) from the host %s.",
+                        names, contMap.get("CONTAINER ID"), host));
 
                     removeSingleCont(host, contMap.get("CONTAINER ID"));
                 }
@@ -83,6 +83,16 @@ public abstract class DockerWorker extends Worker {
         catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
+
+        Collection<Map<String, String>> processes = getProcesses(host);
+
+        String res = "removed";
+
+        for(Map<String, String> proc : processes)
+            if(proc.get("CONTAINER ID").equals(contId))
+                res = "not removed";
+
+        BenchmarkUtils.println(String.format("The container %s is %s.", contId, res));
 
         return cmdRes;
     }

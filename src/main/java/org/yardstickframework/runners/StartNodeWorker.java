@@ -1,11 +1,8 @@
 package org.yardstickframework.runners;
 
 import java.io.IOException;
-import java.util.Properties;
 import org.yardstickframework.BenchmarkConfiguration;
 import org.yardstickframework.BenchmarkUtils;
-
-import static org.yardstickframework.BenchmarkUtils.jcommander;
 
 public class StartNodeWorker extends Worker {
     /** */
@@ -44,8 +41,6 @@ public class StartNodeWorker extends Worker {
     }
 
     @Override public void beforeWork() {
-        super.beforeWork();
-
         dateTime = runCtx.getMainDateTime();
 
         resDirName = String.format("results-%s", dateTime);
@@ -59,6 +54,10 @@ public class StartNodeWorker extends Worker {
         drvrLogDirFullName = String.format("%s/log_drivers", baseLogDirFullName);
     }
 
+    @Override public void afterWork() {
+        //NO_OP
+    }
+
     @Override public WorkResult doWork(String host, int cnt) {
         final String nodeStartTime = BenchmarkUtils.dateTime();
 
@@ -69,7 +68,7 @@ public class StartNodeWorker extends Worker {
         if(startCtx.getRunMode() != RunMode.PLAIN)
             mode = String.format(" (Run mode - %s)", startCtx.getRunMode());
 
-        BenchmarkUtils.println(String.format("Starting %s node on the host %s with id %d%s",
+        BenchmarkUtils.println(String.format("Starting %s node on the host %s with id %d.%s",
             getNodeTypeLowCase(startCtx),
             host,
             cnt,
@@ -111,7 +110,7 @@ public class StartNodeWorker extends Worker {
     private String getParamStr(String ip, int cnt, String nodeStartTime, StartNodeWorkContext startCtx, String descr){
         String drvrResDir = String.format("%s/output/result-%s", runCtx.getRemWorkDir(), runCtx.getMainDateTime());
 
-        String outputFolderParam = getWorkCtx().getHostList().size() > 1 ?
+        String outputFolderParam = getWorkCtx().getList().size() > 1 ?
             String.format("--outputFolder %s/%d-%s", drvrResDir, cnt, ip) :
             String.format("--outputFolder %s", drvrResDir);
 
