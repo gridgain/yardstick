@@ -15,6 +15,15 @@ public class DeployWorker extends Worker{
     public DeployWorker(RunContext runCtx, WorkContext workCtx) {
         super(runCtx, workCtx);
     }
+
+    @Override public void beforeWork() {
+        //NO_OP
+    }
+
+    @Override public void afterWork() {
+        //NO_OP
+    }
+
     @Override public WorkResult doWork(String host, int cnt) {
         if ((isLocal(host) && runCtx.getLocWorkDir().equals(runCtx.getRemWorkDir()))
             || host.equals(runCtx.getCurrentHost()) && runCtx.getLocWorkDir().equals(runCtx.getRemWorkDir()))
