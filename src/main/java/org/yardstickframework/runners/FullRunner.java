@@ -99,16 +99,7 @@ public class FullRunner extends AbstractRunner {
         return 0;
     }
 
-    private void checkPlain(Worker checkWorker) {
-        List<WorkResult> checks = checkWorker.workOnHosts();
 
-        for (WorkResult check : checks) {
-            CheckWorkResult res = (CheckWorkResult)check;
-
-            if (res.exit())
-                System.exit(1);
-        }
-    }
 
     private void checkLogs(List<WorkResult> list){
         NodeServiceWorker checkWorker = new CheckLogWorker(runCtx, new CommonWorkContext(list));

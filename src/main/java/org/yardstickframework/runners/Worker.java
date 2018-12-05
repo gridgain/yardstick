@@ -10,11 +10,11 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import org.yardstickframework.BenchmarkUtils;
 
-public abstract class Worker extends AbstractRunner{
+public abstract class Worker<T1 extends WorkResult, T2 extends WorkContext> extends AbstractRunner{
     protected WorkContext workCtx;
 
     /** */
-    public Worker(RunContext runCtx, WorkContext workCtx) {
+    public Worker(RunContext runCtx, T2 workCtx) {
         super(runCtx);
         this.workCtx = workCtx;
     }

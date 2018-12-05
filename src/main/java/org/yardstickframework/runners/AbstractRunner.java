@@ -79,6 +79,17 @@ public class AbstractRunner {
         return res;
     }
 
+    protected void checkPlain(Worker checkWorker) {
+        List<WorkResult> checks = checkWorker.workOnHosts();
+
+        for (WorkResult check : checks) {
+            CheckWorkResult res = (CheckWorkResult)check;
+
+            if (res.exit())
+                System.exit(1);
+        }
+    }
+
     protected List<String> getHosts(NodeType type){
         return type == NodeType.SERVER ? runCtx.getServList() : runCtx.getDrvrList();
     }
