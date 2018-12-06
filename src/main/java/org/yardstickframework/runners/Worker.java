@@ -33,7 +33,7 @@ public abstract class Worker<T1 extends WorkResult, T2 extends WorkContext> exte
      * Executes before workOnHosts()
      */
     public void beforeWork(){
-        BenchmarkUtils.println(String.format("%s started.", getClass().getSimpleName()));
+        log().info(String.format("%s started.", getClass().getSimpleName()));
     }
 
     /**
@@ -106,7 +106,7 @@ public abstract class Worker<T1 extends WorkResult, T2 extends WorkContext> exte
     }
 
     public void afterWork(){
-        BenchmarkUtils.println(String.format("%s finished.", getClass().getSimpleName()));
+        log().info(String.format("%s finished.", getClass().getSimpleName()));
     }
 
 

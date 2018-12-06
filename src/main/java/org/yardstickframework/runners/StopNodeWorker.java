@@ -14,7 +14,7 @@ public class StopNodeWorker extends NodeServiceWorker{
     }
 
     @Override public WorkResult doWork(NodeInfo nodeInfo) {
-        BenchmarkUtils.println(String.format("Stopping node %s%s on the host %s.",
+        log().info(String.format("Stopping node %s%s on the host %s.",
             nodeInfo.typeLow(),
             nodeInfo.getId(),
             nodeInfo.getHost()));
@@ -30,7 +30,7 @@ public class StopNodeWorker extends NodeServiceWorker{
             NodeInfo nodeInfo = (NodeInfo) getWorkCtx().getList().get(0);
 
             if(nodeInfo.getStartCtx().getRunMode() == RunMode.DOCKER)
-                BenchmarkUtils.println("Keeping docker containers running.");
+                log().info("Keeping docker containers running.");
         }
     }
 

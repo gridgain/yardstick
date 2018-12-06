@@ -27,7 +27,7 @@ public class CheckJavaWorker extends Worker {
 
         if (runCtx.getRemJavaHome() != null) {
             if (!hndl.checkRemJava(host, runCtx.getRemJavaHome())) {
-                BenchmarkUtils.println(String.format("Failed to find %s/bin/java on the host %s.",
+                log().info(String.format("Failed to find %s/bin/java on the host %s.",
                     runCtx.getRemJavaHome(), host));
 
                 res.exit(true);
@@ -55,7 +55,7 @@ public class CheckJavaWorker extends Worker {
                 hostJava,
                 host);
 
-            BenchmarkUtils.println(warn);
+            log().info(warn);
 
             LOG.info(warn);
 

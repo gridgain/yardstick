@@ -29,7 +29,7 @@ public class CleanRemDirWorker extends Worker{
 
         String remDir =  runCtx.getRemWorkDir();
 
-        BenchmarkUtils.println(String.format("Cleaning up directory %s on the host %s", remDir, host));
+        log().info(String.format("Cleaning up directory %s on the host %s", remDir, host));
 
         for(String name : toClean){
             String cleanCmd = String.format("ssh -o StrictHostKeyChecking=no %s rm -rf %s/%s",

@@ -15,6 +15,8 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.yardstickframework.BenchmarkUtils;
 
 public class AbstractRunner {
@@ -67,7 +69,7 @@ public class AbstractRunner {
                 res.add(line);
 
                 if(line.contains("Successfully built "))
-                     BenchmarkUtils.println(line);
+                     log().info(line);
             }
         }
         catch (Exception e) {
@@ -96,6 +98,12 @@ public class AbstractRunner {
 
     protected List<String> getUniqHosts(NodeType type){
         return type == NodeType.SERVER ? runCtx.getServUniqList() : runCtx.getDrvrUniqList();
+    }
+
+    protected Logger log(){
+        Logger log = LogManager.getLogger(getClass().getSimpleName());
+
+        return log;
     }
 
 

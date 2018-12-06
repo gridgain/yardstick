@@ -62,7 +62,7 @@ public abstract class DockerWorker extends Worker {
                 String names = contMap.get("NAMES");
 
                 if (names.contains(contName)) {
-                    BenchmarkUtils.println(String.format("Removing the container '%s' (id = %s) from the host %s.",
+                    log().info(String.format("Removing the container '%s' (id = %s) from the host %s.",
                         names, contMap.get("CONTAINER ID"), host));
 
                     removeSingleCont(host, contMap.get("CONTAINER ID"));
@@ -93,7 +93,7 @@ public abstract class DockerWorker extends Worker {
             if(proc.get("CONTAINER ID").equals(contId))
                 res = "not removed";
 
-        BenchmarkUtils.println(String.format("The container %s is %s.", contId, res));
+        log().info(String.format("The container %s is %s.", contId, res));
 
         return cmdRes;
     }
@@ -101,7 +101,7 @@ public abstract class DockerWorker extends Worker {
     private CommandExecutionResult removeImage(String host, String imageId, String imageName) {
         CommandHandler hndl = new CommandHandler(runCtx);
 
-        BenchmarkUtils.println(String.format("Removing the image '%s' (id=%s) from the host %s",
+        log().info(String.format("Removing the image '%s' (id=%s) from the host %s",
             imageName, imageId, host));
 
         CommandExecutionResult cmdRes = null;

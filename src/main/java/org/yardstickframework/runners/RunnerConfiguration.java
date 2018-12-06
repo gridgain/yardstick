@@ -15,12 +15,7 @@
 package org.yardstickframework.runners;
 
 import com.beust.jcommander.Parameter;
-import java.io.PrintStream;
 import java.io.Serializable;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Input arguments for benchmarks.
@@ -31,8 +26,8 @@ public class RunnerConfiguration implements Serializable {
     private static final long serialVersionUID = 0L;
 
     /** */
-    @Parameter(names = {"-lwd", "--localWorkDir"}, description = "Local work directory path")
-    private String localWorkDir;
+    @Parameter(names = {"-sd", "--scriptDir"}, description = "Local work directory path")
+    private String scriptDir;
 
     /** */
     @Parameter(names = {"-rwd", "--remoteWorkDir"}, description = "Local work directory path")
@@ -40,15 +35,83 @@ public class RunnerConfiguration implements Serializable {
 
     /** */
     @Parameter(names = {"-pf", "--propertyFile"}, description = "Framework configuration file path")
-    private String propertyFile = "config/benchmark.properties";
+    private String propertyFile;
 
     /** */
     @Parameter(names = {"-s", "--serverHosts"}, description = "Comma separated list of server nodes addresses.")
     private String serverHosts;
 
     /** */
-    @Parameter(names = {"-s", "--driverHosts"}, description = "Comma separated list of driver nodes addresses.")
+    @Parameter(names = {"-d", "--driverHosts"}, description = "Comma separated list of driver nodes addresses.")
     private String driverHosts;
 
+    /**
+     * @return Local work directory.
+     */
+    public String scriptDirectory() {
+        return scriptDir;
+    }
 
+    /**
+     * @param scriptDir New local work directory.
+     */
+    public void scriptDirectory(String scriptDir) {
+        this.scriptDir = scriptDir;
+    }
+
+    /**
+     * @return Remote work directory.
+     */
+    public String remoteWorkDirectory() {
+        return remoteWorkDir;
+    }
+
+    /**
+     * @param remoteWorkDir New remote work directory.
+     */
+    public void remoteWorkDirectory(String remoteWorkDir) {
+        this.remoteWorkDir = remoteWorkDir;
+    }
+
+    /**
+     * @return Property file.
+     */
+    public String propertyFile() {
+        return propertyFile;
+    }
+
+    /**
+     * @param propFile New property file.
+     */
+    public void propertyFile(String propFile) {
+        propertyFile = propFile;
+    }
+
+    /**
+     * @return Server hosts.
+     */
+    public String serverHosts() {
+        return serverHosts;
+    }
+
+    /**
+     * @param srvHosts New server hosts.
+     */
+    public void serverHosts(String srvHosts) {
+        serverHosts = srvHosts;
+    }
+
+    /**
+     * @return Driver hosts.
+     */
+    public String driverHosts() {
+        return driverHosts;
+    }
+
+    /**
+     * @param driverHosts New driver hosts.
+     */
+    public void driverHosts(String driverHosts) {
+        this.driverHosts = driverHosts;
+    }
 }

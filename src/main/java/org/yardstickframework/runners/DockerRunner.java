@@ -26,7 +26,7 @@ public class DockerRunner extends AbstractRunner {
 
     public void check(List<NodeType> nodeTypeList){
         for(NodeType type : nodeTypeList) {
-            BenchmarkUtils.println(String.format("Run mode DOCKER enabled for %s nodes.", type.toString().toLowerCase()));
+            log().info(String.format("Run mode DOCKER enabled for %s nodes.", type.toString().toLowerCase()));
 
             checkForNodeType(type);
         }
@@ -43,7 +43,7 @@ public class DockerRunner extends AbstractRunner {
 
             if(!checkRes.getErrMsgs().isEmpty()){
                 for(String errMsg : checkRes.getErrMsgs())
-                    BenchmarkUtils.println(errMsg);
+                    log().info(errMsg);
 
                 System.exit(1);
             }
@@ -91,7 +91,7 @@ public class DockerRunner extends AbstractRunner {
     }
 
     public void cleanForNodeType(NodeType type, String flag){
-//        BenchmarkUtils.println(String.format("Cleaning up docker for %s nodes.", type.toString().toLowerCase()));
+//        log().info(String.format("Cleaning up docker for %s nodes.", type.toString().toLowerCase()));
 
         DockerWorkContext workCtx = new DockerWorkContext(
             getUniqHosts(type), type);
@@ -107,7 +107,7 @@ public class DockerRunner extends AbstractRunner {
 
 
     public void prepareForNodeType(NodeType type){
-//        BenchmarkUtils.println(String.format("Preparing docker for %s nodes.", type.toString().toLowerCase()));
+//        log().info(String.format("Preparing docker for %s nodes.", type.toString().toLowerCase()));
 
         DockerWorkContext uniqListWorkCtx = new DockerWorkContext(
             getUniqHosts(type), type);

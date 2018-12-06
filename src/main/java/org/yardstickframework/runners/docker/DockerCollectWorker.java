@@ -33,7 +33,7 @@ public class DockerCollectWorker extends DockerWorker{
 
 //        System.out.println(cpCmd);
 
-        BenchmarkUtils.println(String.format("Collecting data from the container %s on the host %s.", contName, host));
+        log().info(String.format("Collecting data from the container %s on the host %s.", contName, host));
 
         try {
 //            hndl.runDockerCmd(host, mkdirCmd);

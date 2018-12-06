@@ -17,10 +17,10 @@ public class CheckConnWorker extends Worker{
 
         CommandHandler hndl = new CommandHandler(runCtx);
 
-        BenchmarkUtils.println(String.format("Checking ssh connection to the host %s", host));
+        log().info(String.format("Checking ssh connection to the host %s", host));
 
         if(!hndl.checkConn(host)){
-            BenchmarkUtils.println(String.format("Failed to establish connection to the host %s.", host));
+            log().info(String.format("Failed to establish connection to the host %s.", host));
 
             res.exit(true);
         }

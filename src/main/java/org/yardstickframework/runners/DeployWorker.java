@@ -34,7 +34,7 @@ public class DeployWorker extends Worker{
 
         runCmd(createCmd);
 
-        BenchmarkUtils.println(String.format("Deploying on the host %s", host));
+        log().info(String.format("Deploying on the host %s", host));
 
         for(String name : toClean){
             String cleanCmd = String.format("ssh -o StrictHostKeyChecking=no %s rm -rf %s/%s",

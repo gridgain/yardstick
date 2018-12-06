@@ -68,7 +68,7 @@ public class StartNodeWorker extends Worker {
         if(startCtx.getRunMode() != RunMode.PLAIN)
             mode = String.format(" (Run mode - %s)", startCtx.getRunMode());
 
-        BenchmarkUtils.println(String.format("Starting %s node on the host %s with id %d.%s",
+        log().info(String.format("Starting %s node on the host %s with id %d.%s",
             getNodeTypeLowCase(startCtx),
             host,
             cnt,

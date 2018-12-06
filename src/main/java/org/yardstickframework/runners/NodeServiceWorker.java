@@ -31,7 +31,7 @@ public abstract class NodeServiceWorker extends AbstractRunner{
      * Executes before workOnHosts()
      */
     public void beforeWork(){
-        BenchmarkUtils.println(String.format("%s started.", getClass().getSimpleName()));
+        log().info(String.format("%s started.", getClass().getSimpleName()));
     }
 
     /**
@@ -85,7 +85,7 @@ public abstract class NodeServiceWorker extends AbstractRunner{
     }
 
     public void afterWork(){
-        BenchmarkUtils.println(String.format("%s finished.", getClass().getSimpleName()));
+        log().info(String.format("%s finished.", getClass().getSimpleName()));
     }
 
 

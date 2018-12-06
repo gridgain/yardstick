@@ -36,7 +36,7 @@ public class DockerBuildImagesWorker extends DockerWorker {
 
             CommandHandler hndl = new CommandHandler(runCtx);
 
-//            BenchmarkUtils.println(String.format("Building the image '%s' on the host %s.", nameToUse, host));
+//            log().info(String.format("Building the image '%s' on the host %s.", nameToUse, host));
 
 
 //            System.out.println(buildCmd);

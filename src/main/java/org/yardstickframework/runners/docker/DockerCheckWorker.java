@@ -30,7 +30,7 @@ public class DockerCheckWorker extends DockerWorker{
     @Override public WorkResult doWork(String host, int cnt) {
         CommandHandler hndl = new CommandHandler(runCtx);
 
-//        BenchmarkUtils.println(String.format("Checking docker on the host %s.", host));
+//        log().info(String.format("Checking docker on the host %s.", host));
 
         CommandExecutionResult res = null;
 

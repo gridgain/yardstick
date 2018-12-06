@@ -35,7 +35,7 @@ public class WaitNodeWorker extends NodeServiceWorker {
 
         NodeChecker checker = runCtx.getNodeChecker(nodeInfo);
 
-//        BenchmarkUtils.println(String.format("Waiting for node %s%s on the host %s to be %s.",
+//        log().info(String.format("Waiting for node %s%s on the host %s to be %s.",
 //            nodeInfo.typeLow(),
 //            nodeInfo.getId(),
 //            nodeInfo.getHost(),
@@ -59,7 +59,7 @@ public class WaitNodeWorker extends NodeServiceWorker {
 
         }
 
-        BenchmarkUtils.println(String.format("Node %s%s on the host %s is %s.",
+        log().info(String.format("Node %s%s on the host %s is %s.",
             nodeInfo.typeLow(),
             nodeInfo.getId(),
             nodeInfo.getHost(),

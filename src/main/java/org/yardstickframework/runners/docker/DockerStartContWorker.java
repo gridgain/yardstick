@@ -38,7 +38,7 @@ public class DockerStartContWorker extends DockerWorker {
 
         String contName = String.format("YARDSTICK_%s_%d", type, cnt);
 
-        BenchmarkUtils.println(String.format("Starting the container %s on the host %s", contName, host));
+        log().info(String.format("Starting the container %s on the host %s", contName, host));
 
         String startContCmd = getStartContCmd();
 
@@ -131,7 +131,7 @@ public class DockerStartContWorker extends DockerWorker {
             switch (type){
                 case SERVER:
                     if(dockerCtx.getServerDockerJavaHome() == null) {
-                        BenchmarkUtils.println(String.format("Using docker JAVA_HOME for server nodes: %s",
+                        log().info(String.format("Using docker JAVA_HOME for server nodes: %s",
                             javaHome));
 
                         dockerCtx.setServerDockerJavaHome(javaHome);
@@ -139,20 +139,20 @@ public class DockerStartContWorker extends DockerWorker {
                     break;
                 case DRIVER:
                     if(dockerCtx.getDriverDockerJavaHome() == null) {
-                        BenchmarkUtils.println(String.format("Using docker JAVA_HOME for driver nodes: %s",
+                        log().info(String.format("Using docker JAVA_HOME for driver nodes: %s",
                             javaHome));
 
                         dockerCtx.setDriverDockerJavaHome(javaHome);
                     }
                     break;
                 default:
-                    BenchmarkUtils.println("Unknown node type " + type);
+                    log().info("Unknown node type " + type);
             }
         }
         else{
-            BenchmarkUtils.println(String.format("Failed to get JAVA_HOME variable from docker container %s", contName));
+            log().info(String.format("Failed to get JAVA_HOME variable from docker container %s", contName));
 
-            BenchmarkUtils.println("Will clean up docker and exit.");
+            log().info("Will clean up docker and exit.");
 
             DockerRunner runner = new DockerRunner(runCtx);
 

@@ -61,7 +61,7 @@ public class FullRunner extends AbstractRunner {
         if (!Boolean.valueOf(runCtx.getProps().getProperty("RESTART_SERVERS"))) {
             servRes = startServNodes(cfgStr0);
 
-            BenchmarkUtils.println("RESTART_SERVERS=false");
+            log().info("RESTART_SERVERS=false");
         }
 
         for (String cfgStr : runCtx.getCfgList()) {

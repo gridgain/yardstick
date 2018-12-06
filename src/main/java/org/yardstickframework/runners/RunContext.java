@@ -22,7 +22,6 @@ import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
-import org.apache.log4j.RollingFileAppender;
 //import org.slf4j.Logger;
 //import org.slf4j.LoggerFactory;
 import org.yardstickframework.BenchmarkUtils;
@@ -38,6 +37,8 @@ public class RunContext {
     private static final Logger LOG = LogManager.getLogger(RunContext.class);
 
     private static RunContext instance;
+
+    private static RunnerConfiguration cfg = new RunnerConfiguration();
 
     private Properties props;
 
@@ -186,26 +187,37 @@ public class RunContext {
 //                "/home/oostanin/gg/incubator-ignite/modules/yardstick/target/assembly/bin",
 //                "/home/oostanin/gg/incubator-ignite/modules/yardstick/target/assembly/config/benchmark.properties"};
 //        }
+        try {
 
-        if (args.length == 0) {
-            BenchmarkUtils.println("Work directory is not defined.");
+            BenchmarkUtils.jcommander(args, cfg, "<benchmark-runner>");
+        }
+        catch (Exception e) {
+            BenchmarkUtils.println("Failed to parse command line arguments. " + e.getMessage());
+
+            e.printStackTrace();
 
             System.exit(1);
         }
 
-        locWorkDir = new File(args[0]).getParentFile().getAbsolutePath();
+        if (cfg.scriptDirectory() == null) {
+            log().error("Script directory is not defined.");
+
+            System.exit(1);
+        }
+
+        locWorkDir = new File(cfg.scriptDirectory()).getParentFile().getAbsolutePath();
 
         configLog();
 
         LOG.info(String.format("Local work directory is %s", locWorkDir));
 
-        if (args.length == 1) {
+        if (cfg.propertyFile() == null) {
             String dfltPropPath = String.format("%s/config/benchmark.properties", locWorkDir);
 
-            BenchmarkUtils.println(String.format("Using as a default property file %s", dfltPropPath));
+            log().info(String.format("Using as a default property file %s", dfltPropPath));
 
-            if(!new File(dfltPropPath).exists()){
-                BenchmarkUtils.println(String.format("Failed to find default property file %s", dfltPropPath));
+            if (!new File(dfltPropPath).exists()) {
+                log().info(String.format("Failed to find default property file %s", dfltPropPath));
 
                 System.exit(1);
             }
@@ -213,12 +225,14 @@ public class RunContext {
             propPath = dfltPropPath;
         }
         else {
-            if (new File(args[1]).exists())
-                propPath = new File(args[1]).getAbsolutePath();
-            else if (Paths.get(locWorkDir, args[1]).toFile().exists())
-                propPath = Paths.get(locWorkDir, args[1]).toAbsolutePath().toString();
+            String propFilePath = cfg.propertyFile();
+
+            if (new File(propFilePath).exists())
+                propPath = new File(propFilePath).getAbsolutePath();
+            else if (Paths.get(locWorkDir, propFilePath).toFile().exists())
+                propPath = Paths.get(locWorkDir, propFilePath).toAbsolutePath().toString();
             else {
-                BenchmarkUtils.println(String.format("Error. Failed to find property %s", args[1]));
+                log().info(String.format("Error. Failed to find property %s", propFilePath));
 
                 System.exit(1);
             }
@@ -286,7 +300,7 @@ public class RunContext {
             }
         }
 
-        if(currentHost == null){
+        if (currentHost == null) {
             LOG.info("Setting current host address as 127.0.0.1");
 
             currentHost = "127.0.0.1";
@@ -332,7 +346,7 @@ public class RunContext {
         if (props.getProperty("REMOTE_USER") != null)
             remUser = props.getProperty("REMOTE_USER");
         else {
-            BenchmarkUtils.println(String.format("REMOTE_USER is not defined in property file. Will use '%s' " +
+            log().info(String.format("REMOTE_USER is not defined in property file. Will use '%s' " +
                 "username for remote connections.", locUser));
 
             remUser = locUser;
@@ -417,7 +431,7 @@ public class RunContext {
         }
 
         if (res.isEmpty())
-            BenchmarkUtils.println(String.format("WARNING! %s is not defined in property file.", prop));
+            log().info(String.format("WARNING! %s is not defined in property file.", prop));
 
         return res;
     }
@@ -510,7 +524,7 @@ public class RunContext {
         if (props.getProperty("DOCKER_CONTEXT_PATH") == null) {
             dockerCtxPropPath = String.format("%s/config/docker/docker-context-default.yaml", locWorkDir);
 
-            BenchmarkUtils.println(String.format("DOCKER_CONTEXT_PATH is not defined in property file. Will try " +
+            log().info(String.format("DOCKER_CONTEXT_PATH is not defined in property file. Will try " +
                 "to use default docker context configuration %s", dockerCtxPropPath));
         }
         else
@@ -533,7 +547,7 @@ public class RunContext {
         for (int i = 0; i < argArr.length; i++) {
             if (argArr[i].equals("-ds") || argArr[i].equals("--descriptions")) {
                 if (argArr.length < i + 2) {
-                    BenchmarkUtils.println("Failed to get description");
+                    log().info("Failed to get description");
 
                     return res;
                 }
@@ -555,7 +569,7 @@ public class RunContext {
         if (new File(fullPath).exists())
             return fullPath;
 
-        BenchmarkUtils.println(String.format("Failed to find %s or %s.", srcPath, fullPath));
+        log().info(String.format("Failed to find %s or %s.", srcPath, fullPath));
 
         System.exit(1);
 
@@ -589,27 +603,27 @@ public class RunContext {
         return res;
     }
 
-    public List<String> getHostsByType(NodeType type){
+    public List<String> getHostsByType(NodeType type) {
         return type == NodeType.SERVER ? servHosts : drvrHosts;
     }
 
-    public List<String> getUniqHostsByType(NodeType type){
+    public List<String> getUniqHostsByType(NodeType type) {
         return makeUniq(getHostsByType(type));
     }
 
-    public String getHostJava(String host){
+    public String getHostJava(String host) {
         return hostJavaHomeMap.get(host);
     }
 
     private void configLog() {
         ConsoleAppender console = new ConsoleAppender(); //create appender
         //configure the appender
-        String PATTERN = "%d [%p|%c|%C{1}] %m%n";
+        String PATTERN = "[%d{yyyy-MM-dd HH:mm:ss}][%-5p][%t] %m%n";
         console.setLayout(new PatternLayout(PATTERN));
         console.setThreshold(Level.INFO);
         console.activateOptions();
         //add appender to any Logger (here is root)
-//        Logger.getRootLogger().addAppender(console);
+        Logger.getRootLogger().addAppender(console);
 
         FileAppender fa = new FileAppender();
         fa.setName("FileLogger");
@@ -622,6 +636,19 @@ public class RunContext {
 
         //add appender to any Logger (here is root)
         Logger.getRootLogger().addAppender(fa);
+    }
+
+    protected static Logger log() {
+        Logger log = LogManager.getLogger(RunContext.class.getSimpleName());
+
+        return log;
+    }
+
+    /**
+     * @return Config.
+     */
+    public RunnerConfiguration config() {
+        return cfg;
     }
 
 }

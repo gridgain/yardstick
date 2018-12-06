@@ -17,7 +17,7 @@ public class CleanUpWorker extends Worker{
 
         List<String> conts = runCmd(getConts);
 
-//        BenchmarkUtils.println(String.format("Docker ps -a result from %s: %s", ip, conts));
+//        log().info(String.format("Docker ps -a result from %s: %s", ip, conts));
 
         if(conts.size() > 1){
             for(int i = 1; i < conts.size(); i++){
@@ -26,7 +26,7 @@ public class CleanUpWorker extends Worker{
                 String stopContCmd = String.format("ssh -o StrictHostKeyChecking=no %s docker stop %s",
                     host, contId);
 
-                BenchmarkUtils.println(String.format("Running stop cmd on the host %s: %s", host, stopContCmd));
+                log().info(String.format("Running stop cmd on the host %s: %s", host, stopContCmd));
 
                 runCmd(stopContCmd);
             }
@@ -36,7 +36,7 @@ public class CleanUpWorker extends Worker{
 //
 //        List<String> images = runCmd(getImages);
 //
-//        BenchmarkUtils.println(String.format("Docker images result from %s: %s", ip, images));
+//        log().info(String.format("Docker images result from %s: %s", ip, images));
 //
 //
 //        if(images.size() > 1){
@@ -54,7 +54,7 @@ public class CleanUpWorker extends Worker{
 //                    String rmImageCmd = String.format("ssh -o StrictHostKeyChecking=no %s docker rmi %s",
 //                            ip, line2);
 //
-//                    BenchmarkUtils.println(String.format("Running rmi cmd on the host %s: %s", ip, rmImageCmd));
+//                    log().info(String.format("Running rmi cmd on the host %s: %s", ip, rmImageCmd));
 //
 //                    runCmd(rmImageCmd);
 //                }

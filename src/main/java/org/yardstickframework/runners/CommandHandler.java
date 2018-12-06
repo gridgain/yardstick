@@ -11,6 +11,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.yardstickframework.BenchmarkUtils;
 
 public class CommandHandler {
@@ -75,7 +77,7 @@ public class CommandHandler {
             outStr.add(lineO);
 
             if (lineO.contains("Successfully built "))
-                BenchmarkUtils.println(lineO);
+                log().info(lineO);
         }
 
         CommandExecutionResult res = new CommandExecutionResult(exitCode, outStr, errStr, p);
@@ -118,7 +120,7 @@ public class CommandHandler {
             outStr.add(lineO);
 
             if (lineO.contains("Successfully built "))
-                BenchmarkUtils.println(lineO);
+                log().info(lineO);
         }
 
         CommandExecutionResult res = new CommandExecutionResult(exitCode, outStr, errStr, proc);
@@ -210,7 +212,7 @@ public class CommandHandler {
     }
 
     public WorkResult killNode(NodeInfo nodeInfo) throws IOException, InterruptedException {
-//        BenchmarkUtils.println(String.format("Killing node -Dyardstick.%s%s",
+//        log().info(String.format("Killing node -Dyardstick.%s%s",
 //            nodeInfo.getNodeType().toString().toLowerCase(), nodeInfo.getId()));
 
         String host = nodeInfo.getHost();
@@ -281,7 +283,7 @@ public class CommandHandler {
                 dirToMake.mkdirs();
             }
             catch (Exception e) {
-                BenchmarkUtils.println(e.getMessage());
+                log().info(e.getMessage());
 
                 errStream.add(e.getMessage());
             }
@@ -407,5 +409,11 @@ public class CommandHandler {
         }
 
         return res != null && res.getExitCode() == 0;
+    }
+
+    protected Logger log(){
+        Logger log = LogManager.getLogger(getClass().getSimpleName());
+
+        return log;
     }
 }

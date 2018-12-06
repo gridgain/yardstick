@@ -24,8 +24,8 @@ public class PlainNodeStarter extends AbstractRunner implements NodeStarter {
 
         String withJavaHome = String.format("%s/bin/java %s", javaHome, cmd);
 
-        //        BenchmarkUtils.println("Running start node cmd: " + cmd);
-//        BenchmarkUtils.println("Running start node cmd: " + cmd.replaceAll(runCtx.getRemWorkDir(), "<MAIN_DIR>"));
+        //        log().info("Running start node cmd: " + cmd);
+//        log().info("Running start node cmd: " + cmd.replaceAll(runCtx.getRemWorkDir(), "<MAIN_DIR>"));
 
         CommandExecutionResult res = null;
 
@@ -49,8 +49,8 @@ public class PlainNodeStarter extends AbstractRunner implements NodeStarter {
     }
 
     private void printNoJavaError(String host) {
-        BenchmarkUtils.println(String.format("Failed to get default JAVA_HOME variable from the host %s", host));
-        BenchmarkUtils.println(String.format("Will not start node on the host %s", host));
+        log().info(String.format("Failed to get default JAVA_HOME variable from the host %s", host));
+        log().info(String.format("Will not start node on the host %s", host));
 
     }
 

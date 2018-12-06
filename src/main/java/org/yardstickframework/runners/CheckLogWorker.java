@@ -14,7 +14,7 @@ public class CheckLogWorker extends NodeServiceWorker{
     }
 
     @Override public WorkResult doWork(NodeInfo nodeInfo) {
-//        BenchmarkUtils.println(String.format("Checking node %s%s on the host %s.",
+//        log().info(String.format("Checking node %s%s on the host %s.",
 //            nodeInfo.typeLow(),
 //            nodeInfo.getId(),
 //            nodeInfo.getHost()));
@@ -48,14 +48,14 @@ public class CheckLogWorker extends NodeServiceWorker{
         NodeCheckResult checkRes = (NodeCheckResult)checker.checkNode(nodeInfo);
 
         if(checkRes.getNodeStatus() == NodeStatus.NOT_RUNNING) {
-            BenchmarkUtils.println(String.format("Node %s%s on the host %s in not running. Will check log file and exit.",
+            log().info(String.format("Node %s%s on the host %s in not running. Will check log file and exit.",
                 nodeInfo.typeLow(), nodeInfo.getId(), host));
 
             checkLogRes.exit(true);
         }
 
         if(!fileExists){
-            BenchmarkUtils.println(String.format("No log file %s on the host %s.", logPath, host));
+            log().info(String.format("No log file %s on the host %s.", logPath, host));
 
             return checkLogRes;
         }
@@ -68,11 +68,11 @@ public class CheckLogWorker extends NodeServiceWorker{
             if(!res.getOutStream().isEmpty()){
                 checkLogRes.getErrMsgs().addAll(res.getOutStream());
 
-                BenchmarkUtils.println(String.format("WARNING! Log file '%s' contains following error messages:",
+                log().info(String.format("WARNING! Log file '%s' contains following error messages:",
                     logPath));
 
                 for(String msg : res.getOutStream())
-                    BenchmarkUtils.println(msg);
+                    log().info(msg);
 
                 return checkLogRes;
             }
