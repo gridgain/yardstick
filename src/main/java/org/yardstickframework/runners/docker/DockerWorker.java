@@ -37,16 +37,17 @@ public abstract class DockerWorker extends Worker {
         dockerCtx = runCtx.getDockerContext();
     }
 
-    protected void removeImages(String host, List<String> imagesToClean) {
+    protected void removeImages(String host) {
         Collection<Map<String, String>> imageMaps = getImages(host);
 
         Map<String, String> toRemove = new HashMap<>();
 
         for (Map<String, String> imageMap : imageMaps) {
-            for (String imageName : imagesToClean) {
-                if (imageMap.get("REPOSITORY").contains(imageName))
-                    toRemove.put(imageMap.get("IMAGE ID"), imageMap.get("REPOSITORY"));
-            }
+            String imageName = imageMap.get("REPOSITORY");
+
+            if (nameToDelete(imageName))
+                toRemove.put(imageMap.get("IMAGE ID"), imageName);
+
         }
 
         for(String id : toRemove.keySet())
@@ -205,5 +206,9 @@ public abstract class DockerWorker extends Worker {
         return type == NodeType.SERVER ?
             dockerCtx.getServerImageName():
             dockerCtx.getDriverImageName();
+    }
+
+    private boolean nameToDelete(String name){
+        return name.equals(dockerCtx.getServerImageName()) || name.equals(dockerCtx.getDriverImageName());
     }
 }

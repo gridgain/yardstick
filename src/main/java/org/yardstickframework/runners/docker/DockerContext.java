@@ -87,14 +87,6 @@ public class DockerContext {
         this.removeImagesFlags = removeImagesFlags;
     }
 
-    public List<String> getImagesToRemove() {
-        return imagesToRemove;
-    }
-
-    public void setImagesToRemove(List<String> imagesToRemove) {
-        this.imagesToRemove = imagesToRemove;
-    }
-
     public String getDockerRunCmdArgs() {
         return dockerRunCmdArgs;
     }

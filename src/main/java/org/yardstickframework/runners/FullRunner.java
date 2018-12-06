@@ -35,6 +35,7 @@ public class FullRunner extends AbstractRunner {
         if (!dockerList.isEmpty())
             dockerRunner.check(dockerList);
 
+
         Worker killWorker = new KillWorker(runCtx, new CommonWorkContext(runCtx.getFullUniqList()));
 
         killWorker.workOnHosts();

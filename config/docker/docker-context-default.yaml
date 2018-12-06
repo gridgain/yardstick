@@ -15,13 +15,8 @@ rebuildImagesIfExist: false
 
 # Flags to remove images.
 removeImagesFlags:
-  before: false
-  after: false
-
-# List of images to remove.
-imagesToRemove:
- - yardstickserver
- - yardstickdriver
+  before: true
+  after: true
 
 # List of arguments to use with docker 'run' command. If 'NAME_PLACE_HOLDER' is present it will be replaced with
 # YARDSTICK-<NODETYPE>-<ID> name.

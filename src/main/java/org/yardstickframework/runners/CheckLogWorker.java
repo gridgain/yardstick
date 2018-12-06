@@ -14,10 +14,10 @@ public class CheckLogWorker extends NodeServiceWorker{
     }
 
     @Override public WorkResult doWork(NodeInfo nodeInfo) {
-        BenchmarkUtils.println(String.format("Checking node %s%s on the host %s.",
-            nodeInfo.typeLow(),
-            nodeInfo.getId(),
-            nodeInfo.getHost()));
+//        BenchmarkUtils.println(String.format("Checking node %s%s on the host %s.",
+//            nodeInfo.typeLow(),
+//            nodeInfo.getId(),
+//            nodeInfo.getHost()));
 
         String host = nodeInfo.getHost();
 

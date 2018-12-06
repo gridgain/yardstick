@@ -6,18 +6,12 @@ import org.yardstickframework.runners.WorkContext;
 import org.yardstickframework.runners.WorkResult;
 
 public class DockerCleanImagesWorker extends DockerWorker {
-
-    private List<String> imagesToClean;
-
     /**
      * @param runCtx
      * @param workCtx
      */
-    public DockerCleanImagesWorker(RunContext runCtx,
-        WorkContext workCtx, List<String> imagesToClean) {
+    public DockerCleanImagesWorker(RunContext runCtx, WorkContext workCtx) {
         super(runCtx, workCtx);
-
-        this.imagesToClean = imagesToClean;
     }
 
     @Override public void beforeWork() {
@@ -29,7 +23,7 @@ public class DockerCleanImagesWorker extends DockerWorker {
     }
 
     @Override public WorkResult doWork(String host, int cnt) {
-        removeImages(host, imagesToClean);
+        removeImages(host);
 
         return null;
     }

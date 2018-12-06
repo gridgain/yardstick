@@ -25,14 +25,14 @@ public class DockerRunner extends AbstractRunner {
     }
 
     public void check(List<NodeType> nodeTypeList){
-        for(NodeType type : nodeTypeList)
-            checkForNodeType(type);
+        for(NodeType type : nodeTypeList) {
+            BenchmarkUtils.println(String.format("Run mode DOCKER enabled for %s nodes.", type.toString().toLowerCase()));
 
+            checkForNodeType(type);
+        }
     }
 
     public void checkForNodeType(NodeType type){
-        BenchmarkUtils.println(String.format("Checking docker for %s nodes.", type.toString().toLowerCase()));
-
         DockerWorkContext workCtx = new DockerWorkContext(
             getUniqHosts(type), type);
 
@@ -102,8 +102,7 @@ public class DockerRunner extends AbstractRunner {
         if(runCtx.getDockerContext().getRemoveImagesFlags().get(flag))
             new DockerCleanImagesWorker(
                 runCtx,
-                workCtx,
-                runCtx.getDockerContext().getImagesToRemove()).workOnHosts();
+                workCtx).workOnHosts();
     }
 
 

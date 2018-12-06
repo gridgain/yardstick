@@ -10,12 +10,7 @@ public class StopNodeWorker extends NodeServiceWorker{
     }
 
     @Override public void beforeWork() {
-        if(!getWorkCtx().getList().isEmpty()){
-            NodeInfo nodeInfo = (NodeInfo) getWorkCtx().getList().get(0);
-
-            if(nodeInfo.getStartCtx().getRunMode() == RunMode.DOCKER)
-                BenchmarkUtils.println("Keeping docker containers running.");
-        }
+        //NO_OP
     }
 
     @Override public WorkResult doWork(NodeInfo nodeInfo) {
@@ -31,7 +26,12 @@ public class StopNodeWorker extends NodeServiceWorker{
     }
 
     @Override public void afterWork() {
-        //NO_OP
+        if(!getWorkCtx().getList().isEmpty()){
+            NodeInfo nodeInfo = (NodeInfo) getWorkCtx().getList().get(0);
+
+            if(nodeInfo.getStartCtx().getRunMode() == RunMode.DOCKER)
+                BenchmarkUtils.println("Keeping docker containers running.");
+        }
     }
 
     @Override public String getWorkerName() {
