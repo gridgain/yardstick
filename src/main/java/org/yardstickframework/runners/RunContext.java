@@ -74,6 +74,14 @@ public class RunContext {
 
     private List<String> cfgList;
 
+    private boolean restartServers;
+
+    private RestartContext serverRestartCtx;
+
+    private boolean restartDrivers;
+
+    private RestartContext driverRestartCtx;
+
     private DockerContext dockerCtx;
 
     private RunContext() {
@@ -144,6 +152,42 @@ public class RunContext {
         return cfgList;
     }
 
+    public static Logger getLOG() {
+        return LOG;
+    }
+
+    public boolean isRestartServers() {
+        return restartServers;
+    }
+
+    public void setRestartServers(boolean restartServers) {
+        this.restartServers = restartServers;
+    }
+
+    public RestartContext getServerRestartCtx() {
+        return serverRestartCtx;
+    }
+
+    public void setServerRestartCtx(RestartContext serverRestartCtx) {
+        this.serverRestartCtx = serverRestartCtx;
+    }
+
+    public boolean isRestartDrivers() {
+        return restartDrivers;
+    }
+
+    public void setRestartDrivers(boolean restartDrivers) {
+        this.restartDrivers = restartDrivers;
+    }
+
+    public RestartContext getDriverRestartCtx() {
+        return driverRestartCtx;
+    }
+
+    public void setDriverRestartCtx(RestartContext driverRestartCtx) {
+        this.driverRestartCtx = driverRestartCtx;
+    }
+
     /**
      *
      */
@@ -173,6 +217,8 @@ public class RunContext {
         setUser();
 
         setCfgList();
+
+        setServerRestartCtx(NodeType.SERVER);
 
 //        if(servRunMode == RunMode.DOCKER || drvrRunMode == RunMode.DOCKER)
 //            setDockerCtx();
@@ -248,6 +294,94 @@ public class RunContext {
         catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void setServerRestartCtx(NodeType type){
+        String restProp = props.getProperty(String.format("RESTART_%sS", type));
+
+        boolean val = false;
+
+        if(restProp == null){
+            setRestart(val, type);
+
+            return;
+        }
+
+        if(restProp.toLowerCase().equals("true") || restProp.toLowerCase().equals("false")){
+            val = Boolean.valueOf(restProp);
+
+            setRestart(val, type);
+
+            return;
+        }
+
+        parseRestartProp(restProp, type);
+
+    }
+
+    private void setRestart(boolean val, NodeType type){
+        if(type == NodeType.SERVER)
+            restartServers = val;
+        else
+            restartDrivers = val;
+    }
+
+    private void parseRestartProp(String restProp, NodeType type){
+        String[] nodeList = restProp.split(",");
+
+        RestartContext ctx = new RestartContext();
+
+        for(String nodeInfo : nodeList){
+            String[] values = nodeInfo.split(":");
+
+            if(values.length != 5){
+                LOG.error(String.format("Wrong value for RESTART_%sS property. String %s does not have 5 values.",
+                type, nodeInfo));
+
+                System.exit(1);
+            }
+
+            String host = values[0];
+            String id = values[1];
+
+            try {
+                Long delay = convertSecToMillis(values[2]);
+                Long pause = convertSecToMillis(values[3]);
+                Long period = convertSecToMillis(values[4]);
+
+                HashMap<String, RestartInfo> hostMap = ctx.get(host);
+
+                if(hostMap == null)
+                    hostMap = new HashMap<>();
+
+                RestartInfo restInfo = new RestartInfo(delay, pause, period);
+
+                hostMap.put(id, restInfo);
+
+                ctx.put(host, hostMap);
+
+                System.out.println(hostMap);
+            }
+            catch (NumberFormatException e){
+                LOG.error(String.format("Wrong value for RESTART_%sS property. %s",
+                    type, e.getMessage()));
+
+                System.exit(1);
+            }
+        }
+
+        if(type == NodeType.SERVER)
+            serverRestartCtx = ctx;
+        else
+            driverRestartCtx = ctx;
+    }
+
+    private long convertSecToMillis(String sec) throws NumberFormatException{
+        Double d = Double.valueOf(sec);
+
+        Double dMult = d * 1000;
+
+        return dMult.longValue();
     }
 
     /**

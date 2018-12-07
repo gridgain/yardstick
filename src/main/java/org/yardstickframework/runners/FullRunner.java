@@ -100,6 +100,15 @@ public class FullRunner extends AbstractRunner {
         return 0;
     }
 
+    private void performRestart(String cfgStr, NodeType type){
+        RestartContext ctx = type == NodeType.SERVER ? runCtx.getServerRestartCtx() : runCtx.getDriverRestartCtx();
+
+
+
+        StartNodeWorkContext nodeWorkCtx = new StartNodeWorkContext(runCtx.getServList(), runCtx.getServRunMode(),
+            NodeType.SERVER, cfgStr);
+    }
+
 
 
     private void checkLogs(List<WorkResult> list){

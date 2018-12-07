@@ -22,6 +22,8 @@ public class NodeInfo implements WorkResult {
 
     private CommandExecutionResult cmdExRes;
 
+    private RestartInfo restCtx;
+
     public NodeInfo(NodeType nodeType, String host, @Nullable String port, String id, StartNodeWorkContext startCtx,
         String startCmd, String logPath) {
         this.nodeType = nodeType;
