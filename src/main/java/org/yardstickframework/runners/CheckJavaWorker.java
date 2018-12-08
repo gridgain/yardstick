@@ -4,7 +4,7 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.yardstickframework.BenchmarkUtils;
 
-public class CheckJavaWorker extends Worker {
+public class CheckJavaWorker extends HostWorker {
     /** */
     private static final Logger LOG = LogManager.getLogger(CheckJavaWorker.class);
 

@@ -8,7 +8,7 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.yardstickframework.BenchmarkUtils;
 
-public class DeployWorker extends Worker{
+public class DeployWorker extends HostWorker{
     /** */
     private static final Logger LOG = LogManager.getLogger(DeployWorker.class);
 

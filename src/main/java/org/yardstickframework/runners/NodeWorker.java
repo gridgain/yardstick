@@ -10,7 +10,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import org.yardstickframework.BenchmarkUtils;
 
-public abstract class NodeWorker extends Worker{
+public abstract class NodeWorker extends HostWorker{
     private List<NodeInfo> nodeList;
 
     private List<NodeInfo> resNodeList;

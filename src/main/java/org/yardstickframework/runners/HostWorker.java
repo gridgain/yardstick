@@ -28,8 +28,6 @@ public abstract class HostWorker extends Worker{
 
     public abstract WorkResult doWork(String host, int cnt);
 
-    public abstract String getWorkerName();
-
     /**
      * Executes start method defined in worker class asynchronously.
      *

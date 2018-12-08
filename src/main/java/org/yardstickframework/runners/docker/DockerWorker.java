@@ -18,7 +18,7 @@ import org.yardstickframework.runners.Worker;
 
 import static org.yardstickframework.BenchmarkUtils.dateTime;
 
-public abstract class DockerWorker extends Worker {
+public abstract class DockerWorker extends HostWorker {
 
     private static final String[] imagesHdrs = new String[] {"REPOSITORY", "TAG", "IMAGE ID", "CREATED", "SIZE"};
     private static final String[] psHdrs = new String[] {"CONTAINER ID", "IMAGE", "COMMAND", "CREATED", "STATUS", "PORTS", "NAMES"};

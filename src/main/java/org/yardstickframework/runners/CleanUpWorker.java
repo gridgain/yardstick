@@ -5,10 +5,10 @@ import org.yardstickframework.BenchmarkUtils;
 import java.util.List;
 import java.util.Properties;
 
-public class CleanUpWorker extends Worker{
+public class CleanUpWorker extends HostWorker{
 
-    public CleanUpWorker(RunContext runCtx, WorkContext workCtx) {
-        super(runCtx, workCtx);
+    public CleanUpWorker(RunContext runCtx, List<String> hostList) {
+        super(runCtx, hostList);
     }
 
     @Override public WorkResult doWork(String host, int cnt) {
@@ -62,9 +62,5 @@ public class CleanUpWorker extends Worker{
 //        }
 
         return null;
-    }
-
-    @Override public String getWorkerName() {
-        return getClass().getSimpleName();
     }
 }

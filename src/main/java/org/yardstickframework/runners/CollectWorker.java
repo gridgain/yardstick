@@ -1,20 +1,13 @@
 package org.yardstickframework.runners;
 
 import java.io.File;
+import java.util.List;
 import org.yardstickframework.BenchmarkUtils;
 
-public class CollectWorker extends Worker{
+public class CollectWorker extends HostWorker{
 
-    public CollectWorker(RunContext runCtx, WorkContext workCtx) {
-        super(runCtx, workCtx);
-    }
-
-    @Override public void beforeWork() {
-        //NO_OP
-    }
-
-    @Override public void afterWork() {
-        //NO_OP
+    public CollectWorker(RunContext runCtx, List<String> hostList) {
+        super(runCtx, hostList);
     }
 
     @Override public WorkResult doWork(String host, int cnt) {
@@ -40,9 +33,5 @@ public class CollectWorker extends Worker{
 
         return null;
 
-    }
-
-    @Override public String getWorkerName() {
-        return getClass().getSimpleName();
     }
 }

@@ -1,21 +1,14 @@
 package org.yardstickframework.runners;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Properties;
 import org.yardstickframework.BenchmarkUtils;
 
-public class KillWorker extends Worker{
+public class KillWorker extends HostWorker{
 
-    public KillWorker(RunContext runCtx, WorkContext workCtx) {
-        super(runCtx, workCtx);
-    }
-
-    @Override public void beforeWork() {
-        //NO_OP
-    }
-
-    @Override public void afterWork() {
-        //NO_OP
+    public KillWorker(RunContext runCtx, List<String> hostList) {
+        super(runCtx, hostList);
     }
 
     @Override public WorkResult doWork(String host, int cnt) {

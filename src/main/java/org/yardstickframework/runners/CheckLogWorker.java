@@ -14,6 +14,7 @@ public class CheckLogWorker extends NodeWorker {
     }
 
     @Override public NodeInfo doWork(NodeInfo nodeInfo) {
+        //TODO refactor all method
         String host = nodeInfo.getHost();
 
         String logPath = nodeInfo.getLogPath();

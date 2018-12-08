@@ -2,24 +2,15 @@ package org.yardstickframework.runners;
 
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.List;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.yardstickframework.BenchmarkUtils;
 
-public class CleanRemDirWorker extends Worker{
-    /** */
-    private static final Logger LOG = LogManager.getLogger(CleanRemDirWorker.class);
+public class CleanRemDirWorker extends HostWorker{
 
-    public CleanRemDirWorker(RunContext runCtx, WorkContext workCtx) {
-        super(runCtx, workCtx);
-    }
-
-    @Override public void beforeWork() {
-        //NO_OP
-    }
-
-    @Override public void afterWork() {
-        //NO_OP
+    public CleanRemDirWorker(RunContext runCtx, List<String> hostList) {
+        super(runCtx, hostList);
     }
 
     @Override public WorkResult doWork(String host, int cnt) {
@@ -39,9 +30,5 @@ public class CleanRemDirWorker extends Worker{
         }
 
         return null;
-    }
-
-    @Override public String getWorkerName() {
-        return getClass().getSimpleName();
     }
 }

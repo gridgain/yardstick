@@ -4,7 +4,7 @@ import java.io.IOException;
 import org.yardstickframework.BenchmarkConfiguration;
 import org.yardstickframework.BenchmarkUtils;
 
-public class StartNodeWorker extends Worker {
+public class StartNodeWorker extends HostWorker {
     /** */
     protected String dateTime;
 

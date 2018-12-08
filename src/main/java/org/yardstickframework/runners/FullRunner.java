@@ -20,7 +20,7 @@ public class FullRunner extends AbstractRunner {
     }
 
     public int run1() {
-        checkPlain(new CheckConnWorker(runCtx, new CommonWorkContext(runCtx.getFullUniqList())));
+        checkPlain(new CheckConnWorker(runCtx, runCtx.getFullUniqList()));
 
         List<NodeType> plainList = runCtx.getNodeTypes(RunMode.PLAIN);
 
@@ -35,11 +35,11 @@ public class FullRunner extends AbstractRunner {
             dockerRunner.check(dockerList);
 
 
-        Worker killWorker = new KillWorker(runCtx, new CommonWorkContext(runCtx.getFullUniqList()));
+        Worker killWorker = new KillWorker(runCtx, runCtx.getFullUniqList());
 
         killWorker.workOnHosts();
 
-        Worker deployWorker = new DeployWorker(runCtx, new CommonWorkContext(runCtx.getFullUniqList()));
+        Worker deployWorker = new DeployWorker(runCtx, runCtx.getFullUniqList());
 
         deployWorker.workOnHosts();
 
@@ -94,7 +94,7 @@ public class FullRunner extends AbstractRunner {
             dockerRunner.cleanUp(dockerList, "after");
         }
 
-        new CollectWorker(runCtx, new CommonWorkContext(runCtx.getFullUniqList())).workOnHosts();
+        new CollectWorker(runCtx, runCtx.getFullUniqList()).workOnHosts();
 
         createCharts();
 
