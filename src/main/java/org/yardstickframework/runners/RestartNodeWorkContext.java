@@ -2,17 +2,9 @@ package org.yardstickframework.runners;
 
 import java.util.List;
 
-public class RestartNodeWorkContext extends CommonWorkContext{
-
-    private NodeStatus expStatus;
-
-    public RestartNodeWorkContext(List<?> nodeInfoList, NodeStatus expStatus) {
+public class RestartNodeWorkContext extends ServiceWorkContext{
+    public RestartNodeWorkContext(List<?> nodeInfoList) {
         super(nodeInfoList);
-
-        this.expStatus = expStatus;
     }
 
-    public NodeStatus getExpStatus() {
-        return expStatus;
-    }
 }

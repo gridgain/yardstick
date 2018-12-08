@@ -24,6 +24,13 @@ public class NodeInfo implements WorkResult {
 
     private RestartInfo restCtx;
 
+    public NodeInfo(NodeType nodeType, String host, @Nullable String port, String id) {
+        this.nodeType = nodeType;
+        this.host = host;
+        this.port = port;
+        this.id = id;
+    }
+
     public NodeInfo(NodeType nodeType, String host, @Nullable String port, String id, StartNodeWorkContext startCtx,
         String startCmd, String logPath) {
         this.nodeType = nodeType;

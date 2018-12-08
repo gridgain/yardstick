@@ -18,35 +18,28 @@ public class RestartNodeWorker extends NodeServiceWorker {
     }
 
     @Override public WorkResult doWork(NodeInfo nodeInfo) {
-        boolean unexpected = true;
+        String host = nodeInfo.getHost();
 
-        WaitNodeWorkContext workCtx = (WaitNodeWorkContext)getWorkCtx();
+        String id = nodeInfo.getId();
 
-        NodeStatus expStatus = workCtx.getExpStatus();
+        NodeType type = nodeInfo.getNodeType();
 
-        NodeChecker checker = runCtx.getNodeChecker(nodeInfo);
+        RestartNodeWorkContext workCtx = (RestartNodeWorkContext)getWorkCtx();
 
-//        log().info(String.format("Waiting for node %s%s on the host %s to be %s.",
-//            nodeInfo.typeLow(),
-//            nodeInfo.getId(),
-//            nodeInfo.getHost(),
-//            statusMap.get(expStatus)));
+        RestartInfo restartInfo = runCtx.getRestartContext(type).get(host).get(id);
 
-        while (unexpected) {
-            unexpected = false;
+        while (!Thread.interrupted()) {
+            try {
+                Thread.sleep(restartInfo.delay());
 
-            NodeCheckResult res = (NodeCheckResult)checker.checkNode(nodeInfo);
+                new KillWorker(runCtx, null).killNode(nodeInfo);
 
-            if (res.getNodeStatus() != expStatus) {
-                unexpected = true;
-
-                try {
-                    Thread.sleep(1000L);
-                }
-                catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+                Thread.sleep(restartInfo.pause());
             }
+            catch (InterruptedException e){
+
+            }
+
 
         }
 

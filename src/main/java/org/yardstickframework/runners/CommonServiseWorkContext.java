@@ -9,7 +9,7 @@ public class CommonServiseWorkContext implements WorkContext {
         this.list = list;
     }
 
-    @Override public List<?> getList() {
+    @Override public List<NodeInfo> getList() {
         return list;
     }
 }

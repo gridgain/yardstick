@@ -1,7 +1,9 @@
 package org.yardstickframework.runners;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import org.yardstickframework.BenchmarkUtils;
 import org.yardstickframework.runners.docker.DockerWorkContext;
 import org.yardstickframework.runners.docker.DockerBuildImagesWorker;
@@ -78,6 +80,8 @@ public class FullRunner extends AbstractRunner {
 
             waitForNodes(drvrRes, NodeStatus.RUNNING);
 
+            performRestart(servRes);
+
             waitForNodes(drvrRes, NodeStatus.NOT_RUNNING);
 
             if (Boolean.valueOf(runCtx.getProps().getProperty("RESTART_SERVERS"))) {
@@ -100,13 +104,13 @@ public class FullRunner extends AbstractRunner {
         return 0;
     }
 
-    private void performRestart(String cfgStr, NodeType type){
-        RestartContext ctx = type == NodeType.SERVER ? runCtx.getServerRestartCtx() : runCtx.getDriverRestartCtx();
+    private void performRestart(List<WorkResult> nodeInfos){
+        RestartNodeWorkContext restCtx = new RestartNodeWorkContext(nodeInfos);
 
+        RestartNodeWorker restWorker = new RestartNodeWorker(runCtx, restCtx);
 
+        restWorker.workForNodes();
 
-        StartNodeWorkContext nodeWorkCtx = new StartNodeWorkContext(runCtx.getServList(), runCtx.getServRunMode(),
-            NodeType.SERVER, cfgStr);
     }
 
 

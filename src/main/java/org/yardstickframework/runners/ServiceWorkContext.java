@@ -3,13 +3,13 @@ package org.yardstickframework.runners;
 import java.util.List;
 
 public class ServiceWorkContext implements WorkContext {
-    private List<NodeInfo> nodeInfoList;
+    private List<? extends WorkResult> nodeInfoList;
 
-    public ServiceWorkContext(List<NodeInfo> nodeInfoList) {
+    public ServiceWorkContext(List<? extends WorkResult> nodeInfoList) {
         this.nodeInfoList = nodeInfoList;
     }
 
-    @Override public List<NodeInfo> getList() {
+    @Override public List<? extends WorkResult> getList() {
         return nodeInfoList;
     }
 }

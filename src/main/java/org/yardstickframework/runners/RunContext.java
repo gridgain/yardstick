@@ -772,6 +772,30 @@ public class RunContext {
         Logger.getRootLogger().addAppender(fa);
     }
 
+    public RunMode getRunMode(NodeType type){
+        switch (type) {
+            case SERVER:
+                return servRunMode;
+            case DRIVER:
+                return drvrRunMode;
+            default:
+                throw new IllegalArgumentException(String.format("Unknown node type: %s", type));
+        }
+
+    }
+
+    public RestartContext getRestartContext(NodeType type){
+        switch (type) {
+            case SERVER:
+                return serverRestartCtx;
+            case DRIVER:
+                return driverRestartCtx;
+            default:
+                throw new IllegalArgumentException(String.format("Unknown node type: %s", type));
+        }
+
+    }
+
     protected static Logger log() {
         Logger log = LogManager.getLogger(RunContext.class.getSimpleName());
 
