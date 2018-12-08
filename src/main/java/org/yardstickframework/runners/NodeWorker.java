@@ -8,15 +8,14 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import org.yardstickframework.BenchmarkUtils;
 
-public abstract class NodeWorker extends HostWorker{
+public abstract class NodeWorker extends Worker {
     private List<NodeInfo> nodeList;
 
     private List<NodeInfo> resNodeList;
 
     /** */
-    NodeWorker(RunContext runCtx, List<NodeInfo> nodeList) {
+    public NodeWorker(RunContext runCtx, List<NodeInfo> nodeList) {
         super(runCtx);
         this.nodeList = new ArrayList<>(nodeList);
         resNodeList = new ArrayList<>(nodeList.size());
@@ -24,9 +23,12 @@ public abstract class NodeWorker extends HostWorker{
 
     public abstract NodeInfo doWork(NodeInfo nodeInfo);
 
+    protected int getNodeListSize() {
+        return nodeList.size();
+    }
+
     /**
      * Executes start method defined in worker class asynchronously.
-     *
      */
     protected List<NodeInfo> workForNodes() {
         beforeWork();
@@ -35,15 +37,15 @@ public abstract class NodeWorker extends HostWorker{
 
         Collection<Future<NodeInfo>> futList = new ArrayList<>();
 
-        for (Object nodeInfoObj : nodeList) {
-            NodeInfo nodeInfo = (NodeInfo) nodeInfoObj;
-
+        for (final NodeInfo nodeInfo : nodeList) {
             futList.add(execServ.submit(new Callable<NodeInfo>() {
                 @Override public NodeInfo call() throws Exception {
                     Thread.currentThread().setName(String.format("%s-%s",
                         getWorkerName(), nodeInfo.getHost()));
 
-                    return doWork(nodeInfo);
+                    NodeInfo n = doWork(nodeInfo);
+
+                    return n;
                 }
             }));
         }
@@ -62,5 +64,19 @@ public abstract class NodeWorker extends HostWorker{
         afterWork();
 
         return new ArrayList<>(resNodeList);
+    }
+
+    /**
+     * @return Response node list.
+     */
+    public List<NodeInfo> resNodeList() {
+        return resNodeList;
+    }
+
+    /**
+     * @return Node list.
+     */
+    public List<NodeInfo> nodeList() {
+        return nodeList;
     }
 }

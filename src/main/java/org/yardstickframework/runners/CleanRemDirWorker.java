@@ -9,6 +9,9 @@ import org.yardstickframework.BenchmarkUtils;
 
 public class CleanRemDirWorker extends HostWorker{
 
+    protected String[] toClean = new String[]{"bin", "config", "libs", "output", "work"};
+
+
     public CleanRemDirWorker(RunContext runCtx, List<String> hostList) {
         super(runCtx, hostList);
     }
@@ -22,12 +25,24 @@ public class CleanRemDirWorker extends HostWorker{
 
         log().info(String.format("Cleaning up directory %s on the host %s", remDir, host));
 
-        for(String name : toClean){
-            String cleanCmd = String.format("ssh -o StrictHostKeyChecking=no %s rm -rf %s/%s",
-                host, remDir, name);
+        CommandHandler hndl = new CommandHandler(runCtx);
 
-            runCmd(cleanCmd);
+        try {
+            for(String name : toClean){
+                String cleanCmd = String.format("rm -rf %s/%s",
+                    runCtx.getRemWorkDir(), name);
+
+                hndl.runCmd(host, cleanCmd);
+            }
+
         }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
 
         return null;
     }

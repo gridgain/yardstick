@@ -81,7 +81,7 @@ public class AbstractRunner {
         return res;
     }
 
-    protected void checkPlain(Worker checkWorker) {
+    protected void checkPlain(HostWorker checkWorker) {
         List<WorkResult> checks = checkWorker.workOnHosts();
 
         for (WorkResult check : checks) {

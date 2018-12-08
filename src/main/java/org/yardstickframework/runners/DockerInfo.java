@@ -6,6 +6,11 @@ public class DockerInfo {
     private String contName;
     private String contId;
 
+    public DockerInfo(String imageName, String contName) {
+        this.imageName = imageName;
+        this.contName = contName;
+    }
+
     public DockerInfo(String imageName, String imageVer, String contName, String contId) {
         this.imageName = imageName;
         this.imageVer = imageVer;
@@ -13,19 +18,59 @@ public class DockerInfo {
         this.contId = contId;
     }
 
-    public String getImageName() {
+    /**
+     * @return Image name.
+     */
+    public String imageName() {
         return imageName;
     }
 
-    public String getImageVer() {
+    /**
+     * @param imageName New image name.
+     */
+    public void imageName(String imageName) {
+        this.imageName = imageName;
+    }
+
+    /**
+     * @return Image version.
+     */
+    public String imageVersion() {
         return imageVer;
     }
 
-    public String getContName() {
+    /**
+     * @param imageVer New image version.
+     */
+    public void imageVersion(String imageVer) {
+        this.imageVer = imageVer;
+    }
+
+    /**
+     * @return Cont name.
+     */
+    public String contName() {
         return contName;
     }
 
-//    public String getContId() {
-//        return contId;
-//    }
+    /**
+     * @param contName New cont name.
+     */
+    public void contName(String contName) {
+        this.contName = contName;
+    }
+
+    /**
+     * @return Cont id.
+     */
+    public String contId() {
+        return contId;
+    }
+
+    /**
+     * @param contId New cont id.
+     */
+    public void contId(String contId) {
+        this.contId = contId;
+    }
 }

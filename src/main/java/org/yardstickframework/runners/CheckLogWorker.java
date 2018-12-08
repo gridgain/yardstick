@@ -54,9 +54,9 @@ public class CheckLogWorker extends NodeWorker {
             return nodeInfo;
         }
 
-        String cmd = String.format("head -20 %s | grep 'Exception'", logPath);
-
         try {
+            String cmd = String.format("head -20 %s | grep 'Exception'", logPath);
+
             CommandExecutionResult res = hndl.runCmd(host, cmd);
 
             if(!res.getOutStream().isEmpty()){

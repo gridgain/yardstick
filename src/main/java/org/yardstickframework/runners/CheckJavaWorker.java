@@ -1,22 +1,16 @@
 package org.yardstickframework.runners;
 
+import java.util.List;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.yardstickframework.BenchmarkUtils;
 
 public class CheckJavaWorker extends HostWorker {
     /** */
-    private static final Logger LOG = LogManager.getLogger(CheckJavaWorker.class);
-
-    /** */
     private String locJavaHome;
 
-    /**
-     *
-     * @param runCtx
-     */
-    CheckJavaWorker(RunContext runCtx) {
-        super(runCtx);
+    public CheckJavaWorker(RunContext runCtx, List<String> hostList) {
+        super(runCtx, hostList);
     }
 
     @Override public void beforeWork() {
@@ -44,7 +38,7 @@ public class CheckJavaWorker extends HostWorker {
         }
 
         if (hndl.checkRemJava(host, locJavaHome)) {
-            LOG.info(String.format("Using JAVA_HOME '%s' on the host %s.", locJavaHome, host));
+            log().info(String.format("Using JAVA_HOME '%s' on the host %s.", locJavaHome, host));
 
             runCtx.getHostJavaHomeMap().put(host, locJavaHome);
         }
@@ -61,8 +55,6 @@ public class CheckJavaWorker extends HostWorker {
                 host);
 
             log().info(warn);
-
-            LOG.info(warn);
 
             runCtx.getHostJavaHomeMap().put(host, hostJava);
         }

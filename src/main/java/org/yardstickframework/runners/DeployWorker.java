@@ -9,19 +9,12 @@ import org.apache.log4j.Logger;
 import org.yardstickframework.BenchmarkUtils;
 
 public class DeployWorker extends HostWorker{
-    /** */
-    private static final Logger LOG = LogManager.getLogger(DeployWorker.class);
+    protected String[] toDeploy = new String[]{"bin", "config", "libs"};
 
-    public DeployWorker(RunContext runCtx, WorkContext workCtx) {
-        super(runCtx, workCtx);
-    }
+    protected String[] toClean = new String[]{"bin", "config", "libs", "output", "work"};
 
-    @Override public void beforeWork() {
-        //NO_OP
-    }
-
-    @Override public void afterWork() {
-        //NO_OP
+    public DeployWorker(RunContext runCtx, List<String> hostList) {
+        super(runCtx, hostList);
     }
 
     @Override public WorkResult doWork(String host, int cnt) {
@@ -30,42 +23,50 @@ public class DeployWorker extends HostWorker{
             return null;
 
 
-        String createCmd = String.format("ssh -o StrictHostKeyChecking=no %s mkdir -p %s", host, runCtx.getRemWorkDir());
-
-        runCmd(createCmd);
-
-        log().info(String.format("Deploying on the host %s", host));
-
-        for(String name : toClean){
-            String cleanCmd = String.format("ssh -o StrictHostKeyChecking=no %s rm -rf %s/%s",
-                host, runCtx.getRemWorkDir(), name);
-
-            runCmd(cleanCmd);
-        }
+        String createCmd = String.format("mkdir -p %s", runCtx.getRemWorkDir());
 
         CommandHandler hndl = new CommandHandler(runCtx);
 
+        try {
+            hndl.runCmd(host, createCmd);
 
-        for(String name : toDeploy) {
-            String fullPath = Paths.get(runCtx.getRemWorkDir(), name).toAbsolutePath().toString();
+            for(String name : toClean){
+                String cleanCmd = String.format("rm -rf %s/%s",
+                    runCtx.getRemWorkDir(), name);
 
-            if(hndl.checkRemFile(host, fullPath)) {
-                try {
-                    hndl.runMkdirCmd(host, fullPath);
-                }
-                catch (IOException e) {
-                    e.printStackTrace();
-                }
-                catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+                hndl.runCmd(host, cleanCmd);
             }
 
-            String cpCmd = String.format("scp -o StrictHostKeyChecking=no -rq %s/%s %s:%s",
-                runCtx.getLocWorkDir(), name, host, runCtx.getRemWorkDir());
+            log().info(String.format("Deploying on the host %s", host));
 
-            runCmd(cpCmd);
+            for(String name : toDeploy) {
+                String fullPath = Paths.get(runCtx.getRemWorkDir(), name).toAbsolutePath().toString();
+
+                if(hndl.checkRemFile(host, fullPath)) {
+                    try {
+                        hndl.runMkdirCmd(host, fullPath);
+                    }
+                    catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                String locPath = String.format("%s/%s", runCtx.getLocWorkDir(), name);
+
+                hndl.upload(host, locPath, runCtx.getRemWorkDir());
+            }
         }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+
 
         return null;
     }

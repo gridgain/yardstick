@@ -12,8 +12,6 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 public abstract class HostWorker extends Worker{
-    protected WorkContext workCtx;
-
     private final List<String> hostList;
 
     private final List<WorkResult> resList;

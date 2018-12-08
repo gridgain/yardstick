@@ -3,17 +3,11 @@ package org.yardstickframework.runners;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.Properties;
-import java.util.Random;
-import org.yardstickframework.BenchmarkUtils;
-import org.yardstickframework.runners.docker.DockerContext;
 
 public class InDockerNodeStarter extends AbstractRunner implements NodeStarter  {
-    private StartNodeWorkContext workCtx;
 
-    public InDockerNodeStarter(RunContext runCtx, StartNodeWorkContext workCtx) {
+    public InDockerNodeStarter(RunContext runCtx) {
         super(runCtx);
-        this.workCtx = workCtx;
     }
 
     @Override public NodeInfo startNode(NodeInfo nodeInfo) {
@@ -23,7 +17,7 @@ public class InDockerNodeStarter extends AbstractRunner implements NodeStarter  
 
         CommandHandler hndl = new CommandHandler(runCtx);
 
-        String javaParams = nodeInfo.getStartCmd();
+        String javaParams = nodeInfo.getParamStr();
 
         NodeType type = nodeInfo.getNodeType();
 
@@ -51,7 +45,7 @@ public class InDockerNodeStarter extends AbstractRunner implements NodeStarter  
             e.printStackTrace();
         }
 
-        nodeInfo.setDockerInfo(new DockerInfo(null, null, contName, null));
+        nodeInfo.dockerInfo(new DockerInfo(null, null, contName, null));
 
         return nodeInfo;
     }

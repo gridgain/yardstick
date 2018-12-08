@@ -8,7 +8,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import org.yardstickframework.BenchmarkUtils;
 import org.yardstickframework.runners.docker.DockerBuildImagesWorker;
 import org.yardstickframework.runners.docker.DockerCheckWorkResult;
 import org.yardstickframework.runners.docker.DockerCheckWorker;
@@ -16,8 +15,6 @@ import org.yardstickframework.runners.docker.DockerCleanContWorker;
 import org.yardstickframework.runners.docker.DockerCleanImagesWorker;
 import org.yardstickframework.runners.docker.DockerCollectWorker;
 import org.yardstickframework.runners.docker.DockerStartContWorker;
-import org.yardstickframework.runners.docker.DockerWorkContext;
-import org.yardstickframework.runners.docker.DockerWorker;
 
 public class DockerRunner extends AbstractRunner {
     public DockerRunner(RunContext runCtx) {
@@ -33,10 +30,7 @@ public class DockerRunner extends AbstractRunner {
     }
 
     public void checkForNodeType(NodeType type){
-        DockerWorkContext workCtx = new DockerWorkContext(
-            getUniqHosts(type), type);
-
-        Collection<WorkResult> checks = new DockerCheckWorker(runCtx, workCtx).workOnHosts();
+        Collection<WorkResult> checks = new DockerCheckWorker(runCtx, runCtx.getUniqHostsByType(type)).workOnHosts();
 
         for(WorkResult res : checks){
             DockerCheckWorkResult checkRes = (DockerCheckWorkResult) res;
@@ -91,33 +85,16 @@ public class DockerRunner extends AbstractRunner {
     }
 
     public void cleanForNodeType(NodeType type, String flag){
-//        log().info(String.format("Cleaning up docker for %s nodes.", type.toString().toLowerCase()));
-
-        DockerWorkContext workCtx = new DockerWorkContext(
-            getUniqHosts(type), type);
-
         if(runCtx.getDockerContext().getRemoveContainersFlags().get(flag))
-            new DockerCleanContWorker(runCtx, workCtx).workOnHosts();
+            new DockerCleanContWorker(runCtx, runCtx.getUniqHostsByType(type)).workOnHosts();
 
         if(runCtx.getDockerContext().getRemoveImagesFlags().get(flag))
-            new DockerCleanImagesWorker(
-                runCtx,
-                workCtx).workOnHosts();
+            new DockerCleanImagesWorker(runCtx, runCtx.getUniqHostsByType(type)).workOnHosts();
     }
 
 
     public void prepareForNodeType(NodeType type){
-//        log().info(String.format("Preparing docker for %s nodes.", type.toString().toLowerCase()));
-
-        DockerWorkContext uniqListWorkCtx = new DockerWorkContext(
-            getUniqHosts(type), type);
-
-        List<DockerWorker> workerList = new ArrayList<>();
-
-        workerList.add(new DockerBuildImagesWorker(runCtx, uniqListWorkCtx));
-
-        for(DockerWorker worker : workerList)
-            worker.workOnHosts();
+        new DockerBuildImagesWorker(runCtx, runCtx.getUniqHostsByType(type), type).workOnHosts();
     }
 
     public void start(List<NodeType> nodeTypeList){
@@ -127,10 +104,7 @@ public class DockerRunner extends AbstractRunner {
     }
 
     public void startForNodeType(NodeType type){
-        DockerWorkContext workCtx = new DockerWorkContext(
-            getHosts(type), type);
-
-        new DockerStartContWorker(runCtx, workCtx).workOnHosts();
+        new DockerStartContWorker(runCtx, runCtx.getNodes(type)).workForNodes();
     }
 
 
@@ -140,9 +114,6 @@ public class DockerRunner extends AbstractRunner {
     }
 
     public void collectForNodeType(NodeType type){
-        DockerWorkContext workCtx = new DockerWorkContext(
-            getHosts(type), type);
-
-        new DockerCollectWorker(runCtx, workCtx).workOnHosts();
+        new DockerCollectWorker(runCtx, runCtx.getNodes(type)).workForNodes();
     }
 }

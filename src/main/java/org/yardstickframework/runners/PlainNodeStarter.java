@@ -3,7 +3,6 @@ package org.yardstickframework.runners;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import org.yardstickframework.BenchmarkUtils;
 
 public class PlainNodeStarter extends AbstractRunner implements NodeStarter {
 
@@ -18,7 +17,7 @@ public class PlainNodeStarter extends AbstractRunner implements NodeStarter {
 
         String host = nodeInfo.getHost();
 
-        String cmd = nodeInfo.getStartCmd();
+        String cmd = nodeInfo.getParamStr();
 
         String javaHome = runCtx.getHostJava(host);
 

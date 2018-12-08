@@ -1,27 +1,40 @@
 package org.yardstickframework.runners;
 
-public class RestartNodeWorker extends NodeWorker {
+import java.util.List;
 
-    public RestartNodeWorker(RunContext runCtx, WorkContext workCtx) {
-        super(runCtx, workCtx);
+public class RestartNodeWorker extends StartNodeWorker {
+    public RestartNodeWorker(RunContext runCtx, List<NodeInfo> nodeList, String cfgFullStr) {
+        super(runCtx, nodeList, cfgFullStr);
     }
 
     @Override public void beforeWork() {
+        super.beforeWork();
 
+        servLogDirFullName = String.format("%s/log_servers_restarted", baseLogDirFullName);
+
+        drvrLogDirFullName = String.format("%s/log_drivers_restarted", baseLogDirFullName);
     }
 
-    @Override public void afterWork() {
-        //NO_OP
-    }
-
-    @Override public WorkResult doWork(NodeInfo nodeInfo) {
+    @Override public NodeInfo doWork(NodeInfo nodeInfo) {
         String host = nodeInfo.getHost();
 
         String id = nodeInfo.getId();
 
         NodeType type = nodeInfo.getNodeType();
 
-        RestartNodeWorkContext workCtx = (RestartNodeWorkContext)getWorkCtx();
+        if (runCtx.getRestartContext(type) == null) {
+            log().debug(String.format("No restarter scheduled for %s nodes.", nodeInfo.typeLow()));
+
+            return nodeInfo;
+        }
+
+        RestartContext restCtx = runCtx.getRestartContext(type);
+
+        if (restCtx.get(host) == null || restCtx.get(host).get(id) == null) {
+            log().debug(String.format("No restarter scheduled for %s.%s node.", nodeInfo.typeLow(), nodeInfo.getId()));
+
+            return nodeInfo;
+        }
 
         RestartInfo restartInfo = runCtx.getRestartContext(type).get(host).get(id);
 
@@ -32,19 +45,16 @@ public class RestartNodeWorker extends NodeWorker {
                 new KillWorker(runCtx, null).killNode(nodeInfo);
 
                 Thread.sleep(restartInfo.pause());
+
+                startNode(nodeInfo);
             }
-            catch (InterruptedException e){
+            catch (InterruptedException e) {
 
             }
-
 
         }
 
         return null;
 
-    }
-
-    @Override public String getWorkerName() {
-        return getClass().getSimpleName();
     }
 }

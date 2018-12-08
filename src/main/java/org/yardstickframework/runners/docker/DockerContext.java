@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
+import org.yardstickframework.runners.NodeType;
+import org.yardstickframework.runners.RestartContext;
 
 public class DockerContext {
     private String serverDockerfilePath;
@@ -157,5 +159,16 @@ public class DockerContext {
         }
 
         return docCtx;
+    }
+
+    public String getImageName(NodeType type){
+        switch (type) {
+            case SERVER:
+                return serverImageName;
+            case DRIVER:
+                return driverImageName;
+            default:
+                throw new IllegalArgumentException(String.format("Unknown node type: %s", type));
+        }
     }
 }

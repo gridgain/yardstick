@@ -1,6 +1,7 @@
 package org.yardstickframework.runners;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import org.yardstickframework.BenchmarkUtils;
 
@@ -23,14 +24,23 @@ public class CollectWorker extends HostWorker{
 
         String nodeOutDir = String.format("%s/output", runCtx.getRemWorkDir());
 
-
-        String collectCmd = String.format("scp -r -o StrictHostKeyChecking=no %s:%s/* %s",
-            host, nodeOutDir, outDir.getAbsolutePath());
-
         log().info(String.format("Collecting data from the host %s.", host));
 
-        runCmd(collectCmd);
+        CommandHandler hndl = new CommandHandler(runCtx);
 
+        String pathRem = String.format("%s/*", nodeOutDir);
+
+        String pathLoc = outDir.getAbsolutePath();
+
+        try {
+            hndl.download(host, pathRem, pathLoc);
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         return null;
 
     }

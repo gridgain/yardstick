@@ -2,8 +2,6 @@ package org.yardstickframework.runners;
 
 import java.io.File;
 import java.util.List;
-import org.yardstickframework.runners.docker.DockerWorkContext;
-import org.yardstickframework.runners.docker.DockerBuildImagesWorker;
 
 public class FullRunner extends AbstractRunner {
 
@@ -25,7 +23,7 @@ public class FullRunner extends AbstractRunner {
         List<NodeType> plainList = runCtx.getNodeTypes(RunMode.PLAIN);
 
         for (NodeType type : plainList)
-            checkPlain(new CheckJavaWorker(runCtx, new CommonWorkContext(runCtx.getUniqHostsByType(type))));
+            checkPlain(new CheckJavaWorker(runCtx, runCtx.getUniqHostsByType(type)));
 
         List<NodeType> dockerList = runCtx.getNodeTypes(RunMode.DOCKER);
 
@@ -35,13 +33,13 @@ public class FullRunner extends AbstractRunner {
             dockerRunner.check(dockerList);
 
 
-        Worker killWorker = new KillWorker(runCtx, runCtx.getFullUniqList());
+        HostWorker killWorker = new KillWorker(runCtx, runCtx.getFullUniqList());
 
         killWorker.workOnHosts();
 
-        Worker deployWorker = new DeployWorker(runCtx, runCtx.getFullUniqList());
+        HostWorker deployWorker = new DeployWorker(runCtx, runCtx.getFullUniqList());
 
-        deployWorker.workOnHosts();
+//        deployWorker.workOnHosts();
 
         if (!dockerList.isEmpty()) {
             dockerRunner.cleanUp(dockerList, "before");
@@ -53,31 +51,31 @@ public class FullRunner extends AbstractRunner {
 
         String cfgStr0 = runCtx.getProps().getProperty("CONFIGS").split(",")[0];
 
-        List<WorkResult> servRes = null;
+        List<NodeInfo> servRes = null;
 
-        List<WorkResult> drvrRes = null;
+        List<NodeInfo> drvrRes = null;
 
         if (!Boolean.valueOf(runCtx.getProps().getProperty("RESTART_SERVERS"))) {
-            servRes = startServNodes(cfgStr0);
+            servRes = startNodes(NodeType.SERVER, cfgStr0);
 
             log().info("RESTART_SERVERS=false");
         }
 
         for (String cfgStr : runCtx.getCfgList()) {
             if (Boolean.valueOf(runCtx.getProps().getProperty("RESTART_SERVERS")))
-                servRes = startServNodes(cfgStr);
+                servRes = startNodes(NodeType.SERVER, cfgStr);
 
             checkLogs(servRes);
 
             waitForNodes(servRes, NodeStatus.RUNNING);
 
-            drvrRes = startDrvrNodes(cfgStr);
+            drvrRes = startNodes(NodeType.DRIVER, cfgStr);
 
             checkLogs(drvrRes);
 
             waitForNodes(drvrRes, NodeStatus.RUNNING);
 
-            performRestart(servRes);
+            performRestart(servRes, cfgStr);
 
             waitForNodes(drvrRes, NodeStatus.NOT_RUNNING);
 
@@ -101,10 +99,8 @@ public class FullRunner extends AbstractRunner {
         return 0;
     }
 
-    private void performRestart(List<WorkResult> nodeInfos){
-        RestartNodeWorkContext restCtx = new RestartNodeWorkContext(nodeInfos);
-
-        RestartNodeWorker restWorker = new RestartNodeWorker(runCtx, restCtx);
+    private void performRestart(List<NodeInfo> nodeList, String cfgStr){
+        RestartNodeWorker restWorker = new RestartNodeWorker(runCtx, nodeList, cfgStr);
 
         restWorker.workForNodes();
 
@@ -112,83 +108,65 @@ public class FullRunner extends AbstractRunner {
 
 
 
-    private void checkLogs(List<WorkResult> list){
-        NodeWorker checkWorker = new CheckLogWorker(runCtx, new CommonWorkContext(list));
+    private void checkLogs(List<NodeInfo> list){
+        NodeWorker checkWorker = new CheckLogWorker(runCtx,list);
 
-        List<WorkResult> resList = checkWorker.workForNodes();
+        List<NodeInfo> resList = checkWorker.workForNodes();
 
-        for (WorkResult res : resList){
-            CheckWorkResult checkRes = (CheckWorkResult) res;
-
-            if(checkRes.exit())
+        for (NodeInfo nodeInfo : resList){
+            if(nodeInfo.nodeStatus() == NodeStatus.NOT_RUNNING)
                 System.exit(1);
         }
     }
 
-    private List<WorkResult> startServNodes(String cfgStr) {
-        StartNodeWorkContext nodeWorkCtx = new StartNodeWorkContext(runCtx.getServList(), runCtx.getServRunMode(),
-            NodeType.SERVER, cfgStr);
+    private List<NodeInfo> startNodes(NodeType type, String cfgStr) {
+        NodeWorker startServWorker = new StartNodeWorker(runCtx, runCtx.getNodes(type), cfgStr);
 
-        StartNodeWorker startServWorker = new StartNodeWorker(runCtx, nodeWorkCtx);
-
-        List<WorkResult> startServResList = startServWorker.workOnHosts();
-
-        return startServResList;
+        return startServWorker.workForNodes();
     }
 
-    private List<WorkResult> startDrvrNodes(String cfgStr) {
-        StartNodeWorkContext nodeWorkCtx = new StartNodeWorkContext(runCtx.getDrvrList(), runCtx.getDrvrRunMode(),
-            NodeType.DRIVER, cfgStr);
-
-        StartNodeWorker startDrvrWorker = new StartNodeWorker(runCtx, nodeWorkCtx);
-
-        return startDrvrWorker.workOnHosts();
-    }
-
-    private List<WorkResult> stopNodes(List<WorkResult> nodeList) {
-        NodeWorker stopWorker = new StopNodeWorker(runCtx, new CommonWorkContext(nodeList));
+    private List<NodeInfo> stopNodes(List<NodeInfo> nodeList) {
+        NodeWorker stopWorker = new StopNodeWorker(runCtx, nodeList);
 
         stopWorker.workForNodes();
 
         return null;
     }
 
-    private void waitForNodes(List<WorkResult> nodeInfoList, NodeStatus expStatus) {
-        WorkContext waitCtx = new WaitNodeWorkContext(nodeInfoList, expStatus);
-
-        NodeWorker waitWorker = new WaitNodeWorker(runCtx, waitCtx);
+    private void waitForNodes(List<NodeInfo> nodeList, NodeStatus expStatus) {
+        NodeWorker waitWorker = new WaitNodeWorker(runCtx, nodeList, expStatus);
 
         waitWorker.workForNodes();
     }
 
-    private List<WorkResult> buildDockerImages(NodeType type) {
-        String imageNameProp = String.format("%s_DOCKER_IMAGE_NAME", type);
-
-        String imageName = runCtx.getProps().getProperty(imageNameProp);
-
-        String nameProp = String.format("%s_DOCKERFILE_NAME", type);
-        String pathProp = String.format("%s_DOCKERFILE_PATH", type);
-
-        if (runCtx.getProps().getProperty(nameProp) == null &&
-            runCtx.getProps().getProperty(pathProp) == null)
-            throw new IllegalArgumentException("Dockerfile name and path is not defined in property file.");
-
-        String dockerfilePath = runCtx.getProps().getProperty(pathProp) != null ?
-            runCtx.getProps().getProperty(pathProp) :
-            String.format("%s/config/%s", runCtx.getRemWorkDir(), runCtx.getProps().getProperty(nameProp));
-
-        String imageVer = runCtx.getMainDateTime();
-
-        List<String> hostList = type == NodeType.SERVER ?
-            runCtx.getServUniqList() :
-            runCtx.getDrvrUniqList();
-
-        DockerWorkContext dockerWorkCtx = new DockerWorkContext(hostList, type);
-
-        Worker buildDocWorker = new DockerBuildImagesWorker(runCtx, dockerWorkCtx);
-
-        return buildDocWorker.workOnHosts();
-    }
+//    private List<WorkResult> buildDockerImages(NodeType type) {
+//        String imageNameProp = String.format("%s_DOCKER_IMAGE_NAME", type);
+//
+//        String imageName = runCtx.getProps().getProperty(imageNameProp);
+//
+//        String nameProp = String.format("%s_DOCKERFILE_NAME", type);
+//        String pathProp = String.format("%s_DOCKERFILE_PATH", type);
+//
+//        if (runCtx.getProps().getProperty(nameProp) == null &&
+//            runCtx.getProps().getProperty(pathProp) == null)
+//            throw new IllegalArgumentException("Dockerfile name and path is not defined in property file.");
+//
+//        String dockerfilePath = runCtx.getProps().getProperty(pathProp) != null ?
+//            runCtx.getProps().getProperty(pathProp) :
+//            String.format("%s/config/%s", runCtx.getRemWorkDir(), runCtx.getProps().getProperty(nameProp));
+//
+//        String imageVer = runCtx.getMainDateTime();
+//
+//        List<String> hostList = type == NodeType.SERVER ?
+//            runCtx.getServUniqList() :
+//            runCtx.getDrvrUniqList();
+//
+//        DockerWorkContext dockerWorkCtx = new DockerWorkContext(hostList, type);
+//
+//        Worker buildDocWorker = new DockerBuildImagesWorker(runCtx, dockerWorkCtx);
+//
+//        return buildDocWorker.workOnHosts();
+//    }
 
     private void createCharts() {
         String mainResDir = String.format("%s/output/result-%s", runCtx.getLocWorkDir(), runCtx.getMainDateTime());

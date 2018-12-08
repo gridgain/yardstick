@@ -140,6 +140,22 @@ public class CommandHandler {
         return runRmtCmd(startNodeCmd);
     }
 
+    public CommandExecutionResult upload(String host, String pathLoc, String pathRem) throws IOException, InterruptedException {
+        String cpCmd = String.format("scp -o StrictHostKeyChecking=no -rq %s %s:%s",
+            pathLoc, host, pathRem);
+
+        return runRmtCmd(cpCmd);
+    }
+
+    public CommandExecutionResult download(String host, String pathRem, String pathLoc) throws IOException, InterruptedException {
+        String cpCmd = String.format("scp -o StrictHostKeyChecking=no -rq %s:%s %s",
+            host, pathRem, pathLoc);
+
+        return runRmtCmd(cpCmd);
+    }
+
+
+
     private CommandExecutionResult startNodeLocal(String cmd,
         String logPath) throws IOException, InterruptedException {
 
@@ -217,7 +233,7 @@ public class CommandHandler {
 
         String host = nodeInfo.getHost();
 
-        RunMode runMode = nodeInfo.getStartCtx().getRunMode();
+        RunMode runMode = nodeInfo.runMode();
 
         if (isLocal(host) && runMode == RunMode.PLAIN) {
             Process proc = nodeInfo.getCmdExRes().getProc();
@@ -231,7 +247,7 @@ public class CommandHandler {
             nodeInfo.getNodeType().toString().toLowerCase(), nodeInfo.getId());
 
         if (runMode == RunMode.DOCKER) {
-            String contName = nodeInfo.getDockerInfo().getContName();
+            String contName = nodeInfo.dockerInfo().contName();
 
             String docKillCmd = String.format("exec %s %s", contName, killCmd);
 

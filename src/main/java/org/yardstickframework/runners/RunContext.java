@@ -360,7 +360,7 @@ public class RunContext {
 
                 ctx.put(host, hostMap);
 
-                System.out.println(hostMap);
+//                System.out.println(hostMap);
             }
             catch (NumberFormatException e){
                 LOG.error(String.format("Wrong value for RESTART_%sS property. %s",
@@ -630,7 +630,7 @@ public class RunContext {
             case PLAIN:
                 return new PlainNodeStarter(this);
             case DOCKER:
-                return new InDockerNodeStarter(this, nodeInfo.getStartCtx());
+                return new InDockerNodeStarter(this);
             default:
                 throw new IllegalArgumentException(String.format("Unknown start mode: %s", mode.toString()));
         }
@@ -643,7 +643,7 @@ public class RunContext {
             case PLAIN:
                 return new PlainNodeChecker(this);
             case DOCKER:
-                return new InDockerNodeChecker(this, nodeInfo.getStartCtx());
+                return new InDockerNodeChecker(this);
             default:
                 throw new IllegalArgumentException(String.format("Unknown start mode: %s", mode.toString()));
         }
@@ -670,7 +670,7 @@ public class RunContext {
     }
 
     private RunMode getStartMode(NodeInfo nodeInfo) {
-        return nodeInfo.getStartCtx().getRunMode();
+        return nodeInfo.runMode();
     }
 
     protected String getDescription(String src) {
@@ -770,6 +770,17 @@ public class RunContext {
 
         //add appender to any Logger (here is root)
         Logger.getRootLogger().addAppender(fa);
+
+        FileAppender fa1 = new FileAppender();
+        fa1.setName("FileLogger1");
+        fa1.setFile("/home/oostanin/yardstick/log.log");
+        fa1.setLayout(new PatternLayout("[%d{yyyy-MM-dd HH:mm:ss,SSS}][%-5p][%t] %m%n"));
+        fa1.setThreshold(Level.DEBUG);
+        fa1.setAppend(false);
+        fa1.activateOptions();
+
+        //add appender to any Logger (here is root)
+        Logger.getRootLogger().addAppender(fa1);
     }
 
     public RunMode getRunMode(NodeType type){
@@ -781,7 +792,19 @@ public class RunContext {
             default:
                 throw new IllegalArgumentException(String.format("Unknown node type: %s", type));
         }
+    }
 
+    public List<NodeInfo> getNodes(NodeType type){
+        List<String> hosts = getHostsByType(type);
+
+        RunMode mode = getRunMode(type);
+
+        List<NodeInfo> res = new ArrayList<>(hosts.size());
+
+        for (int i = 0; i < hosts.size(); i++)
+            res.add(new NodeInfo(type, hosts.get(i), null, String.valueOf(i), mode));
+
+        return res;
     }
 
     public RestartContext getRestartContext(NodeType type){

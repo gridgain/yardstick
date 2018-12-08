@@ -14,11 +14,11 @@ public class NodeInfo implements WorkResult {
 
     private String id;
 
-    private String startCmd;
+    private String paramStr;
 
     private String logPath;
 
-    private StartNodeWorkContext startCtx;
+    private RunMode runMode;
 
     private DockerInfo dockerInfo;
 
@@ -34,21 +34,25 @@ public class NodeInfo implements WorkResult {
 
     public NodeStatus nodeStatus;
 
-    public NodeInfo(NodeType nodeType, String host, @Nullable String port, String id) {
+    public String nodeStartTime;
+
+    public String descript;
+
+    public NodeInfo(NodeType nodeType, String host, @Nullable String port, String id, RunMode runMode) {
         this.nodeType = nodeType;
         this.host = host;
         this.port = port;
         this.id = id;
+        this.runMode = runMode;
     }
 
-    public NodeInfo(NodeType nodeType, String host, @Nullable String port, String id, StartNodeWorkContext startCtx,
-        String startCmd, String logPath) {
+    public NodeInfo(NodeType nodeType, String host, @Nullable String port, String id,
+        String paramStr, String logPath) {
         this.nodeType = nodeType;
         this.host = host;
         this.port = port;
         this.id = id;
-        this.startCtx = startCtx;
-        this.startCmd = startCmd;
+        this.paramStr = paramStr;
         this.logPath = logPath;
     }
 
@@ -84,16 +88,12 @@ public class NodeInfo implements WorkResult {
         this.id = id;
     }
 
-    public StartNodeWorkContext getStartCtx() {
-        return startCtx;
+    public String getParamStr() {
+        return paramStr;
     }
 
-    public String getStartCmd() {
-        return startCmd;
-    }
-
-    public void setStartCmd(String startCmd) {
-        this.startCmd = startCmd;
+    public void setParamStr(String paramStr) {
+        this.paramStr = paramStr;
     }
 
     public String getLogPath() {
@@ -102,18 +102,6 @@ public class NodeInfo implements WorkResult {
 
     public void setLogPath(String logPath) {
         this.logPath = logPath;
-    }
-
-    public DockerInfo getDockerInfo() {
-        return dockerInfo;
-    }
-
-    public void setDockerInfo(DockerInfo dockerInfo) {
-        this.dockerInfo = dockerInfo;
-    }
-
-    public void setStartCtx(StartNodeWorkContext startCtx) {
-        this.startCtx = startCtx;
     }
 
     public CommandExecutionResult getCmdExRes() {
@@ -140,5 +128,89 @@ public class NodeInfo implements WorkResult {
      */
     public void nodeStatus(NodeStatus nodeStatus) {
         this.nodeStatus = nodeStatus;
+    }
+
+    /**
+     * @return Run mode.
+     */
+    public RunMode runMode() {
+        return runMode;
+    }
+
+    /**
+     * @param runMode New run mode.
+     */
+    public void runMode(RunMode runMode) {
+        this.runMode = runMode;
+    }
+
+    /**
+     * @return Node start time.
+     */
+    public String nodeStartTime() {
+        return nodeStartTime;
+    }
+
+    /**
+     * @param nodeStartTime New node start time.
+     */
+    public void nodeStartTime(String nodeStartTime) {
+        this.nodeStartTime = nodeStartTime;
+    }
+
+    /**
+     * @return Descript.
+     */
+    public String descript() {
+        return descript;
+    }
+
+    /**
+     * @param descript New descript.
+     */
+    public void descript(String descript) {
+        this.descript = descript;
+    }
+
+    /**
+     * @return Docker info.
+     */
+    public DockerInfo dockerInfo() {
+        return dockerInfo;
+    }
+
+    /**
+     * @param dockerInfo New docker info.
+     */
+    public void dockerInfo(DockerInfo dockerInfo) {
+        this.dockerInfo = dockerInfo;
+    }
+
+    /**
+     * @return Parameter string.
+     */
+    public String parameterString() {
+        return paramStr;
+    }
+
+    /**
+     * @param paramStr New parameter string.
+     */
+    public void parameterString(String paramStr) {
+        this.paramStr = paramStr;
+    }
+
+    /**
+     * @return Logger path.
+     */
+    public String loggerPath() {
+        return logPath;
+    }
+
+    /**
+     * @param logPath New logger path.
+     */
+    public void loggerPath(String logPath) {
+        this.logPath = logPath;
     }
 }

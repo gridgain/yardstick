@@ -7,36 +7,42 @@ import java.util.List;
 import org.yardstickframework.BenchmarkUtils;
 import org.yardstickframework.runners.CommandExecutionResult;
 import org.yardstickframework.runners.CommandHandler;
+import org.yardstickframework.runners.DockerInfo;
 import org.yardstickframework.runners.DockerRunner;
+import org.yardstickframework.runners.NodeInfo;
 import org.yardstickframework.runners.NodeType;
 import org.yardstickframework.runners.RunContext;
 import org.yardstickframework.runners.RunMode;
-import org.yardstickframework.runners.WorkContext;
+
 import org.yardstickframework.runners.WorkResult;
 
-public class DockerStartContWorker extends DockerWorker {
+public class DockerStartContWorker extends DockerNodeWorker {
     private static final String DFLT_START_CMD = "sleep 365d";
 
     private static final String DFLT_RUN_CMD_ARGS = "-d --network host";
 
-    public DockerStartContWorker(RunContext runCtx, WorkContext workCtx) {
-        super(runCtx, workCtx);
+    private DockerContext dockerCtx;
+
+    public DockerStartContWorker(RunContext runCtx, List<NodeInfo> nodeList) {
+        super(runCtx, nodeList);
+
+        dockerCtx = runCtx.getDockerContext();
     }
 
-    @Override public void beforeWork() {
-        //NO_OP
-    }
+    @Override public NodeInfo doWork(NodeInfo nodeInfo) {
+        String host = nodeInfo.getHost();
 
-    @Override public void afterWork() {
-        //NO_OP
-    }
+        String id  = nodeInfo.getId();
 
-    @Override public WorkResult doWork(String host, int cnt) {
-        NodeType type = dockerWorkCtx.getNodeType();
+        NodeType type = nodeInfo.getNodeType();
 
-        String imageName = getImageNameToUse(type);
+        String imageName = dockerCtx.getImageName(type);
 
-        String contName = String.format("YARDSTICK_%s_%d", type, cnt);
+        String contName = String.format("YARDSTICK_%s_%s", type, id);
+
+        DockerInfo docInfo = new DockerInfo(imageName, contName);
+
+        nodeInfo.dockerInfo(docInfo);
 
         log().info(String.format("Starting the container %s on the host %s", contName, host));
 
@@ -61,12 +67,12 @@ public class DockerStartContWorker extends DockerWorker {
         try {
             hndl.runDockerCmd(host, startCmd);
 
-            String contId = getContId(host, contName);
+//            String contId = getContId(host, contName);
 
             String mkdirCmd = String.format("exec %s mkdir -p %s", contName, runCtx.getRemWorkDir());
 
             synchronized (this) {
-                setDockerJavaHome(host, contName);
+                setDockerJavaHome(nodeInfo);
             }
 
             hndl.runDockerCmd(host, mkdirCmd);
@@ -75,7 +81,7 @@ public class DockerStartContWorker extends DockerWorker {
 
             String parentPath = new File(remPath).getParentFile().getAbsolutePath();
 
-            String cpCmd = String.format("cp %s %s:%s", remPath, contId, parentPath);
+            String cpCmd = String.format("cp %s %s:%s", remPath, contName, parentPath);
 
             hndl.runDockerCmd(host, cpCmd);
         }
@@ -89,23 +95,6 @@ public class DockerStartContWorker extends DockerWorker {
         return null;
     }
 
-    private List<String> getIdList(String ip) {
-        String getListCmd = String.format("ssh -o StrictHostKeyChecking=no %s docker ps -a", ip);
-
-        String servContNamePref = String.format("SERVER-%s", ip);
-        String drvrContNamePref = String.format("DRIVER-%s", ip);
-
-        List<String> res = new ArrayList<>();
-
-        List<String> responseList = runCmd(getListCmd);
-
-        for (String response : responseList)
-            if (response.contains(servContNamePref) || response.contains(drvrContNamePref))
-                res.add(response.split(" ")[0]);
-
-        return res;
-    }
-
     private String getStartContCmd() {
         return dockerCtx.getStartContCmd() != null ? dockerCtx.getStartContCmd() : DFLT_START_CMD;
     }
@@ -116,12 +105,16 @@ public class DockerStartContWorker extends DockerWorker {
             DFLT_RUN_CMD_ARGS;
     }
 
-    private void setDockerJavaHome(String host, String contName) throws IOException, InterruptedException {
-        NodeType type = dockerWorkCtx.getNodeType();
+    private void setDockerJavaHome(NodeInfo nodeInfo) throws IOException, InterruptedException {
+        NodeType type = nodeInfo.getNodeType();
+
+        String contName = nodeInfo.dockerInfo().contName();
 
         String echoCmd = String.format("exec %s sh -c 'echo $JAVA_HOME'", contName);
 
         CommandHandler hndl = new CommandHandler(runCtx);
+
+        String host = nodeInfo.getHost();
 
         CommandExecutionResult res = hndl.runDockerCmd(host, echoCmd);
 

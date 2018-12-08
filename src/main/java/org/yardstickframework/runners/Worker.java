@@ -1,21 +1,16 @@
 package org.yardstickframework.runners;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
-import org.yardstickframework.BenchmarkUtils;
 
-public abstract class Worker extends AbstractRunner{
+public abstract class Worker{
+    protected static final long DFLT_TIMEOUT = 300_000L;
+
+    protected RunContext runCtx;
+
     /** */
     public Worker(RunContext runCtx) {
-        super(runCtx);
+        this.runCtx = runCtx;
     }
 
     /**

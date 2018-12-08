@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Properties;
 
 public class InDockerNodeChecker extends AbstractRunner implements NodeChecker {
-    public InDockerNodeChecker(RunContext runCtx, StartNodeWorkContext ctx) {
+    public InDockerNodeChecker(RunContext runCtx) {
         super(runCtx);
     }
 
@@ -15,7 +15,7 @@ public class InDockerNodeChecker extends AbstractRunner implements NodeChecker {
         String nodeToCheck = String.format("Dyardstick.%s%s ",
             nodeInfo.getNodeType().toString().toLowerCase(), nodeInfo.getId());
 
-        String checkCmd = String.format("exec %s pgrep -f \"%s\"", nodeInfo.getDockerInfo().getContName(), nodeToCheck);
+        String checkCmd = String.format("exec %s pgrep -f \"%s\"", nodeInfo.dockerInfo().contName(), nodeToCheck);
 
         CommandHandler hndl = new CommandHandler(runCtx);
 

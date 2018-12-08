@@ -1,16 +1,14 @@
 package org.yardstickframework.runners;
 
+import java.util.List;
+
 public class StopNodeWorker extends NodeWorker {
 
-    public StopNodeWorker(RunContext runCtx, WorkContext workCtx) {
-        super(runCtx, workCtx);
+    public StopNodeWorker(RunContext runCtx, List<NodeInfo> nodeList) {
+        super(runCtx, nodeList);
     }
 
-    @Override public void beforeWork() {
-        //NO_OP
-    }
-
-    @Override public WorkResult doWork(NodeInfo nodeInfo) {
+    @Override public NodeInfo doWork(NodeInfo nodeInfo) {
         log().info(String.format("Stopping node %s%s on the host %s.",
             nodeInfo.typeLow(),
             nodeInfo.getId(),
@@ -18,20 +16,15 @@ public class StopNodeWorker extends NodeWorker {
 
         new KillWorker(runCtx, null).killNode(nodeInfo);
 
-
         return null;
     }
 
     @Override public void afterWork() {
-        if(!getWorkCtx().getList().isEmpty()){
-            NodeInfo nodeInfo = (NodeInfo) getWorkCtx().getList().get(0);
+        if(!resNodeList().isEmpty()){
+            NodeInfo nodeInfo = resNodeList().get(0);
 
-            if(nodeInfo.getStartCtx().getRunMode() == RunMode.DOCKER)
+            if(nodeInfo.runMode() == RunMode.DOCKER)
                 log().info("Keeping docker containers running.");
         }
-    }
-
-    @Override public String getWorkerName() {
-        return getClass().getSimpleName();
     }
 }

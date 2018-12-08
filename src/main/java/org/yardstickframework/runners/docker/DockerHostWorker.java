@@ -4,32 +4,27 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import org.yardstickframework.BenchmarkUtils;
 import org.yardstickframework.runners.CommandExecutionResult;
 import org.yardstickframework.runners.CommandHandler;
 import org.yardstickframework.runners.HostWorker;
 import org.yardstickframework.runners.NodeType;
 import org.yardstickframework.runners.RunContext;
 
-import org.yardstickframework.runners.Worker;
 
-import static org.yardstickframework.BenchmarkUtils.dateTime;
-
-public abstract class DockerWorker extends HostWorker {
+public abstract class DockerHostWorker extends HostWorker {
 
     private static final String[] imagesHdrs = new String[] {"REPOSITORY", "TAG", "IMAGE ID", "CREATED", "SIZE"};
     private static final String[] psHdrs = new String[] {"CONTAINER ID", "IMAGE", "COMMAND", "CREATED", "STATUS", "PORTS", "NAMES"};
 
     protected DockerContext dockerCtx;
 
+
     /**
      * @param runCtx
      */
-    public DockerWorker(RunContext runCtx, List<String> hostList) {
+    public DockerHostWorker(RunContext runCtx, List<String> hostList) {
         super(runCtx, hostList);
 
         dockerCtx = runCtx.getDockerContext();

@@ -1,10 +1,11 @@
 package org.yardstickframework.runners;
 
 import java.io.IOException;
+import java.util.List;
 import org.yardstickframework.BenchmarkConfiguration;
 import org.yardstickframework.BenchmarkUtils;
 
-public class StartNodeWorker extends HostWorker {
+public class StartNodeWorker extends NodeWorker {
     /** */
     protected String dateTime;
 
@@ -20,20 +21,20 @@ public class StartNodeWorker extends HostWorker {
     /** */
     protected String cfgFullStr;
 
-    private String servLogDirFullName;
+    protected String servLogDirFullName;
 
     private String servMainClass = "org.yardstickframework.BenchmarkServerStartUp";
 
-    private String drvrLogDirFullName;
+    protected String drvrLogDirFullName;
 
     private String drvrMainClass = "org.yardstickframework.BenchmarkDriverStartUp";
 
     /** */
     private BenchmarkConfiguration iterCfg;
 
-
-    public StartNodeWorker(RunContext runCtx, WorkContext workCtx) {
-        super(runCtx, workCtx);
+    public StartNodeWorker(RunContext runCtx, List<NodeInfo> nodeList, String cfgFullStr) {
+        super(runCtx, nodeList);
+        this.cfgFullStr = cfgFullStr;
     }
 
     public String getCfgFullStr() {
@@ -58,23 +59,33 @@ public class StartNodeWorker extends HostWorker {
         //NO_OP
     }
 
-    @Override public WorkResult doWork(String host, int cnt) {
+    @Override public NodeInfo doWork(NodeInfo nodeInfo) {
+        return startNode(nodeInfo);
+    }
+
+    protected NodeInfo startNode(NodeInfo nodeInfo) {
         final String nodeStartTime = BenchmarkUtils.dateTime();
 
-        StartNodeWorkContext startCtx = (StartNodeWorkContext)getWorkCtx();
+        nodeInfo.nodeStartTime(nodeStartTime);
+
+        String host = nodeInfo.getHost();
+
+        String id  = nodeInfo.getId();
+
+        NodeType type = nodeInfo.getNodeType();
 
         String mode = "";
 
-        if(startCtx.getRunMode() != RunMode.PLAIN)
-            mode = String.format(" (Run mode - %s)", startCtx.getRunMode());
+        if(nodeInfo.runMode() != RunMode.PLAIN)
+            mode = String.format(" (Run mode - %s)", nodeInfo.runMode());
 
-        log().info(String.format("Starting %s node on the host %s with id %d.%s",
-            getNodeTypeLowCase(startCtx),
+        log().info(String.format("Starting %s node on the host %s with id %s.%s",
+            nodeInfo.typeLow(),
             host,
-            cnt,
+            id,
             mode));
 
-        String logDirFullName = getLogDirFullName(startCtx);
+        String logDirFullName = getLogDirFullName(type);
 
         CommandHandler hndl = new CommandHandler(runCtx);
 
@@ -88,37 +99,46 @@ public class StartNodeWorker extends HostWorker {
             e.printStackTrace();
         }
 
-        String descr = runCtx.getDescription(startCtx.getFullCfgStr());
+        String descript = runCtx.getDescription(cfgFullStr);
 
-        String logFileName = String.format("%s/%s-id%d-%s-%s.log",
+        nodeInfo.descript(descript);
+
+        String logFileName = String.format("%s/%s-id%s-%s-%s.log",
             logDirFullName,
             nodeStartTime,
-            cnt,
+            id,
             host,
-            descr);
+            descript);
 
-        String paramStr = getParamStr(host, cnt, nodeStartTime, startCtx, descr);
+        String paramStr = getParamStr(nodeInfo);
 
-        NodeInfo nodeInfo = new NodeInfo(startCtx.getNodeType(), host, null, String.valueOf(cnt),
-            startCtx, paramStr, logFileName );
+        nodeInfo.parameterString(paramStr);
+
+        nodeInfo.loggerPath(logFileName);
 
         NodeStarter starter = runCtx.getNodeStarter(nodeInfo);
 
         return starter.startNode(nodeInfo);
     }
 
-    private String getParamStr(String ip, int cnt, String nodeStartTime, StartNodeWorkContext startCtx, String descr){
+    private String getParamStr(NodeInfo nodeInfo){
+        String host = nodeInfo.getHost();
+
+        String id  = nodeInfo.getId();
+
+        NodeType type = nodeInfo.getNodeType();
+
         String drvrResDir = String.format("%s/output/result-%s", runCtx.getRemWorkDir(), runCtx.getMainDateTime());
 
-        String outputFolderParam = getWorkCtx().getList().size() > 1 ?
-            String.format("--outputFolder %s/%d-%s", drvrResDir, cnt, ip) :
+        String outputFolderParam = getNodeListSize() > 1 ?
+            String.format("--outputFolder %s/%s-%s", drvrResDir, id, host) :
             String.format("--outputFolder %s", drvrResDir);
 
         String jvmOptsStr = runCtx.getProps().getProperty("JVM_OPTS") != null ?
             runCtx.getProps().getProperty("JVM_OPTS"):
             "";
 
-        String nodeJvmOptsProp = String.format("%s_JVM_OPTS", startCtx.getNodeType());
+        String nodeJvmOptsProp = String.format("%s_JVM_OPTS", type);
 
         String nodeJvmOptsStr = runCtx.getProps().getProperty(nodeJvmOptsProp) != null ?
             runCtx.getProps().getProperty(nodeJvmOptsProp):
@@ -127,34 +147,34 @@ public class StartNodeWorker extends HostWorker {
         String concJvmOpts = jvmOptsStr + " " + nodeJvmOptsStr;
 
         String gcJvmOpts = concJvmOpts.contains("PrintGC") ?
-            String.format(" -Xloggc:%s/gc-%s-%s-id%d-%s-%s.log",
-                getLogDirFullName(startCtx),
-                nodeStartTime,
-                getNodeTypeLowCase(startCtx),
-                cnt,
-                ip,
-                descr):
+            String.format(" -Xloggc:%s/gc-%s-%s-id%s-%s-%s.log",
+                getLogDirFullName(type),
+                nodeInfo.nodeStartTime(),
+                nodeInfo.typeLow(),
+                id,
+                host,
+                nodeInfo.descript()):
             "";
 
         String fullJvmOpts = (concJvmOpts + " " + gcJvmOpts).replace("\"", "");
 
         String propPath = runCtx.getPropPath().replace(runCtx.getLocWorkDir(), runCtx.getRemWorkDir());
 
-        String cfgStr = startCtx.getFullCfgStr().replace(runCtx.getLocWorkDir(), runCtx.getRemWorkDir());
+        String cfgStr = cfgFullStr.replace(runCtx.getLocWorkDir(), runCtx.getRemWorkDir());
 
 
-        String paramStr = String.format("%s -Dyardstick.%s%d -cp :%s/libs/* %s -id %d %s %s --config %s " +
+        String paramStr = String.format("%s -Dyardstick.%s%s -cp :%s/libs/* %s -id %s %s %s --config %s " +
                 "--logsFolder %s --remoteuser %s --currentFolder %s --scriptsFolder %s/bin",
             fullJvmOpts,
-            getNodeTypeLowCase(startCtx),
-            cnt,
+            nodeInfo.typeLow(),
+            id,
             runCtx.getRemWorkDir(),
-            getMainClass(startCtx),
-            cnt,
+            getMainClass(type),
+            id,
             outputFolderParam,
             cfgStr,
             propPath,
-            getLogDirFullName(startCtx),
+            getLogDirFullName(type),
             runCtx.getRemUser(),
             runCtx.getRemWorkDir(),
             runCtx.getRemWorkDir());
@@ -162,12 +182,8 @@ public class StartNodeWorker extends HostWorker {
         return paramStr;
     }
 
-    private String getNodeTypeLowCase(StartNodeWorkContext startCtx){
-        return startCtx.getNodeType().toString().toLowerCase();
-    }
-
-    private String getLogDirFullName(StartNodeWorkContext startCtx){
-        switch (startCtx.getNodeType()) {
+    private String getLogDirFullName(NodeType type){
+        switch (type) {
             case SERVER:
                 return servLogDirFullName;
             case DRIVER:
@@ -177,8 +193,8 @@ public class StartNodeWorker extends HostWorker {
         }
     }
 
-    private String getMainClass(StartNodeWorkContext startCtx){
-        switch (startCtx.getNodeType()) {
+    private String getMainClass(NodeType type){
+        switch (type) {
             case SERVER:
                 return servMainClass;
             case DRIVER:
@@ -186,9 +202,5 @@ public class StartNodeWorker extends HostWorker {
             default:
                 throw new IllegalArgumentException("Unknown node type");
         }
-    }
-
-    @Override public String getWorkerName() {
-        return getClass().getSimpleName();
     }
 }

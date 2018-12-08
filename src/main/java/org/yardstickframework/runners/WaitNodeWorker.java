@@ -1,12 +1,16 @@
 package org.yardstickframework.runners;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class WaitNodeWorker extends NodeWorker {
+    private NodeStatus expStatus;
 
-    public WaitNodeWorker(RunContext runCtx, WorkContext workCtx) {
-        super(runCtx, workCtx);
+    public WaitNodeWorker(RunContext runCtx, List<NodeInfo> nodeList,
+        NodeStatus expStatus) {
+        super(runCtx, nodeList);
+        this.expStatus = expStatus;
     }
 
     private static Map<NodeStatus, String> statusMap;
@@ -20,24 +24,10 @@ public class WaitNodeWorker extends NodeWorker {
         }
     }
 
-    @Override public void afterWork() {
-        //NO_OP
-    }
-
-    @Override public WorkResult doWork(NodeInfo nodeInfo) {
+    @Override public NodeInfo doWork(NodeInfo nodeInfo) {
         boolean unexpected = true;
 
-        WaitNodeWorkContext workCtx = (WaitNodeWorkContext)getWorkCtx();
-
-        NodeStatus expStatus = workCtx.getExpStatus();
-
         NodeChecker checker = runCtx.getNodeChecker(nodeInfo);
-
-//        log().info(String.format("Waiting for node %s%s on the host %s to be %s.",
-//            nodeInfo.typeLow(),
-//            nodeInfo.getId(),
-//            nodeInfo.getHost(),
-//            statusMap.get(expStatus)));
 
         while (unexpected) {
             unexpected = false;
@@ -54,8 +44,9 @@ public class WaitNodeWorker extends NodeWorker {
                     e.printStackTrace();
                 }
             }
-
         }
+
+        nodeInfo.nodeStatus(expStatus);
 
         log().info(String.format("Node %s%s on the host %s is %s.",
             nodeInfo.typeLow(),
@@ -63,11 +54,7 @@ public class WaitNodeWorker extends NodeWorker {
             nodeInfo.getHost(),
             statusMap.get(expStatus)));
 
-        return null;
+        return nodeInfo;
 
-    }
-
-    @Override public String getWorkerName() {
-        return getClass().getSimpleName();
     }
 }
