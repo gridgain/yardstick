@@ -6,11 +6,7 @@ import java.util.List;
 public class CheckWorkResult implements WorkResult {
     private boolean exit;
 
-    private List<String> errMsgs = new ArrayList<>();
 
-    public List<String> getErrMsgs() {
-        return errMsgs;
-    }
 
     /**
      * @return Exit.

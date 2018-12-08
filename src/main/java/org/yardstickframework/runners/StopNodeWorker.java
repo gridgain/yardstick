@@ -1,9 +1,6 @@
 package org.yardstickframework.runners;
 
-import java.io.IOException;
-import org.yardstickframework.BenchmarkUtils;
-
-public class StopNodeWorker extends NodeServiceWorker{
+public class StopNodeWorker extends NodeWorker {
 
     public StopNodeWorker(RunContext runCtx, WorkContext workCtx) {
         super(runCtx, workCtx);

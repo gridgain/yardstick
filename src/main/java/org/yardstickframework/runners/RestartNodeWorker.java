@@ -1,9 +1,6 @@
 package org.yardstickframework.runners;
 
-import java.util.HashMap;
-import java.util.Map;
-
-public class RestartNodeWorker extends NodeServiceWorker {
+public class RestartNodeWorker extends NodeWorker {
 
     public RestartNodeWorker(RunContext runCtx, WorkContext workCtx) {
         super(runCtx, workCtx);

@@ -1,29 +1,22 @@
 package org.yardstickframework.runners;
 
 import java.io.IOException;
-import org.yardstickframework.BenchmarkUtils;
+import java.util.List;
 
-public class CheckLogWorker extends NodeServiceWorker{
-
-    public CheckLogWorker(RunContext runCtx, WorkContext workCtx) {
-        super(runCtx, workCtx);
+public class CheckLogWorker extends NodeWorker {
+    /**
+     *
+     * @param runCtx
+     * @param nodeList
+     */
+    CheckLogWorker(RunContext runCtx, List<NodeInfo> nodeList) {
+        super(runCtx, nodeList);
     }
 
-    @Override public void beforeWork() {
-        //NO_OP
-    }
-
-    @Override public WorkResult doWork(NodeInfo nodeInfo) {
-//        log().info(String.format("Checking node %s%s on the host %s.",
-//            nodeInfo.typeLow(),
-//            nodeInfo.getId(),
-//            nodeInfo.getHost()));
-
+    @Override public NodeInfo doWork(NodeInfo nodeInfo) {
         String host = nodeInfo.getHost();
 
         String logPath = nodeInfo.getLogPath();
-
-        CheckWorkResult checkLogRes = new CheckWorkResult();
 
         CommandHandler hndl = new CommandHandler(runCtx);
 
@@ -51,13 +44,13 @@ public class CheckLogWorker extends NodeServiceWorker{
             log().info(String.format("Node %s%s on the host %s in not running. Will check log file and exit.",
                 nodeInfo.typeLow(), nodeInfo.getId(), host));
 
-            checkLogRes.exit(true);
+            nodeInfo.nodeStatus(checkRes.getNodeStatus());
         }
 
         if(!fileExists){
             log().info(String.format("No log file %s on the host %s.", logPath, host));
 
-            return checkLogRes;
+            return nodeInfo;
         }
 
         String cmd = String.format("head -20 %s | grep 'Exception'", logPath);
@@ -66,7 +59,7 @@ public class CheckLogWorker extends NodeServiceWorker{
             CommandExecutionResult res = hndl.runCmd(host, cmd);
 
             if(!res.getOutStream().isEmpty()){
-                checkLogRes.getErrMsgs().addAll(res.getOutStream());
+                nodeInfo.getErrMsgs().addAll(res.getOutStream());
 
                 log().info(String.format("WARNING! Log file '%s' contains following error messages:",
                     logPath));
@@ -74,7 +67,7 @@ public class CheckLogWorker extends NodeServiceWorker{
                 for(String msg : res.getOutStream())
                     log().info(msg);
 
-                return checkLogRes;
+                return nodeInfo;
             }
         }
         catch (IOException e) {
@@ -84,14 +77,6 @@ public class CheckLogWorker extends NodeServiceWorker{
             e.printStackTrace();
         }
 
-        return checkLogRes;
-    }
-
-    @Override public void afterWork() {
-        //NO_OP
-    }
-
-    @Override public String getWorkerName() {
-        return getClass().getSimpleName();
+        return nodeInfo;
     }
 }

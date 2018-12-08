@@ -8,10 +8,15 @@ public class CheckJavaWorker extends Worker {
     /** */
     private static final Logger LOG = LogManager.getLogger(CheckJavaWorker.class);
 
+    /** */
     private String locJavaHome;
 
-    public CheckJavaWorker(RunContext runCtx, WorkContext workCtx) {
-        super(runCtx, workCtx);
+    /**
+     *
+     * @param runCtx
+     */
+    CheckJavaWorker(RunContext runCtx) {
+        super(runCtx);
     }
 
     @Override public void beforeWork() {
@@ -63,9 +68,5 @@ public class CheckJavaWorker extends Worker {
         }
 
         return res;
-    }
-
-    @Override public String getWorkerName() {
-        return getClass().getSimpleName();
     }
 }

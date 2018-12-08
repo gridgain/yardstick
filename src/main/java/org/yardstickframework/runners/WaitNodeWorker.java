@@ -1,11 +1,9 @@
 package org.yardstickframework.runners;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
-import org.yardstickframework.BenchmarkUtils;
 
-public class WaitNodeWorker extends NodeServiceWorker {
+public class WaitNodeWorker extends NodeWorker {
 
     public WaitNodeWorker(RunContext runCtx, WorkContext workCtx) {
         super(runCtx, workCtx);

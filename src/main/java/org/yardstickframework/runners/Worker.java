@@ -12,93 +12,26 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.yardstickframework.BenchmarkUtils;
 
-public abstract class Worker<T1 extends WorkResult, T2 extends WorkContext> extends AbstractRunner{
-    protected WorkContext workCtx;
-
+public abstract class Worker extends AbstractRunner{
     /** */
-    public Worker(RunContext runCtx, T2 workCtx) {
+    public Worker(RunContext runCtx) {
         super(runCtx);
-        this.workCtx = workCtx;
-    }
-
-    public abstract WorkResult doWork(String host, int cnt);
-
-    public abstract String getWorkerName();
-
-    public WorkContext getWorkCtx(){
-        return workCtx;
     }
 
     /**
      * Executes before workOnHosts()
      */
     public void beforeWork(){
-        log().info(String.format("%s started.", getClass().getSimpleName()));
+//        log().info(String.format("%s started.", getClass().getSimpleName()));
     }
 
-    /**
-     * Executes start method defined in worker class asynchronously.
-     *
-     */
-    protected List<WorkResult> workOnHosts() {
-        beforeWork();
-
-        final List<?> hostList = workCtx.getList();
-
-        List<WorkResult> res = new ArrayList<>(hostList.size());
-
-        ExecutorService execServ = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-
-        Collection<Future<WorkResult>> futList = new ArrayList<>();
-
-        String lastHost = null;
-
-        for (int cntr = 0; cntr < hostList.size(); cntr++) {
-            final int cntrF = cntr;
-
-            final String host = (String) hostList.get(cntrF);
-
-            if(host.equals(lastHost)){
-                try {
-                    Thread.sleep(1000L);
-                }
-                catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            lastHost = host;
-
-            futList.add(execServ.submit(new Callable<WorkResult>() {
-                @Override public WorkResult call() throws Exception {
-                    Thread.currentThread().setName(String.format("%s-%s",
-                        getWorkerName(), host));
-
-                    return doWork(host, cntrF);
-                }
-            }));
-        }
-
-        for (Future<WorkResult> f : futList) {
-            try {
-                res.add(f.get(DFLT_TIMEOUT, TimeUnit.MILLISECONDS));
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-        execServ.shutdown();
-
-        afterWork();
-
-        return res;
-    }
 
     protected Logger log(){
-        Logger log = LogManager.getLogger(getClass().getSimpleName());
+        return LogManager.getLogger(getWorkerName());
+    }
 
-        return log;
+    protected String getWorkerName(){
+        return getClass().getSimpleName();
     }
 
     protected boolean isLocal(String host) {
@@ -106,7 +39,7 @@ public abstract class Worker<T1 extends WorkResult, T2 extends WorkContext> exte
     }
 
     public void afterWork(){
-        log().info(String.format("%s finished.", getClass().getSimpleName()));
+//        log().info(String.format("%s finished.", getClass().getSimpleName()));
     }
 
 

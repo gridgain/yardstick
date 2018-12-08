@@ -4,13 +4,12 @@ import java.io.File;
 import org.yardstickframework.BenchmarkUtils;
 
 public class CheckConnWorker extends Worker{
-
-    @Override public void beforeWork() {
-        //NO_OP
-    }
-
-    public CheckConnWorker(RunContext runCtx, WorkContext workCtx) {
-        super(runCtx, workCtx);
+    /**
+     *
+     * @param runCtx
+     */
+    CheckConnWorker(RunContext runCtx) {
+        super(runCtx);
     }
     @Override public WorkResult doWork(String host, int cnt) {
         CheckWorkResult res = new CheckWorkResult();
@@ -26,13 +25,5 @@ public class CheckConnWorker extends Worker{
         }
 
         return res;
-    }
-
-    @Override public void afterWork() {
-        //NO_OP
-    }
-
-    @Override public String getWorkerName() {
-        return getClass().getSimpleName();
     }
 }

@@ -1,10 +1,7 @@
 package org.yardstickframework.runners;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import org.yardstickframework.BenchmarkUtils;
 import org.yardstickframework.runners.docker.DockerWorkContext;
 import org.yardstickframework.runners.docker.DockerBuildImagesWorker;
 
@@ -116,7 +113,7 @@ public class FullRunner extends AbstractRunner {
 
 
     private void checkLogs(List<WorkResult> list){
-        NodeServiceWorker checkWorker = new CheckLogWorker(runCtx, new CommonWorkContext(list));
+        NodeWorker checkWorker = new CheckLogWorker(runCtx, new CommonWorkContext(list));
 
         List<WorkResult> resList = checkWorker.workForNodes();
 
@@ -149,7 +146,7 @@ public class FullRunner extends AbstractRunner {
     }
 
     private List<WorkResult> stopNodes(List<WorkResult> nodeList) {
-        NodeServiceWorker stopWorker = new StopNodeWorker(runCtx, new CommonWorkContext(nodeList));
+        NodeWorker stopWorker = new StopNodeWorker(runCtx, new CommonWorkContext(nodeList));
 
         stopWorker.workForNodes();
 
@@ -159,7 +156,7 @@ public class FullRunner extends AbstractRunner {
     private void waitForNodes(List<WorkResult> nodeInfoList, NodeStatus expStatus) {
         WorkContext waitCtx = new WaitNodeWorkContext(nodeInfoList, expStatus);
 
-        NodeServiceWorker waitWorker = new WaitNodeWorker(runCtx, waitCtx);
+        NodeWorker waitWorker = new WaitNodeWorker(runCtx, waitCtx);
 
         waitWorker.workForNodes();
     }

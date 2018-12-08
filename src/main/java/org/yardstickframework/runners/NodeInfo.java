@@ -1,5 +1,7 @@
 package org.yardstickframework.runners;
 
+import java.util.ArrayList;
+import java.util.List;
 import javax.annotation.Nullable;
 
 public class NodeInfo implements WorkResult {
@@ -23,6 +25,14 @@ public class NodeInfo implements WorkResult {
     private CommandExecutionResult cmdExRes;
 
     private RestartInfo restCtx;
+
+    private List<String> errMsgs = new ArrayList<>();
+
+    public List<String> getErrMsgs() {
+        return errMsgs;
+    }
+
+    public NodeStatus nodeStatus;
 
     public NodeInfo(NodeType nodeType, String host, @Nullable String port, String id) {
         this.nodeType = nodeType;
@@ -114,7 +124,21 @@ public class NodeInfo implements WorkResult {
         this.cmdExRes = cmdExRes;
     }
 
-    public String typeLow(){
+    public String typeLow() {
         return nodeType.toString().toLowerCase();
+    }
+
+    /**
+     * @return Node status.
+     */
+    public NodeStatus nodeStatus() {
+        return nodeStatus;
+    }
+
+    /**
+     * @param nodeStatus New node status.
+     */
+    public void nodeStatus(NodeStatus nodeStatus) {
+        this.nodeStatus = nodeStatus;
     }
 }

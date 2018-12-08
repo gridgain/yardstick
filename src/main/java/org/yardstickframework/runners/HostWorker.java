@@ -8,42 +8,34 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import org.yardstickframework.BenchmarkUtils;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 
-public abstract class NodeServiceWorker extends AbstractRunner{
+public abstract class HostWorker extends Worker{
     protected WorkContext workCtx;
 
+    private final List<String> hostList;
+
+    private final List<WorkResult> resList;
+
     /** */
-    public NodeServiceWorker(RunContext runCtx, WorkContext workCtx) {
+    protected HostWorker(RunContext runCtx, List<String> hostList) {
         super(runCtx);
-        this.workCtx = workCtx;
+        this.hostList = new ArrayList<>(hostList);
+
+        resList = new ArrayList<>(hostList.size());
     }
 
-    public abstract WorkResult doWork(NodeInfo nodeInfo);
+    public abstract WorkResult doWork(String host, int cnt);
 
     public abstract String getWorkerName();
-
-    public WorkContext getWorkCtx(){
-        return workCtx;
-    }
-
-    /**
-     * Executes before workOnHosts()
-     */
-    public void beforeWork(){
-        log().info(String.format("%s started.", getClass().getSimpleName()));
-    }
 
     /**
      * Executes start method defined in worker class asynchronously.
      *
      */
-    protected List<WorkResult> workForNodes() {
+    protected List<WorkResult> workOnHosts() {
         beforeWork();
-
-        final List<?> nodeInfoList = workCtx.getList();
-
-        List<WorkResult> res = new ArrayList<>(nodeInfoList.size());
 
         ExecutorService execServ = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
@@ -51,22 +43,35 @@ public abstract class NodeServiceWorker extends AbstractRunner{
 
         String lastHost = null;
 
-        for (Object nodeInfoObj : nodeInfoList) {
-            NodeInfo nodeInfo = (NodeInfo) nodeInfoObj;
+        for (int cntr = 0; cntr < hostList.size(); cntr++) {
+            final int cntrF = cntr;
+
+            final String host = hostList.get(cntrF);
+
+            if(host.equals(lastHost)){
+                try {
+                    Thread.sleep(1000L);
+                }
+                catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            lastHost = host;
 
             futList.add(execServ.submit(new Callable<WorkResult>() {
                 @Override public WorkResult call() throws Exception {
                     Thread.currentThread().setName(String.format("%s-%s",
-                        getWorkerName(), nodeInfo.getHost()));
+                        getWorkerName(), host));
 
-                    return doWork(nodeInfo);
+                    return doWork(host, cntrF);
                 }
             }));
         }
 
         for (Future<WorkResult> f : futList) {
             try {
-                res.add(f.get(DFLT_TIMEOUT, TimeUnit.MILLISECONDS));
+                resList.add(f.get(DFLT_TIMEOUT, TimeUnit.MILLISECONDS));
             }
             catch (Exception e) {
                 e.printStackTrace();
@@ -77,16 +82,6 @@ public abstract class NodeServiceWorker extends AbstractRunner{
 
         afterWork();
 
-        return res;
+        return resList;
     }
-
-    protected boolean isLocal(String host) {
-        return host.equalsIgnoreCase("localhost") || host.equals("127.0.0.1");
-    }
-
-    public void afterWork(){
-        log().info(String.format("%s finished.", getClass().getSimpleName()));
-    }
-
-
 }
