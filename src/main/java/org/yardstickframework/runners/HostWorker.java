@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -46,7 +47,7 @@ public abstract class HostWorker extends Worker{
 
             if(host.equals(lastHost)){
                 try {
-                    Thread.sleep(1000L);
+                    new CountDownLatch(1).await(1000L, TimeUnit.MILLISECONDS);
                 }
                 catch (InterruptedException e) {
                     e.printStackTrace();

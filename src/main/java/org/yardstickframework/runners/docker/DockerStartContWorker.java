@@ -29,7 +29,7 @@ public class DockerStartContWorker extends DockerNodeWorker {
         dockerCtx = runCtx.getDockerContext();
     }
 
-    @Override public NodeInfo doWork(NodeInfo nodeInfo) {
+    @Override public NodeInfo doWork(NodeInfo nodeInfo) throws InterruptedException {
         String host = nodeInfo.getHost();
 
         String id  = nodeInfo.getId();

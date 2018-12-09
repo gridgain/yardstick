@@ -59,11 +59,11 @@ public class StartNodeWorker extends NodeWorker {
         //NO_OP
     }
 
-    @Override public NodeInfo doWork(NodeInfo nodeInfo) {
+    @Override public NodeInfo doWork(NodeInfo nodeInfo) throws InterruptedException {
         return startNode(nodeInfo);
     }
 
-    protected NodeInfo startNode(NodeInfo nodeInfo) {
+    protected NodeInfo startNode(NodeInfo nodeInfo) throws InterruptedException {
         final String nodeStartTime = BenchmarkUtils.dateTime();
 
         nodeInfo.nodeStartTime(nodeStartTime);
@@ -79,10 +79,10 @@ public class StartNodeWorker extends NodeWorker {
         if(nodeInfo.runMode() != RunMode.PLAIN)
             mode = String.format(" (Run mode - %s)", nodeInfo.runMode());
 
-        log().info(String.format("Starting %s node on the host %s with id %s.%s",
+        log().info(String.format("Starting node '%s%s' on the host %s.%s",
             nodeInfo.typeLow(),
-            host,
             id,
+            host,
             mode));
 
         String logDirFullName = getLogDirFullName(type);
@@ -93,9 +93,6 @@ public class StartNodeWorker extends NodeWorker {
             hndl.runMkdirCmd(host, logDirFullName);
         }
         catch (IOException e) {
-            e.printStackTrace();
-        }
-        catch (InterruptedException e) {
             e.printStackTrace();
         }
 

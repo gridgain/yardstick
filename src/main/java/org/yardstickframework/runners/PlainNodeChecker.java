@@ -5,25 +5,22 @@ import java.util.List;
 import java.util.Properties;
 
 public class PlainNodeChecker extends AbstractRunner implements NodeChecker {
+    private CommandHandler hndl;
+
     public PlainNodeChecker(RunContext runCtx) {
         super(runCtx);
+
+        hndl = new CommandHandler(runCtx);
     }
 
-    @Override public WorkResult checkNode(NodeInfo nodeInfo) {
-        CommandHandler hndl = new CommandHandler(runCtx);
-
-        NodeCheckResult res = null;
-
+    @Override public NodeInfo checkNode(NodeInfo nodeInfo) throws InterruptedException{
         try {
-             res = hndl.checkPlainNode(nodeInfo);
+            return hndl.checkPlainNode(nodeInfo);
         }
         catch (IOException e) {
             e.printStackTrace();
         }
-        catch (InterruptedException e) {
-            e.printStackTrace();
-        }
 
-        return res;
+        return nodeInfo;
     }
 }

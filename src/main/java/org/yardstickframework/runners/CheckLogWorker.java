@@ -2,6 +2,8 @@ package org.yardstickframework.runners;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 public class CheckLogWorker extends NodeWorker {
     /**
@@ -13,7 +15,7 @@ public class CheckLogWorker extends NodeWorker {
         super(runCtx, nodeList);
     }
 
-    @Override public NodeInfo doWork(NodeInfo nodeInfo) {
+    @Override public NodeInfo doWork(NodeInfo nodeInfo) throws InterruptedException {
         //TODO refactor all method
         String host = nodeInfo.getHost();
 
@@ -29,7 +31,7 @@ public class CheckLogWorker extends NodeWorker {
             fileExists = hndl.checkRemFile(host, logPath);
 
             try {
-                Thread.sleep(1000L);
+                new CountDownLatch(1).await(1000L, TimeUnit.MILLISECONDS);
             }
             catch (InterruptedException e) {
                 e.printStackTrace();
@@ -39,14 +41,12 @@ public class CheckLogWorker extends NodeWorker {
 
         NodeChecker checker = runCtx.getNodeChecker(nodeInfo);
 
-        NodeCheckResult checkRes = (NodeCheckResult)checker.checkNode(nodeInfo);
+        checker.checkNode(nodeInfo);
 
-        if(checkRes.getNodeStatus() == NodeStatus.NOT_RUNNING) {
-            log().info(String.format("Node %s%s on the host %s in not running. Will check log file and exit.",
-                nodeInfo.typeLow(), nodeInfo.getId(), host));
+        if(nodeInfo.nodeStatus() == NodeStatus.NOT_RUNNING)
+            log().info(String.format("Node %s on the host %s in not running. Will check log file and exit.",
+                nodeInfo.toShortStr(), host));
 
-            nodeInfo.nodeStatus(checkRes.getNodeStatus());
-        }
 
         if(!fileExists){
             log().info(String.format("No log file %s on the host %s.", logPath, host));
@@ -72,9 +72,6 @@ public class CheckLogWorker extends NodeWorker {
             }
         }
         catch (IOException e) {
-            e.printStackTrace();
-        }
-        catch (InterruptedException e) {
             e.printStackTrace();
         }
 

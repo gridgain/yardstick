@@ -5,11 +5,15 @@ import java.util.List;
 import java.util.Properties;
 
 public class InDockerNodeChecker extends AbstractRunner implements NodeChecker {
+    private CommandHandler hndl;
+
     public InDockerNodeChecker(RunContext runCtx) {
         super(runCtx);
+
+        hndl = new CommandHandler(runCtx);
     }
 
-    @Override public WorkResult checkNode(NodeInfo nodeInfo) {
+    @Override public NodeInfo checkNode(NodeInfo nodeInfo) throws InterruptedException{
         String host = nodeInfo.getHost();
 
         String nodeToCheck = String.format("Dyardstick.%s%s ",
@@ -17,24 +21,20 @@ public class InDockerNodeChecker extends AbstractRunner implements NodeChecker {
 
         String checkCmd = String.format("exec %s pgrep -f \"%s\"", nodeInfo.dockerInfo().contName(), nodeToCheck);
 
-        CommandHandler hndl = new CommandHandler(runCtx);
-
         CommandExecutionResult res = null;
 
         try {
-//            System.out.println(checkCmd);
-
             res = hndl.runDockerCmd(host, checkCmd);
         }
         catch (IOException e) {
             e.printStackTrace();
         }
-        catch (InterruptedException e) {
-            e.printStackTrace();
-        }
 
-        return res.getOutStream().isEmpty() ?
-            new NodeCheckResult(NodeStatus.NOT_RUNNING) :
-            new NodeCheckResult(NodeStatus.RUNNING);
+        if(res.getOutStream().isEmpty())
+            nodeInfo.nodeStatus(NodeStatus.NOT_RUNNING);
+        else
+            nodeInfo.nodeStatus(NodeStatus.RUNNING);
+
+        return nodeInfo;
     }
 }

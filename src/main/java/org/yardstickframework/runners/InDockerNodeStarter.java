@@ -10,7 +10,7 @@ public class InDockerNodeStarter extends AbstractRunner implements NodeStarter  
         super(runCtx);
     }
 
-    @Override public NodeInfo startNode(NodeInfo nodeInfo) {
+    @Override public NodeInfo startNode(NodeInfo nodeInfo) throws InterruptedException {
         String contName = String.format("YARDSTICK_%s_%s", nodeInfo.getNodeType(), nodeInfo.getId());
 
         String nodeLogDir = new File(nodeInfo.getLogPath()).getParent();
@@ -41,28 +41,10 @@ public class InDockerNodeStarter extends AbstractRunner implements NodeStarter  
         catch (IOException e) {
             e.printStackTrace();
         }
-        catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+
 
         nodeInfo.dockerInfo(new DockerInfo(null, null, contName, null));
 
         return nodeInfo;
-    }
-
-    private String getContId(List<String> resList, String docContName){
-        for (String str : resList){
-//            System.out.println("String is " + str);
-
-            if(str.contains(docContName)) {
-//                System.out.println("Returning " + str.substring(0, str.indexOf(' ')));
-
-                return str.substring(0, str.indexOf(' '));
-
-
-            }
-        }
-
-        return "Unknown";
     }
 }

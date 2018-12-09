@@ -116,6 +116,10 @@ public class NodeInfo implements WorkResult {
         return nodeType.toString().toLowerCase();
     }
 
+    public String toShortStr(){
+        return String.format("%s%s", typeLow(), id);
+    }
+
     /**
      * @return Node status.
      */

@@ -8,6 +8,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import org.yardstickframework.BenchmarkUtils;
 
 public abstract class NodeWorker extends Worker {
     private List<NodeInfo> nodeList;
@@ -21,7 +22,7 @@ public abstract class NodeWorker extends Worker {
         resNodeList = new ArrayList<>(nodeList.size());
     }
 
-    public abstract NodeInfo doWork(NodeInfo nodeInfo);
+    public abstract NodeInfo doWork(NodeInfo nodeInfo) throws InterruptedException;
 
     protected int getNodeListSize() {
         return nodeList.size();
@@ -34,18 +35,23 @@ public abstract class NodeWorker extends Worker {
         beforeWork();
 
         ExecutorService execServ = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+//        ExecutorService execServ = Executors.newSingleThreadExecutor();
 
         Collection<Future<NodeInfo>> futList = new ArrayList<>();
 
         for (final NodeInfo nodeInfo : nodeList) {
             futList.add(execServ.submit(new Callable<NodeInfo>() {
                 @Override public NodeInfo call() throws Exception {
-                    Thread.currentThread().setName(String.format("%s-%s",
-                        getWorkerName(), nodeInfo.getHost()));
+                    String threadName = String.format("%s-%s",
+                        getWorkerName(),
+                        nodeInfo.getHost());
 
-                    NodeInfo n = doWork(nodeInfo);
+                    if (getWorkerName().startsWith("Restart"))
+                        threadName = threadName + "-" + BenchmarkUtils.hms();
 
-                    return n;
+                    Thread.currentThread().setName(threadName);
+
+                    return doWork(nodeInfo);
                 }
             }));
         }
@@ -53,6 +59,13 @@ public abstract class NodeWorker extends Worker {
         for (Future<NodeInfo> f : futList) {
             try {
                 resNodeList.add(f.get(DFLT_TIMEOUT, TimeUnit.MILLISECONDS));
+            }
+            catch (InterruptedException e) {
+                f.cancel(true);
+
+                log().info(String.format("%s stopped.", getWorkerName()));
+
+                log().debug(e.getMessage(), e);
             }
             catch (Exception e) {
                 e.printStackTrace();

@@ -16,7 +16,7 @@ public class DockerCollectWorker extends DockerNodeWorker{
         super(runCtx, nodeList);
     }
 
-    @Override public NodeInfo doWork(NodeInfo nodeInfo) {
+    @Override public NodeInfo doWork(NodeInfo nodeInfo) throws InterruptedException {
         NodeType type = nodeInfo.getNodeType();
 
         String host = nodeInfo.getHost();
@@ -38,7 +38,7 @@ public class DockerCollectWorker extends DockerNodeWorker{
         log().info(String.format("Collecting data from the container %s on the host %s.", contName, host));
 
         try {
-//            hndl.runDockerCmd(host, mkdirCmd);
+            hndl.runCmd(host, mkdirCmd);
 
             hndl.runDockerCmd(host, cpCmd);
         }

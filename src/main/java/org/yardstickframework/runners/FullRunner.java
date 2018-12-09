@@ -1,7 +1,17 @@
 package org.yardstickframework.runners;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import org.yardstickframework.BenchmarkUtils;
 
 public class FullRunner extends AbstractRunner {
 
@@ -18,7 +28,9 @@ public class FullRunner extends AbstractRunner {
     }
 
     public int run1() {
-        checkPlain(new CheckConnWorker(runCtx, runCtx.getFullUniqList()));
+        List<String> fullList = runCtx.getFullUniqList();
+
+        checkPlain(new CheckConnWorker(runCtx, fullList));
 
         List<NodeType> plainList = runCtx.getNodeTypes(RunMode.PLAIN);
 
@@ -29,21 +41,17 @@ public class FullRunner extends AbstractRunner {
 
         DockerRunner dockerRunner = new DockerRunner(runCtx);
 
-        if (!dockerList.isEmpty())
+        if (!dockerList.isEmpty()) {
             dockerRunner.check(dockerList);
 
+            dockerRunner.cleanUp(dockerList, "before");
+        }
 
-        HostWorker killWorker = new KillWorker(runCtx, runCtx.getFullUniqList());
+        new KillWorker(runCtx, fullList).workOnHosts();
 
-        killWorker.workOnHosts();
-
-        HostWorker deployWorker = new DeployWorker(runCtx, runCtx.getFullUniqList());
-
-//        deployWorker.workOnHosts();
+//        new DeployWorker(runCtx, fullList).workOnHosts();
 
         if (!dockerList.isEmpty()) {
-            dockerRunner.cleanUp(dockerList, "before");
-
             dockerRunner.prepare(dockerList);
 
             dockerRunner.start(dockerList);
@@ -75,9 +83,25 @@ public class FullRunner extends AbstractRunner {
 
             waitForNodes(drvrRes, NodeStatus.RUNNING);
 
-            performRestart(servRes, cfgStr);
+            ExecutorService restServ = Executors.newSingleThreadExecutor();
+
+            final List<NodeInfo> forRestart = new ArrayList<>(servRes);
+
+            Future<List<NodeInfo>> restFut = restServ.submit(new Callable<List<NodeInfo>>() {
+                @Override public List<NodeInfo> call() throws Exception {
+                    String threadName = String.format("Restart-handler-%s", BenchmarkUtils.hms());
+
+                    Thread.currentThread().setName(threadName);
+
+                    return restart(forRestart, cfgStr);
+                }
+            });
 
             waitForNodes(drvrRes, NodeStatus.NOT_RUNNING);
+
+            restFut.cancel(true);
+
+            restServ.shutdown();
 
             if (Boolean.valueOf(runCtx.getProps().getProperty("RESTART_SERVERS"))) {
                 stopNodes(servRes);
@@ -99,11 +123,10 @@ public class FullRunner extends AbstractRunner {
         return 0;
     }
 
-    private void performRestart(List<NodeInfo> nodeList, String cfgStr){
+    private List<NodeInfo> restart(List<NodeInfo> nodeList, String cfgStr){
         RestartNodeWorker restWorker = new RestartNodeWorker(runCtx, nodeList, cfgStr);
 
-        restWorker.workForNodes();
-
+        return restWorker.workForNodes();
     }
 
 
@@ -189,12 +212,12 @@ public class FullRunner extends AbstractRunner {
 
         File outDir = new File(mainResDir).getParentFile();
 
-        try {
-            Thread.sleep(3000L);
-        }
-        catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            new CountDownLatch(1).await(3000L, TimeUnit.MILLISECONDS);
+//        }
+//        catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
 
         if (outDir.exists() && outDir.isDirectory()) {
             File[] arr = outDir.listFiles();

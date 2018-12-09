@@ -1,5 +1,5 @@
 package org.yardstickframework.runners;
 
 public interface NodeChecker {
-    public WorkResult checkNode(NodeInfo nodeInfo);
+    public NodeInfo checkNode(NodeInfo nodeInfo) throws InterruptedException;
 }

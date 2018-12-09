@@ -33,15 +33,13 @@ public class KillWorker extends HostWorker{
         return null;
     }
 
-    public WorkResult killNode(NodeInfo nodeInfo){
+    public NodeInfo killNode(NodeInfo nodeInfo){
         CommandHandler hndl = new CommandHandler(runCtx);
 
         NodeInfo res = nodeInfo;
 
         try {
-            res = (NodeInfo) hndl.killNode(nodeInfo);
-
-
+            res = hndl.killNode(nodeInfo);
         }
         catch (InterruptedException | IOException e) {
             e.printStackTrace();

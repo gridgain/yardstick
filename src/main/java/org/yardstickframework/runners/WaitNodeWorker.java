@@ -3,28 +3,18 @@ package org.yardstickframework.runners;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 public class WaitNodeWorker extends NodeWorker {
     private NodeStatus expStatus;
 
-    public WaitNodeWorker(RunContext runCtx, List<NodeInfo> nodeList,
-        NodeStatus expStatus) {
+    public WaitNodeWorker(RunContext runCtx, List<NodeInfo> nodeList, NodeStatus expStatus) {
         super(runCtx, nodeList);
         this.expStatus = expStatus;
     }
 
-    private static Map<NodeStatus, String> statusMap;
-
-    @Override public void beforeWork() {
-        if(statusMap == null) {
-            statusMap = new HashMap<>();
-
-            statusMap.put(NodeStatus.RUNNING, "started");
-            statusMap.put(NodeStatus.NOT_RUNNING, "stopped");
-        }
-    }
-
-    @Override public NodeInfo doWork(NodeInfo nodeInfo) {
+    @Override public NodeInfo doWork(NodeInfo nodeInfo) throws InterruptedException {
         boolean unexpected = true;
 
         NodeChecker checker = runCtx.getNodeChecker(nodeInfo);
@@ -32,29 +22,24 @@ public class WaitNodeWorker extends NodeWorker {
         while (unexpected) {
             unexpected = false;
 
-            NodeCheckResult res = (NodeCheckResult)checker.checkNode(nodeInfo);
+            checker.checkNode(nodeInfo);
 
-            if (res.getNodeStatus() != expStatus) {
+            if (nodeInfo.nodeStatus() != expStatus) {
                 unexpected = true;
 
-                try {
-                    Thread.sleep(1000L);
-                }
-                catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+                new CountDownLatch(1).await(1000L, TimeUnit.MILLISECONDS);
             }
         }
 
         nodeInfo.nodeStatus(expStatus);
 
-        log().info(String.format("Node %s%s on the host %s is %s.",
-            nodeInfo.typeLow(),
-            nodeInfo.getId(),
+        String status = expStatus.toString().toLowerCase().replace("_", " ");
+
+        log().info(String.format("Node '%s' on the host %s is %s.",
+            nodeInfo.toShortStr(),
             nodeInfo.getHost(),
-            statusMap.get(expStatus)));
+            status));
 
         return nodeInfo;
-
     }
 }

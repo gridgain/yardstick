@@ -62,7 +62,7 @@ public class CommandHandler {
         BufferedReader errReader = new BufferedReader(new InputStreamReader(p.getErrorStream()));
 
         while ((lineE = errReader.readLine()) != null) {
-            System.out.println(String.format("Command '%s' returned error line: %s:", cmd, lineE));
+            log().debug(String.format("Command '%s' returned error line: %s:", cmd, lineE));
 
             errList.add(lineE);
         }
@@ -88,7 +88,8 @@ public class CommandHandler {
     }
 
     protected CommandExecutionResult runRmtCmd(final String cmd) throws IOException, InterruptedException {
-//        System.out.println(String.format("Running cmd %s", cmd));
+        if(!cmd.contains("-ax|grep") && !cmd.contains("pgrep"))
+            log().debug(String.format("Running cmd '%s'", cmd));
 
         ExecutorService errStreamPrinter = Executors.newSingleThreadExecutor();
 
@@ -105,7 +106,7 @@ public class CommandHandler {
         BufferedReader errReader = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
 
         while ((lineE = errReader.readLine()) != null) {
-            System.out.println(String.format("Command '%s' returned error line: %s:", cmd, lineE));
+            log().debug(String.format("Command '%s' returned error line: %s:", cmd, lineE));
 
             errStr.add(lineE);
         }
@@ -196,16 +197,18 @@ public class CommandHandler {
         return new CommandExecutionResult(0, null, null, proc);
     }
 
-    public NodeCheckResult checkPlainNode(NodeInfo nodeInfo) throws IOException, InterruptedException {
+    public NodeInfo checkPlainNode(NodeInfo nodeInfo) throws IOException, InterruptedException {
         String host = nodeInfo.getHost();
 
         if (isLocal(host)) {
             Process proc = nodeInfo.getCmdExRes().getProc();
 
             if (proc != null && proc.isAlive())
-                return new NodeCheckResult(NodeStatus.RUNNING);
+                nodeInfo.nodeStatus(NodeStatus.RUNNING);
             else
-                return new NodeCheckResult(NodeStatus.NOT_RUNNING);
+                nodeInfo.nodeStatus(NodeStatus.NOT_RUNNING);
+
+            return nodeInfo;
         }
 
         String checkCmd = String.format("%s ps -ax|grep 'java'", getFullSSHPref(host));
@@ -222,12 +225,15 @@ public class CommandHandler {
             if (str.contains(toLook))
                 found = true;
 
-        return found ?
-            new NodeCheckResult(NodeStatus.RUNNING) :
-            new NodeCheckResult(NodeStatus.NOT_RUNNING);
+        if(found)
+            nodeInfo.nodeStatus(NodeStatus.RUNNING);
+        else
+            nodeInfo.nodeStatus(NodeStatus.NOT_RUNNING);
+
+        return nodeInfo;
     }
 
-    public WorkResult killNode(NodeInfo nodeInfo) throws IOException, InterruptedException {
+    public NodeInfo killNode(NodeInfo nodeInfo) throws IOException, InterruptedException {
 //        log().info(String.format("Killing node -Dyardstick.%s%s",
 //            nodeInfo.getNodeType().toString().toLowerCase(), nodeInfo.getId()));
 

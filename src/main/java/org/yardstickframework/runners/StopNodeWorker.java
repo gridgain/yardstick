@@ -1,5 +1,6 @@
 package org.yardstickframework.runners;
 
+import java.io.IOException;
 import java.util.List;
 
 public class StopNodeWorker extends NodeWorker {
@@ -8,22 +9,35 @@ public class StopNodeWorker extends NodeWorker {
         super(runCtx, nodeList);
     }
 
-    @Override public NodeInfo doWork(NodeInfo nodeInfo) {
+    @Override public NodeInfo doWork(NodeInfo nodeInfo) throws InterruptedException {
         log().info(String.format("Stopping node %s%s on the host %s.",
             nodeInfo.typeLow(),
             nodeInfo.getId(),
             nodeInfo.getHost()));
 
-        new KillWorker(runCtx, null).killNode(nodeInfo);
+        try {
+            return stopNode(nodeInfo);
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
 
-        return null;
+        return nodeInfo;
+    }
+
+    public NodeInfo stopNode(NodeInfo nodeInfo) throws IOException, InterruptedException {
+        CommandHandler hndl = new CommandHandler(runCtx);
+
+        nodeInfo = hndl.killNode(nodeInfo);
+
+        return nodeInfo;
     }
 
     @Override public void afterWork() {
-        if(!resNodeList().isEmpty()){
-            NodeInfo nodeInfo = resNodeList().get(0);
+        if (!nodeList().isEmpty()) {
+            NodeInfo nodeInfo = nodeList().get(0);
 
-            if(nodeInfo.runMode() == RunMode.DOCKER)
+            if (nodeInfo.runMode() == RunMode.DOCKER)
                 log().info("Keeping docker containers running.");
         }
     }
