@@ -222,6 +222,8 @@ public class RunContext {
 
         setRestartCtx(NodeType.SERVER);
 
+        handleAdditionalArgs();
+
 //        if(servRunMode == RunMode.DOCKER || drvrRunMode == RunMode.DOCKER)
 //            setDockerCtx();
     }
@@ -296,6 +298,17 @@ public class RunContext {
         catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void handleAdditionalArgs(){
+        if(cfg.serverHosts() != null)
+            servHosts = hostsToList(cfg.serverHosts());
+
+        if(cfg.driverHosts() != null)
+            drvrHosts = hostsToList(cfg.driverHosts());
+
+        if(cfg.remoteWorkDirectory() != null)
+            remWorkDir = cfg.remoteWorkDirectory();
     }
 
     private void setRestartCtx(NodeType type) {
@@ -555,9 +568,18 @@ public class RunContext {
      * @return Value
      */
     private List<String> getHosts(String prop) {
+        List<String> res = hostsToList(propsOrig.getProperty(prop));
+
+        if (res.isEmpty())
+            log().info(String.format("WARNING! %s is not defined in property file.", prop));
+
+        return res;
+    }
+
+    private List<String> hostsToList(String hosts){
         List<String> res = new ArrayList<>();
 
-        String commaSepList = propsOrig.getProperty(prop);
+        String commaSepList = hosts;
 
         if (commaSepList == null)
             return res;
@@ -569,9 +591,6 @@ public class RunContext {
 
             res.add(ip);
         }
-
-        if (res.isEmpty())
-            log().info(String.format("WARNING! %s is not defined in property file.", prop));
 
         return res;
     }
