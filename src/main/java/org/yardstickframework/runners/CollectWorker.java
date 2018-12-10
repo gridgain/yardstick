@@ -6,25 +6,26 @@ import java.util.List;
 import org.yardstickframework.BenchmarkUtils;
 
 public class CollectWorker extends HostWorker{
+    private File outDir;
 
     public CollectWorker(RunContext runCtx, List<String> hostList) {
         super(runCtx, hostList);
+
+        outDir = new File(String.format("%s/output", runCtx.getLocWorkDir()));
+    }
+
+    @Override public void beforeWork() {
+        if (!outDir.exists())
+            outDir.mkdirs();
     }
 
     @Override public WorkResult doWork(String host, int cnt) {
         if (isLocal(host) && runCtx.getLocWorkDir().equals(runCtx.getRemWorkDir()))
             return null;
 
-        File outDir = new File(String.format("%s/output", runCtx.getLocWorkDir()));
-
-        synchronized (this) {
-            if (!outDir.exists())
-                outDir.mkdirs();
-        }
-
         String nodeOutDir = String.format("%s/output", runCtx.getRemWorkDir());
 
-        log().info(String.format("Collecting data from the host %s.", host));
+        log().info(String.format("Collecting data from the host '%s'.", host));
 
         CommandHandler hndl = new CommandHandler(runCtx);
 
@@ -42,6 +43,5 @@ public class CollectWorker extends HostWorker{
             e.printStackTrace();
         }
         return null;
-
     }
 }

@@ -24,6 +24,8 @@ public class DockerContext {
 
     private List<String> imagesToRemove;
 
+    private String dockerBuildCmd;
+
     private String dockerRunCmdArgs;
 
     private String startContCmd;
@@ -55,6 +57,14 @@ public class DockerContext {
 
     public void setDriverDockerfilePath(String driverDockerfilePath) {
         this.driverDockerfilePath = driverDockerfilePath;
+    }
+
+    public String getDockerBuildCmd() {
+        return dockerBuildCmd;
+    }
+
+    public void setDockerBuildCmd(String dockerBuildCmd) {
+        this.dockerBuildCmd = dockerBuildCmd;
     }
 
     public String getServerImageName() {

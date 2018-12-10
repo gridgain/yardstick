@@ -23,7 +23,7 @@ public class CleanRemDirWorker extends HostWorker{
 
         String remDir =  runCtx.getRemWorkDir();
 
-        log().info(String.format("Cleaning up directory %s on the host %s", remDir, host));
+        log().info(String.format("Cleaning up directory '%s' on the host '%s'", remDir, host));
 
         CommandHandler hndl = new CommandHandler(runCtx);
 

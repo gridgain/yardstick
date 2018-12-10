@@ -24,7 +24,7 @@ public class NodeInfo implements WorkResult {
 
     private CommandExecutionResult cmdExRes;
 
-    private RestartInfo restCtx;
+    private RestartSchedule restCtx;
 
     private List<String> errMsgs = new ArrayList<>();
 

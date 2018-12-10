@@ -38,28 +38,14 @@ public abstract class HostWorker extends Worker{
 
         Collection<Future<WorkResult>> futList = new ArrayList<>();
 
-        String lastHost = null;
-
         for (int cntr = 0; cntr < hostList.size(); cntr++) {
             final int cntrF = cntr;
 
             final String host = hostList.get(cntrF);
 
-            if(host.equals(lastHost)){
-                try {
-                    new CountDownLatch(1).await(1000L, TimeUnit.MILLISECONDS);
-                }
-                catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            lastHost = host;
-
             futList.add(execServ.submit(new Callable<WorkResult>() {
                 @Override public WorkResult call() throws Exception {
-                    Thread.currentThread().setName(String.format("%s-%s",
-                        getWorkerName(), host));
+                    Thread.currentThread().setName(String.format("%s-%s", getWorkerName(), host));
 
                     return doWork(host, cntrF);
                 }

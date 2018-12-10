@@ -37,7 +37,7 @@ public class DeployWorker extends HostWorker{
                 hndl.runCmd(host, cleanCmd);
             }
 
-            log().info(String.format("Deploying on the host %s", host));
+            log().info(String.format("Deploying on the host '%s'.", host));
 
             for(String name : toDeploy) {
                 String fullPath = Paths.get(runCtx.getRemWorkDir(), name).toAbsolutePath().toString();
@@ -65,8 +65,6 @@ public class DeployWorker extends HostWorker{
         catch (InterruptedException e) {
             e.printStackTrace();
         }
-
-
 
         return null;
     }

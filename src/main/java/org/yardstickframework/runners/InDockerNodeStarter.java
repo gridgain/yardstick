@@ -34,14 +34,11 @@ public class InDockerNodeStarter extends AbstractRunner implements NodeStarter  
 
             hndl.runDockerCmd(nodeInfo.getHost(), mkdirCmd);
 
-//            log().info("Running start node cmd: " + cmd);
-
             hndl.runDockerCmd(nodeInfo.getHost(), cmd);
         }
         catch (IOException e) {
             e.printStackTrace();
         }
-
 
         nodeInfo.dockerInfo(new DockerInfo(null, null, contName, null));
 

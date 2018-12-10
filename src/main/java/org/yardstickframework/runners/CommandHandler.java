@@ -20,6 +20,8 @@ public class CommandHandler {
 
     private RunContext runCtx;
 
+    private String lastCmd = "";
+
     public CommandHandler(RunContext runCtx) {
         this.runCtx = runCtx;
     }
@@ -37,10 +39,13 @@ public class CommandHandler {
     }
 
     private CommandExecutionResult runLocCmd(String cmd) throws IOException, InterruptedException {
-//        System.out.println(String.format("Running local cmd %s", cmd));
-
         while (cmd.contains("  "))
             cmd = cmd.replace("  ", " ");
+
+        if(!cmd.equals(lastCmd))
+            log().debug(String.format("Running local cmd '%s'", cmd));
+
+        lastCmd = cmd;
 
         String[] cmdArr = cmd.split(" ");
 
@@ -62,7 +67,7 @@ public class CommandHandler {
         BufferedReader errReader = new BufferedReader(new InputStreamReader(p.getErrorStream()));
 
         while ((lineE = errReader.readLine()) != null) {
-            log().debug(String.format("Command '%s' returned error line: %s:", cmd, lineE));
+            log().error(String.format("Command '%s' returned error line: %s:", cmd, lineE));
 
             errList.add(lineE);
         }
@@ -88,8 +93,10 @@ public class CommandHandler {
     }
 
     protected CommandExecutionResult runRmtCmd(final String cmd) throws IOException, InterruptedException {
-        if(!cmd.contains("-ax|grep") && !cmd.contains("pgrep"))
-            log().debug(String.format("Running cmd '%s'", cmd));
+        if(!cmd.equals(lastCmd))
+            log().debug(String.format("Running remote cmd '%s'", cmd));
+
+        lastCmd = cmd;
 
         ExecutorService errStreamPrinter = Executors.newSingleThreadExecutor();
 
@@ -106,7 +113,7 @@ public class CommandHandler {
         BufferedReader errReader = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
 
         while ((lineE = errReader.readLine()) != null) {
-            log().debug(String.format("Command '%s' returned error line: %s:", cmd, lineE));
+            log().error(String.format("Command '%s' returned error line: %s:", cmd, lineE));
 
             errStr.add(lineE);
         }

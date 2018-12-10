@@ -44,7 +44,7 @@ public class DockerStartContWorker extends DockerNodeWorker {
 
         nodeInfo.dockerInfo(docInfo);
 
-        log().info(String.format("Starting the container %s on the host %s", contName, host));
+        log().info(String.format("Starting the container '%s' on the host '%s'", contName, host));
 
         String startContCmd = getStartContCmd();
 
@@ -92,7 +92,7 @@ public class DockerStartContWorker extends DockerNodeWorker {
             e.printStackTrace();
         }
 
-        return null;
+        return nodeInfo;
     }
 
     private String getStartContCmd() {
@@ -124,7 +124,7 @@ public class DockerStartContWorker extends DockerNodeWorker {
             switch (type){
                 case SERVER:
                     if(dockerCtx.getServerDockerJavaHome() == null) {
-                        log().info(String.format("Using docker JAVA_HOME for server nodes: %s",
+                        log().info(String.format("Using docker JAVA_HOME for server nodes: '%s'",
                             javaHome));
 
                         dockerCtx.setServerDockerJavaHome(javaHome);
@@ -132,7 +132,7 @@ public class DockerStartContWorker extends DockerNodeWorker {
                     break;
                 case DRIVER:
                     if(dockerCtx.getDriverDockerJavaHome() == null) {
-                        log().info(String.format("Using docker JAVA_HOME for driver nodes: %s",
+                        log().info(String.format("Using docker JAVA_HOME for driver nodes: '%s'",
                             javaHome));
 
                         dockerCtx.setDriverDockerJavaHome(javaHome);
@@ -143,7 +143,7 @@ public class DockerStartContWorker extends DockerNodeWorker {
             }
         }
         else{
-            log().info(String.format("Failed to get JAVA_HOME variable from docker container %s", contName));
+            log().info(String.format("Failed to get JAVA_HOME variable from docker container '%s'", contName));
 
             log().info("Will clean up docker and exit.");
 

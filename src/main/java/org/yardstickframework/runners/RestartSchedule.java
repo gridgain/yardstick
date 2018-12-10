@@ -1,11 +1,11 @@
 package org.yardstickframework.runners;
 
-public class RestartInfo {
+public class RestartSchedule {
     private long delay;
     private long pause;
     private long period;
 
-    public RestartInfo(long delay, long pause, long period) {
+    public RestartSchedule(long delay, long pause, long period) {
         this.delay = delay;
         this.pause = pause;
         this.period = period;
@@ -51,5 +51,21 @@ public class RestartInfo {
      */
     public void period(long period) {
         this.period = period;
+    }
+
+    private String millisToSec(Long millis){
+//        Double src = millis.doubleValue();
+//
+//        Double d = src / 1000;
+
+        return String.format("%(.1f", millis.doubleValue() / 1000);
+    }
+
+    @Override public String toString() {
+        return "RestartSchedule{" +
+            "delay=" + millisToSec(delay) +
+            ", pause=" + millisToSec(pause) +
+            ", period=" + millisToSec(period) +
+            '}';
     }
 }

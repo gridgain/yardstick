@@ -14,10 +14,10 @@ public class CheckConnWorker extends HostWorker{
 
         CommandHandler hndl = new CommandHandler(runCtx);
 
-        log().info(String.format("Checking ssh connection to the host %s", host));
+        log().info(String.format("Checking ssh connection to the host '%s'.", host));
 
         if(!hndl.checkConn(host)){
-            log().info(String.format("Failed to establish connection to the host %s.", host));
+            log().info(String.format("Failed to establish connection to the host '%s'.", host));
 
             res.exit(true);
         }

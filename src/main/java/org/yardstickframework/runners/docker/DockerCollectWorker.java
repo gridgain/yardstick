@@ -35,7 +35,7 @@ public class DockerCollectWorker extends DockerNodeWorker{
 
 //        System.out.println(cpCmd);
 
-        log().info(String.format("Collecting data from the container %s on the host %s.", contName, host));
+        log().info(String.format("Collecting data from the container '%s' on the host '%s'.", contName, host));
 
         try {
             hndl.runCmd(host, mkdirCmd);

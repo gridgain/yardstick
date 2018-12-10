@@ -55,7 +55,7 @@ public abstract class DockerHostWorker extends HostWorker {
                 String names = contMap.get("NAMES");
 
                 if (names.contains(contName)) {
-                    log().info(String.format("Removing the container '%s' (id = %s) from the host %s.",
+                    log().info(String.format("Removing the container '%s' (id = %s) from the host '%s'.",
                         names, contMap.get("CONTAINER ID"), host));
 
                     removeSingleCont(host, contMap.get("CONTAINER ID"));
@@ -86,7 +86,7 @@ public abstract class DockerHostWorker extends HostWorker {
             if(proc.get("CONTAINER ID").equals(contId))
                 res = "not removed";
 
-        log().info(String.format("The container %s is %s.", contId, res));
+        log().info(String.format("The container '%s' is %s.", contId, res));
 
         return cmdRes;
     }
@@ -94,7 +94,7 @@ public abstract class DockerHostWorker extends HostWorker {
     private CommandExecutionResult removeImage(String host, String imageId, String imageName) {
         CommandHandler hndl = new CommandHandler(runCtx);
 
-        log().info(String.format("Removing the image '%s' (id=%s) from the host %s",
+        log().info(String.format("Removing the image '%s' (id=%s) from the host '%s'",
             imageName, imageId, host));
 
         CommandExecutionResult cmdRes = null;

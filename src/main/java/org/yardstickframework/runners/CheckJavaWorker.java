@@ -1,6 +1,9 @@
 package org.yardstickframework.runners;
 
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.yardstickframework.BenchmarkUtils;
@@ -8,6 +11,9 @@ import org.yardstickframework.BenchmarkUtils;
 public class CheckJavaWorker extends HostWorker {
     /** */
     private String locJavaHome;
+
+    /** */
+    private static final Collection<String> checked = new HashSet<>();
 
     public CheckJavaWorker(RunContext runCtx, List<String> hostList) {
         super(runCtx, hostList);
@@ -21,6 +27,11 @@ public class CheckJavaWorker extends HostWorker {
 
     @Override public WorkResult doWork(String host, int cnt) {
         CheckWorkResult res = new CheckWorkResult();
+
+        if(checked.contains(host))
+            return res;
+
+        checked.add(host);
 
         CommandHandler hndl = new CommandHandler(runCtx);
 

@@ -35,7 +35,7 @@ public class WaitNodeWorker extends NodeWorker {
 
         String status = expStatus.toString().toLowerCase().replace("_", " ");
 
-        log().info(String.format("Node '%s' on the host %s is %s.",
+        log().info(String.format("Node '%s' on the host '%s' is %s.",
             nodeInfo.toShortStr(),
             nodeInfo.getHost(),
             status));

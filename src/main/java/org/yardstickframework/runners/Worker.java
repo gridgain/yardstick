@@ -2,6 +2,7 @@ package org.yardstickframework.runners;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import org.yardstickframework.BenchmarkUtils;
 
 public abstract class Worker{
     protected static final long DFLT_TIMEOUT = 300_000L;
@@ -27,6 +28,17 @@ public abstract class Worker{
 
     protected String getWorkerName(){
         return getClass().getSimpleName();
+    }
+
+    protected String threadName(NodeInfo nodeInfo){
+        StringBuilder sb = new StringBuilder(String.format("%s-%s",
+            getWorkerName(),
+            nodeInfo.getHost()));
+
+        if (getWorkerName().startsWith("Restart"))
+            sb.append("-").append(BenchmarkUtils.hms());
+
+        return sb.toString();
     }
 
     protected boolean isLocal(String host) {

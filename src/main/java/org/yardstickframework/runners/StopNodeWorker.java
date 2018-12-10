@@ -10,9 +10,8 @@ public class StopNodeWorker extends NodeWorker {
     }
 
     @Override public NodeInfo doWork(NodeInfo nodeInfo) throws InterruptedException {
-        log().info(String.format("Stopping node %s%s on the host %s.",
-            nodeInfo.typeLow(),
-            nodeInfo.getId(),
+        log().info(String.format("Stopping node '%s' on the host '%s'.",
+            nodeInfo.toShortStr(),
             nodeInfo.getHost()));
 
         try {

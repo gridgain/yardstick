@@ -20,33 +20,38 @@ public class RestartNodeWorker extends StartNodeWorker {
     }
 
     @Override public NodeInfo doWork(NodeInfo nodeInfo) throws InterruptedException {
-        while (!Thread.interrupted()) {
+        String host = nodeInfo.getHost();
+
+        String id = nodeInfo.getId();
+
+        NodeType type = nodeInfo.getNodeType();
+
+        if (runCtx.getRestartContext(type) == null) {
+            log().debug(String.format("No restart schedule for %s nodes.", nodeInfo.typeLow()));
+
+            return nodeInfo;
+        }
+
+        RestartContext restCtx = runCtx.getRestartContext(type);
+
+        if (restCtx.get(host) == null || restCtx.get(host).get(id) == null) {
+            log().debug(String.format("No restart schedule for '%s' node.", nodeInfo.toShortStr()));
+
+            return nodeInfo;
+        }
+
+        RestartSchedule restartInfo = runCtx.getRestartContext(type).get(host).get(id);
+
+        log().info(String.format("Restart schedule for the node '%s' on the host '%s': %s.",
+            nodeInfo.toShortStr(),
+            host,
+            restartInfo));
+
+        while (!Thread.currentThread().isInterrupted()) {
             try {
-                String host = nodeInfo.getHost();
-
-                String id = nodeInfo.getId();
-
-                NodeType type = nodeInfo.getNodeType();
-
-                if (runCtx.getRestartContext(type) == null) {
-                    log().debug(String.format("No restart schedule for %s nodes.", nodeInfo.typeLow()));
-
-                    return nodeInfo;
-                }
-
-                RestartContext restCtx = runCtx.getRestartContext(type);
-
-                if (restCtx.get(host) == null || restCtx.get(host).get(id) == null) {
-                    log().debug(String.format("No restart schedule for '%s' node.", nodeInfo.toShortStr()));
-
-                    return nodeInfo;
-                }
-
-                RestartInfo restartInfo = runCtx.getRestartContext(type).get(host).get(id);
-
                 new CountDownLatch(1).await(restartInfo.delay(), TimeUnit.MILLISECONDS);
 
-                log().info(String.format("Stopping node '%s' on the host %s", nodeInfo.toShortStr(), host));
+                log().info(String.format("Stopping node '%s' on the host '%s'.", nodeInfo.toShortStr(), host));
 
                 StopNodeWorker stopWorker = new StopNodeWorker(runCtx, Collections.singletonList(nodeInfo));
 

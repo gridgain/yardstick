@@ -13,6 +13,9 @@ driverImageName: yardstickdriver
 # Flag to rebuild images even if they already exist.
 rebuildImagesIfExist: false
 
+# Command to build docker images.
+dockerBuildCmd: "build --no-cache -t IMAGE_NAME_PLACEHOLDER -f DOCKERFILE_PATH_PLACEHOLDER ."
+
 # Flags to remove images.
 removeImagesFlags:
   before: true

@@ -32,10 +32,7 @@ public class FullRunner extends AbstractRunner {
 
         checkPlain(new CheckConnWorker(runCtx, fullList));
 
-        List<NodeType> plainList = runCtx.getNodeTypes(RunMode.PLAIN);
-
-        for (NodeType type : plainList)
-            checkPlain(new CheckJavaWorker(runCtx, runCtx.getUniqHostsByType(type)));
+        checkPlain(new CheckJavaWorker(runCtx, runCtx.getUniqHostsByMode(RunMode.PLAIN)));
 
         List<NodeType> dockerList = runCtx.getNodeTypes(RunMode.DOCKER);
 
@@ -49,7 +46,7 @@ public class FullRunner extends AbstractRunner {
 
         new KillWorker(runCtx, fullList).workOnHosts();
 
-//        new DeployWorker(runCtx, fullList).workOnHosts();
+        new DeployWorker(runCtx, fullList).workOnHosts();
 
         if (!dockerList.isEmpty()) {
             dockerRunner.prepare(dockerList);
@@ -63,14 +60,11 @@ public class FullRunner extends AbstractRunner {
 
         List<NodeInfo> drvrRes = null;
 
-        if (!Boolean.valueOf(runCtx.getProps().getProperty("RESTART_SERVERS"))) {
+        if (runCtx.startServersOnce())
             servRes = startNodes(NodeType.SERVER, cfgStr0);
 
-            log().info("RESTART_SERVERS=false");
-        }
-
         for (String cfgStr : runCtx.getCfgList()) {
-            if (Boolean.valueOf(runCtx.getProps().getProperty("RESTART_SERVERS")))
+            if (!runCtx.startServersOnce())
                 servRes = startNodes(NodeType.SERVER, cfgStr);
 
             checkLogs(servRes);
@@ -93,7 +87,7 @@ public class FullRunner extends AbstractRunner {
 
                     Thread.currentThread().setName(threadName);
 
-                    return restart(forRestart, cfgStr);
+                    return restart(forRestart, cfgStr, NodeType.SERVER);
                 }
             });
 
@@ -103,12 +97,19 @@ public class FullRunner extends AbstractRunner {
 
             restServ.shutdown();
 
-            if (Boolean.valueOf(runCtx.getProps().getProperty("RESTART_SERVERS"))) {
+            if (!runCtx.startServersOnce()) {
                 stopNodes(servRes);
 
                 waitForNodes(servRes, NodeStatus.NOT_RUNNING);
             }
         }
+
+        if(runCtx.startServersOnce()){
+            stopNodes(servRes);
+
+            waitForNodes(servRes, NodeStatus.NOT_RUNNING);
+        }
+
 
         if (!dockerList.isEmpty()) {
             dockerRunner.collect(dockerList);
@@ -123,8 +124,13 @@ public class FullRunner extends AbstractRunner {
         return 0;
     }
 
-    private List<NodeInfo> restart(List<NodeInfo> nodeList, String cfgStr){
+    private List<NodeInfo> restart(List<NodeInfo> nodeList, String cfgStr, NodeType type){
+        if(runCtx.getRestartContext(type) == null)
+            return nodeList;
+
         RestartNodeWorker restWorker = new RestartNodeWorker(runCtx, nodeList, cfgStr);
+
+        restWorker.runAsyncOnHost(true);
 
         return restWorker.workForNodes();
     }
@@ -212,12 +218,12 @@ public class FullRunner extends AbstractRunner {
 
         File outDir = new File(mainResDir).getParentFile();
 
-//        try {
-//            new CountDownLatch(1).await(3000L, TimeUnit.MILLISECONDS);
-//        }
-//        catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
+        try {
+            new CountDownLatch(1).await(3000L, TimeUnit.MILLISECONDS);
+        }
+        catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
         if (outDir.exists() && outDir.isDirectory()) {
             File[] arr = outDir.listFiles();

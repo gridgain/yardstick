@@ -79,9 +79,8 @@ public class StartNodeWorker extends NodeWorker {
         if(nodeInfo.runMode() != RunMode.PLAIN)
             mode = String.format(" (Run mode - %s)", nodeInfo.runMode());
 
-        log().info(String.format("Starting node '%s%s' on the host %s.%s",
-            nodeInfo.typeLow(),
-            id,
+        log().info(String.format("Starting node '%s' on the host '%s'.%s",
+            nodeInfo.toShortStr(),
             host,
             mode));
 

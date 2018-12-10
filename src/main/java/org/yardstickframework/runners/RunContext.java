@@ -76,6 +76,8 @@ public class RunContext {
 
     private boolean restartServers;
 
+    private boolean startServersOnce;
+
     private RestartContext serverRestartCtx;
 
     private boolean restartDrivers;
@@ -168,7 +170,7 @@ public class RunContext {
         return serverRestartCtx;
     }
 
-    public void setServerRestartCtx(RestartContext serverRestartCtx) {
+    public void setRestartCtx(RestartContext serverRestartCtx) {
         this.serverRestartCtx = serverRestartCtx;
     }
 
@@ -218,7 +220,7 @@ public class RunContext {
 
         setCfgList();
 
-        setServerRestartCtx(NodeType.SERVER);
+        setRestartCtx(NodeType.SERVER);
 
 //        if(servRunMode == RunMode.DOCKER || drvrRunMode == RunMode.DOCKER)
 //            setDockerCtx();
@@ -296,18 +298,18 @@ public class RunContext {
         }
     }
 
-    private void setServerRestartCtx(NodeType type){
+    private void setRestartCtx(NodeType type) {
         String restProp = props.getProperty(String.format("RESTART_%sS", type));
 
         boolean val = false;
 
-        if(restProp == null){
+        if (restProp == null) {
             setRestart(val, type);
 
             return;
         }
 
-        if(restProp.toLowerCase().equals("true") || restProp.toLowerCase().equals("false")){
+        if (restProp.toLowerCase().equals("true") || restProp.toLowerCase().equals("false")) {
             val = Boolean.valueOf(restProp);
 
             setRestart(val, type);
@@ -316,27 +318,29 @@ public class RunContext {
         }
 
         parseRestartProp(restProp, type);
-
     }
 
-    private void setRestart(boolean val, NodeType type){
-        if(type == NodeType.SERVER)
+    private void setRestart(boolean val, NodeType type) {
+        if (type == NodeType.SERVER) {
             restartServers = val;
+
+            startServersOnce = !val;
+        }
         else
             restartDrivers = val;
     }
 
-    private void parseRestartProp(String restProp, NodeType type){
+    private void parseRestartProp(String restProp, NodeType type) {
         String[] nodeList = restProp.split(",");
 
         RestartContext ctx = new RestartContext();
 
-        for(String nodeInfo : nodeList){
+        for (String nodeInfo : nodeList) {
             String[] values = nodeInfo.split(":");
 
-            if(values.length != 5){
+            if (values.length != 5) {
                 LOG.error(String.format("Wrong value for RESTART_%sS property. String %s does not have 5 values.",
-                type, nodeInfo));
+                    type, nodeInfo));
 
                 System.exit(1);
             }
@@ -349,12 +353,12 @@ public class RunContext {
                 Long pause = convertSecToMillis(values[3]);
                 Long period = convertSecToMillis(values[4]);
 
-                HashMap<String, RestartInfo> hostMap = ctx.get(host);
+                HashMap<String, RestartSchedule> hostMap = ctx.get(host);
 
-                if(hostMap == null)
+                if (hostMap == null)
                     hostMap = new HashMap<>();
 
-                RestartInfo restInfo = new RestartInfo(delay, pause, period);
+                RestartSchedule restInfo = new RestartSchedule(delay, pause, period);
 
                 hostMap.put(id, restInfo);
 
@@ -362,7 +366,7 @@ public class RunContext {
 
 //                System.out.println(hostMap);
             }
-            catch (NumberFormatException e){
+            catch (NumberFormatException e) {
                 LOG.error(String.format("Wrong value for RESTART_%sS property. %s",
                     type, e.getMessage()));
 
@@ -370,13 +374,15 @@ public class RunContext {
             }
         }
 
-        if(type == NodeType.SERVER)
+        log().debug(String.format("Restart context for %s nodes set as %s", type, ctx));
+
+        if (type == NodeType.SERVER)
             serverRestartCtx = ctx;
         else
             driverRestartCtx = ctx;
     }
 
-    private long convertSecToMillis(String sec) throws NumberFormatException{
+    private long convertSecToMillis(String sec) throws NumberFormatException {
         Double d = Double.valueOf(sec);
 
         Double dMult = d * 1000;
@@ -462,13 +468,13 @@ public class RunContext {
             RunMode.valueOf(props.getProperty("RUN_SERVER_MODE")) :
             RunMode.PLAIN;
 
-        LOG.info(String.format("Server run mode set as %s", servRunMode));
+        LOG.debug(String.format("Server run mode set as %s", servRunMode));
 
         drvrRunMode = props.getProperty("RUN_DRIVER_MODE") != null ?
             RunMode.valueOf(props.getProperty("RUN_DRIVER_MODE")) :
             RunMode.PLAIN;
 
-        LOG.info(String.format("Driver run mode set as %s", drvrRunMode));
+        LOG.debug(String.format("Driver run mode set as %s", drvrRunMode));
     }
 
     /**
@@ -741,8 +747,24 @@ public class RunContext {
         return type == NodeType.SERVER ? servHosts : drvrHosts;
     }
 
+    public List<String> getHostsByMode(RunMode mode) {
+        List<String> res = new ArrayList<>();
+
+        if(servRunMode == mode)
+            res.addAll(servHosts);
+
+        if(drvrRunMode == mode)
+            res.addAll(drvrHosts);
+
+        return res;
+    }
+
     public List<String> getUniqHostsByType(NodeType type) {
         return makeUniq(getHostsByType(type));
+    }
+
+    public List<String> getUniqHostsByMode(RunMode mode) {
+        return makeUniq(getHostsByMode(mode));
     }
 
     public String getHostJava(String host) {
@@ -771,19 +793,21 @@ public class RunContext {
         //add appender to any Logger (here is root)
         Logger.getRootLogger().addAppender(fa);
 
-        FileAppender fa1 = new FileAppender();
-        fa1.setName("FileLogger1");
-        fa1.setFile("/home/oostanin/yardstick/log.log");
-        fa1.setLayout(new PatternLayout("[%d{yyyy-MM-dd HH:mm:ss,SSS}][%-5p][%t] %m%n"));
-        fa1.setThreshold(Level.DEBUG);
-        fa1.setAppend(false);
-        fa1.activateOptions();
+        if(new File("/home/oostanin/yardstick").exists()) {
+            FileAppender fa1 = new FileAppender();
+            fa1.setName("FileLogger1");
+            fa1.setFile(String.format("/home/oostanin/yardstick/log-%s.log", BenchmarkUtils.hms()));
+            fa1.setLayout(new PatternLayout("[%d{yyyy-MM-dd HH:mm:ss,SSS}][%-5p][%t] %m%n"));
+            fa1.setThreshold(Level.DEBUG);
+            fa1.setAppend(false);
+            fa1.activateOptions();
 
-        //add appender to any Logger (here is root)
-        Logger.getRootLogger().addAppender(fa1);
+            //add appender to any Logger (here is root)
+            Logger.getRootLogger().addAppender(fa1);
+        }
     }
 
-    public RunMode getRunMode(NodeType type){
+    public RunMode getRunMode(NodeType type) {
         switch (type) {
             case SERVER:
                 return servRunMode;
@@ -794,7 +818,7 @@ public class RunContext {
         }
     }
 
-    public List<NodeInfo> getNodes(NodeType type){
+    public List<NodeInfo> getNodes(NodeType type) {
         List<String> hosts = getHostsByType(type);
 
         RunMode mode = getRunMode(type);
@@ -807,7 +831,7 @@ public class RunContext {
         return res;
     }
 
-    public RestartContext getRestartContext(NodeType type){
+    public RestartContext getRestartContext(NodeType type) {
         switch (type) {
             case SERVER:
                 return serverRestartCtx;
@@ -832,4 +856,17 @@ public class RunContext {
         return cfg;
     }
 
+    /**
+     * @return Start servers once.
+     */
+    public boolean startServersOnce() {
+        return startServersOnce;
+    }
+
+    /**
+     * @param startSrvsOnce New start servers once.
+     */
+    public void startServersOnce(boolean startSrvsOnce) {
+        startServersOnce = startSrvsOnce;
+    }
 }
