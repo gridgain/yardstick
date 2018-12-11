@@ -1,23 +1,20 @@
 package org.yardstickframework.runners;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Properties;
-import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
-import org.yardstickframework.BenchmarkUtils;
+import org.yardstickframework.runners.context.NodeType;
+import org.yardstickframework.runners.context.RunContext;
+import org.yardstickframework.runners.workers.CheckWorkResult;
+import org.yardstickframework.runners.workers.WorkResult;
+import org.yardstickframework.runners.workers.host.HostWorker;
 
 public class AbstractRunner {
     protected static final long DFLT_TIMEOUT = 300_000L;

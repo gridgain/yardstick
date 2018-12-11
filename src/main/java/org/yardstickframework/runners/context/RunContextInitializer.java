@@ -1,0 +1,536 @@
+package org.yardstickframework.runners.context;
+
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Properties;
+import java.util.Set;
+import org.apache.log4j.ConsoleAppender;
+import org.apache.log4j.FileAppender;
+import org.apache.log4j.Level;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+import org.apache.log4j.PatternLayout;
+import org.yardstickframework.BenchmarkUtils;
+
+/**
+ * Initializes run context.
+ */
+public class RunContextInitializer {
+    /** */
+    private static final Logger LOG = LogManager.getLogger(RunContextInitializer.class);
+
+    /** Instance to initialize */
+    private RunContext ctx;
+
+    /**
+     * Constructor.
+     *
+     * @param ctx {@code RunContext} instance to initialize.
+     */
+    public RunContextInitializer(RunContext ctx) {
+        this.ctx = ctx;
+    }
+
+    void initialize(String[] args) {
+        ctx.mainDateTime(BenchmarkUtils.dateTime());
+
+        handleArgs(args);
+
+        setHosts();
+
+        setProps();
+
+        setJavaHome();
+
+        setRunModes();
+
+        setUser();
+
+        setCfgList();
+
+        setRestartCtx(NodeType.SERVER);
+
+        setDockerContext();
+
+        handleAdditionalArgs();
+    }
+
+    /**
+     * @param args
+     */
+    private void handleArgs(String[] args) {
+        try {
+            BenchmarkUtils.jcommander(args, ctx.config(), "<benchmark-runner>");
+        }
+        catch (Exception e) {
+            BenchmarkUtils.println("Failed to parse command line arguments. " + e.getMessage());
+
+            e.printStackTrace();
+
+            System.exit(1);
+        }
+
+        if (ctx.config().scriptDirectory() == null) {
+            LOG.error("Script directory is not defined.");
+
+            System.exit(1);
+        }
+
+        ctx.localeWorkDirectory(new File(ctx.config().scriptDirectory()).getParentFile().getAbsolutePath());
+
+        configLog();
+
+        LOG.info(String.format("Local work directory is %s", ctx.localeWorkDirectory()));
+
+        if (ctx.config().propertyFile() == null) {
+            String dfltPropPath = String.format("%s/config/benchmark.properties", ctx.localeWorkDirectory());
+
+            LOG.info(String.format("Using as a default property file %s", dfltPropPath));
+
+            if (!new File(dfltPropPath).exists()) {
+                LOG.info(String.format("Failed to find default property file %s", dfltPropPath));
+
+                System.exit(1);
+            }
+
+            ctx.propertyPath(dfltPropPath);
+        }
+        else {
+            String propFilePath = ctx.config().propertyFile();
+
+            if (new File(propFilePath).exists())
+                ctx.propertyPath(new File(propFilePath).getAbsolutePath());
+            else if (Paths.get(ctx.localeWorkDirectory(), propFilePath).toFile().exists())
+                ctx.propertyPath(Paths.get(ctx.localeWorkDirectory(), propFilePath).toAbsolutePath().toString());
+            else {
+                LOG.info(String.format("Error. Failed to find property %s", propFilePath));
+
+                System.exit(1);
+            }
+        }
+
+        LOG.info(String.format("Property file path is %s", ctx.propertyPath()));
+
+        try {
+            Properties propsOrig = new Properties();
+
+            propsOrig.load(new FileReader(ctx.propertyPath()));
+
+            ctx.propertiesOrig(propsOrig);
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void handleAdditionalArgs() {
+        if (ctx.config().serverHosts() != null)
+            ctx.servHosts(hostsToList(ctx.config().serverHosts()));
+
+        if (ctx.config().driverHosts() != null)
+            ctx.drvrHosts(hostsToList(ctx.config().driverHosts()));
+
+        if (ctx.config().remoteWorkDirectory() != null)
+            ctx.remWorkDirectory(ctx.config().remoteWorkDirectory());
+    }
+
+    private void setRestartCtx(NodeType type) {
+        String restProp = ctx.properties().getProperty(String.format("RESTART_%sS", type));
+
+        boolean val = false;
+
+        if (restProp == null) {
+            setRestart(val, type);
+
+            return;
+        }
+
+        if (restProp.toLowerCase().equals("true") || restProp.toLowerCase().equals("false")) {
+            val = Boolean.valueOf(restProp);
+
+            setRestart(val, type);
+
+            return;
+        }
+
+        parseRestartProp(restProp, type);
+    }
+
+    private void setRestart(boolean val, NodeType type) {
+        if (type == NodeType.SERVER)
+            ctx.startServersOnce(!val);
+    }
+
+    private void parseRestartProp(String restProp, NodeType type) {
+        String[] nodeList = restProp.split(",");
+
+        RestartContext restCtx = new RestartContext();
+
+        for (String nodeInfo : nodeList) {
+            String[] values = nodeInfo.split(":");
+
+            if (values.length != 5) {
+                LOG.error(String.format("Wrong value for RESTART_%sS property. String %s does not have 5 values.",
+                    type, nodeInfo));
+
+                System.exit(1);
+            }
+
+            String host = values[0];
+            String id = values[1];
+
+            try {
+                Long delay = convertSecToMillis(values[2]);
+                Long pause = convertSecToMillis(values[3]);
+                Long period = convertSecToMillis(values[4]);
+
+                HashMap<String, RestartSchedule> hostMap = restCtx.get(host);
+
+                if (hostMap == null)
+                    hostMap = new HashMap<>();
+
+                RestartSchedule restInfo = new RestartSchedule(delay, pause, period);
+
+                hostMap.put(id, restInfo);
+
+                restCtx.put(host, hostMap);
+
+//                System.out.println(hostMap);
+            }
+            catch (NumberFormatException e) {
+                LOG.error(String.format("Wrong value for RESTART_%sS property. %s",
+                    type, e.getMessage()));
+
+                System.exit(1);
+            }
+        }
+
+        LOG.debug(String.format("Restart context for %s nodes set as %s", type, restCtx));
+
+        if (type == NodeType.SERVER)
+            ctx.serverRestartContext(restCtx);
+        else
+            ctx.driverRestartContext(restCtx);
+    }
+
+    private long convertSecToMillis(String sec) throws NumberFormatException {
+        Double d = Double.valueOf(sec);
+
+        Double dMult = d * 1000;
+
+        return dMult.longValue();
+    }
+
+    /**
+     *
+     */
+    private void setProps() {
+        ctx.properties(parseProps(ctx.propertiesOrig()));
+
+        String remWorkDir = ctx.properties().getProperty("WORK_DIR") != null ?
+            ctx.properties().getProperty("WORK_DIR") :
+            ctx.localeWorkDirectory();
+
+        ctx.remWorkDirectory(remWorkDir);
+
+        LOG.info(String.format("Remote work directory is %s", ctx.remWorkDirectory()));
+    }
+
+    /**
+     *
+     */
+    private void setHosts() {
+        ctx.servHosts(getHosts("SERVER_HOSTS"));
+
+        ctx.drvrHosts(getHosts("DRIVER_HOSTS"));
+
+        List<String> allHosts = ctx.getFullUniqList();
+
+        Enumeration e = null;
+
+        try {
+            e = NetworkInterface.getNetworkInterfaces();
+        }
+        catch (SocketException e1) {
+            e1.printStackTrace();
+        }
+
+        while (e.hasMoreElements()) {
+            NetworkInterface n = (NetworkInterface)e.nextElement();
+
+            Enumeration ee = n.getInetAddresses();
+
+            while (ee.hasMoreElements()) {
+                InetAddress i = (InetAddress)ee.nextElement();
+
+                String adr = i.getHostAddress();
+
+                if (allHosts.contains(adr)) {
+                    LOG.info(String.format("Setting current host address as %s.", adr));
+
+                    ctx.currentHost(adr);
+                }
+            }
+        }
+
+        if (ctx.currentHost() == null) {
+            LOG.info("Setting current host address as 127.0.0.1");
+
+            ctx.currentHost("127.0.0.1");
+        }
+    }
+
+    /**
+     *
+     */
+    private void setJavaHome() {
+        String locJavaHome = System.getProperty("java.home");
+
+        String remJavaHome = null;
+
+        if (ctx.properties().getProperty("JAVA_HOME") != null)
+            remJavaHome = ctx.properties().getProperty("JAVA_HOME");
+
+        if (ctx.properties().getProperty("JAVA_HOME") != null && new File(String.format("%s/bin/java", remJavaHome)).exists())
+            locJavaHome = String.format("%s/bin/java", remJavaHome);
+
+        ctx.localeJavaHome(locJavaHome);
+
+        ctx.remJavaHome(remJavaHome);
+    }
+
+    /**
+     *
+     */
+    private void setRunModes() {
+        RunMode servRunMode = ctx.properties().getProperty("RUN_SERVER_MODE") != null ?
+            RunMode.valueOf(ctx.properties().getProperty("RUN_SERVER_MODE")) :
+            RunMode.PLAIN;
+
+        LOG.debug(String.format("Server run mode set as %s", servRunMode));
+
+        ctx.servRunMode(servRunMode);
+
+        RunMode drvrRunMode = ctx.properties().getProperty("RUN_DRIVER_MODE") != null ?
+            RunMode.valueOf(ctx.properties().getProperty("RUN_DRIVER_MODE")) :
+            RunMode.PLAIN;
+
+        LOG.debug(String.format("Driver run mode set as %s", drvrRunMode));
+
+        ctx.drvrRunMode(drvrRunMode);
+    }
+
+    /**
+     * @return Value
+     */
+    protected void setUser() {
+        String locUser = System.getProperty("user.name");
+
+        String remUser;
+
+        if (ctx.properties().getProperty("REMOTE_USER") != null)
+            remUser = ctx.properties().getProperty("REMOTE_USER");
+        else {
+            LOG.info(String.format("REMOTE_USER is not defined in property file. Will use '%s' " +
+                "username for remote connections.", locUser));
+
+            remUser = locUser;
+        }
+
+        ctx.remUser(remUser);
+    }
+
+    protected void setCfgList() {
+        List<String> cfgList = new ArrayList<>();
+
+        for (String cfgStr : ctx.properties().getProperty("CONFIGS").split(",")) {
+            if (cfgStr.length() < 10)
+                continue;
+
+            cfgList.add(cfgStr);
+        }
+
+        ctx.configList(cfgList);
+    }
+
+//    private void setDockerCtx() {
+//        if (getServRunMode() == RunMode.DOCKER || getDrvrRunMode() == RunMode.DOCKER)
+//            dockerCtx = DockerContext.getDockerContext(String.format("%s/config/docker/docker-context.yaml", ctx.localeWorkDirectory()));
+//
+//    }
+
+    private int getNodesNum() {
+        return ctx.getFullHostList().size();
+    }
+
+    /**
+     * @param prop
+     * @return Value
+     */
+    private List<String> getHosts(String prop) {
+        List<String> res = hostsToList(ctx.propertiesOrig().getProperty(prop));
+
+        if (res.isEmpty())
+            LOG.info(String.format("WARNING! %s is not defined in property file.", prop));
+
+        return res;
+    }
+
+    private List<String> hostsToList(String hosts) {
+        List<String> res = new ArrayList<>();
+
+        String commaSepList = hosts;
+
+        if (commaSepList == null)
+            return res;
+
+        String[] ips = commaSepList.split(",");
+
+        for (String ip : ips) {
+            check(ip);
+
+            res.add(ip);
+        }
+
+        return res;
+    }
+
+    /**
+     * @param src
+     * @return Value
+     */
+    private List<String> makeUniq(List<String> src) {
+        Set<String> set = new HashSet<>(src);
+
+        List<String> res = new ArrayList<>(set);
+
+        Collections.sort(res);
+
+        return res;
+    }
+
+    private void check(String ip) {
+        //TODO
+    }
+
+    private Properties parseProps(Properties src) {
+        Properties res = new Properties();
+
+        for (String propName : src.stringPropertyNames()) {
+            String newVal = parsePropVal(src.getProperty(propName));
+
+            res.setProperty(propName, newVal.replace("\"", ""));
+        }
+
+        return res;
+    }
+
+    /**
+     * @param src
+     * @return Value
+     */
+    private String parsePropVal(String src) {
+        String res = src.replace("\"", "");
+
+        if (src.contains("${SCRIPT_DIR}/.."))
+            res = res.replace("${SCRIPT_DIR}/..", ctx.localeWorkDirectory());
+        if (src.contains("${nodesNum}"))
+            res = res.replace("${nodesNum}", String.valueOf(getNodesNum()));
+
+        for (String propName : ctx.propertiesOrig().stringPropertyNames()) {
+            if (src.contains(String.format("${%s}", propName)))
+                res = res.replace(String.format("${%s}", propName), ctx.propertiesOrig().get(propName).toString());
+
+            if (src.contains(String.format("$%s", propName)))
+                res = res.replace(String.format("$%s", propName), ctx.propertiesOrig().get(propName).toString());
+        }
+
+        return res;
+    }
+
+    private void setDockerContext() {
+        String dockerCtxPropPath = null;
+
+        if (ctx.properties().getProperty("DOCKER_CONTEXT_PATH") == null) {
+            dockerCtxPropPath = String.format("%s/config/docker/docker-context-default.yaml", ctx.localeWorkDirectory());
+
+            LOG.info(String.format("DOCKER_CONTEXT_PATH is not defined in property file. Will try " +
+                "to use default docker context configuration %s", dockerCtxPropPath));
+        }
+        else
+            dockerCtxPropPath = resolvePath(ctx.properties().getProperty("DOCKER_CONTEXT_PATH"));
+
+        ctx.dockerContext(DockerContext.getDockerContext(dockerCtxPropPath));
+    }
+
+    //TODO
+    public String resolvePath(String srcPath) {
+        if (new File(srcPath).exists())
+            return srcPath;
+
+        String fullPath = String.format("%s/%s", ctx.localeWorkDirectory(), srcPath);
+
+        if (new File(fullPath).exists())
+            return fullPath;
+
+        LOG.info(String.format("Failed to find %s or %s.", srcPath, fullPath));
+
+        System.exit(1);
+
+        return null;
+    }
+
+    //TODO
+    public String resolveRemotePath(String srcPath) {
+        String fullPath = String.format("%s/%s", ctx.remWorkDirectory(), srcPath);
+
+        return fullPath;
+    }
+
+    private void configLog() {
+        ConsoleAppender console = new ConsoleAppender(); //create appender
+        //configure the appender
+        String PATTERN = "[%d{yyyy-MM-dd HH:mm:ss}][%-5p][%t] %m%n";
+        console.setLayout(new PatternLayout(PATTERN));
+        console.setThreshold(Level.INFO);
+        console.activateOptions();
+        //add appender to any Logger (here is root)
+        Logger.getRootLogger().addAppender(console);
+
+        FileAppender fa = new FileAppender();
+        fa.setName("FileLogger");
+        fa.setFile(Paths.get(ctx.localeWorkDirectory(), "output", String.format("logs-%s/%s-run.log",
+            ctx.mainDateTime(), ctx.mainDateTime())).toString());
+        fa.setLayout(new PatternLayout("[%d{yyyy-MM-dd HH:mm:ss,SSS}][%-5p][%t] %m%n"));
+        fa.setThreshold(Level.INFO);
+        fa.setAppend(true);
+        fa.activateOptions();
+
+        //add appender to any Logger (here is root)
+        Logger.getRootLogger().addAppender(fa);
+
+        if (new File("/home/oostanin/yardstick").exists()) {
+            FileAppender fa1 = new FileAppender();
+            fa1.setName("FileLogger1");
+            fa1.setFile(String.format("/home/oostanin/yardstick/log-%s.log", BenchmarkUtils.hms()));
+            fa1.setLayout(new PatternLayout("[%d{yyyy-MM-dd HH:mm:ss,SSS}][%-5p][%t] %m%n"));
+            fa1.setThreshold(Level.DEBUG);
+            fa1.setAppend(false);
+            fa1.activateOptions();
+
+            //add appender to any Logger (here is root)
+            Logger.getRootLogger().addAppender(fa1);
+        }
+    }
+}

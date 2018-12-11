@@ -6,14 +6,14 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
-import org.yardstickframework.BenchmarkUtils;
+import org.yardstickframework.runners.context.NodeInfo;
+import org.yardstickframework.runners.context.NodeStatus;
+import org.yardstickframework.runners.context.RunContext;
+import org.yardstickframework.runners.context.RunMode;
 
 public class CommandHandler {
     private static final String DFLT_SSH_PREF = "ssh -o StrictHostKeyChecking=no";
@@ -224,9 +224,7 @@ public class CommandHandler {
 
         boolean found = false;
 
-        String toLook = String.format("-Dyardstick.%s%s ",
-            nodeInfo.getNodeType().toString().toLowerCase(),
-            nodeInfo.getId());
+        String toLook = String.format("-Dyardstick.%s ", nodeInfo.toShortStr());
 
         for (String str : res.getOutStream())
             if (str.contains(toLook))
@@ -256,8 +254,7 @@ public class CommandHandler {
             return nodeInfo;
         }
 
-        String killCmd = String.format("pkill -9 -f \"Dyardstick.%s%s \"",
-            nodeInfo.getNodeType().toString().toLowerCase(), nodeInfo.getId());
+        String killCmd = String.format("pkill -9 -f \"Dyardstick.%s \"", nodeInfo.toShortStr());
 
         if (runMode == RunMode.DOCKER) {
             String contName = nodeInfo.dockerInfo().contName();
@@ -299,6 +296,7 @@ public class CommandHandler {
         catch (IOException e) {
             e.printStackTrace();
         }
+
         return null;
     }
 

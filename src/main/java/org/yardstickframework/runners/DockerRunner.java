@@ -1,20 +1,20 @@
 package org.yardstickframework.runners;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import org.yardstickframework.runners.docker.DockerBuildImagesWorker;
-import org.yardstickframework.runners.docker.DockerCheckWorkResult;
-import org.yardstickframework.runners.docker.DockerCheckWorker;
-import org.yardstickframework.runners.docker.DockerCleanContWorker;
-import org.yardstickframework.runners.docker.DockerCleanImagesWorker;
-import org.yardstickframework.runners.docker.DockerCollectWorker;
-import org.yardstickframework.runners.docker.DockerStartContWorker;
+import org.yardstickframework.runners.context.NodeType;
+import org.yardstickframework.runners.context.RunContext;
+import org.yardstickframework.runners.workers.host.DockerBuildImagesWorker;
+import org.yardstickframework.runners.workers.host.DockerCheckWorker;
+import org.yardstickframework.runners.workers.host.DockerCleanContWorker;
+import org.yardstickframework.runners.workers.host.DockerCleanImagesWorker;
+import org.yardstickframework.runners.workers.node.DockerCollectWorker;
+import org.yardstickframework.runners.workers.node.DockerStartContWorker;
 
 public class DockerRunner extends AbstractRunner {
     public DockerRunner(RunContext runCtx) {
@@ -30,18 +30,7 @@ public class DockerRunner extends AbstractRunner {
     }
 
     public void checkForNodeType(NodeType type){
-        Collection<WorkResult> checks = new DockerCheckWorker(runCtx, runCtx.getUniqHostsByType(type)).workOnHosts();
-
-        for(WorkResult res : checks){
-            DockerCheckWorkResult checkRes = (DockerCheckWorkResult) res;
-
-            if(!checkRes.getErrMsgs().isEmpty()){
-                for(String errMsg : checkRes.getErrMsgs())
-                    log().info(errMsg);
-
-                System.exit(1);
-            }
-        }
+        new DockerCheckWorker(runCtx, runCtx.getUniqHostsByType(type)).workOnHosts();
     }
 
     public void prepare(List<NodeType> nodeTypeList){
@@ -85,10 +74,10 @@ public class DockerRunner extends AbstractRunner {
     }
 
     public void cleanForNodeType(NodeType type, String flag){
-        if(runCtx.getDockerContext().getRemoveContainersFlags().get(flag))
+        if(runCtx.dockerContext().getRemoveContainersFlags().get(flag))
             new DockerCleanContWorker(runCtx, runCtx.getUniqHostsByType(type)).workOnHosts();
 
-        if(runCtx.getDockerContext().getRemoveImagesFlags().get(flag))
+        if(runCtx.dockerContext().getRemoveImagesFlags().get(flag))
             new DockerCleanImagesWorker(runCtx, runCtx.getUniqHostsByType(type)).workOnHosts();
     }
 

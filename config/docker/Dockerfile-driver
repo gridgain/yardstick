@@ -17,8 +17,7 @@
 
 FROM openjdk:8u181-jdk-stretch
 
-RUN apt-get install -y dstat
-
+RUN apt-get update && apt-get install -y apt-transport-https dstat
 
 
 
