@@ -2,6 +2,8 @@ package org.yardstickframework.runners.workers.node;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -10,30 +12,51 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import org.yardstickframework.runners.context.NodeInfo;
 import org.yardstickframework.runners.context.RunContext;
 import org.yardstickframework.runners.workers.Worker;
 
+/**
+ * Parent class for node workers.
+ */
 public abstract class NodeWorker extends Worker {
+    /** Main list of NodeInfo objects to work with. */
     private List<NodeInfo> nodeList;
 
+    /** Result list */
     private List<NodeInfo> resNodeList;
 
-    private Map<String, CountDownLatch> latchMap = new ConcurrentHashMap<>();
-
+    /** Flag indicating whether or not task should run on the same host at the same time.*/
     private boolean runAsyncOnHost;
 
-    /** */
-    public NodeWorker(RunContext runCtx, List<NodeInfo> nodeList) {
+    /**
+     * Constructor.
+     *
+     * @param runCtx Run context.
+     * @param nodeList Main list of NodeInfo objects to work with.
+     */
+    NodeWorker(RunContext runCtx, List<NodeInfo> nodeList) {
         super(runCtx);
         this.nodeList = new ArrayList<>(nodeList);
         resNodeList = new ArrayList<>(nodeList.size());
     }
 
+    /**
+     * Executes actual work for node.
+     *
+     * @param nodeInfo {@code NodeInfo} object to work with.
+     * @return {@code NodeInfo} result.
+     * @throws InterruptedException
+     */
     public abstract NodeInfo doWork(NodeInfo nodeInfo) throws InterruptedException;
 
-    protected int getNodeListSize() {
+    /**
+     *
+     * @return {@code int} Number of objects in the main list.
+     */
+    int getNodeListSize() {
         return nodeList.size();
     }
 
@@ -47,18 +70,24 @@ public abstract class NodeWorker extends Worker {
 
         Collection<Future<NodeInfo>> futList = new ArrayList<>(nodeList.size());
 
-        for (final NodeInfo nodeInfo : nodeList) {
+        final Map<String, Semaphore> semMap = new HashMap<>();
 
+        for (final NodeInfo nodeInfo : nodeList)
+            semMap.put(nodeInfo.getHost(), new Semaphore(1));
+
+        for (final NodeInfo nodeInfo : nodeList) {
             futList.add(execServ.submit(new Callable<NodeInfo>() {
                 @Override public NodeInfo call() throws Exception {
+                    String host = nodeInfo.getHost();
+
                     Thread.currentThread().setName(threadName(nodeInfo));
 
                     if(!runAsyncOnHost)
-                        awaitOnLatch(nodeInfo);
+                        semMap.get(host).acquire();
 
                     final NodeInfo res = doWork(nodeInfo);
 
-                    releaseLatch(nodeInfo);
+                    semMap.get(host).release();
 
                     return res;
                 }
@@ -93,34 +122,6 @@ public abstract class NodeWorker extends Worker {
         afterWork();
 
         return new ArrayList<>(resNodeList);
-    }
-
-    private void awaitOnLatch(NodeInfo nodeInfo) throws InterruptedException{
-        String host = nodeInfo.getHost();
-
-        CountDownLatch hostLatch = latchMap.putIfAbsent(host, new CountDownLatch(1));
-
-        if(hostLatch != null) {
-//                log().info(String.format("Thread %s waiting on latch %s", Thread.currentThread().getName(), hostLatch));
-
-                hostLatch.await();
-
-//                log().info(String.format("Thread %s cont", Thread.currentThread().getName()));
-
-        }
-    }
-
-    private void releaseLatch(NodeInfo nodeInfo){
-        String host = nodeInfo.getHost();
-
-        CountDownLatch hostLatch = latchMap.get(host);
-
-        if (hostLatch != null) {
-//            log().info(String.format("Thread %s releasing latch %s", Thread.currentThread().getName(), hostLatch));
-
-
-            hostLatch.countDown();
-        }
     }
 
     /**

@@ -75,8 +75,6 @@ public class FullRunner extends AbstractRunner {
 
         List<NodeInfo> servRes = null;
 
-        List<NodeInfo> drvrRes = null;
-
         if (runCtx.startServersOnce())
             servRes = startNodes(NodeType.SERVER, cfgStr0);
 
@@ -88,7 +86,7 @@ public class FullRunner extends AbstractRunner {
 
             waitForNodes(servRes, NodeStatus.RUNNING);
 
-            drvrRes = startNodes(NodeType.DRIVER, cfgStr);
+            List<NodeInfo> drvrRes = startNodes(NodeType.DRIVER, cfgStr);
 
             checkLogs(drvrRes);
 

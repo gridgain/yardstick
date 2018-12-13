@@ -8,15 +8,26 @@ import org.yardstickframework.runners.context.NodeInfo;
 import org.yardstickframework.runners.context.NodeStatus;
 import org.yardstickframework.runners.context.RunContext;
 
+/**
+ * Class waiting for node to start or stop.
+ */
 public class WaitNodeWorker extends NodeWorker {
     /** */
     private NodeStatus expStatus;
 
+    /**
+     * Constructor.
+     *
+     * @param runCtx Run context.
+     * @param nodeList Main list of NodeInfo objects to work with.
+     * @param expStatus {@code NodeStatus} status to wait for.
+     */
     public WaitNodeWorker(RunContext runCtx, List<NodeInfo> nodeList, NodeStatus expStatus) {
         super(runCtx, nodeList);
         this.expStatus = expStatus;
     }
 
+    /** {@inheritDoc} */
     @Override public NodeInfo doWork(NodeInfo nodeInfo) throws InterruptedException {
         boolean unexpected = true;
 
