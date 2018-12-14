@@ -8,7 +8,10 @@ import org.yardstickframework.runners.workers.host.CheckConnWorker;
 import org.yardstickframework.runners.workers.host.CollectWorker;
 
 public class CollectRunner extends AbstractRunner {
-
+    /**
+     *
+     * @param runCtx Run context.
+     */
     public CollectRunner(RunContext runCtx) {
         super(runCtx);
     }

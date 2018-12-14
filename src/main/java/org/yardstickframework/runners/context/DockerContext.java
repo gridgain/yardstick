@@ -237,7 +237,7 @@ public class DockerContext {
      *
      * @return {@code String} Server Java home path.
      */
-    public String getServerDockerJavaHome() {
+    public String serverDockerJavaHome() {
         return serverDockerJavaHome;
     }
 
@@ -245,7 +245,7 @@ public class DockerContext {
      *
      * @param serverDockerJavaHome {@code String} Server Java home path.
      */
-    public void setServerDockerJavaHome(String serverDockerJavaHome) {
+    public void serverDockerJavaHome(String serverDockerJavaHome) {
         this.serverDockerJavaHome = serverDockerJavaHome;
     }
 
@@ -253,7 +253,7 @@ public class DockerContext {
      *
      * @return {@code String} Driver Java home path.
      */
-    public String getDriverDockerJavaHome() {
+    public String driverDockerJavaHome() {
         return driverDockerJavaHome;
     }
 
@@ -261,7 +261,7 @@ public class DockerContext {
      *
      * @param driverDockerJavaHome {@code String} Server Java home path.
      */
-    public void setDriverDockerJavaHome(String driverDockerJavaHome) {
+    public void driverDockerJavaHome(String driverDockerJavaHome) {
         this.driverDockerJavaHome = driverDockerJavaHome;
     }
 
@@ -297,5 +297,16 @@ public class DockerContext {
             default:
                 throw new IllegalArgumentException(String.format("Unknown node type: %s", type));
         }
+    }
+
+    /**
+     *
+     * @param type Node type.
+     * @return Java home path.
+     */
+    public String javaHome(NodeType type){
+        return type == NodeType.SERVER ?
+            serverDockerJavaHome:
+            driverDockerJavaHome;
     }
 }

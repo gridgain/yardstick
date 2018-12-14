@@ -9,12 +9,19 @@ import org.yardstickframework.runners.context.NodeType;
 import org.yardstickframework.runners.context.DockerInfo;
 import org.yardstickframework.runners.context.RunContext;
 
+/**
+ * Starts nodes in docker containers.
+ */
 public class InDockerNodeStarter extends AbstractRunner implements NodeStarter {
-
+    /**
+     *
+     * @param runCtx Run context.
+     */
     public InDockerNodeStarter(RunContext runCtx) {
         super(runCtx);
     }
 
+    /** {@inheritDoc} */
     @Override public NodeInfo startNode(NodeInfo nodeInfo) throws InterruptedException {
         String contName = String.format("YARDSTICK_%s_%s", nodeInfo.nodeType(), nodeInfo.id());
 
@@ -24,12 +31,7 @@ public class InDockerNodeStarter extends AbstractRunner implements NodeStarter {
 
         String javaParams = nodeInfo.parameterString();
 
-        NodeType type = nodeInfo.nodeType();
-
-        String javaHome = type == NodeType.SERVER ?
-            runCtx.dockerContext().getServerDockerJavaHome() :
-            runCtx.dockerContext().getDriverDockerJavaHome() ;
-
+        String javaHome = runCtx.dockerContext().javaHome(nodeInfo.nodeType());
 
         try {
             String mkdirCmd = String.format("exec %s mkdir -p %s", contName, nodeLogDir);

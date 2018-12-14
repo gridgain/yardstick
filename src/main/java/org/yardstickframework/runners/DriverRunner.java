@@ -10,7 +10,7 @@ import org.yardstickframework.runners.workers.host.CollectWorker;
 public class DriverRunner extends AbstractRunner {
     /**
      *
-     * @param runCtx
+     * @param runCtx Run context.
      */
     public DriverRunner(RunContext runCtx) {
         super(runCtx);

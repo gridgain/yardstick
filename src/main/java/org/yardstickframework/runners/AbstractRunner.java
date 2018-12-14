@@ -37,6 +37,10 @@ public class AbstractRunner {
 
     protected List<NodeType> dockerList;
 
+    /**
+     *
+     * @param runCtx Run context.
+     */
     public AbstractRunner(RunContext runCtx) {
         this.runCtx = runCtx;
     }

@@ -17,6 +17,10 @@ import org.yardstickframework.runners.workers.node.DockerCollectWorker;
 import org.yardstickframework.runners.workers.node.DockerStartContWorker;
 
 public class DockerRunner extends AbstractRunner {
+    /**
+     *
+     * @param runCtx Run context.
+     */
     public DockerRunner(RunContext runCtx) {
         super(runCtx);
     }

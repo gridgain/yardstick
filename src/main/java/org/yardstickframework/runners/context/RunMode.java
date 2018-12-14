@@ -1,24 +1,27 @@
 package org.yardstickframework.runners.context;
 
+/**
+ * Run mode.
+ */
 public enum RunMode {
+    /** */
     PLAIN("PLAIN"),
-    DOCKER("DOCKER")
-    ;
 
+    /** */
+    DOCKER("DOCKER");
+
+    /** */
     private final String text;
 
     /**
-     * @param text
+     * @param text String value.
      */
     RunMode(final String text) {
         this.text = text;
     }
 
-    /* (non-Javadoc)
-     * @see java.lang.Enum#toString()
-     */
-    @Override
-    public String toString() {
+    /** {@inheritDoc} */
+    @Override public String toString() {
         return text;
     }
 }

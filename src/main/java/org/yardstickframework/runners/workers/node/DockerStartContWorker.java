@@ -120,19 +120,19 @@ public class DockerStartContWorker extends DockerNodeWorker {
 
             switch (type){
                 case SERVER:
-                    if(dockerCtx.getServerDockerJavaHome() == null) {
+                    if(dockerCtx.serverDockerJavaHome() == null) {
                         log().info(String.format("Using docker JAVA_HOME for server nodes: '%s'",
                             javaHome));
 
-                        dockerCtx.setServerDockerJavaHome(javaHome);
+                        dockerCtx.serverDockerJavaHome(javaHome);
                     }
                     break;
                 case DRIVER:
-                    if(dockerCtx.getDriverDockerJavaHome() == null) {
+                    if(dockerCtx.driverDockerJavaHome() == null) {
                         log().info(String.format("Using docker JAVA_HOME for driver nodes: '%s'",
                             javaHome));
 
-                        dockerCtx.setDriverDockerJavaHome(javaHome);
+                        dockerCtx.driverDockerJavaHome(javaHome);
                     }
                     break;
                 default:

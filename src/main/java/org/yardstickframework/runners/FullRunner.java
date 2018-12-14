@@ -19,7 +19,7 @@ import org.yardstickframework.runners.workers.node.StopNodeWorker;
 public class FullRunner extends AbstractRunner {
     /**
      *
-     * @param runCtx
+     * @param runCtx Run context.
      */
     public FullRunner(RunContext runCtx) {
         super(runCtx);

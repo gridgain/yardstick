@@ -10,7 +10,10 @@ import org.yardstickframework.runners.workers.host.HostWorker;
 import org.yardstickframework.runners.workers.host.KillWorker;
 
 public class CleanUpRunner  extends AbstractRunner {
-
+    /**
+     *
+     * @param runCtx Run context.
+     */
     public CleanUpRunner(RunContext runCtx) {
         super(runCtx);
     }
