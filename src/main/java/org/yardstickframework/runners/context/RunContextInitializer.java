@@ -38,10 +38,14 @@ public class RunContextInitializer {
      *
      * @param ctx {@code RunContext} instance to initialize.
      */
-    public RunContextInitializer(RunContext ctx) {
+    RunContextInitializer(RunContext ctx) {
         this.ctx = ctx;
     }
 
+    /**
+     *
+     * @param args Command line arguments.
+     */
     void initialize(String[] args) {
         ctx.mainDateTime(BenchmarkUtils.dateTime());
 
@@ -67,7 +71,7 @@ public class RunContextInitializer {
     }
 
     /**
-     * @param args
+     * @param args Command line arguments.
      */
     private void handleArgs(String[] args) {
         try {
@@ -134,6 +138,9 @@ public class RunContextInitializer {
         }
     }
 
+    /**
+     * Changes values taken from property file to values taken from command line arguments.
+     */
     private void handleAdditionalArgs() {
         if (ctx.config().serverHosts() != null)
             ctx.serverHosts(hostsToList(ctx.config().serverHosts()));
@@ -145,6 +152,9 @@ public class RunContextInitializer {
             ctx.remoteWorkDirectory(ctx.config().remoteWorkDirectory());
     }
 
+    /**
+     * @param type Node type.
+     */
     private void setRestartCtx(NodeType type) {
         String restProp = ctx.properties().getProperty(String.format("RESTART_%sS", type));
 
@@ -167,11 +177,21 @@ public class RunContextInitializer {
         parseRestartProp(restProp, type);
     }
 
+    /**
+     *
+     * @param val value to set.
+     * @param type Node type.
+     */
     private void setRestart(boolean val, NodeType type) {
         if (type == NodeType.SERVER)
             ctx.startServersOnce(!val);
     }
 
+    /**
+     *
+     * @param restProp Restart property string.
+     * @param type Node type.
+     */
     private void parseRestartProp(String restProp, NodeType type) {
         String[] nodeList = restProp.split(",");
 
@@ -205,8 +225,6 @@ public class RunContextInitializer {
                 hostMap.put(id, restInfo);
 
                 restCtx.put(host, hostMap);
-
-//                System.out.println(hostMap);
             }
             catch (NumberFormatException e) {
                 LOG.error(String.format("Wrong value for RESTART_%sS property. %s",
@@ -224,12 +242,18 @@ public class RunContextInitializer {
             ctx.driverRestartContext(restCtx);
     }
 
+    /**
+     *
+     * @param sec Seconds.
+     * @return Milliseconds.
+     * @throws NumberFormatException if failed.
+     */
     private long convertSecToMillis(String sec) throws NumberFormatException {
         Double d = Double.valueOf(sec);
 
-        Double dMult = d * 1000;
+        Double dt = d * 1000;
 
-        return dMult.longValue();
+        return dt.longValue();
     }
 
     /**
@@ -295,12 +319,12 @@ public class RunContextInitializer {
      *
      */
     private void setJavaHome() {
-        String locJavaHome = System.getProperty("java.home");
-
         String remJavaHome = null;
 
         if (ctx.properties().getProperty("JAVA_HOME") != null)
             remJavaHome = ctx.properties().getProperty("JAVA_HOME");
+
+        String locJavaHome = System.getProperty("java.home");
 
         if (ctx.properties().getProperty("JAVA_HOME") != null && new File(String.format("%s/bin/java", remJavaHome)).exists())
             locJavaHome = String.format("%s/bin/java", remJavaHome);
@@ -332,16 +356,16 @@ public class RunContextInitializer {
     }
 
     /**
-     * @return Value
+     *
      */
-    protected void setUser() {
-        String locUser = System.getProperty("user.name");
-
+    private void setUser() {
         String remUser;
 
         if (ctx.properties().getProperty("REMOTE_USER") != null)
             remUser = ctx.properties().getProperty("REMOTE_USER");
         else {
+            String locUser = System.getProperty("user.name");
+
             LOG.info(String.format("REMOTE_USER is not defined in property file. Will use '%s' " +
                 "username for remote connections.", locUser));
 
@@ -351,7 +375,10 @@ public class RunContextInitializer {
         ctx.remoteUser(remUser);
     }
 
-    protected void setCfgList() {
+    /**
+     *
+     */
+    private void setCfgList() {
         List<String> cfgList = new ArrayList<>();
 
         for (String cfgStr : ctx.properties().getProperty("CONFIGS").split(",")) {
@@ -364,13 +391,17 @@ public class RunContextInitializer {
         ctx.configList(cfgList);
     }
 
+    /**
+     *
+     * @return Number of nodes.
+     */
     private int getNodesNum() {
         return ctx.getFullHostList().size();
     }
 
     /**
-     * @param prop
-     * @return Value
+     * @param prop Host property.
+     * @return List of host addresses.
      */
     private List<String> getHosts(String prop) {
         List<String> res = hostsToList(ctx.propertiesOrig().getProperty(prop));
@@ -381,10 +412,13 @@ public class RunContextInitializer {
         return res;
     }
 
-    private List<String> hostsToList(String hosts) {
+    /**
+     *
+     * @param commaSepList Comma separated list of addresses.
+     * @return List of host addresses.
+     */
+    private List<String> hostsToList(String commaSepList) {
         List<String> res = new ArrayList<>();
-
-        String commaSepList = hosts;
 
         if (commaSepList == null)
             return res;
@@ -401,23 +435,18 @@ public class RunContextInitializer {
     }
 
     /**
-     * @param src
-     * @return Value
+     *
+     * @param host Host.
      */
-    private List<String> makeUniq(List<String> src) {
-        Set<String> set = new HashSet<>(src);
-
-        List<String> res = new ArrayList<>(set);
-
-        Collections.sort(res);
-
-        return res;
-    }
-
-    private void check(String ip) {
+    private void check(String host) {
         //TODO
     }
 
+    /**
+     *
+     * @param src Source properties.
+     * @return Parsed properties.
+     */
     private Properties parseProps(Properties src) {
         Properties res = new Properties();
 
@@ -431,8 +460,8 @@ public class RunContextInitializer {
     }
 
     /**
-     * @param src
-     * @return Value
+     * @param src Source string
+     * @return Parsed string.
      */
     private String parsePropVal(String src) {
         String res = src.replace("\"", "");
@@ -453,8 +482,11 @@ public class RunContextInitializer {
         return res;
     }
 
+    /**
+     *
+     */
     private void setDockerContext() {
-        String dockerCtxPropPath = null;
+        String dockerCtxPropPath;
 
         if (ctx.properties().getProperty("DOCKER_CONTEXT_PATH") == null) {
             dockerCtxPropPath = String.format("%s/config/docker/docker-context-default.yaml", ctx.localeWorkDirectory());
@@ -468,12 +500,19 @@ public class RunContextInitializer {
         ctx.dockerContext(DockerContext.getDockerContext(dockerCtxPropPath));
     }
 
-    //TODO
-    public String resolvePath(String srcPath) {
+    /**
+     *
+     * @param srcPath Relative path.
+     * @return Absolute path.
+     */
+    private String resolvePath(String srcPath) {
         if (new File(srcPath).exists())
             return srcPath;
 
-        String fullPath = String.format("%s/%s", ctx.localeWorkDirectory(), srcPath);
+        String fullPath = null;
+
+        if(!srcPath.startsWith(ctx.localeWorkDirectory()))
+            fullPath = String.format("%s/%s", ctx.localeWorkDirectory(), srcPath);
 
         if (new File(fullPath).exists())
             return fullPath;
@@ -485,18 +524,14 @@ public class RunContextInitializer {
         return null;
     }
 
-    //TODO
-    public String resolveRemotePath(String srcPath) {
-        String fullPath = String.format("%s/%s", ctx.remoteWorkDirectory(), srcPath);
-
-        return fullPath;
-    }
-
+    /**
+     *
+     */
     private void configLog() {
         ConsoleAppender console = new ConsoleAppender(); //create appender
         //configure the appender
-        String PATTERN = "[%d{yyyy-MM-dd HH:mm:ss}][%-5p][%t] %m%n";
-        console.setLayout(new PatternLayout(PATTERN));
+        String ptrn = "[%d{yyyy-MM-dd HH:mm:ss}][%-5p][%t] %m%n";
+        console.setLayout(new PatternLayout(ptrn));
         console.setThreshold(Level.INFO);
         console.activateOptions();
         //add appender to any Logger (here is root)
