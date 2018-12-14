@@ -26,8 +26,10 @@ public class RunContext {
     /** */
     private static final Logger LOG = LogManager.getLogger(RunContext.class);
 
+    /** */
     private static RunContext instance;
 
+    /** */
     private static RunnerConfiguration cfg = new RunnerConfiguration();
 
     private Properties props;

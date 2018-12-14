@@ -1,11 +1,26 @@
 package org.yardstickframework.runners.context;
 
+/**
+ * Restart schedule.
+ */
 public class RestartSchedule {
+    /** */
     private long delay;
+
+    /** */
     private long pause;
+
+    /** */
     private long period;
 
-    public RestartSchedule(long delay, long pause, long period) {
+    /**
+     * Constructor.
+     *
+     * @param delay Delay.
+     * @param pause Pause.
+     * @param period Period.
+     */
+    RestartSchedule(long delay, long pause, long period) {
         this.delay = delay;
         this.pause = pause;
         this.period = period;
@@ -53,14 +68,17 @@ public class RestartSchedule {
         this.period = period;
     }
 
+    /**
+     * Converts milliseconds to seconds.
+     *
+     * @param millis {@code Long} Milliseconds to convert.
+     * @return {@code String} String value in seconds e.g. 10.5.
+     */
     private String millisToSec(Long millis){
-//        Double src = millis.doubleValue();
-//
-//        Double d = src / 1000;
-
         return String.format("%(.1f", millis.doubleValue() / 1000);
     }
 
+    /** {@inheritDoc} */
     @Override public String toString() {
         return "RestartSchedule{" +
             "delay=" + millisToSec(delay) +
