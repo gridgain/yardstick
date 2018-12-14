@@ -8,15 +8,25 @@ import org.yardstickframework.runners.context.NodeInfo;
 import org.yardstickframework.runners.context.NodeStatus;
 import org.yardstickframework.runners.context.RunContext;
 
+/**
+ * Node checker for docker run.
+ */
 public class InDockerNodeChecker extends AbstractRunner implements NodeChecker {
+    /** */
     private CommandHandler hndl;
 
+    /**
+     * Constructor.
+     *
+     * @param runCtx Run context.
+     */
     public InDockerNodeChecker(RunContext runCtx) {
         super(runCtx);
 
         hndl = new CommandHandler(runCtx);
     }
 
+    /** {@inheritDoc} */
     @Override public NodeInfo checkNode(NodeInfo nodeInfo) throws InterruptedException{
         String host = nodeInfo.getHost();
 

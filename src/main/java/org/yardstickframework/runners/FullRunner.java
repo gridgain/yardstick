@@ -45,31 +45,7 @@ public class FullRunner extends AbstractRunner {
     }
 
     public int run1() {
-        List<String> fullList = runCtx.getFullUniqList();
-
-        checkPlain(new CheckConnWorker(runCtx, fullList));
-
-        checkPlain(new CheckJavaWorker(runCtx, runCtx.getUniqHostsByMode(RunMode.PLAIN)));
-
-        List<NodeType> dockerList = runCtx.getNodeTypes(RunMode.DOCKER);
-
-        DockerRunner dockerRunner = new DockerRunner(runCtx);
-
-        if (!dockerList.isEmpty()) {
-            dockerRunner.check(dockerList);
-
-            dockerRunner.cleanUp(dockerList, "before");
-        }
-
-        new KillWorker(runCtx, fullList).workOnHosts();
-
-        new DeployWorker(runCtx, fullList).workOnHosts();
-
-        if (!dockerList.isEmpty()) {
-            dockerRunner.prepare(dockerList);
-
-            dockerRunner.start(dockerList);
-        }
+        generalPrapare();
 
         String cfgStr0 = runCtx.getProps().getProperty("CONFIGS").split(",")[0];
 
@@ -119,18 +95,13 @@ public class FullRunner extends AbstractRunner {
             }
         }
 
-        if(runCtx.startServersOnce()){
-            stopNodes(servRes);
+//        if(runCtx.startServersOnce()){
+//            stopNodes(servRes);
+//
+//            waitForNodes(servRes, NodeStatus.NOT_RUNNING);
+//        }
 
-            waitForNodes(servRes, NodeStatus.NOT_RUNNING);
-        }
-
-
-        if (!dockerList.isEmpty()) {
-            dockerRunner.collect(dockerList);
-
-            dockerRunner.cleanUp(dockerList, "after");
-        }
+        generalCleanUp();
 
         new CollectWorker(runCtx, runCtx.getFullUniqList()).workOnHosts();
 
@@ -150,107 +121,11 @@ public class FullRunner extends AbstractRunner {
         return restWorker.workForNodes();
     }
 
-
-
-    private void checkLogs(List<NodeInfo> list){
-        NodeWorker checkWorker = new CheckLogWorker(runCtx,list);
-
-        List<NodeInfo> resList = checkWorker.workForNodes();
-
-        for (NodeInfo nodeInfo : resList){
-            if(nodeInfo.nodeStatus() == NodeStatus.NOT_RUNNING)
-                System.exit(1);
-        }
-    }
-
-    private List<NodeInfo> startNodes(NodeType type, String cfgStr) {
-        NodeWorker startServWorker = new StartNodeWorker(runCtx, runCtx.getNodes(type), cfgStr);
-
-        return startServWorker.workForNodes();
-    }
-
     private List<NodeInfo> stopNodes(List<NodeInfo> nodeList) {
         NodeWorker stopWorker = new StopNodeWorker(runCtx, nodeList);
 
         stopWorker.workForNodes();
 
         return null;
-    }
-
-    private void waitForNodes(List<NodeInfo> nodeList, NodeStatus expStatus) {
-        NodeWorker waitWorker = new WaitNodeWorker(runCtx, nodeList, expStatus);
-
-        waitWorker.workForNodes();
-    }
-
-//    private List<WorkResult> buildDockerImages(NodeType type) {
-//        String imageNameProp = String.format("%s_DOCKER_IMAGE_NAME", type);
-//
-//        String imageName = runCtx.getProps().getProperty(imageNameProp);
-//
-//        String nameProp = String.format("%s_DOCKERFILE_NAME", type);
-//        String pathProp = String.format("%s_DOCKERFILE_PATH", type);
-//
-//        if (runCtx.getProps().getProperty(nameProp) == null &&
-//            runCtx.getProps().getProperty(pathProp) == null)
-//            throw new IllegalArgumentException("Dockerfile name and path is not defined in property file.");
-//
-//        String dockerfilePath = runCtx.getProps().getProperty(pathProp) != null ?
-//            runCtx.getProps().getProperty(pathProp) :
-//            String.format("%s/config/%s", runCtx.getRemWorkDir(), runCtx.getProps().getProperty(nameProp));
-//
-//        String imageVer = runCtx.getMainDateTime();
-//
-//        List<String> hostList = type == NodeType.SERVER ?
-//            runCtx.getServUniqList() :
-//            runCtx.getDrvrUniqList();
-//
-//        DockerWorkContext dockerWorkCtx = new DockerWorkContext(hostList, type);
-//
-//        Worker buildDocWorker = new DockerBuildImagesWorker(runCtx, dockerWorkCtx);
-//
-//        return buildDocWorker.workOnHosts();
-//    }
-
-    private void createCharts() {
-        String mainResDir = String.format("%s/output/result-%s", runCtx.getLocWorkDir(), runCtx.getMainDateTime());
-
-        String cp = String.format("%s/libs/*", runCtx.getLocWorkDir());
-
-        String mainClass = "org.yardstickframework.report.jfreechart.JFreeChartGraphPlotter";
-
-        String jvmOpts = "-Xmx1g";
-
-        String stdCharts = String.format("%s -cp %s %s -gm STANDARD -i %s", jvmOpts, cp, mainClass, mainResDir);
-
-        CommandHandler hndl = new CommandHandler(runCtx);
-
-        hndl.runLocalJava(stdCharts);
-
-        String charts = String.format("%s -cp %s %s -i %s", jvmOpts, cp, mainClass, mainResDir);
-
-        hndl.runLocalJava(charts);
-
-        File outDir = new File(mainResDir).getParentFile();
-
-        try {
-            new CountDownLatch(1).await(3000L, TimeUnit.MILLISECONDS);
-        }
-        catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        if (outDir.exists() && outDir.isDirectory()) {
-            File[] arr = outDir.listFiles();
-
-            for (File resComp : arr) {
-                if (resComp.getName().startsWith("results-compound")) {
-                    String mvCmd = String.format("mv %s %s",
-                        resComp.getAbsolutePath(), mainResDir);
-
-                    runCmd(mvCmd);
-                }
-            }
-        }
     }
 }

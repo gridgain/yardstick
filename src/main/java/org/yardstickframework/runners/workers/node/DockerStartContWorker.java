@@ -97,8 +97,8 @@ public class DockerStartContWorker extends DockerNodeWorker {
     }
 
     private String getRunArgs() {
-        return dockerCtx.getDockerRunCmdArgs() != null ?
-            dockerCtx.getDockerRunCmdArgs() :
+        return dockerCtx.getDockerRunCmd() != null ?
+            dockerCtx.getDockerRunCmd() :
             DFLT_RUN_CMD_ARGS;
     }
 

@@ -1,31 +1,41 @@
 package org.yardstickframework.runners;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import org.yardstickframework.runners.context.NodeInfo;
+import org.yardstickframework.runners.context.NodeStatus;
 import org.yardstickframework.runners.context.NodeType;
 import org.yardstickframework.runners.context.RunContext;
+import org.yardstickframework.runners.context.RunMode;
 import org.yardstickframework.runners.workers.CheckWorkResult;
 import org.yardstickframework.runners.workers.WorkResult;
+import org.yardstickframework.runners.workers.host.CheckConnWorker;
+import org.yardstickframework.runners.workers.host.CheckJavaWorker;
+import org.yardstickframework.runners.workers.host.DeployWorker;
 import org.yardstickframework.runners.workers.host.HostWorker;
+import org.yardstickframework.runners.workers.host.KillWorker;
+import org.yardstickframework.runners.workers.node.CheckLogWorker;
+import org.yardstickframework.runners.workers.node.NodeWorker;
+import org.yardstickframework.runners.workers.node.StartNodeWorker;
+import org.yardstickframework.runners.workers.node.WaitNodeWorker;
 
 public class AbstractRunner {
-    protected static final long DFLT_TIMEOUT = 300_000L;
-
     protected RunContext runCtx;
 
-    protected String[] toDeploy = new String[]{"bin", "config", "libs"};
+    protected DockerRunner dockerRunner;
 
-    protected String[] toClean = new String[]{"bin", "config", "libs", "output", "work"};
-
-    protected String mainDir;
+    protected List<NodeType> dockerList;
 
     public AbstractRunner(RunContext runCtx) {
         this.runCtx = runCtx;
@@ -89,6 +99,42 @@ public class AbstractRunner {
         }
     }
 
+    protected void generalPrapare(){
+        List<String> fullList = runCtx.getFullUniqList();
+
+        checkPlain(new CheckConnWorker(runCtx, fullList));
+
+        checkPlain(new CheckJavaWorker(runCtx, runCtx.getUniqHostsByMode(RunMode.PLAIN)));
+
+        List<NodeType> dockerList = runCtx.getNodeTypes(RunMode.DOCKER);
+
+        DockerRunner dockerRunner = new DockerRunner(runCtx);
+
+        if (!dockerList.isEmpty()) {
+            dockerRunner.check(dockerList);
+
+            dockerRunner.cleanUp(dockerList, "before");
+        }
+
+        new KillWorker(runCtx, fullList).workOnHosts();
+
+        new DeployWorker(runCtx, fullList).workOnHosts();
+
+        if (!dockerList.isEmpty()) {
+            dockerRunner.prepare(dockerList);
+
+            dockerRunner.start(dockerList);
+        }
+    }
+
+    protected void generalCleanUp(){
+        if (!dockerList.isEmpty()) {
+            dockerRunner.collect(dockerList);
+
+            dockerRunner.cleanUp(dockerList, "after");
+        }
+    }
+
     protected List<String> getHosts(NodeType type){
         return type == NodeType.SERVER ? runCtx.getServList() : runCtx.getDrvrList();
     }
@@ -103,7 +149,68 @@ public class AbstractRunner {
         return log;
     }
 
+    protected void createCharts() {
+        String mainResDir = String.format("%s/output/result-%s", runCtx.getLocWorkDir(), runCtx.getMainDateTime());
 
+        String cp = String.format("%s/libs/*", runCtx.getLocWorkDir());
 
+        String mainClass = "org.yardstickframework.report.jfreechart.JFreeChartGraphPlotter";
 
+        String jvmOpts = "-Xmx1g";
+
+        String stdCharts = String.format("%s -cp %s %s -gm STANDARD -i %s", jvmOpts, cp, mainClass, mainResDir);
+
+        CommandHandler hndl = new CommandHandler(runCtx);
+
+        hndl.runLocalJava(stdCharts);
+
+        String charts = String.format("%s -cp %s %s -i %s", jvmOpts, cp, mainClass, mainResDir);
+
+        hndl.runLocalJava(charts);
+
+        File outDir = new File(mainResDir).getParentFile();
+
+        try {
+            new CountDownLatch(1).await(3000L, TimeUnit.MILLISECONDS);
+        }
+        catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        if (outDir.exists() && outDir.isDirectory()) {
+            File[] arr = outDir.listFiles();
+
+            for (File resComp : arr) {
+                if (resComp.getName().startsWith("results-compound")) {
+                    String mvCmd = String.format("mv %s %s",
+                        resComp.getAbsolutePath(), mainResDir);
+
+                    runCmd(mvCmd);
+                }
+            }
+        }
+    }
+
+    protected List<NodeInfo> startNodes(NodeType type, String cfgStr) {
+        NodeWorker startServWorker = new StartNodeWorker(runCtx, runCtx.getNodes(type), cfgStr);
+
+        return startServWorker.workForNodes();
+    }
+
+    protected void checkLogs(List<NodeInfo> list){
+        NodeWorker checkWorker = new CheckLogWorker(runCtx,list);
+
+        List<NodeInfo> resList = checkWorker.workForNodes();
+
+        for (NodeInfo nodeInfo : resList){
+            if(nodeInfo.nodeStatus() == NodeStatus.NOT_RUNNING)
+                System.exit(1);
+        }
+    }
+
+    protected void waitForNodes(List<NodeInfo> nodeList, NodeStatus expStatus) {
+        NodeWorker waitWorker = new WaitNodeWorker(runCtx, nodeList, expStatus);
+
+        waitWorker.workForNodes();
+    }
 }
