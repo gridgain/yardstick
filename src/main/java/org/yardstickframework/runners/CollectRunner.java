@@ -22,16 +22,16 @@ public class CollectRunner extends AbstractRunner {
     }
 
     public int run1() {
-        checkPlain(new CheckConnWorker(runCtx, runCtx.getFullUniqList()));
+        checkPlain(new CheckConnWorker(runCtx, runCtx.getFullUniqueList()));
 
-        List<NodeType> dockerList = runCtx.getNodeTypes(RunMode.DOCKER);
+        List<NodeType> dockerList = runCtx.nodeTypes(RunMode.DOCKER);
 
         DockerRunner dockerRunner = new DockerRunner(runCtx);
 
         if (!dockerList.isEmpty())
             dockerRunner.collect(dockerList);
 
-        new CollectWorker(runCtx, runCtx.getFullUniqList()).workOnHosts();
+        new CollectWorker(runCtx, runCtx.getFullUniqueList()).workOnHosts();
 
         return 0;
     }

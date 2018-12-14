@@ -39,7 +39,7 @@ public class CheckLogWorker extends NodeWorker {
             new CountDownLatch(1).await(1000L, TimeUnit.MILLISECONDS);
         }
 
-        NodeChecker checker = runCtx.getNodeChecker(nodeInfo);
+        NodeChecker checker = runCtx.nodeChecker(nodeInfo);
 
         checker.checkNode(nodeInfo);
 

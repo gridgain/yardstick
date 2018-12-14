@@ -24,9 +24,9 @@ public class CleanUpRunner  extends AbstractRunner {
     }
 
     public int run1() {
-        checkPlain(new CheckConnWorker(runCtx, runCtx.getFullUniqList()));
+        checkPlain(new CheckConnWorker(runCtx, runCtx.getFullUniqueList()));
 
-        List<NodeType> dockerList = runCtx.getNodeTypes(RunMode.DOCKER);
+        List<NodeType> dockerList = runCtx.nodeTypes(RunMode.DOCKER);
 
         DockerRunner dockerRunner = new DockerRunner(runCtx);
 
@@ -36,11 +36,11 @@ public class CleanUpRunner  extends AbstractRunner {
             dockerRunner.cleanUp(dockerList, "after");
         }
 
-        HostWorker killWorker = new KillWorker(runCtx, runCtx.getFullUniqList());
+        HostWorker killWorker = new KillWorker(runCtx, runCtx.getFullUniqueList());
 
         killWorker.workOnHosts();
 
-        HostWorker cleanWorker = new CleanRemDirWorker(runCtx, runCtx.getFullUniqList());
+        HostWorker cleanWorker = new CleanRemDirWorker(runCtx, runCtx.getFullUniqueList());
 
         cleanWorker.workOnHosts();
 

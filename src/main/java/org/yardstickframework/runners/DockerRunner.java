@@ -30,7 +30,7 @@ public class DockerRunner extends AbstractRunner {
     }
 
     public void checkForNodeType(NodeType type){
-        new DockerCheckWorker(runCtx, runCtx.getUniqHostsByType(type)).workOnHosts();
+        new DockerCheckWorker(runCtx, runCtx.uniqueHostsByType(type)).workOnHosts();
     }
 
     public void prepare(List<NodeType> nodeTypeList){
@@ -75,15 +75,15 @@ public class DockerRunner extends AbstractRunner {
 
     public void cleanForNodeType(NodeType type, String flag){
         if(runCtx.dockerContext().getRemoveContainersFlags().get(flag))
-            new DockerCleanContWorker(runCtx, runCtx.getUniqHostsByType(type)).workOnHosts();
+            new DockerCleanContWorker(runCtx, runCtx.uniqueHostsByType(type)).workOnHosts();
 
         if(runCtx.dockerContext().getRemoveImagesFlags().get(flag))
-            new DockerCleanImagesWorker(runCtx, runCtx.getUniqHostsByType(type)).workOnHosts();
+            new DockerCleanImagesWorker(runCtx, runCtx.uniqueHostsByType(type)).workOnHosts();
     }
 
 
     public void prepareForNodeType(NodeType type){
-        new DockerBuildImagesWorker(runCtx, runCtx.getUniqHostsByType(type), type).workOnHosts();
+        new DockerBuildImagesWorker(runCtx, runCtx.uniqueHostsByType(type), type).workOnHosts();
     }
 
     public void start(List<NodeType> nodeTypeList){

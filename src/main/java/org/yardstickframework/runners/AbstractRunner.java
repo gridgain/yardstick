@@ -100,13 +100,13 @@ public class AbstractRunner {
     }
 
     protected void generalPrapare(){
-        List<String> fullList = runCtx.getFullUniqList();
+        List<String> fullList = runCtx.getFullUniqueList();
 
         checkPlain(new CheckConnWorker(runCtx, fullList));
 
-        checkPlain(new CheckJavaWorker(runCtx, runCtx.getUniqHostsByMode(RunMode.PLAIN)));
+        checkPlain(new CheckJavaWorker(runCtx, runCtx.uniqueHostsByMode(RunMode.PLAIN)));
 
-        List<NodeType> dockerList = runCtx.getNodeTypes(RunMode.DOCKER);
+        List<NodeType> dockerList = runCtx.nodeTypes(RunMode.DOCKER);
 
         DockerRunner dockerRunner = new DockerRunner(runCtx);
 
@@ -136,11 +136,11 @@ public class AbstractRunner {
     }
 
     protected List<String> getHosts(NodeType type){
-        return type == NodeType.SERVER ? runCtx.getServList() : runCtx.getDrvrList();
+        return type == NodeType.SERVER ? runCtx.serverList() : runCtx.driverList();
     }
 
     protected List<String> getUniqHosts(NodeType type){
-        return type == NodeType.SERVER ? runCtx.getServUniqList() : runCtx.getDrvrUniqList();
+        return type == NodeType.SERVER ? runCtx.serverUniqueList() : runCtx.driverUniqueList();
     }
 
     protected Logger log(){

@@ -31,13 +31,13 @@ public class RestartNodeWorker extends StartNodeWorker {
 
         NodeType type = nodeInfo.nodeType();
 
-        if (runCtx.getRestartContext(type) == null) {
+        if (runCtx.restartContext(type) == null) {
             log().debug(String.format("No restart schedule for %s nodes.", nodeInfo.typeLow()));
 
             return nodeInfo;
         }
 
-        RestartContext restCtx = runCtx.getRestartContext(type);
+        RestartContext restCtx = runCtx.restartContext(type);
 
         if (restCtx.get(host) == null || restCtx.get(host).get(id) == null) {
             log().debug(String.format("No restart schedule for '%s' node.", nodeInfo.toShortStr()));
@@ -45,7 +45,7 @@ public class RestartNodeWorker extends StartNodeWorker {
             return nodeInfo;
         }
 
-        RestartSchedule restartInfo = runCtx.getRestartContext(type).get(host).get(id);
+        RestartSchedule restartInfo = runCtx.restartContext(type).get(host).get(id);
 
         log().info(String.format("Restart schedule for the node '%s' on the host '%s': %s.",
             nodeInfo.toShortStr(),

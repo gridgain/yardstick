@@ -31,7 +31,7 @@ public class WaitNodeWorker extends NodeWorker {
     @Override public NodeInfo doWork(NodeInfo nodeInfo) throws InterruptedException {
         boolean unexpected = true;
 
-        NodeChecker checker = runCtx.getNodeChecker(nodeInfo);
+        NodeChecker checker = runCtx.nodeChecker(nodeInfo);
 
         while (unexpected) {
             checker.checkNode(nodeInfo);

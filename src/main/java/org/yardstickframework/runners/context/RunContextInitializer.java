@@ -255,7 +255,7 @@ public class RunContextInitializer {
 
         ctx.driverHosts(getHosts("DRIVER_HOSTS"));
 
-        List<String> allHosts = ctx.getFullUniqList();
+        List<String> allHosts = ctx.getFullUniqueList();
 
         Enumeration e = null;
 
@@ -363,12 +363,6 @@ public class RunContextInitializer {
 
         ctx.configList(cfgList);
     }
-
-//    private void setDockerCtx() {
-//        if (serverRunMode() == RunMode.DOCKER || driverRunMode() == RunMode.DOCKER)
-//            dockerCtx = DockerContext.getDockerContext(String.format("%s/config/docker/docker-context.yaml", ctx.localeWorkDirectory()));
-//
-//    }
 
     private int getNodesNum() {
         return ctx.getFullHostList().size();

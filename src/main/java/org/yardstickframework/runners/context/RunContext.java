@@ -10,8 +10,6 @@ import java.util.Properties;
 import java.util.Set;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
-//import org.slf4j.Logger;
-//import org.slf4j.LoggerFactory;
 import org.yardstickframework.runners.checkers.InDockerNodeChecker;
 import org.yardstickframework.runners.starters.InDockerNodeStarter;
 import org.yardstickframework.runners.checkers.NodeChecker;
@@ -20,7 +18,7 @@ import org.yardstickframework.runners.checkers.PlainNodeChecker;
 import org.yardstickframework.runners.starters.PlainNodeStarter;
 
 /**
- *
+ * Run context.
  */
 public class RunContext {
     /** */
@@ -101,49 +99,20 @@ public class RunContext {
     /** */
     private DockerContext dockerCtx;
 
-    /** */
+    /**
+     * Constructor.
+     */
     private RunContext() {
         //No_op
     }
 
-
-
-    public boolean isRestartServs() {
-        return restartServs;
-    }
-
-    public void setRestartServs(boolean restartServs) {
-        this.restartServs = restartServs;
-    }
-
-    public RestartContext getServRestartCtx() {
-        return servRestartCtx;
-    }
-
-    public void setRestartCtx(RestartContext serverRestartCtx) {
-        this.servRestartCtx = serverRestartCtx;
-    }
-
-    public boolean isRestartDrivers() {
-        return restartDrivers;
-    }
-
-    public void setRestartDrivers(boolean restartDrivers) {
-        this.restartDrivers = restartDrivers;
-    }
-
-    public RestartContext getDriverRestartCtx() {
-        return driverRestartCtx;
-    }
-
-    public void setDriverRestartCtx(RestartContext driverRestartCtx) {
-        this.driverRestartCtx = driverRestartCtx;
-    }
-
     /**
+     * Creates and sets run context.
      *
+     * @param args {@code String[]} Command line arguments.
+     * @return {@code RunContext} Run context instance.
      */
-    public static RunContext getRunContext(String[] args) {
+    public static synchronized RunContext getRunContext(String[] args) {
         if (instance == null) {
             instance = new RunContext();
 
@@ -155,47 +124,71 @@ public class RunContext {
         return instance;
     }
 
-    /** */
+    /**
+     *
+     * @return Full list of server and driver IP addresses.
+     */
     public List<String> getFullHostList() {
-        List<String> res = new ArrayList<>(getServList());
+        List<String> res = new ArrayList<>(serverList());
 
-        res.addAll(getDrvrList());
+        res.addAll(driverList());
 
         return res;
     }
 
-    /** */
-    public List<String> getFullUniqList() {
+    /**
+     *
+     * @return Full unique list of server and driver IP addresses.
+     */
+    public List<String> getFullUniqueList() {
         List<String> res = new ArrayList<>();
 
-        res.addAll(getServList());
+        res.addAll(serverList());
 
-        res.addAll(getDrvrList());
+        res.addAll(driverList());
 
-        return makeUniq(res);
-    }
-
-    public List<String> getServUniqList() {
-        return makeUniq(getServList());
-    }
-
-    public List<String> getDrvrUniqList() {
-        return makeUniq(getDrvrList());
-    }
-
-    public List<String> getServList() {
-        return servHosts;
-    }
-
-    public List<String> getDrvrList() {
-        return drvrHosts;
+        return makeUnique(res);
     }
 
     /**
-     * @param src
-     * @return Value
+     *
+     * @return Unique list of server IP addresses.
      */
-    private List<String> makeUniq(List<String> src) {
+    public List<String> serverUniqueList() {
+        return makeUnique(serverList());
+    }
+
+    /**
+     *
+     * @return Unique list of driver IP addresses.
+     */
+    public List<String> driverUniqueList() {
+        return makeUnique(driverList());
+    }
+
+    /**
+     *
+     * @return Unique list of server IP addresses.
+     */
+    public List<String> serverList() {
+        return new ArrayList<>(servHosts);
+    }
+
+    /**
+     *
+     * @return Unique list of driver IP addresses.
+     */
+    public List<String> driverList() {
+        return new ArrayList<>(drvrHosts);
+    }
+
+    /**
+     * Removes repeated addresses from the list.
+     *
+     * @param src Source list.
+     * @return Unique list.
+     */
+    private List<String> makeUnique(List<String> src) {
         Set<String> set = new HashSet<>(src);
 
         List<String> res = new ArrayList<>(set);
@@ -205,8 +198,13 @@ public class RunContext {
         return res;
     }
 
-    public NodeStarter getNodeStarter(NodeInfo nodeInfo) {
-        RunMode mode = getStartMode(nodeInfo);
+    /**
+     *
+     * @param nodeInfo Node info.
+     * @return Node starter depending on node run mode.
+     */
+    public NodeStarter nodeStarter(NodeInfo nodeInfo) {
+        RunMode mode = runMode(nodeInfo);
 
         switch (mode) {
             case PLAIN:
@@ -218,8 +216,13 @@ public class RunContext {
         }
     }
 
-    public NodeChecker getNodeChecker(NodeInfo nodeInfo) {
-        RunMode mode = getStartMode(nodeInfo);
+    /**
+     *
+     * @param nodeInfo Node info.
+     * @return Node checker depending on node run mode.
+     */
+    public NodeChecker nodeChecker(NodeInfo nodeInfo) {
+        RunMode mode = runMode(nodeInfo);
 
         switch (mode) {
             case PLAIN:
@@ -231,11 +234,21 @@ public class RunContext {
         }
     }
 
-    private RunMode getStartMode(NodeInfo nodeInfo) {
+    /**
+     *
+     * @param nodeInfo Node info.
+     * @return Node run mode.
+     */
+    private RunMode runMode(NodeInfo nodeInfo) {
         return nodeInfo.runMode();
     }
 
-    public String getDescription(String src) {
+    /**
+     *
+     * @param src {@code String} Source string.
+     * @return Description.
+     */
+    public String description(String src) {
         String[] argArr = src.split(" ");
 
         String res = "Unknown";
@@ -255,22 +268,37 @@ public class RunContext {
         return res;
     }
 
-    //TODO
+    /**
+     * Resolves remote path.
+     *
+     * @param srcPath Relative path.
+     * @return Remote path.
+     */
     public String resolveRemotePath(String srcPath) {
-        String fullPath = String.format("%s/%s", remWorkDir, srcPath);
+        if(!srcPath.startsWith(remWorkDir))
+            return String.format("%s/%s", remWorkDir, srcPath);
 
-        return fullPath;
+        return srcPath;
     }
 
+    /**
+     * Checks if server host list contains any of driver hosts and vice versa.
+     * @return {@code true} if all hosts are different or {@code false} otherwise.
+     */
     public boolean checkIfDifferentHosts() {
-        for (String host : getServUniqList())
-            if (getDrvrUniqList().contains(host))
+        for (String host : serverUniqueList())
+            if (driverUniqueList().contains(host))
                 return false;
 
         return true;
     }
 
-    public List<NodeType> getNodeTypes(RunMode mode) {
+    /**
+     *
+     * @param mode Run mode.
+     * @return List of related node types depending on run mode.
+     */
+    public List<NodeType> nodeTypes(RunMode mode) {
         List<NodeType> res = new ArrayList<>();
 
         if (serverRunMode() == mode)
@@ -282,11 +310,21 @@ public class RunContext {
         return res;
     }
 
-    public List<String> getHostsByType(NodeType type) {
+    /**
+     *
+     * @param type Node type.
+     * @return List of related hosts depending on node type.
+     */
+    private List<String> hostsByType(NodeType type) {
         return type == NodeType.SERVER ? servHosts : drvrHosts;
     }
 
-    public List<String> getHostsByMode(RunMode mode) {
+    /**
+     *
+     * @param mode Run mode.
+     * @return List of related hosts depending on run mode.
+     */
+    private List<String> hostsByMode(RunMode mode) {
         List<String> res = new ArrayList<>();
 
         if (servRunMode == mode)
@@ -298,19 +336,39 @@ public class RunContext {
         return res;
     }
 
-    public List<String> getUniqHostsByType(NodeType type) {
-        return makeUniq(getHostsByType(type));
+    /**
+     *
+     * @param type Node type.
+     * @return List of unique related hosts depending on node type.
+     */
+    public List<String> uniqueHostsByType(NodeType type) {
+        return makeUnique(hostsByType(type));
     }
 
-    public List<String> getUniqHostsByMode(RunMode mode) {
-        return makeUniq(getHostsByMode(mode));
+    /**
+     *
+     * @param mode Run mode.
+     * @return List of unique related hosts depending on run mode.
+     */
+    public List<String> uniqueHostsByMode(RunMode mode) {
+        return makeUnique(hostsByMode(mode));
     }
 
+    /**
+     *
+     * @param host Host.
+     * @return {@code String} Host Java home.
+     */
     public String getHostJava(String host) {
         return hostJavaHomeMap.get(host);
     }
 
-    public RunMode getRunMode(NodeType type) {
+    /**
+     *
+     * @param type Node type.
+     * @return Node run mode.
+     */
+    private RunMode getRunMode(NodeType type) {
         switch (type) {
             case SERVER:
                 return servRunMode;
@@ -321,8 +379,13 @@ public class RunContext {
         }
     }
 
+    /**
+     *
+     * @param type Node type.
+     * @return List of {@code NodeInfo} objects created with related run modes.
+     */
     public List<NodeInfo> getNodes(NodeType type) {
-        List<String> hosts = getHostsByType(type);
+        List<String> hosts = hostsByType(type);
 
         RunMode mode = getRunMode(type);
 
@@ -334,7 +397,12 @@ public class RunContext {
         return res;
     }
 
-    public RestartContext getRestartContext(NodeType type) {
+    /**
+     *
+     * @param type Node type.
+     * @return Restart context.
+     */
+    public RestartContext restartContext(NodeType type) {
         switch (type) {
             case SERVER:
                 return servRestartCtx;
@@ -343,9 +411,12 @@ public class RunContext {
             default:
                 throw new IllegalArgumentException(String.format("Unknown node type: %s", type));
         }
-
     }
 
+    /**
+     *
+     * @return Logger.
+     */
     protected static Logger log() {
         return LogManager.getLogger(RunContext.class.getSimpleName());
     }
@@ -372,24 +443,10 @@ public class RunContext {
     }
 
     /**
-     * @return Server restart context.
-     */
-    public RestartContext serverRestartContext() {
-        return servRestartCtx;
-    }
-
-    /**
      * @param srvRestartCtx New server restart context.
      */
     public void serverRestartContext(RestartContext srvRestartCtx) {
         servRestartCtx = srvRestartCtx;
-    }
-
-    /**
-     * @return Driver restart context.
-     */
-    public RestartContext driverRestartContext() {
-        return driverRestartCtx;
     }
 
     /**
@@ -487,14 +544,14 @@ public class RunContext {
      * @return Config list.
      */
     public List<String> configList() {
-        return cfgList;
+        return new ArrayList<>(cfgList);
     }
 
     /**
      * @param cfgList New config list.
      */
     public void configList(List<String> cfgList) {
-        this.cfgList = cfgList;
+        this.cfgList = new ArrayList<>(cfgList);
     }
 
     /**
@@ -514,7 +571,7 @@ public class RunContext {
     /**
      * @return Server run mode.
      */
-    public RunMode serverRunMode() {
+    private RunMode serverRunMode() {
         return servRunMode;
     }
 
@@ -528,7 +585,7 @@ public class RunContext {
     /**
      * @return Driver run mode.
      */
-    public RunMode driverRunMode() {
+    private RunMode driverRunMode() {
         return drvrRunMode;
     }
 
@@ -568,31 +625,31 @@ public class RunContext {
     }
 
     /**
-     * @return Serv hosts.
+     * @return Server hosts.
      */
     public List<String> serverHosts() {
-        return servHosts;
+        return new ArrayList<>(servHosts);
     }
 
     /**
-     * @param servHosts New serv hosts.
+     * @param servHosts New server hosts.
      */
-    public void serverHosts(List<String> servHosts) {
-        this.servHosts = servHosts;
+    void serverHosts(List<String> servHosts) {
+        this.servHosts = new ArrayList<>(servHosts);
     }
 
     /**
-     * @return Drvr hosts.
+     * @return Driver hosts.
      */
     public List<String> driverHosts() {
-        return drvrHosts;
+        return new ArrayList<>(drvrHosts);
     }
 
     /**
      * @param drvrHosts New drvr hosts.
      */
-    public void driverHosts(List<String> drvrHosts) {
-        this.drvrHosts = drvrHosts;
+    void driverHosts(List<String> drvrHosts) {
+        this.drvrHosts = new ArrayList<>(drvrHosts);
     }
 
     /**
@@ -627,13 +684,13 @@ public class RunContext {
      * @return Host java home map.
      */
     public Map<String, String> hostJavaHomeMap() {
-        return hostJavaHomeMap;
+        return new HashMap<>(hostJavaHomeMap);
     }
 
     /**
      * @param hostJavaHomeMap New host java home map.
      */
     public void hostJavaHomeMap(Map<String, String> hostJavaHomeMap) {
-        this.hostJavaHomeMap = hostJavaHomeMap;
+        this.hostJavaHomeMap = new HashMap<>(hostJavaHomeMap);
     }
 }

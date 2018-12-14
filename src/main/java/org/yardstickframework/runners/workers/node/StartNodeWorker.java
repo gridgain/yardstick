@@ -101,7 +101,7 @@ public class StartNodeWorker extends NodeWorker {
             e.printStackTrace();
         }
 
-        String descript = runCtx.getDescription(cfgFullStr);
+        String descript = runCtx.description(cfgFullStr);
 
         nodeInfo.description(descript);
 
@@ -118,7 +118,7 @@ public class StartNodeWorker extends NodeWorker {
 
         nodeInfo.logPath(logFileName);
 
-        NodeStarter starter = runCtx.getNodeStarter(nodeInfo);
+        NodeStarter starter = runCtx.nodeStarter(nodeInfo);
 
         return starter.startNode(nodeInfo);
     }
