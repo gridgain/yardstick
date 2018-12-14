@@ -1,21 +1,30 @@
 package org.yardstickframework.runners.context;
 
+/**
+ * Docker info.
+ */
 public class DockerInfo {
+    /** */
     private String imageName;
+
+    /** */
     private String imageVer;
+
+    /** */
     private String contName;
+
+    /** */
     private String contId;
 
+    /**
+     * Constructor.
+     *
+     * @param imageName Image name.
+     * @param contName Container name.
+     */
     public DockerInfo(String imageName, String contName) {
         this.imageName = imageName;
         this.contName = contName;
-    }
-
-    public DockerInfo(String imageName, String imageVer, String contName, String contId) {
-        this.imageName = imageName;
-        this.imageVer = imageVer;
-        this.contName = contName;
-        this.contId = contId;
     }
 
     /**

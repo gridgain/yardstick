@@ -30,10 +30,11 @@ public class InDockerNodeStarter extends AbstractRunner implements NodeStarter {
             runCtx.dockerContext().getServerDockerJavaHome() :
             runCtx.dockerContext().getDriverDockerJavaHome() ;
 
-        String startNodeCmd = String.format("%s/bin/java %s", javaHome, javaParams);
 
         try {
             String mkdirCmd = String.format("exec %s mkdir -p %s", contName, nodeLogDir);
+
+            String startNodeCmd = String.format("%s/bin/java %s", javaHome, javaParams);
 
             String cmd = String.format("exec %s nohup %s > %s 2>& 1 &", contName, startNodeCmd, nodeInfo.getLogPath());
 
@@ -45,7 +46,7 @@ public class InDockerNodeStarter extends AbstractRunner implements NodeStarter {
             e.printStackTrace();
         }
 
-        nodeInfo.dockerInfo(new DockerInfo(null, null, contName, null));
+        nodeInfo.dockerInfo(new DockerInfo(null, contName));
 
         return nodeInfo;
     }
