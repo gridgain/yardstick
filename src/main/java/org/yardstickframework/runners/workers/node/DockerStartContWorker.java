@@ -27,11 +27,11 @@ public class DockerStartContWorker extends DockerNodeWorker {
     }
 
     @Override public NodeInfo doWork(NodeInfo nodeInfo) throws InterruptedException {
-        String host = nodeInfo.getHost();
+        String host = nodeInfo.host();
 
-        String id  = nodeInfo.getId();
+        String id  = nodeInfo.id();
 
-        NodeType type = nodeInfo.getNodeType();
+        NodeType type = nodeInfo.nodeType();
 
         String imageName = dockerCtx.getImageName(type);
 
@@ -103,7 +103,7 @@ public class DockerStartContWorker extends DockerNodeWorker {
     }
 
     private void setDockerJavaHome(NodeInfo nodeInfo) throws IOException, InterruptedException {
-        NodeType type = nodeInfo.getNodeType();
+        NodeType type = nodeInfo.nodeType();
 
         String contName = nodeInfo.dockerInfo().contName();
 
@@ -111,7 +111,7 @@ public class DockerStartContWorker extends DockerNodeWorker {
 
         CommandHandler hndl = new CommandHandler(runCtx);
 
-        String host = nodeInfo.getHost();
+        String host = nodeInfo.host();
 
         CommandExecutionResult res = hndl.runDockerCmd(host, echoCmd);
 

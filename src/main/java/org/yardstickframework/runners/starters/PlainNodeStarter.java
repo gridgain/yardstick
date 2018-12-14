@@ -20,9 +20,9 @@ public class PlainNodeStarter extends AbstractRunner implements NodeStarter {
     @Override public NodeInfo startNode(NodeInfo nodeInfo) throws InterruptedException{
         CommandHandler hndl = new CommandHandler(runCtx);
 
-        String host = nodeInfo.getHost();
+        String host = nodeInfo.host();
 
-        String cmd = nodeInfo.getParamStr();
+        String cmd = nodeInfo.parameterString();
 
         String javaHome = runCtx.getHostJava(host);
 
@@ -34,13 +34,13 @@ public class PlainNodeStarter extends AbstractRunner implements NodeStarter {
         CommandExecutionResult res = null;
 
         try {
-            res = hndl.startNode(host, withJavaHome, nodeInfo.getLogPath());
+            res = hndl.startNode(host, withJavaHome, nodeInfo.logPath());
         }
         catch (IOException e) {
             e.printStackTrace();
         }
 
-        nodeInfo.setCmdExRes(res);
+        nodeInfo.commandExecutionResult(res);
 
         return nodeInfo;
     }

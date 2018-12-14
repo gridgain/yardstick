@@ -35,7 +35,7 @@ public abstract class Worker{
     protected String threadName(NodeInfo nodeInfo){
         StringBuilder sb = new StringBuilder(String.format("%s-%s",
             getWorkerName(),
-            nodeInfo.getHost()));
+            nodeInfo.host()));
 
         if (getWorkerName().startsWith("Restart"))
             sb.append("-").append(BenchmarkUtils.hms());

@@ -6,120 +6,64 @@ import javax.annotation.Nullable;
 import org.yardstickframework.runners.CommandExecutionResult;
 import org.yardstickframework.runners.workers.WorkResult;
 
+/**
+ * Node info.
+ */
 public class NodeInfo implements WorkResult {
-
+    /** */
     private NodeType nodeType;
 
+    /** */
     private String host;
 
+    /** */
     private String port;
 
+    /** */
     private String id;
 
+    /** */
     private String paramStr;
 
+    /** */
     private String logPath;
 
+    /** */
     private RunMode runMode;
 
+    /** */
     private DockerInfo dockerInfo;
 
+    /** */
     private CommandExecutionResult cmdExRes;
 
-    private RestartSchedule restCtx;
+    /** */
+    private List<String> errMsg = new ArrayList<>();
 
-    private List<String> errMsgs = new ArrayList<>();
+    /** */
+    private NodeStatus nodeStatus;
 
-    public List<String> getErrMsgs() {
-        return errMsgs;
-    }
+    /** */
+    private String nodeStartTime;
 
-    public NodeStatus nodeStatus;
+    /** */
+    private String descr;
 
-    public String nodeStartTime;
-
-    public String descript;
-
+    /**
+     * Constructor.
+     *
+     * @param nodeType Node type.
+     * @param host Host.
+     * @param port Port.
+     * @param id Id.
+     * @param runMode Run Mode.
+     */
     public NodeInfo(NodeType nodeType, String host, @Nullable String port, String id, RunMode runMode) {
         this.nodeType = nodeType;
         this.host = host;
         this.port = port;
         this.id = id;
         this.runMode = runMode;
-    }
-
-    public NodeInfo(NodeType nodeType, String host, @Nullable String port, String id,
-        String paramStr, String logPath) {
-        this.nodeType = nodeType;
-        this.host = host;
-        this.port = port;
-        this.id = id;
-        this.paramStr = paramStr;
-        this.logPath = logPath;
-    }
-
-    public NodeType getNodeType() {
-        return nodeType;
-    }
-
-    public void setNodeType(NodeType nodeType) {
-        this.nodeType = nodeType;
-    }
-
-    public String getHost() {
-        return host;
-    }
-
-    public void setHost(String host) {
-        this.host = host;
-    }
-
-    public String getPort() {
-        return port;
-    }
-
-    public void setPort(String port) {
-        this.port = port;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getParamStr() {
-        return paramStr;
-    }
-
-    public void setParamStr(String paramStr) {
-        this.paramStr = paramStr;
-    }
-
-    public String getLogPath() {
-        return logPath;
-    }
-
-    public void setLogPath(String logPath) {
-        this.logPath = logPath;
-    }
-
-    public CommandExecutionResult getCmdExRes() {
-        return cmdExRes;
-    }
-
-    public void setCmdExRes(CommandExecutionResult cmdExRes) {
-        this.cmdExRes = cmdExRes;
-    }
-
-    public String typeLow() {
-        return nodeType.toString().toLowerCase();
-    }
-
-    public String toShortStr(){
-        return String.format("%s%s", typeLow(), id);
     }
 
     /**
@@ -144,13 +88,6 @@ public class NodeInfo implements WorkResult {
     }
 
     /**
-     * @param runMode New run mode.
-     */
-    public void runMode(RunMode runMode) {
-        this.runMode = runMode;
-    }
-
-    /**
      * @return Node start time.
      */
     public String nodeStartTime() {
@@ -165,17 +102,17 @@ public class NodeInfo implements WorkResult {
     }
 
     /**
-     * @return Descript.
+     * @return Description.
      */
-    public String descript() {
-        return descript;
+    public String description() {
+        return descr;
     }
 
     /**
-     * @param descript New descript.
+     * @param descr New description.
      */
-    public void descript(String descript) {
-        this.descript = descript;
+    public void description(String descr) {
+        this.descr = descr;
     }
 
     /**
@@ -207,16 +144,114 @@ public class NodeInfo implements WorkResult {
     }
 
     /**
-     * @return Logger path.
+     * @return Log path.
      */
-    public String loggerPath() {
+    public String logPath() {
         return logPath;
     }
 
     /**
-     * @param logPath New logger path.
+     * @param logPath New log path.
      */
-    public void loggerPath(String logPath) {
+    public void logPath(String logPath) {
         this.logPath = logPath;
+    }
+
+    /**
+     * @return Command execution result.
+     */
+    public CommandExecutionResult commandExecutionResult() {
+        return cmdExRes;
+    }
+
+    /**
+     * @param cmdExRes Command execution result.
+     */
+    public void commandExecutionResult(CommandExecutionResult cmdExRes) {
+        this.cmdExRes = cmdExRes;
+    }
+
+    /**
+     * @return Id.
+     */
+    public String id() {
+        return id;
+    }
+
+    /**
+     * @param id New id.
+     */
+    public void id(String id) {
+        this.id = id;
+    }
+
+    /**
+     * @return Node type.
+     */
+    public NodeType nodeType() {
+        return nodeType;
+    }
+
+    /**
+     * @param nodeType New node type.
+     */
+    public void nodeType(NodeType nodeType) {
+        this.nodeType = nodeType;
+    }
+
+    /**
+     * @return Host.
+     */
+    public String host() {
+        return host;
+    }
+
+    /**
+     * @param host New host.
+     */
+    public void host(String host) {
+        this.host = host;
+    }
+
+    /**
+     * @return Port.
+     */
+    public String port() {
+        return port;
+    }
+
+    /**
+     * @param port New port.
+     */
+    public void port(String port) {
+        this.port = port;
+    }
+
+    /**
+     * @return Error messages.
+     */
+    public List<String> errorMessages() {
+        return new ArrayList<>(errMsg);
+    }
+
+    /**
+     * @param errMsg New error messages.
+     */
+    public void errorMessages(List<String> errMsg) {
+        this.errMsg = new ArrayList<>(errMsg);
+    }
+
+    /**
+     * @return {@code String} Node type in lower case..
+     */
+    public String typeLow() {
+        return nodeType.toString().toLowerCase();
+    }
+
+    /**
+     * @return {@code String} Short string e.g. server0.
+     */
+    public String toShortStr() {
+        return String.format("%s%s", typeLow(), id);
     }
 }

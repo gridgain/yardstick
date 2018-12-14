@@ -25,11 +25,11 @@ public class RestartNodeWorker extends StartNodeWorker {
     }
 
     @Override public NodeInfo doWork(NodeInfo nodeInfo) throws InterruptedException {
-        String host = nodeInfo.getHost();
+        String host = nodeInfo.host();
 
-        String id = nodeInfo.getId();
+        String id = nodeInfo.id();
 
-        NodeType type = nodeInfo.getNodeType();
+        NodeType type = nodeInfo.nodeType();
 
         if (runCtx.getRestartContext(type) == null) {
             log().debug(String.format("No restart schedule for %s nodes.", nodeInfo.typeLow()));

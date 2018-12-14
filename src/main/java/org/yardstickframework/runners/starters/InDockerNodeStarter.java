@@ -16,15 +16,15 @@ public class InDockerNodeStarter extends AbstractRunner implements NodeStarter {
     }
 
     @Override public NodeInfo startNode(NodeInfo nodeInfo) throws InterruptedException {
-        String contName = String.format("YARDSTICK_%s_%s", nodeInfo.getNodeType(), nodeInfo.getId());
+        String contName = String.format("YARDSTICK_%s_%s", nodeInfo.nodeType(), nodeInfo.id());
 
-        String nodeLogDir = new File(nodeInfo.getLogPath()).getParent();
+        String nodeLogDir = new File(nodeInfo.logPath()).getParent();
 
         CommandHandler hndl = new CommandHandler(runCtx);
 
-        String javaParams = nodeInfo.getParamStr();
+        String javaParams = nodeInfo.parameterString();
 
-        NodeType type = nodeInfo.getNodeType();
+        NodeType type = nodeInfo.nodeType();
 
         String javaHome = type == NodeType.SERVER ?
             runCtx.dockerContext().getServerDockerJavaHome() :
@@ -36,11 +36,11 @@ public class InDockerNodeStarter extends AbstractRunner implements NodeStarter {
 
             String startNodeCmd = String.format("%s/bin/java %s", javaHome, javaParams);
 
-            String cmd = String.format("exec %s nohup %s > %s 2>& 1 &", contName, startNodeCmd, nodeInfo.getLogPath());
+            String cmd = String.format("exec %s nohup %s > %s 2>& 1 &", contName, startNodeCmd, nodeInfo.logPath());
 
-            hndl.runDockerCmd(nodeInfo.getHost(), mkdirCmd);
+            hndl.runDockerCmd(nodeInfo.host(), mkdirCmd);
 
-            hndl.runDockerCmd(nodeInfo.getHost(), cmd);
+            hndl.runDockerCmd(nodeInfo.host(), cmd);
         }
         catch (IOException e) {
             e.printStackTrace();

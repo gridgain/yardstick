@@ -28,10 +28,10 @@ public class InDockerNodeChecker extends AbstractRunner implements NodeChecker {
 
     /** {@inheritDoc} */
     @Override public NodeInfo checkNode(NodeInfo nodeInfo) throws InterruptedException{
-        String host = nodeInfo.getHost();
+        String host = nodeInfo.host();
 
         String nodeToCheck = String.format("Dyardstick.%s%s ",
-            nodeInfo.getNodeType().toString().toLowerCase(), nodeInfo.getId());
+            nodeInfo.nodeType().toString().toLowerCase(), nodeInfo.id());
 
         String checkCmd = String.format("exec %s pgrep -f \"%s\"", nodeInfo.dockerInfo().contName(), nodeToCheck);
 

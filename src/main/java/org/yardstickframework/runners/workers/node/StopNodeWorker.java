@@ -16,7 +16,7 @@ public class StopNodeWorker extends NodeWorker {
     @Override public NodeInfo doWork(NodeInfo nodeInfo) throws InterruptedException {
         log().info(String.format("Stopping node '%s' on the host '%s'.",
             nodeInfo.toShortStr(),
-            nodeInfo.getHost()));
+            nodeInfo.host()));
 
         try {
             return stopNode(nodeInfo);

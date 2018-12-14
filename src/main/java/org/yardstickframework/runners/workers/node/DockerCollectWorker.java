@@ -14,11 +14,11 @@ public class DockerCollectWorker extends DockerNodeWorker {
     }
 
     @Override public NodeInfo doWork(NodeInfo nodeInfo) throws InterruptedException {
-        NodeType type = nodeInfo.getNodeType();
+        NodeType type = nodeInfo.nodeType();
 
-        String host = nodeInfo.getHost();
+        String host = nodeInfo.host();
 
-        String id = nodeInfo.getId();
+        String id = nodeInfo.id();
 
         String contName = String.format("YARDSTICK_%s_%s", type, id);
 

@@ -205,10 +205,10 @@ public class CommandHandler {
     }
 
     public NodeInfo checkPlainNode(NodeInfo nodeInfo) throws IOException, InterruptedException {
-        String host = nodeInfo.getHost();
+        String host = nodeInfo.host();
 
         if (isLocal(host)) {
-            Process proc = nodeInfo.getCmdExRes().getProc();
+            Process proc = nodeInfo.commandExecutionResult().getProc();
 
             if (proc != null && proc.isAlive())
                 nodeInfo.nodeStatus(NodeStatus.RUNNING);
@@ -240,14 +240,14 @@ public class CommandHandler {
 
     public NodeInfo killNode(NodeInfo nodeInfo) throws IOException, InterruptedException {
 //        log().info(String.format("Killing node -Dyardstick.%s%s",
-//            nodeInfo.getNodeType().toString().toLowerCase(), nodeInfo.getId()));
+//            nodeInfo.nodeType().toString().toLowerCase(), nodeInfo.id()));
 
-        String host = nodeInfo.getHost();
+        String host = nodeInfo.host();
 
         RunMode runMode = nodeInfo.runMode();
 
         if (isLocal(host) && runMode == RunMode.PLAIN) {
-            Process proc = nodeInfo.getCmdExRes().getProc();
+            Process proc = nodeInfo.commandExecutionResult().getProc();
 
             proc.destroyForcibly();
 

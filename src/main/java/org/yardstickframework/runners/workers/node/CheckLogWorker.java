@@ -23,9 +23,9 @@ public class CheckLogWorker extends NodeWorker {
 
     @Override public NodeInfo doWork(NodeInfo nodeInfo) throws InterruptedException {
         //TODO refactor all method
-        String host = nodeInfo.getHost();
+        String host = nodeInfo.host();
 
-        String logPath = nodeInfo.getLogPath();
+        String logPath = nodeInfo.logPath();
 
         CommandHandler hndl = new CommandHandler(runCtx);
 
@@ -60,7 +60,7 @@ public class CheckLogWorker extends NodeWorker {
             CommandExecutionResult res = hndl.runCmd(host, cmd);
 
             if(!res.getOutStream().isEmpty()){
-                nodeInfo.getErrMsgs().addAll(res.getOutStream());
+                nodeInfo.errorMessages().addAll(res.getOutStream());
 
                 log().info(String.format("WARNING! Log file '%s' contains following error messages:",
                     logPath));

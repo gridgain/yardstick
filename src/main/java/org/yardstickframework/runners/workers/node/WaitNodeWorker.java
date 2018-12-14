@@ -49,7 +49,7 @@ public class WaitNodeWorker extends NodeWorker {
 
         log().info(String.format("Node '%s' on the host '%s' is %s.",
             nodeInfo.toShortStr(),
-            nodeInfo.getHost(),
+            nodeInfo.host(),
             status));
 
         return nodeInfo;

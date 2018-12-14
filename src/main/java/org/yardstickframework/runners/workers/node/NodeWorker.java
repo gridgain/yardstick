@@ -73,12 +73,12 @@ public abstract class NodeWorker extends Worker {
         final Map<String, Semaphore> semMap = new HashMap<>();
 
         for (final NodeInfo nodeInfo : nodeList)
-            semMap.put(nodeInfo.getHost(), new Semaphore(1));
+            semMap.put(nodeInfo.host(), new Semaphore(1));
 
         for (final NodeInfo nodeInfo : nodeList) {
             futList.add(execServ.submit(new Callable<NodeInfo>() {
                 @Override public NodeInfo call() throws Exception {
-                    String host = nodeInfo.getHost();
+                    String host = nodeInfo.host();
 
                     Thread.currentThread().setName(threadName(nodeInfo));
 

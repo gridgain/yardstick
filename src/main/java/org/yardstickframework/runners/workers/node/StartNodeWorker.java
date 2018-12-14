@@ -74,11 +74,11 @@ public class StartNodeWorker extends NodeWorker {
 
         nodeInfo.nodeStartTime(nodeStartTime);
 
-        String host = nodeInfo.getHost();
+        String host = nodeInfo.host();
 
-        String id  = nodeInfo.getId();
+        String id  = nodeInfo.id();
 
-        NodeType type = nodeInfo.getNodeType();
+        NodeType type = nodeInfo.nodeType();
 
         String mode = "";
 
@@ -103,7 +103,7 @@ public class StartNodeWorker extends NodeWorker {
 
         String descript = runCtx.getDescription(cfgFullStr);
 
-        nodeInfo.descript(descript);
+        nodeInfo.description(descript);
 
         String logFileName = String.format("%s/%s-id%s-%s-%s.log",
             logDirFullName,
@@ -116,7 +116,7 @@ public class StartNodeWorker extends NodeWorker {
 
         nodeInfo.parameterString(paramStr);
 
-        nodeInfo.loggerPath(logFileName);
+        nodeInfo.logPath(logFileName);
 
         NodeStarter starter = runCtx.getNodeStarter(nodeInfo);
 
@@ -124,11 +124,11 @@ public class StartNodeWorker extends NodeWorker {
     }
 
     private String getParamStr(NodeInfo nodeInfo){
-        String host = nodeInfo.getHost();
+        String host = nodeInfo.host();
 
-        String id  = nodeInfo.getId();
+        String id  = nodeInfo.id();
 
-        NodeType type = nodeInfo.getNodeType();
+        NodeType type = nodeInfo.nodeType();
 
         String drvrResDir = String.format("%s/output/result-%s", runCtx.getRemWorkDir(), runCtx.getMainDateTime());
 
@@ -155,7 +155,7 @@ public class StartNodeWorker extends NodeWorker {
                 nodeInfo.typeLow(),
                 id,
                 host,
-                nodeInfo.descript()):
+                nodeInfo.description()):
             "";
 
         String fullJvmOpts = (concJvmOpts + " " + gcJvmOpts).replace("\"", "");
