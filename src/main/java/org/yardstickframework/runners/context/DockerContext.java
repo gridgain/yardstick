@@ -4,6 +4,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.Map;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 
@@ -11,6 +13,9 @@ import org.yaml.snakeyaml.constructor.Constructor;
  * Docker context.
  */
 public class DockerContext {
+    /** */
+    private static final Logger LOG = LogManager.getLogger(DockerContext.class);
+
     /** */
     private String serverDockerfilePath = "config/docker/Dockerfile-server";
 
@@ -260,22 +265,29 @@ public class DockerContext {
         this.driverDockerJavaHome = driverDockerJavaHome;
     }
 
+    /**
+     *
+     * @param yamlPath {@code String} Path to docker context file.
+     * @return Instance of {@code DockerContext}.
+     */
     public static DockerContext getDockerContext(String yamlPath){
         Yaml yaml = new Yaml(new Constructor(DockerContext.class));
 
-        DockerContext docCtx = null;
-
         try {
-//            docCtx = yaml.load(new FileInputStream("/home/oostanin/yardstick/config/docker/docker-context.yaml"));
-            docCtx = yaml.load(new FileInputStream(yamlPath));
+            return yaml.load(new FileInputStream(yamlPath));
         }
-        catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
+        catch (FileNotFoundException ignored) {
+            LOG.info(String.format("Failed to find file %s. Will use default docker context.", yamlPath));
 
-        return docCtx;
+            return new DockerContext();
+        }
     }
 
+    /**
+     *
+     * @param type {@code NodeType} Node type.
+     * @return {@code String} Image mane depending on node type.
+     */
     public String getImageName(NodeType type){
         switch (type) {
             case SERVER:
