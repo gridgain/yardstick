@@ -47,14 +47,14 @@ public class FullRunner extends AbstractRunner {
     public int run1() {
         generalPrapare();
 
-        String cfgStr0 = runCtx.getProps().getProperty("CONFIGS").split(",")[0];
+        String cfgStr0 = runCtx.properties().getProperty("CONFIGS").split(",")[0];
 
         List<NodeInfo> servRes = null;
 
         if (runCtx.startServersOnce())
             servRes = startNodes(NodeType.SERVER, cfgStr0);
 
-        for (String cfgStr : runCtx.getCfgList()) {
+        for (String cfgStr : runCtx.configList()) {
             if (!runCtx.startServersOnce())
                 servRes = startNodes(NodeType.SERVER, cfgStr);
 

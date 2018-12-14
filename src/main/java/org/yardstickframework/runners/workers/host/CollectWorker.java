@@ -13,7 +13,7 @@ public class CollectWorker extends HostWorker {
     public CollectWorker(RunContext runCtx, List<String> hostList) {
         super(runCtx, hostList);
 
-        outDir = new File(String.format("%s/output", runCtx.getLocWorkDir()));
+        outDir = new File(String.format("%s/output", runCtx.localeWorkDirectory()));
     }
 
     @Override public void beforeWork() {
@@ -22,10 +22,10 @@ public class CollectWorker extends HostWorker {
     }
 
     @Override public WorkResult doWork(String host, int cnt) {
-        if (isLocal(host) && runCtx.getLocWorkDir().equals(runCtx.getRemWorkDir()))
+        if (isLocal(host) && runCtx.localeWorkDirectory().equals(runCtx.remoteWorkDirectory()))
             return null;
 
-        String nodeOutDir = String.format("%s/output", runCtx.getRemWorkDir());
+        String nodeOutDir = String.format("%s/output", runCtx.remoteWorkDirectory());
 
         log().info(String.format("Collecting data from the host '%s'.", host));
 

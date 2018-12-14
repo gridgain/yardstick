@@ -150,9 +150,9 @@ public class AbstractRunner {
     }
 
     protected void createCharts() {
-        String mainResDir = String.format("%s/output/result-%s", runCtx.getLocWorkDir(), runCtx.getMainDateTime());
+        String mainResDir = String.format("%s/output/result-%s", runCtx.localeWorkDirectory(), runCtx.mainDateTime());
 
-        String cp = String.format("%s/libs/*", runCtx.getLocWorkDir());
+        String cp = String.format("%s/libs/*", runCtx.localeWorkDirectory());
 
         String mainClass = "org.yardstickframework.report.jfreechart.JFreeChartGraphPlotter";
 

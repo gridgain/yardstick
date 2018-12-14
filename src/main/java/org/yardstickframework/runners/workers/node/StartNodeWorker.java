@@ -48,13 +48,13 @@ public class StartNodeWorker extends NodeWorker {
     }
 
     @Override public void beforeWork() {
-        dateTime = runCtx.getMainDateTime();
+        dateTime = runCtx.mainDateTime();
 
         resDirName = String.format("results-%s", dateTime);
 
         logDirName = String.format("logs-%s", dateTime);
 
-        baseLogDirFullName = String.format("%s/output/%s", runCtx.getRemWorkDir(), logDirName);
+        baseLogDirFullName = String.format("%s/output/%s", runCtx.remoteWorkDirectory(), logDirName);
 
         servLogDirFullName = String.format("%s/log_servers", baseLogDirFullName);
 
@@ -130,20 +130,20 @@ public class StartNodeWorker extends NodeWorker {
 
         NodeType type = nodeInfo.nodeType();
 
-        String drvrResDir = String.format("%s/output/result-%s", runCtx.getRemWorkDir(), runCtx.getMainDateTime());
+        String drvrResDir = String.format("%s/output/result-%s", runCtx.remoteWorkDirectory(), runCtx.mainDateTime());
 
         String outputFolderParam = getNodeListSize() > 1 ?
             String.format("--outputFolder %s/%s-%s", drvrResDir, id, host) :
             String.format("--outputFolder %s", drvrResDir);
 
-        String jvmOptsStr = runCtx.getProps().getProperty("JVM_OPTS") != null ?
-            runCtx.getProps().getProperty("JVM_OPTS"):
+        String jvmOptsStr = runCtx.properties().getProperty("JVM_OPTS") != null ?
+            runCtx.properties().getProperty("JVM_OPTS"):
             "";
 
         String nodeJvmOptsProp = String.format("%s_JVM_OPTS", type);
 
-        String nodeJvmOptsStr = runCtx.getProps().getProperty(nodeJvmOptsProp) != null ?
-            runCtx.getProps().getProperty(nodeJvmOptsProp):
+        String nodeJvmOptsStr = runCtx.properties().getProperty(nodeJvmOptsProp) != null ?
+            runCtx.properties().getProperty(nodeJvmOptsProp):
             "";
 
         String concJvmOpts = jvmOptsStr + " " + nodeJvmOptsStr;
@@ -160,9 +160,9 @@ public class StartNodeWorker extends NodeWorker {
 
         String fullJvmOpts = (concJvmOpts + " " + gcJvmOpts).replace("\"", "");
 
-        String propPath = runCtx.getPropPath().replace(runCtx.getLocWorkDir(), runCtx.getRemWorkDir());
+        String propPath = runCtx.propertyPath().replace(runCtx.localeWorkDirectory(), runCtx.remoteWorkDirectory());
 
-        String cfgStr = cfgFullStr.replace(runCtx.getLocWorkDir(), runCtx.getRemWorkDir());
+        String cfgStr = cfgFullStr.replace(runCtx.localeWorkDirectory(), runCtx.remoteWorkDirectory());
 
 
         String paramStr = String.format("%s -Dyardstick.%s%s -cp :%s/libs/* %s -id %s %s %s --config %s " +
@@ -170,16 +170,16 @@ public class StartNodeWorker extends NodeWorker {
             fullJvmOpts,
             nodeInfo.typeLow(),
             id,
-            runCtx.getRemWorkDir(),
+            runCtx.remoteWorkDirectory(),
             getMainClass(type),
             id,
             outputFolderParam,
             cfgStr,
             propPath,
             getLogDirFullName(type),
-            runCtx.getRemUser(),
-            runCtx.getRemWorkDir(),
-            runCtx.getRemWorkDir());
+            runCtx.remoteUser(),
+            runCtx.remoteWorkDirectory(),
+            runCtx.remoteWorkDirectory());
 
         return paramStr;
     }

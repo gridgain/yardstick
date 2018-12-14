@@ -136,13 +136,13 @@ public class RunContextInitializer {
 
     private void handleAdditionalArgs() {
         if (ctx.config().serverHosts() != null)
-            ctx.servHosts(hostsToList(ctx.config().serverHosts()));
+            ctx.serverHosts(hostsToList(ctx.config().serverHosts()));
 
         if (ctx.config().driverHosts() != null)
-            ctx.drvrHosts(hostsToList(ctx.config().driverHosts()));
+            ctx.driverHosts(hostsToList(ctx.config().driverHosts()));
 
         if (ctx.config().remoteWorkDirectory() != null)
-            ctx.remWorkDirectory(ctx.config().remoteWorkDirectory());
+            ctx.remoteWorkDirectory(ctx.config().remoteWorkDirectory());
     }
 
     private void setRestartCtx(NodeType type) {
@@ -242,18 +242,18 @@ public class RunContextInitializer {
             ctx.properties().getProperty("WORK_DIR") :
             ctx.localeWorkDirectory();
 
-        ctx.remWorkDirectory(remWorkDir);
+        ctx.remoteWorkDirectory(remWorkDir);
 
-        LOG.info(String.format("Remote work directory is %s", ctx.remWorkDirectory()));
+        LOG.info(String.format("Remote work directory is %s", ctx.remoteWorkDirectory()));
     }
 
     /**
      *
      */
     private void setHosts() {
-        ctx.servHosts(getHosts("SERVER_HOSTS"));
+        ctx.serverHosts(getHosts("SERVER_HOSTS"));
 
-        ctx.drvrHosts(getHosts("DRIVER_HOSTS"));
+        ctx.driverHosts(getHosts("DRIVER_HOSTS"));
 
         List<String> allHosts = ctx.getFullUniqList();
 
@@ -307,7 +307,7 @@ public class RunContextInitializer {
 
         ctx.localeJavaHome(locJavaHome);
 
-        ctx.remJavaHome(remJavaHome);
+        ctx.remoteJavaHome(remJavaHome);
     }
 
     /**
@@ -320,7 +320,7 @@ public class RunContextInitializer {
 
         LOG.debug(String.format("Server run mode set as %s", servRunMode));
 
-        ctx.servRunMode(servRunMode);
+        ctx.serverRunMode(servRunMode);
 
         RunMode drvrRunMode = ctx.properties().getProperty("RUN_DRIVER_MODE") != null ?
             RunMode.valueOf(ctx.properties().getProperty("RUN_DRIVER_MODE")) :
@@ -328,7 +328,7 @@ public class RunContextInitializer {
 
         LOG.debug(String.format("Driver run mode set as %s", drvrRunMode));
 
-        ctx.drvrRunMode(drvrRunMode);
+        ctx.driverRunMode(drvrRunMode);
     }
 
     /**
@@ -348,7 +348,7 @@ public class RunContextInitializer {
             remUser = locUser;
         }
 
-        ctx.remUser(remUser);
+        ctx.remoteUser(remUser);
     }
 
     protected void setCfgList() {
@@ -365,7 +365,7 @@ public class RunContextInitializer {
     }
 
 //    private void setDockerCtx() {
-//        if (getServRunMode() == RunMode.DOCKER || getDrvrRunMode() == RunMode.DOCKER)
+//        if (serverRunMode() == RunMode.DOCKER || driverRunMode() == RunMode.DOCKER)
 //            dockerCtx = DockerContext.getDockerContext(String.format("%s/config/docker/docker-context.yaml", ctx.localeWorkDirectory()));
 //
 //    }
@@ -493,7 +493,7 @@ public class RunContextInitializer {
 
     //TODO
     public String resolveRemotePath(String srcPath) {
-        String fullPath = String.format("%s/%s", ctx.remWorkDirectory(), srcPath);
+        String fullPath = String.format("%s/%s", ctx.remoteWorkDirectory(), srcPath);
 
         return fullPath;
     }

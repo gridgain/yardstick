@@ -52,7 +52,7 @@ public class CommandHandler {
         final ProcessBuilder pb = new ProcessBuilder()
             .command(cmdArr);
 
-        pb.directory(new File(runCtx.getLocWorkDir()));
+        pb.directory(new File(runCtx.localeWorkDirectory()));
 
         Process p = pb.start();
 
@@ -182,7 +182,7 @@ public class CommandHandler {
         pb.redirectErrorStream(true);
         pb.redirectOutput(logFile);
 
-        pb.directory(new File(runCtx.getLocWorkDir()));
+        pb.directory(new File(runCtx.localeWorkDirectory()));
 
         final Process proc = pb.start();
 
@@ -288,7 +288,7 @@ public class CommandHandler {
 
         pb.redirectErrorStream(true);
 
-        pb.directory(new File(runCtx.getLocWorkDir()));
+        pb.directory(new File(runCtx.localeWorkDirectory()));
 
         try {
             pb.start();
@@ -343,13 +343,13 @@ public class CommandHandler {
     }
 
     private String getFullSSHPref(String host) {
-//        if (host.equals(runCtx.getCurrentHost()))
+//        if (host.equals(runCtx.currentHost()))
 //            return "";
 
-        if (runCtx.getRemUser() == null || runCtx.getRemUser().isEmpty())
+        if (runCtx.remoteUser() == null || runCtx.remoteUser().isEmpty())
             return String.format("%s %s", DFLT_SSH_PREF, host);
 
-        return String.format("%s %s@%s", DFLT_SSH_PREF, runCtx.getRemUser(), host);
+        return String.format("%s %s@%s", DFLT_SSH_PREF, runCtx.remoteUser(), host);
     }
 
     public String getHostJavaHome(String host) {

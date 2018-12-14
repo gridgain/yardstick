@@ -29,7 +29,7 @@ public class PlainNodeStarter extends AbstractRunner implements NodeStarter {
         String withJavaHome = String.format("%s/bin/java %s", javaHome, cmd);
 
         //        log().info("Running start node cmd: " + cmd);
-//        log().info("Running start node cmd: " + cmd.replaceAll(runCtx.getRemWorkDir(), "<MAIN_DIR>"));
+//        log().info("Running start node cmd: " + cmd.replaceAll(runCtx.remoteWorkDirectory(), "<MAIN_DIR>"));
 
         CommandExecutionResult res = null;
 

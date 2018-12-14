@@ -22,11 +22,11 @@ public class DockerCollectWorker extends DockerNodeWorker {
 
         String contName = String.format("YARDSTICK_%s_%s", type, id);
 
-        String nodeOutDir = String.format("%s/output", runCtx.getRemWorkDir());
+        String nodeOutDir = String.format("%s/output", runCtx.remoteWorkDirectory());
 
         String mkdirCmd = String.format("mkdir -p %s", nodeOutDir);
 
-        String cpCmd = String.format("cp %s:%s/output %s", contName, runCtx.getRemWorkDir(), runCtx.getRemWorkDir());
+        String cpCmd = String.format("cp %s:%s/output %s", contName, runCtx.remoteWorkDirectory(), runCtx.remoteWorkDirectory());
 
         CommandHandler hndl = new CommandHandler(runCtx);
 

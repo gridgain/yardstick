@@ -16,11 +16,11 @@ public class CleanRemDirWorker extends HostWorker {
     }
 
     @Override public WorkResult doWork(String host, int cnt) {
-        if ((isLocal(host) && runCtx.getLocWorkDir().equals(runCtx.getRemWorkDir()))
-            || host.equals(runCtx.getCurrentHost()) && runCtx.getLocWorkDir().equals(runCtx.getRemWorkDir()))
+        if ((isLocal(host) && runCtx.localeWorkDirectory().equals(runCtx.remoteWorkDirectory()))
+            || host.equals(runCtx.currentHost()) && runCtx.localeWorkDirectory().equals(runCtx.remoteWorkDirectory()))
             return null;
 
-        String remDir =  runCtx.getRemWorkDir();
+        String remDir =  runCtx.remoteWorkDirectory();
 
         log().info(String.format("Cleaning up directory '%s' on the host '%s'", remDir, host));
 
@@ -29,7 +29,7 @@ public class CleanRemDirWorker extends HostWorker {
         try {
             for(String name : toClean){
                 String cleanCmd = String.format("rm -rf %s/%s",
-                    runCtx.getRemWorkDir(), name);
+                    runCtx.remoteWorkDirectory(), name);
 
                 hndl.runCmd(host, cleanCmd);
             }

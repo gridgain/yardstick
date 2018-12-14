@@ -66,7 +66,7 @@ public class DockerStartContWorker extends DockerNodeWorker {
 
 //            String contId = getContId(host, contName);
 
-            String mkdirCmd = String.format("exec %s mkdir -p %s", contName, runCtx.getRemWorkDir());
+            String mkdirCmd = String.format("exec %s mkdir -p %s", contName, runCtx.remoteWorkDirectory());
 
             synchronized (this) {
                 setDockerJavaHome(nodeInfo);
@@ -74,7 +74,7 @@ public class DockerStartContWorker extends DockerNodeWorker {
 
             hndl.runDockerCmd(host, mkdirCmd);
 
-            String remPath = runCtx.getRemWorkDir();
+            String remPath = runCtx.remoteWorkDirectory();
 
             String parentPath = new File(remPath).getParentFile().getAbsolutePath();
 

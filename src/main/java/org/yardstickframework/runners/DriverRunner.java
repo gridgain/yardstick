@@ -47,7 +47,7 @@ public class DriverRunner extends AbstractRunner {
     public int run1() {
         generalPrapare();
 
-        for (String cfgStr : runCtx.getCfgList()) {
+        for (String cfgStr : runCtx.configList()) {
             List<NodeInfo> drvrRes = startNodes(NodeType.DRIVER, cfgStr);
 
             checkLogs(drvrRes);

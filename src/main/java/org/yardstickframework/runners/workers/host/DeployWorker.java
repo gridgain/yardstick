@@ -17,12 +17,12 @@ public class DeployWorker extends HostWorker {
     }
 
     @Override public WorkResult doWork(String host, int cnt) {
-        if ((isLocal(host) && runCtx.getLocWorkDir().equals(runCtx.getRemWorkDir()))
-            || host.equals(runCtx.getCurrentHost()) && runCtx.getLocWorkDir().equals(runCtx.getRemWorkDir()))
+        if ((isLocal(host) && runCtx.localeWorkDirectory().equals(runCtx.remoteWorkDirectory()))
+            || host.equals(runCtx.currentHost()) && runCtx.localeWorkDirectory().equals(runCtx.remoteWorkDirectory()))
             return null;
 
 
-        String createCmd = String.format("mkdir -p %s", runCtx.getRemWorkDir());
+        String createCmd = String.format("mkdir -p %s", runCtx.remoteWorkDirectory());
 
         CommandHandler hndl = new CommandHandler(runCtx);
 
@@ -31,7 +31,7 @@ public class DeployWorker extends HostWorker {
 
             for(String name : toClean){
                 String cleanCmd = String.format("rm -rf %s/%s",
-                    runCtx.getRemWorkDir(), name);
+                    runCtx.remoteWorkDirectory(), name);
 
                 hndl.runCmd(host, cleanCmd);
             }
@@ -39,7 +39,7 @@ public class DeployWorker extends HostWorker {
             log().info(String.format("Deploying on the host '%s'.", host));
 
             for(String name : toDeploy) {
-                String fullPath = Paths.get(runCtx.getRemWorkDir(), name).toAbsolutePath().toString();
+                String fullPath = Paths.get(runCtx.remoteWorkDirectory(), name).toAbsolutePath().toString();
 
                 if(hndl.checkRemFile(host, fullPath)) {
                     try {
@@ -53,9 +53,9 @@ public class DeployWorker extends HostWorker {
                     }
                 }
 
-                String locPath = String.format("%s/%s", runCtx.getLocWorkDir(), name);
+                String locPath = String.format("%s/%s", runCtx.localeWorkDirectory(), name);
 
-                hndl.upload(host, locPath, runCtx.getRemWorkDir());
+                hndl.upload(host, locPath, runCtx.remoteWorkDirectory());
             }
         }
         catch (IOException e) {

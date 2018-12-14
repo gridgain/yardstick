@@ -35,15 +35,15 @@ public class CheckJavaWorker extends CheckWorker {
 
         CommandHandler hndl = new CommandHandler(runCtx);
 
-        if (runCtx.getRemJavaHome() != null) {
-            if (!hndl.checkRemJava(host, runCtx.getRemJavaHome())) {
+        if (runCtx.remoteJavaHome() != null) {
+            if (!hndl.checkRemJava(host, runCtx.remoteJavaHome())) {
                 log().info(String.format("Failed to find %s/bin/java on the host %s.",
-                    runCtx.getRemJavaHome(), host));
+                    runCtx.remoteJavaHome(), host));
 
                 res.exit(true);
             }
             else
-                runCtx.getHostJavaHomeMap().put(host, runCtx.getRemJavaHome());
+                runCtx.hostJavaHomeMap().put(host, runCtx.remoteJavaHome());
 
             return res;
         }
@@ -51,7 +51,7 @@ public class CheckJavaWorker extends CheckWorker {
         if (hndl.checkRemJava(host, locJavaHome)) {
             log().info(String.format("Using JAVA_HOME '%s' on the host %s.", locJavaHome, host));
 
-            runCtx.getHostJavaHomeMap().put(host, locJavaHome);
+            runCtx.hostJavaHomeMap().put(host, locJavaHome);
         }
         else {
             String hostJava = hndl.getHostJavaHome(host);
@@ -67,7 +67,7 @@ public class CheckJavaWorker extends CheckWorker {
 
             log().info(warn);
 
-            runCtx.getHostJavaHomeMap().put(host, hostJava);
+            runCtx.hostJavaHomeMap().put(host, hostJava);
         }
 
         return res;

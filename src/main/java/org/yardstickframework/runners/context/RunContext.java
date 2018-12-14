@@ -32,138 +32,96 @@ public class RunContext {
     /** */
     private static RunnerConfiguration cfg = new RunnerConfiguration();
 
+    /** */
     private Properties props;
 
+    /** */
     private Properties propsOrig;
 
+    /** */
     private String locWorkDir;
 
+    /** */
     private String remWorkDir;
 
+    /** */
     private String propPath;
 
+    /** */
     private String locJavaHome;
 
+    /** */
     private String remJavaHome;
 
+    /** */
     private Map<String, String> hostJavaHomeMap = new HashMap<>();
 
+    /** */
     private String locUser;
 
+    /** */
     private String remUser;
 
+    /** */
     private List<String> servHosts;
 
+    /** */
     private List<String> drvrHosts;
 
-    private String currentHost;
+    /** */
+    private String currHost;
 
+    /** */
     private String mainDateTime;
 
+    /** */
     private RunMode servRunMode;
 
+    /** */
     private RunMode drvrRunMode;
 
+    /** */
     private List<String> cfgList;
 
-    private boolean restartServers;
+    /** */
+    private boolean restartServs;
 
-    private boolean startServersOnce;
+    /** */
+    private boolean startServOnce;
 
-    private RestartContext serverRestartCtx;
+    /** */
+    private RestartContext servRestartCtx;
 
+    /** */
     private boolean restartDrivers;
 
+    /** */
     private RestartContext driverRestartCtx;
 
+    /** */
     private DockerContext dockerCtx;
 
+    /** */
     private RunContext() {
         //No_op
     }
 
-    public Properties getProps() {
-        return props;
+
+
+    public boolean isRestartServs() {
+        return restartServs;
     }
 
-    public String getLocWorkDir() {
-        return locWorkDir;
+    public void setRestartServs(boolean restartServs) {
+        this.restartServs = restartServs;
     }
 
-    public String getRemWorkDir() {
-        return remWorkDir;
-    }
-
-    public String getPropPath() {
-        return propPath;
-    }
-
-    public String getLocJavaHome() {
-        return locJavaHome;
-    }
-
-    public String getRemJavaHome() {
-        return remJavaHome;
-    }
-
-    public Map<String, String> getHostJavaHomeMap() {
-        return hostJavaHomeMap;
-    }
-
-    public String getLocUser() {
-        return locUser;
-    }
-
-    public String getRemUser() {
-        return remUser;
-    }
-
-    public List<String> getServHosts() {
-        return servHosts;
-    }
-
-    public List<String> getDrvrHosts() {
-        return drvrHosts;
-    }
-
-    public String getCurrentHost() {
-        return currentHost;
-    }
-
-    public String getMainDateTime() {
-        return mainDateTime;
-    }
-
-    public RunMode getServRunMode() {
-        return servRunMode;
-    }
-
-    public RunMode getDrvrRunMode() {
-        return drvrRunMode;
-    }
-
-    public List<String> getCfgList() {
-        return cfgList;
-    }
-
-    public static Logger getLOG() {
-        return LOG;
-    }
-
-    public boolean isRestartServers() {
-        return restartServers;
-    }
-
-    public void setRestartServers(boolean restartServers) {
-        this.restartServers = restartServers;
-    }
-
-    public RestartContext getServerRestartCtx() {
-        return serverRestartCtx;
+    public RestartContext getServRestartCtx() {
+        return servRestartCtx;
     }
 
     public void setRestartCtx(RestartContext serverRestartCtx) {
-        this.serverRestartCtx = serverRestartCtx;
+        this.servRestartCtx = serverRestartCtx;
     }
 
     public boolean isRestartDrivers() {
@@ -297,7 +255,6 @@ public class RunContext {
         return res;
     }
 
-
     //TODO
     public String resolveRemotePath(String srcPath) {
         String fullPath = String.format("%s/%s", remWorkDir, srcPath);
@@ -316,10 +273,10 @@ public class RunContext {
     public List<NodeType> getNodeTypes(RunMode mode) {
         List<NodeType> res = new ArrayList<>();
 
-        if (getServRunMode() == mode)
+        if (serverRunMode() == mode)
             res.add(NodeType.SERVER);
 
-        if (getDrvrRunMode() == mode)
+        if (driverRunMode() == mode)
             res.add(NodeType.DRIVER);
 
         return res;
@@ -380,7 +337,7 @@ public class RunContext {
     public RestartContext getRestartContext(NodeType type) {
         switch (type) {
             case SERVER:
-                return serverRestartCtx;
+                return servRestartCtx;
             case DRIVER:
                 return driverRestartCtx;
             default:
@@ -404,28 +361,28 @@ public class RunContext {
      * @return Start servers once.
      */
     public boolean startServersOnce() {
-        return startServersOnce;
+        return startServOnce;
     }
 
     /**
      * @param startSrvsOnce New start servers once.
      */
     public void startServersOnce(boolean startSrvsOnce) {
-        startServersOnce = startSrvsOnce;
+        startServOnce = startSrvsOnce;
     }
 
     /**
      * @return Server restart context.
      */
     public RestartContext serverRestartContext() {
-        return serverRestartCtx;
+        return servRestartCtx;
     }
 
     /**
      * @param srvRestartCtx New server restart context.
      */
     public void serverRestartContext(RestartContext srvRestartCtx) {
-        serverRestartCtx = srvRestartCtx;
+        servRestartCtx = srvRestartCtx;
     }
 
     /**
@@ -471,16 +428,16 @@ public class RunContext {
     }
 
     /**
-     * @return Rem work directory.
+     * @return Remote work directory.
      */
-    public String remWorkDirectory() {
+    public String remoteWorkDirectory() {
         return remWorkDir;
     }
 
     /**
-     * @param remWorkDir New rem work directory.
+     * @param remWorkDir New remote work directory.
      */
-    public void remWorkDirectory(String remWorkDir) {
+    public void remoteWorkDirectory(String remWorkDir) {
         this.remWorkDir = remWorkDir;
     }
 
@@ -543,42 +500,42 @@ public class RunContext {
     /**
      * @return Rem user.
      */
-    public String remUser() {
+    public String remoteUser() {
         return remUser;
     }
 
     /**
      * @param remUser New rem user.
      */
-    public void remUser(String remUser) {
+    public void remoteUser(String remUser) {
         this.remUser = remUser;
     }
 
     /**
-     * @return Serv run mode.
+     * @return Server run mode.
      */
-    public RunMode servRunMode() {
+    public RunMode serverRunMode() {
         return servRunMode;
     }
 
     /**
-     * @param servRunMode New serv run mode.
+     * @param servRunMode New server run mode.
      */
-    public void servRunMode(RunMode servRunMode) {
+    public void serverRunMode(RunMode servRunMode) {
         this.servRunMode = servRunMode;
     }
 
     /**
-     * @return Drvr run mode.
+     * @return Driver run mode.
      */
-    public RunMode drvrRunMode() {
+    public RunMode driverRunMode() {
         return drvrRunMode;
     }
 
     /**
-     * @param drvrRunMode New drvr run mode.
+     * @param drvrRunMode New driver run mode.
      */
-    public void drvrRunMode(RunMode drvrRunMode) {
+    public void driverRunMode(RunMode drvrRunMode) {
         this.drvrRunMode = drvrRunMode;
     }
 
@@ -599,42 +556,42 @@ public class RunContext {
     /**
      * @return Rem java home.
      */
-    public String remJavaHome() {
+    public String remoteJavaHome() {
         return remJavaHome;
     }
 
     /**
      * @param remJavaHome New rem java home.
      */
-    public void remJavaHome(String remJavaHome) {
+    public void remoteJavaHome(String remJavaHome) {
         this.remJavaHome = remJavaHome;
     }
 
     /**
      * @return Serv hosts.
      */
-    public List<String> servHosts() {
+    public List<String> serverHosts() {
         return servHosts;
     }
 
     /**
      * @param servHosts New serv hosts.
      */
-    public void servHosts(List<String> servHosts) {
+    public void serverHosts(List<String> servHosts) {
         this.servHosts = servHosts;
     }
 
     /**
      * @return Drvr hosts.
      */
-    public List<String> drvrHosts() {
+    public List<String> driverHosts() {
         return drvrHosts;
     }
 
     /**
      * @param drvrHosts New drvr hosts.
      */
-    public void drvrHosts(List<String> drvrHosts) {
+    public void driverHosts(List<String> drvrHosts) {
         this.drvrHosts = drvrHosts;
     }
 
@@ -642,14 +599,14 @@ public class RunContext {
      * @return Current host.
      */
     public String currentHost() {
-        return currentHost;
+        return currHost;
     }
 
     /**
      * @param currHost New current host.
      */
     public void currentHost(String currHost) {
-        currentHost = currHost;
+        this.currHost = currHost;
     }
 
     /**
@@ -664,5 +621,19 @@ public class RunContext {
      */
     public void propertyPath(String propPath) {
         this.propPath = propPath;
+    }
+
+    /**
+     * @return Host java home map.
+     */
+    public Map<String, String> hostJavaHomeMap() {
+        return hostJavaHomeMap;
+    }
+
+    /**
+     * @param hostJavaHomeMap New host java home map.
+     */
+    public void hostJavaHomeMap(Map<String, String> hostJavaHomeMap) {
+        this.hostJavaHomeMap = hostJavaHomeMap;
     }
 }
