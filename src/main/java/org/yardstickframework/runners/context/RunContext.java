@@ -22,9 +22,6 @@ import org.yardstickframework.runners.starters.PlainNodeStarter;
  */
 public class RunContext {
     /** */
-    private static final Logger LOG = LogManager.getLogger(RunContext.class);
-
-    /** */
     private static RunContext instance;
 
     /** */
@@ -55,9 +52,6 @@ public class RunContext {
     private Map<String, String> hostJavaHomeMap = new HashMap<>();
 
     /** */
-    private String locUser;
-
-    /** */
     private String remUser;
 
     /** */
@@ -82,16 +76,11 @@ public class RunContext {
     private List<String> cfgList;
 
     /** */
-    private boolean restartServs;
-
-    /** */
     private boolean startServOnce;
 
     /** */
     private RestartContext servRestartCtx;
 
-    /** */
-    private boolean restartDrivers;
 
     /** */
     private RestartContext driverRestartCtx;
