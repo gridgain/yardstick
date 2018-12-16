@@ -8,6 +8,9 @@ import org.yardstickframework.runners.CommandHandler;
 import org.yardstickframework.runners.workers.WorkResult;
 import org.yardstickframework.runners.context.RunContext;
 
+/**
+ * Checks java on remote hosts and set host map.
+ */
 public class CheckJavaWorker extends CheckWorker {
     /** */
     private String locJavaHome;
@@ -15,23 +18,28 @@ public class CheckJavaWorker extends CheckWorker {
     /** */
     private static final Collection<String> checked = new HashSet<>();
 
+    /** {@inheritDoc} */
     public CheckJavaWorker(RunContext runCtx, List<String> hostList) {
         super(runCtx, hostList);
     }
 
+    /** {@inheritDoc} */
     @Override public void beforeWork() {
         super.beforeWork();
 
         locJavaHome = System.getProperty("java.home");
     }
 
+    /** {@inheritDoc} */
     @Override public WorkResult doWork(String host, int cnt) {
         CheckWorkResult res = new CheckWorkResult();
 
-        if(checked.contains(host))
-            return res;
+        synchronized (this) {
+            if (checked.contains(host))
+                return res;
 
-        checked.add(host);
+            checked.add(host);
+        }
 
         CommandHandler hand = new CommandHandler(runCtx);
 

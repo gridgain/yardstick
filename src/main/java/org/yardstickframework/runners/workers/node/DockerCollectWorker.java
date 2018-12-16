@@ -49,7 +49,7 @@ public class DockerCollectWorker extends DockerNodeWorker {
         return null;
     }
 
-    @Override public String getWorkerName() {
+    @Override public String workerName() {
         return getClass().getSimpleName();
     }
 }

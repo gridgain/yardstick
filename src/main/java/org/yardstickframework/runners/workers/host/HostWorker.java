@@ -7,68 +7,90 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 import org.yardstickframework.runners.workers.WorkResult;
 import org.yardstickframework.runners.workers.Worker;
 import org.yardstickframework.runners.context.RunContext;
 
+/**
+ * Parent for host workers.
+ */
 public abstract class HostWorker extends Worker {
+    /** Main host list to work with. */
     private final List<String> hostList;
 
+    /** Result list. */
     private final List<WorkResult> resList;
 
-    public List<WorkResult> getResList() {
-        return resList;
+    /**
+     * Getter for result list.
+     *
+     * @return Result list.
+     */
+    List<WorkResult> resList() {
+        return new ArrayList<>(resList);
     }
 
-    /** */
-    protected HostWorker(RunContext runCtx, List<String> hostList) {
+    /**
+     * Constructor.
+     *
+     * @param runCtx Run context.
+     * @param hostList Main host list to work with.
+     */
+    HostWorker(RunContext runCtx, List<String> hostList) {
         super(runCtx);
         this.hostList = new ArrayList<>(hostList);
 
         resList = new ArrayList<>(hostList.size());
     }
 
+    /**
+     * Actual work method which every worker must implement.
+     *
+     * @param host Host.
+     * @param cnt Number in host list.
+     * @return Work result.
+     */
     public abstract WorkResult doWork(String host, int cnt);
 
     /**
-     * Executes start method defined in worker class asynchronously.
-     *
+     * Executes doWork() method defined in worker class asynchronously.
+    *
+     * @return List of {@code WorkResult} objects.
      */
     public List<WorkResult> workOnHosts() {
         beforeWork();
 
-        ExecutorService execServ = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+        ExecutorService exec = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
         Collection<Future<WorkResult>> futList = new ArrayList<>();
 
-        for (int cntr = 0; cntr < hostList.size(); cntr++) {
-            final int cntrF = cntr;
+        for (int cnt = 0; cnt < hostList.size(); cnt++) {
+            final int cntF = cnt;
 
-            final String host = hostList.get(cntrF);
+            final String host = hostList.get(cntF);
 
-            futList.add(execServ.submit(new Callable<WorkResult>() {
+            futList.add(exec.submit(new Callable<WorkResult>() {
                 @Override public WorkResult call() throws Exception {
-                    Thread.currentThread().setName(String.format("%s-%s", getWorkerName(), host));
+                    Thread.currentThread().setName(String.format("%s-%s", workerName(), host));
 
-                    return doWork(host, cntrF);
+                    return doWork(host, cntF);
                 }
             }));
         }
 
         for (Future<WorkResult> f : futList) {
             try {
-                resList.add(f.get(DFLT_TIMEOUT, TimeUnit.MILLISECONDS));
+                resList.add(f.get());
             }
             catch (Exception e) {
                 e.printStackTrace();
             }
         }
 
-        execServ.shutdown();
+        exec.shutdown();
 
         afterWork();
 
-        return resList;
+        return new ArrayList<>(resList);
     }
 }

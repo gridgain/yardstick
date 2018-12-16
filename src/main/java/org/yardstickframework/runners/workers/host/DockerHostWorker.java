@@ -12,42 +12,51 @@ import org.yardstickframework.runners.context.NodeType;
 import org.yardstickframework.runners.context.DockerContext;
 import org.yardstickframework.runners.context.RunContext;
 
+/**
+ * Parent for docker host workers.
+ */
+abstract class DockerHostWorker extends HostWorker {
+    /** */
+    private static final String[] IMAGES_HEADERS = new String[] {"REPOSITORY", "TAG", "IMAGE ID", "CREATED", "SIZE"};
 
-public abstract class DockerHostWorker extends HostWorker {
+    /** */
+    private static final String[] PROCESS_HEADERS = new String[] {"CONTAINER ID", "IMAGE", "COMMAND", "CREATED", "STATUS", "PORTS", "NAMES"};
 
-    private static final String[] imagesHdrs = new String[] {"REPOSITORY", "TAG", "IMAGE ID", "CREATED", "SIZE"};
-    private static final String[] psHdrs = new String[] {"CONTAINER ID", "IMAGE", "COMMAND", "CREATED", "STATUS", "PORTS", "NAMES"};
+    /** */
+    DockerContext dockerCtx;
 
-    protected DockerContext dockerCtx;
-
-
-    /**
-     * @param runCtx
-     */
-    public DockerHostWorker(RunContext runCtx, List<String> hostList) {
+    /** {@inheritDoc} */
+    DockerHostWorker(RunContext runCtx, List<String> hostList) {
         super(runCtx, hostList);
 
         dockerCtx = runCtx.dockerContext();
     }
 
-    protected void removeImages(String host) {
+    /**
+     *
+     * @param host Host.
+     */
+    void removeImages(String host) {
         Collection<Map<String, String>> imageMaps = getImages(host);
 
-        Map<String, String> toRemove = new HashMap<>();
+        Map<String, String> toRem = new HashMap<>();
 
         for (Map<String, String> imageMap : imageMaps) {
             String imageName = imageMap.get("REPOSITORY");
 
             if (nameToDelete(imageName))
-                toRemove.put(imageMap.get("IMAGE ID"), imageName);
-
+                toRem.put(imageMap.get("IMAGE ID"), imageName);
         }
 
-        for(String id : toRemove.keySet())
-            removeImage(host, id, toRemove.get(id));
+        for(String id : toRem.keySet())
+            removeImage(host, id, toRem.get(id));
     }
 
-    protected void removeContainers(String host) {
+    /**
+     *
+     * @param host Host.
+     */
+    void removeContainers(String host) {
         Collection<Map<String, String>> contMaps = getProcesses(host);
 
         for (Map<String, String> contMap : contMaps) {
@@ -64,6 +73,12 @@ public abstract class DockerHostWorker extends HostWorker {
         }
     }
 
+    /**
+     *
+     * @param host Host.
+     * @param contId Container id.
+     * @return Command execution result.
+     */
     private CommandExecutionResult removeSingleCont(String host, String contId) {
         CommandHandler hand = new CommandHandler(runCtx);
 
@@ -91,6 +106,13 @@ public abstract class DockerHostWorker extends HostWorker {
         return cmdRes;
     }
 
+    /**
+     *
+     * @param host Host.
+     * @param imageId Image id.
+     * @param imageName Image name.
+     * @return Command execution result.
+     */
     private CommandExecutionResult removeImage(String host, String imageId, String imageName) {
         CommandHandler hand = new CommandHandler(runCtx);
 
@@ -109,7 +131,13 @@ public abstract class DockerHostWorker extends HostWorker {
         return cmdRes;
     }
 
-    protected boolean checkIfImageExists(String host, String name) {
+    /**
+     *
+     * @param host Host.
+     * @param name Image name.
+     * @return {@code true} if image with given name exists on the specified host or {@code false} otherwise.
+     */
+    boolean checkIfImageExists(String host, String name) {
         Collection<Map<String, String>> imageMaps = getImages(host);
 
         for (Map<String, String> imageMap : imageMaps) {
@@ -121,86 +149,95 @@ public abstract class DockerHostWorker extends HostWorker {
         return false;
     }
 
-    public String getImageIdByName(String host, String imageName) {
-
-        return null;
+    /**
+     *
+     * @param host Host.
+     * @return Result of 'docker images' execution.
+     */
+    private Collection<Map<String, String>> getImages(String host) {
+        return getMaps(host, "images", IMAGES_HEADERS);
     }
 
-    protected String getContId(String host, String contName) {
-        Collection<Map<String, String>> contMaps = getProcesses(host);
-
-        for (Map<String, String> contMap : contMaps) {
-            if (contMap.get("NAMES").contains(contName))
-                return contMap.get("CONTAINER ID");
-        }
-
-        return "Unknown";
+    /**
+     *
+     * @param host Host.
+     * @return Result of 'docker ps -a' execution.
+     */
+    private Collection<Map<String, String>> getProcesses(String host) {
+        return getMaps(host, "ps -a", PROCESS_HEADERS);
     }
 
-
-
-    protected Collection<Map<String, String>> getImages(String host) {
-
-        return getMaps(host, "images", imagesHdrs);
-    }
-
-    protected Collection<Map<String, String>> getProcesses(String host) {
-
-        return getMaps(host, "ps -a", psHdrs);
-    }
-
-    private Collection<Map<String, String>> getMaps(String host, String cmd, String[] hdrs) {
-        List<Map<String, String>> res = new ArrayList<>();
-
+    /**
+     * Maps with docker command response.
+     *
+     * @param host Host.
+     * @param cmd Command e.g. images' or 'ps -a'.
+     * @param headers Headers to create map. Each header will be the key and the value will be corresponding line
+     * from the output string.
+     * @return Maps with docker command response.
+     */
+    private Collection<Map<String, String>> getMaps(String host, String cmd, String[] headers) {
         CommandHandler hand = new CommandHandler(runCtx);
 
-        CommandExecutionResult cmdRes = null;
-
         try {
-            cmdRes = hand.runDockerCmd(host, cmd);
-        }
-        catch (IOException | InterruptedException e) {
-            e.printStackTrace();
-        }
+            CommandExecutionResult cmdRes = hand.runDockerCmd(host, cmd);
 
-        List<String> outStr = cmdRes.getOutStream();
+            List<String> outStr = cmdRes.getOutStream();
 
-        if (outStr.size() == 1 && outStr.get(0).equals(hdrs[0]))
-            return res;
+            Collection<Map<String, String>> res = new ArrayList<>();
 
-        String hdrStr = outStr.get(0);
+            if (outStr.size() == 1 && outStr.get(0).equals(headers[0]))
+                return res;
 
-        for (int i = 1; i < outStr.size(); i++) {
-            String toParse = outStr.get(i);
+            String hdrStr = outStr.get(0);
 
-            Map<String, String> valMap = new HashMap<>(hdrs.length);
+            for (int i = 1; i < outStr.size(); i++) {
+                String toParse = outStr.get(i);
 
-            for (int hdr = 0; hdr < hdrs.length; hdr++) {
-                int idx0 = hdrStr.indexOf(hdrs[hdr]);
+                Map<String, String> valMap = new HashMap<>(headers.length);
 
-                int idx1 = hdr == hdrs.length - 1 ? toParse.length() : hdrStr.indexOf(hdrs[hdr + 1]);
+                for (int hdr = 0; hdr < headers.length; hdr++) {
+                    int idx0 = hdrStr.indexOf(headers[hdr]);
 
-                String val = toParse.substring(idx0, idx1);
+                    int idx1 = hdr == headers.length - 1 ? toParse.length() : hdrStr.indexOf(headers[hdr + 1]);
 
-                while (val.endsWith(" "))
-                    val = val.substring(0, val.length() - 1);
+                    String val = toParse.substring(idx0, idx1);
 
-                valMap.put(hdrs[hdr], val);
+                    while (val.endsWith(" "))
+                        val = val.substring(0, val.length() - 1);
+
+                    valMap.put(headers[hdr], val);
+                }
+
+                res.add(valMap);
             }
 
-            res.add(valMap);
-
+            return res;
         }
+        catch (IOException | InterruptedException e) {
+            log().error(String.format("Failed to get response for command '%s' from the host '%s'", cmd, host), e);
 
-        return res;
+            return new ArrayList<>();
+        }
     }
 
-    protected String getImageNameToUse(NodeType type){
+    /**
+     *
+     * @param type Node type.
+     * @return Image name for the given type.
+     */
+    String getImageNameToUse(NodeType type){
         return type == NodeType.SERVER ?
             dockerCtx.getServerImageName():
             dockerCtx.getDriverImageName();
     }
 
+    /**
+     *
+     * @param name Image name.
+     * @return {@code true} if image name is defined server image name or driver image name,
+     * or {@code false otherwise}.
+     */
     private boolean nameToDelete(String name){
         return name.equals(dockerCtx.getServerImageName()) || name.equals(dockerCtx.getDriverImageName());
     }

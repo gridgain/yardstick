@@ -8,6 +8,9 @@ import org.yardstickframework.runners.context.RunContext;
 
 import org.yardstickframework.runners.workers.WorkResult;
 
+/**
+ * Builds docker images on hosts.
+ */
 public class DockerBuildImagesWorker extends DockerHostWorker {
     /** */
     private static final String IMAGE_NAME_PLACEHOLDER = "IMAGE_NAME_PLACEHOLDER";
@@ -19,10 +22,11 @@ public class DockerBuildImagesWorker extends DockerHostWorker {
     private NodeType nodeType;
 
     /**
+     * Constructor.
      *
-     * @param runCtx
-     * @param hostList
-     * @param nodeType
+     * @param runCtx Run context.
+     * @param hostList Main host list to work with.
+     * @param nodeType Node type
      */
     public DockerBuildImagesWorker(RunContext runCtx, List<String> hostList,
         NodeType nodeType) {
@@ -41,26 +45,18 @@ public class DockerBuildImagesWorker extends DockerHostWorker {
 
             CommandHandler hand = new CommandHandler(runCtx);
 
-//            log().info(String.format("Building the image '%s' on the host %s.", nameToUse, host));
-
-
-//            System.out.println(buildCmd);
-
             String src = dockerCtx.getDockerBuildCmd();
 
-            String buildCmd = src.replace(IMAGE_NAME_PLACEHOLDER, nameToUse)
-                .replace(DOCKERFILE_PATH_PLACEHOLDER, docFilePath);
+
 
             try {
-//                String buildCmd = String.format("build --no-cache -t %s -f %s .",nameToUse, docFilePath);
+                String buildCmd = src.replace(IMAGE_NAME_PLACEHOLDER, nameToUse)
+                    .replace(DOCKERFILE_PATH_PLACEHOLDER, docFilePath);
 
                 hand.runDockerCmd(host, buildCmd);
             }
-            catch (IOException e) {
-                e.printStackTrace();
-            }
-            catch (InterruptedException e) {
-                e.printStackTrace();
+            catch (IOException | InterruptedException e) {
+                log().error(String.format("Failed to build images on the host '%s'", host), e);
             }
         }
 

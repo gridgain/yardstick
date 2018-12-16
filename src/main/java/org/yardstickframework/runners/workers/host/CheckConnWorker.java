@@ -6,11 +6,16 @@ import org.yardstickframework.runners.CommandHandler;
 import org.yardstickframework.runners.workers.WorkResult;
 import org.yardstickframework.runners.context.RunContext;
 
+/**
+ * Checks ssh connection.
+ */
 public class CheckConnWorker extends CheckWorker {
+    /** {@inheritDoc} */
     public CheckConnWorker(RunContext runCtx, List<String> hostList) {
         super(runCtx, hostList);
     }
 
+    /** {@inheritDoc} */
     @Override public WorkResult doWork(String host, int cnt) {
         CheckWorkResult res = new CheckWorkResult();
 

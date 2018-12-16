@@ -9,33 +9,33 @@ import org.yardstickframework.runners.context.RunContext;
 
 import org.yardstickframework.runners.workers.WorkResult;
 
+/**
+ * Checks docker on remote hosts.
+ */
 public class DockerCheckWorker extends CheckWorker {
+    /** {@inheritDoc} */
     public DockerCheckWorker(RunContext runCtx, List<String> hostList) {
         super(runCtx, hostList);
     }
 
+    /** {@inheritDoc} */
     @Override public WorkResult doWork(String host, int cnt) {
         CommandHandler hand = new CommandHandler(runCtx);
 
-//        log().info(String.format("Checking docker on the host %s.", host));
-
-        CommandExecutionResult res = null;
-
-        try {
-            res = hand.runDockerCmd(host, "images");
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
-        catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
         CheckWorkResult workRes = new CheckWorkResult();
 
-        if(res.getExitCode() != 0 || !res.getErrStream().isEmpty()){
-            for(String err : res.getErrStream())
-                log().error(err);
+        try {
+            CommandExecutionResult res = hand.runDockerCmd(host, "images");
+
+            if(res.getExitCode() != 0 || !res.getErrStream().isEmpty()){
+                for(String err : res.getErrStream())
+                    log().error(err);
+
+                workRes.exit(true);
+            }
+        }
+        catch (IOException | InterruptedException e) {
+            log().error(String.format("Failed to check docker on the host '%s'", host), e);
 
             workRes.exit(true);
         }

@@ -1,6 +1,10 @@
 package org.yardstickframework.runners.workers;
 
+/**
+ * Check work result.
+ */
 public class CheckWorkResult implements WorkResult {
+    /** Flag indicating whether or not process should be terminated.*/
     private boolean exit;
 
     /**

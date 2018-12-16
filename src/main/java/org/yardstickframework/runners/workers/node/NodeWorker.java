@@ -3,17 +3,13 @@ package org.yardstickframework.runners.workers.node;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
 import org.yardstickframework.runners.context.NodeInfo;
 import org.yardstickframework.runners.context.RunContext;
 import org.yardstickframework.runners.workers.Worker;
@@ -96,7 +92,7 @@ public abstract class NodeWorker extends Worker {
 
         for (Future<NodeInfo> f : futList) {
             try {
-                NodeInfo nodeInfo = f.get(DFLT_TIMEOUT, TimeUnit.MILLISECONDS);
+                NodeInfo nodeInfo = f.get();
 
                 resNodeList.add(nodeInfo);
             }
@@ -106,7 +102,7 @@ public abstract class NodeWorker extends Worker {
 
                 Thread.currentThread().interrupt();
 
-                log().info(String.format("%s stopped.", getWorkerName()));
+                log().info(String.format("%s stopped.", workerName()));
 
                 log().debug(e.getMessage(), e);
 

@@ -7,20 +7,33 @@ import org.yardstickframework.runners.CommandHandler;
 import org.yardstickframework.runners.workers.WorkResult;
 import org.yardstickframework.runners.context.RunContext;
 
+/**
+ * Deploys on hosts.
+ */
 public class DeployWorker extends HostWorker {
-    protected String[] toDeploy = new String[]{"bin", "config", "libs"};
+    /** List of directories to deploy. */
+    private String[] toDeploy = new String[] {"bin", "config", "libs"};
 
-    protected String[] toClean = new String[]{"bin", "config", "libs", "output", "work"};
+    /** */
+    private CleanRemDirWorker cleaner;
 
+    /** {@inheritDoc} */
     public DeployWorker(RunContext runCtx, List<String> hostList) {
         super(runCtx, hostList);
+
+        cleaner = new CleanRemDirWorker(runCtx, hostList);
     }
 
+    /** {@inheritDoc} */
+    @Override public void beforeWork() {
+        cleaner.workOnHosts();
+    }
+
+    /** {@inheritDoc} */
     @Override public WorkResult doWork(String host, int cnt) {
         if ((isLocal(host) && runCtx.localeWorkDirectory().equals(runCtx.remoteWorkDirectory()))
             || host.equals(runCtx.currentHost()) && runCtx.localeWorkDirectory().equals(runCtx.remoteWorkDirectory()))
             return null;
-
 
         String createCmd = String.format("mkdir -p %s", runCtx.remoteWorkDirectory());
 
@@ -29,46 +42,23 @@ public class DeployWorker extends HostWorker {
         try {
             hand.runCmd(host, createCmd);
 
-            for(String name : toClean){
-                String cleanCmd = String.format("rm -rf %s/%s",
-                    runCtx.remoteWorkDirectory(), name);
-
-                hand.runCmd(host, cleanCmd);
-            }
-
             log().info(String.format("Deploying on the host '%s'.", host));
 
-            for(String name : toDeploy) {
+            for (String name : toDeploy) {
                 String fullPath = Paths.get(runCtx.remoteWorkDirectory(), name).toAbsolutePath().toString();
 
-                if(hand.checkRemFile(host, fullPath)) {
-                    try {
-                        hand.runMkdirCmd(host, fullPath);
-                    }
-                    catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
+                if (hand.checkRemFile(host, fullPath))
+                    hand.runMkdirCmd(host, fullPath);
 
                 String locPath = String.format("%s/%s", runCtx.localeWorkDirectory(), name);
 
                 hand.upload(host, locPath, runCtx.remoteWorkDirectory());
             }
         }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
-        catch (InterruptedException e) {
-            e.printStackTrace();
+        catch (IOException | InterruptedException e) {
+            log().error(String.format("Failed to deploy on the host '%s'", host), e);
         }
 
         return null;
-    }
-
-    @Override public String getWorkerName() {
-        return getClass().getSimpleName();
     }
 }

@@ -7,20 +7,27 @@ import org.yardstickframework.runners.CommandHandler;
 import org.yardstickframework.runners.workers.WorkResult;
 import org.yardstickframework.runners.context.RunContext;
 
+/**
+ * Collects data from remote hosts.
+ */
 public class CollectWorker extends HostWorker {
+    /** Main output directory */
     private File outDir;
 
+    /** {@inheritDoc} */
     public CollectWorker(RunContext runCtx, List<String> hostList) {
         super(runCtx, hostList);
 
         outDir = new File(String.format("%s/output", runCtx.localeWorkDirectory()));
     }
 
+    /** {@inheritDoc} */
     @Override public void beforeWork() {
         if (!outDir.exists())
             outDir.mkdirs();
     }
 
+    /** {@inheritDoc} */
     @Override public WorkResult doWork(String host, int cnt) {
         if (isLocal(host) && runCtx.localeWorkDirectory().equals(runCtx.remoteWorkDirectory()))
             return null;
@@ -31,19 +38,17 @@ public class CollectWorker extends HostWorker {
 
         CommandHandler hand = new CommandHandler(runCtx);
 
-        String pathRem = String.format("%s/*", nodeOutDir);
-
         String pathLoc = outDir.getAbsolutePath();
 
         try {
+            String pathRem = String.format("%s/*", nodeOutDir);
+
             hand.download(host, pathRem, pathLoc);
         }
-        catch (IOException e) {
-            e.printStackTrace();
+        catch (IOException | InterruptedException e) {
+            log().error(String.format("Failed to collect data from the host '%s'", host), e);
         }
-        catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+
         return null;
     }
 }

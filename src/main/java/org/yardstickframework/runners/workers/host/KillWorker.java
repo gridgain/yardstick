@@ -7,50 +7,32 @@ import org.yardstickframework.runners.context.NodeInfo;
 import org.yardstickframework.runners.workers.WorkResult;
 import org.yardstickframework.runners.context.RunContext;
 
+/**
+ * Kills nodes.
+ */
 public class KillWorker extends HostWorker {
-
+    /** {@inheritDoc} */
     public KillWorker(RunContext runCtx, List<String> hostList) {
         super(runCtx, hostList);
     }
 
+    /** {@inheritDoc} */
     @Override public WorkResult doWork(String host, int cnt) {
         CommandHandler hand = new CommandHandler(runCtx);
 
-        String killServCmd = "pkill -9 -f \"Dyardstick.server\"";
-        String killDrvrCmd = "pkill -9 -f \"Dyardstick.driver\"";
-
         try {
+            String killServCmd = "pkill -9 -f \"Dyardstick.server\"";
+
             hand.runCmd(host, killServCmd);
+
+            String killDrvrCmd = "pkill -9 -f \"Dyardstick.driver\"";
 
             hand.runCmd(host, killDrvrCmd);
         }
-        catch (IOException e) {
-            e.printStackTrace();
+        catch (IOException | InterruptedException e) {
+            log().error(String.format("Failed to kill nodes on the host '%s'", host), e);
         }
-        catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
 
         return null;
-    }
-
-    public NodeInfo killNode(NodeInfo nodeInfo){
-        CommandHandler hand = new CommandHandler(runCtx);
-
-        NodeInfo res = nodeInfo;
-
-        try {
-            res = hand.killNode(nodeInfo);
-        }
-        catch (InterruptedException | IOException e) {
-            e.printStackTrace();
-        }
-
-        return res;
-    }
-
-    @Override public String getWorkerName() {
-        return getClass().getSimpleName();
     }
 }

@@ -6,16 +6,29 @@ import org.yardstickframework.runners.CommandHandler;
 import org.yardstickframework.runners.workers.WorkResult;
 import org.yardstickframework.runners.context.RunContext;
 
+/**
+ * Cleans remote directory.
+ */
 public class CleanRemDirWorker extends HostWorker {
+    /** */
+    private String[] toClean = new String[]{"bin", "config", "libs", "output", "work"};
 
-    protected String[] toClean = new String[]{"bin", "config", "libs", "output", "work"};
-
-
+    /** {@inheritDoc} */
     public CleanRemDirWorker(RunContext runCtx, List<String> hostList) {
         super(runCtx, hostList);
     }
 
+    /** {@inheritDoc} */
     @Override public WorkResult doWork(String host, int cnt) {
+        return clean(host);
+    }
+
+    /**
+     *
+     * @param host Host
+     * @return Work result.
+     */
+    private WorkResult clean(String host){
         if ((isLocal(host) && runCtx.localeWorkDirectory().equals(runCtx.remoteWorkDirectory()))
             || host.equals(runCtx.currentHost()) && runCtx.localeWorkDirectory().equals(runCtx.remoteWorkDirectory()))
             return null;
@@ -35,13 +48,9 @@ public class CleanRemDirWorker extends HostWorker {
             }
 
         }
-        catch (IOException e) {
-            e.printStackTrace();
+        catch (IOException | InterruptedException e) {
+            log().error(String.format("Failed to clean remote directory on the host '%s'", host), e);
         }
-        catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
 
         return null;
     }

@@ -153,7 +153,7 @@ public class DockerStartContWorker extends DockerNodeWorker {
 
     }
 
-    @Override public String getWorkerName() {
+    @Override public String workerName() {
         return getClass().getSimpleName();
     }
 }
