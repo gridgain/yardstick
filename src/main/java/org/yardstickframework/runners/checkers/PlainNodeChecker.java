@@ -11,7 +11,7 @@ import org.yardstickframework.runners.context.RunContext;
  */
 public class PlainNodeChecker extends AbstractRunner implements NodeChecker {
     /** */
-    private CommandHandler hndl;
+    private CommandHandler hand;
 
     /**
      * Constructor.
@@ -21,13 +21,13 @@ public class PlainNodeChecker extends AbstractRunner implements NodeChecker {
     public PlainNodeChecker(RunContext runCtx) {
         super(runCtx);
 
-        hndl = new CommandHandler(runCtx);
+        hand = new CommandHandler(runCtx);
     }
 
     /** {@inheritDoc} */
     @Override public NodeInfo checkNode(NodeInfo nodeInfo) throws InterruptedException{
         try {
-            return hndl.checkPlainNode(nodeInfo);
+            return hand.checkPlainNode(nodeInfo);
         }
         catch (IOException e) {
             e.printStackTrace();

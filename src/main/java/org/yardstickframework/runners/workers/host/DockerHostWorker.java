@@ -65,14 +65,14 @@ public abstract class DockerHostWorker extends HostWorker {
     }
 
     private CommandExecutionResult removeSingleCont(String host, String contId) {
-        CommandHandler hndl = new CommandHandler(runCtx);
+        CommandHandler hand = new CommandHandler(runCtx);
 
         CommandExecutionResult cmdRes = null;
 
         try {
-            hndl.runDockerCmd(host, String.format("stop %s", contId));
+            hand.runDockerCmd(host, String.format("stop %s", contId));
 
-            cmdRes = hndl.runDockerCmd(host, String.format("rm %s", contId));
+            cmdRes = hand.runDockerCmd(host, String.format("rm %s", contId));
         }
         catch (IOException | InterruptedException e) {
             e.printStackTrace();
@@ -92,7 +92,7 @@ public abstract class DockerHostWorker extends HostWorker {
     }
 
     private CommandExecutionResult removeImage(String host, String imageId, String imageName) {
-        CommandHandler hndl = new CommandHandler(runCtx);
+        CommandHandler hand = new CommandHandler(runCtx);
 
         log().info(String.format("Removing the image '%s' (id=%s) from the host '%s'",
             imageName, imageId, host));
@@ -100,7 +100,7 @@ public abstract class DockerHostWorker extends HostWorker {
         CommandExecutionResult cmdRes = null;
 
         try {
-            cmdRes = hndl.runDockerCmd(host, String.format("rmi -f %s", imageId));
+            cmdRes = hand.runDockerCmd(host, String.format("rmi -f %s", imageId));
         }
         catch (IOException | InterruptedException e) {
             e.printStackTrace();
@@ -152,12 +152,12 @@ public abstract class DockerHostWorker extends HostWorker {
     private Collection<Map<String, String>> getMaps(String host, String cmd, String[] hdrs) {
         List<Map<String, String>> res = new ArrayList<>();
 
-        CommandHandler hndl = new CommandHandler(runCtx);
+        CommandHandler hand = new CommandHandler(runCtx);
 
         CommandExecutionResult cmdRes = null;
 
         try {
-            cmdRes = hndl.runDockerCmd(host, cmd);
+            cmdRes = hand.runDockerCmd(host, cmd);
         }
         catch (IOException | InterruptedException e) {
             e.printStackTrace();

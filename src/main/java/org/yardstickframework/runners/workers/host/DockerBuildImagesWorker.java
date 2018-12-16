@@ -39,7 +39,7 @@ public class DockerBuildImagesWorker extends DockerHostWorker {
                 runCtx.resolveRemotePath(dockerCtx.getServerDockerfilePath()):
                 runCtx.resolveRemotePath(dockerCtx.getDriverDockerfilePath());
 
-            CommandHandler hndl = new CommandHandler(runCtx);
+            CommandHandler hand = new CommandHandler(runCtx);
 
 //            log().info(String.format("Building the image '%s' on the host %s.", nameToUse, host));
 
@@ -54,7 +54,7 @@ public class DockerBuildImagesWorker extends DockerHostWorker {
             try {
 //                String buildCmd = String.format("build --no-cache -t %s -f %s .",nameToUse, docFilePath);
 
-                hndl.runDockerCmd(host, buildCmd);
+                hand.runDockerCmd(host, buildCmd);
             }
             catch (IOException e) {
                 e.printStackTrace();

@@ -15,14 +15,14 @@ public class DockerCheckWorker extends CheckWorker {
     }
 
     @Override public WorkResult doWork(String host, int cnt) {
-        CommandHandler hndl = new CommandHandler(runCtx);
+        CommandHandler hand = new CommandHandler(runCtx);
 
 //        log().info(String.format("Checking docker on the host %s.", host));
 
         CommandExecutionResult res = null;
 
         try {
-            res = hndl.runDockerCmd(host, "images");
+            res = hand.runDockerCmd(host, "images");
         }
         catch (IOException e) {
             e.printStackTrace();

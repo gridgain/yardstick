@@ -164,13 +164,13 @@ public class AbstractRunner {
 
         String stdCharts = String.format("%s -cp %s %s -gm STANDARD -i %s", jvmOpts, cp, mainClass, mainResDir);
 
-        CommandHandler hndl = new CommandHandler(runCtx);
+        CommandHandler hand = new CommandHandler(runCtx);
 
-        hndl.runLocalJava(stdCharts);
+        hand.runLocalJava(stdCharts);
 
         String charts = String.format("%s -cp %s %s -i %s", jvmOpts, cp, mainClass, mainResDir);
 
-        hndl.runLocalJava(charts);
+        hand.runLocalJava(charts);
 
         File outDir = new File(mainResDir).getParentFile();
 

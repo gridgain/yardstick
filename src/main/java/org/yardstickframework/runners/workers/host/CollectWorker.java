@@ -29,14 +29,14 @@ public class CollectWorker extends HostWorker {
 
         log().info(String.format("Collecting data from the host '%s'.", host));
 
-        CommandHandler hndl = new CommandHandler(runCtx);
+        CommandHandler hand = new CommandHandler(runCtx);
 
         String pathRem = String.format("%s/*", nodeOutDir);
 
         String pathLoc = outDir.getAbsolutePath();
 
         try {
-            hndl.download(host, pathRem, pathLoc);
+            hand.download(host, pathRem, pathLoc);
         }
         catch (IOException e) {
             e.printStackTrace();

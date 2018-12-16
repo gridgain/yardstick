@@ -92,10 +92,10 @@ public class StartNodeWorker extends NodeWorker {
 
         String logDirFullName = getLogDirFullName(type);
 
-        CommandHandler hndl = new CommandHandler(runCtx);
+        CommandHandler hand = new CommandHandler(runCtx);
 
         try {
-            hndl.runMkdirCmd(host, logDirFullName);
+            hand.runMkdirCmd(host, logDirFullName);
         }
         catch (IOException e) {
             e.printStackTrace();

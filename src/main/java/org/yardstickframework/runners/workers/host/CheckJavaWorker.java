@@ -33,10 +33,10 @@ public class CheckJavaWorker extends CheckWorker {
 
         checked.add(host);
 
-        CommandHandler hndl = new CommandHandler(runCtx);
+        CommandHandler hand = new CommandHandler(runCtx);
 
         if (runCtx.remoteJavaHome() != null) {
-            if (!hndl.checkRemJava(host, runCtx.remoteJavaHome())) {
+            if (!hand.checkRemJava(host, runCtx.remoteJavaHome())) {
                 log().info(String.format("Failed to find %s/bin/java on the host %s.",
                     runCtx.remoteJavaHome(), host));
 
@@ -48,13 +48,13 @@ public class CheckJavaWorker extends CheckWorker {
             return res;
         }
 
-        if (hndl.checkRemJava(host, locJavaHome)) {
+        if (hand.checkRemJava(host, locJavaHome)) {
             log().info(String.format("Using JAVA_HOME '%s' on the host %s.", locJavaHome, host));
 
             runCtx.hostJavaHomeMap().put(host, locJavaHome);
         }
         else {
-            String hostJava = hndl.getHostJavaHome(host);
+            String hostJava = hand.getHostJavaHome(host);
 
             String warn = String.format("WARNING! JAVA_HOME is not defined in property file and default JAVA_HOME " +
                     "'%s' on the host %s is different from default JAVA_HOME on this host (%s)." +

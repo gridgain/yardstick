@@ -28,16 +28,16 @@ public class DockerCollectWorker extends DockerNodeWorker {
 
         String cpCmd = String.format("cp %s:%s/output %s", contName, runCtx.remoteWorkDirectory(), runCtx.remoteWorkDirectory());
 
-        CommandHandler hndl = new CommandHandler(runCtx);
+        CommandHandler hand = new CommandHandler(runCtx);
 
 //        System.out.println(cpCmd);
 
         log().info(String.format("Collecting data from the container '%s' on the host '%s'.", contName, host));
 
         try {
-            hndl.runCmd(host, mkdirCmd);
+            hand.runCmd(host, mkdirCmd);
 
-            hndl.runDockerCmd(host, cpCmd);
+            hand.runDockerCmd(host, cpCmd);
         }
         catch (IOException e) {
             e.printStackTrace();

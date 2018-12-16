@@ -14,15 +14,15 @@ public class KillWorker extends HostWorker {
     }
 
     @Override public WorkResult doWork(String host, int cnt) {
-        CommandHandler hndl = new CommandHandler(runCtx);
+        CommandHandler hand = new CommandHandler(runCtx);
 
         String killServCmd = "pkill -9 -f \"Dyardstick.server\"";
         String killDrvrCmd = "pkill -9 -f \"Dyardstick.driver\"";
 
         try {
-            hndl.runCmd(host, killServCmd);
+            hand.runCmd(host, killServCmd);
 
-            hndl.runCmd(host, killDrvrCmd);
+            hand.runCmd(host, killDrvrCmd);
         }
         catch (IOException e) {
             e.printStackTrace();
@@ -36,12 +36,12 @@ public class KillWorker extends HostWorker {
     }
 
     public NodeInfo killNode(NodeInfo nodeInfo){
-        CommandHandler hndl = new CommandHandler(runCtx);
+        CommandHandler hand = new CommandHandler(runCtx);
 
         NodeInfo res = nodeInfo;
 
         try {
-            res = hndl.killNode(nodeInfo);
+            res = hand.killNode(nodeInfo);
         }
         catch (InterruptedException | IOException e) {
             e.printStackTrace();

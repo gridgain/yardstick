@@ -29,9 +29,9 @@ public class StopNodeWorker extends NodeWorker {
     }
 
     public NodeInfo stopNode(NodeInfo nodeInfo) throws IOException, InterruptedException {
-        CommandHandler hndl = new CommandHandler(runCtx);
+        CommandHandler hand = new CommandHandler(runCtx);
 
-        nodeInfo = hndl.killNode(nodeInfo);
+        nodeInfo = hand.killNode(nodeInfo);
 
         return nodeInfo;
     }

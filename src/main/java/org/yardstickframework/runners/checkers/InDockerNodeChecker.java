@@ -13,7 +13,7 @@ import org.yardstickframework.runners.context.RunContext;
  */
 public class InDockerNodeChecker extends AbstractRunner implements NodeChecker {
     /** */
-    private CommandHandler hndl;
+    private CommandHandler hand;
 
     /**
      * Constructor.
@@ -23,7 +23,7 @@ public class InDockerNodeChecker extends AbstractRunner implements NodeChecker {
     public InDockerNodeChecker(RunContext runCtx) {
         super(runCtx);
 
-        hndl = new CommandHandler(runCtx);
+        hand = new CommandHandler(runCtx);
     }
 
     /** {@inheritDoc} */
@@ -38,7 +38,7 @@ public class InDockerNodeChecker extends AbstractRunner implements NodeChecker {
         CommandExecutionResult res = null;
 
         try {
-            res = hndl.runDockerCmd(host, checkCmd);
+            res = hand.runDockerCmd(host, checkCmd);
         }
         catch (IOException e) {
             e.printStackTrace();

@@ -24,16 +24,16 @@ public class DeployWorker extends HostWorker {
 
         String createCmd = String.format("mkdir -p %s", runCtx.remoteWorkDirectory());
 
-        CommandHandler hndl = new CommandHandler(runCtx);
+        CommandHandler hand = new CommandHandler(runCtx);
 
         try {
-            hndl.runCmd(host, createCmd);
+            hand.runCmd(host, createCmd);
 
             for(String name : toClean){
                 String cleanCmd = String.format("rm -rf %s/%s",
                     runCtx.remoteWorkDirectory(), name);
 
-                hndl.runCmd(host, cleanCmd);
+                hand.runCmd(host, cleanCmd);
             }
 
             log().info(String.format("Deploying on the host '%s'.", host));
@@ -41,9 +41,9 @@ public class DeployWorker extends HostWorker {
             for(String name : toDeploy) {
                 String fullPath = Paths.get(runCtx.remoteWorkDirectory(), name).toAbsolutePath().toString();
 
-                if(hndl.checkRemFile(host, fullPath)) {
+                if(hand.checkRemFile(host, fullPath)) {
                     try {
-                        hndl.runMkdirCmd(host, fullPath);
+                        hand.runMkdirCmd(host, fullPath);
                     }
                     catch (IOException e) {
                         e.printStackTrace();
@@ -55,7 +55,7 @@ public class DeployWorker extends HostWorker {
 
                 String locPath = String.format("%s/%s", runCtx.localeWorkDirectory(), name);
 
-                hndl.upload(host, locPath, runCtx.remoteWorkDirectory());
+                hand.upload(host, locPath, runCtx.remoteWorkDirectory());
             }
         }
         catch (IOException e) {

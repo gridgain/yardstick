@@ -55,14 +55,14 @@ public class DockerStartContWorker extends DockerNodeWorker {
         String startCmd = String.format("run %s %s %s",
             runCmdArgs, imageName, startContCmd);
 
-        CommandHandler hndl = new CommandHandler(runCtx);
+        CommandHandler hand = new CommandHandler(runCtx);
 
 //        System.out.println(startCmd);
 
 
 
         try {
-            hndl.runDockerCmd(host, startCmd);
+            hand.runDockerCmd(host, startCmd);
 
 //            String contId = getContId(host, contName);
 
@@ -72,7 +72,7 @@ public class DockerStartContWorker extends DockerNodeWorker {
                 setDockerJavaHome(nodeInfo);
             }
 
-            hndl.runDockerCmd(host, mkdirCmd);
+            hand.runDockerCmd(host, mkdirCmd);
 
             String remPath = runCtx.remoteWorkDirectory();
 
@@ -80,7 +80,7 @@ public class DockerStartContWorker extends DockerNodeWorker {
 
             String cpCmd = String.format("cp %s %s:%s", remPath, contName, parentPath);
 
-            hndl.runDockerCmd(host, cpCmd);
+            hand.runDockerCmd(host, cpCmd);
         }
         catch (IOException e) {
             e.printStackTrace();
@@ -109,11 +109,11 @@ public class DockerStartContWorker extends DockerNodeWorker {
 
         String echoCmd = String.format("exec %s sh -c 'echo $JAVA_HOME'", contName);
 
-        CommandHandler hndl = new CommandHandler(runCtx);
+        CommandHandler hand = new CommandHandler(runCtx);
 
         String host = nodeInfo.host();
 
-        CommandExecutionResult res = hndl.runDockerCmd(host, echoCmd);
+        CommandExecutionResult res = hand.runDockerCmd(host, echoCmd);
 
         if(!res.getOutStream().isEmpty()){
             String javaHome = res.getOutStream().get(0);
