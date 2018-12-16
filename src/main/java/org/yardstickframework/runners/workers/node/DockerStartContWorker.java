@@ -13,7 +13,7 @@ import org.yardstickframework.runners.context.DockerContext;
 import org.yardstickframework.runners.context.RunContext;
 import org.yardstickframework.runners.context.RunMode;
 
-public class DockerStartContWorker extends DockerNodeWorker {
+public class DockerStartContWorker extends NodeWorker {
     private static final String DFLT_START_CMD = "sleep 365d";
 
     private static final String DFLT_RUN_CMD_ARGS = "-d --network host";

@@ -7,12 +7,16 @@ import org.yardstickframework.runners.context.NodeInfo;
 import org.yardstickframework.runners.context.NodeType;
 import org.yardstickframework.runners.context.RunContext;
 
-public class DockerCollectWorker extends DockerNodeWorker {
-
+/**
+ * Collects data from docker containers/
+ */
+public class DockerCollectWorker extends NodeWorker {
+    /** {@inheritDoc} */
     public DockerCollectWorker(RunContext runCtx, List<NodeInfo> nodeList) {
         super(runCtx, nodeList);
     }
 
+    /** {@inheritDoc} */
     @Override public NodeInfo doWork(NodeInfo nodeInfo) throws InterruptedException {
         NodeType type = nodeInfo.nodeType();
 
@@ -24,32 +28,24 @@ public class DockerCollectWorker extends DockerNodeWorker {
 
         String nodeOutDir = String.format("%s/output", runCtx.remoteWorkDirectory());
 
-        String mkdirCmd = String.format("mkdir -p %s", nodeOutDir);
-
         String cpCmd = String.format("cp %s:%s/output %s", contName, runCtx.remoteWorkDirectory(), runCtx.remoteWorkDirectory());
 
         CommandHandler hand = new CommandHandler(runCtx);
 
-//        System.out.println(cpCmd);
-
         log().info(String.format("Collecting data from the container '%s' on the host '%s'.", contName, host));
 
         try {
+            String mkdirCmd = String.format("mkdir -p %s", nodeOutDir);
+
             hand.runCmd(host, mkdirCmd);
 
             hand.runDockerCmd(host, cpCmd);
         }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
-        catch (InterruptedException e) {
-            e.printStackTrace();
+        catch (IOException | InterruptedException e) {
+            log().error(String.format("Failed to collect data from container '%s' on the host '%s'",
+                contName, host), e);
         }
 
-        return null;
-    }
-
-    @Override public String workerName() {
-        return getClass().getSimpleName();
+        return nodeInfo;
     }
 }

@@ -11,18 +11,17 @@ import org.yardstickframework.runners.context.NodeInfo;
 import org.yardstickframework.runners.context.NodeStatus;
 import org.yardstickframework.runners.context.RunContext;
 
+/**
+ * Checks node log.
+ */
 public class CheckLogWorker extends NodeWorker {
-    /**
-     *
-     * @param runCtx
-     * @param nodeList
-     */
+    /** {@inheritDoc} */
     public CheckLogWorker(RunContext runCtx, List<NodeInfo> nodeList) {
         super(runCtx, nodeList);
     }
 
+    /** {@inheritDoc} */
     @Override public NodeInfo doWork(NodeInfo nodeInfo) throws InterruptedException {
-        //TODO refactor all method
         String host = nodeInfo.host();
 
         String logPath = nodeInfo.logPath();
@@ -44,12 +43,13 @@ public class CheckLogWorker extends NodeWorker {
         checker.checkNode(nodeInfo);
 
         if(nodeInfo.nodeStatus() == NodeStatus.NOT_RUNNING)
-            log().info(String.format("Node %s on the host %s in not running. Will check log file and exit.",
-                nodeInfo.toShortStr(), host));
+            log().info(String.format("Node '%s' on the host '%s' in not running. Will check log file and exit.",
+                nodeInfo.toShortStr(),
+                host));
 
 
         if(!fileExists){
-            log().info(String.format("No log file %s on the host %s.", logPath, host));
+            log().info(String.format("No log file '%s' on the host '%s'.", logPath, host));
 
             return nodeInfo;
         }
@@ -72,7 +72,9 @@ public class CheckLogWorker extends NodeWorker {
             }
         }
         catch (IOException e) {
-            e.printStackTrace();
+            log().error(String.format("Failed to check log for the node '%s' on the host '%s'",
+                nodeInfo.toShortStr(),
+                host), e);
         }
 
         return nodeInfo;

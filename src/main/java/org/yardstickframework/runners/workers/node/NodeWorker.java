@@ -44,7 +44,7 @@ public abstract class NodeWorker extends Worker {
      *
      * @param nodeInfo {@code NodeInfo} object to work with.
      * @return {@code NodeInfo} result.
-     * @throws InterruptedException
+     * @throws InterruptedException if interrupted.
      */
     public abstract NodeInfo doWork(NodeInfo nodeInfo) throws InterruptedException;
 
@@ -62,7 +62,7 @@ public abstract class NodeWorker extends Worker {
     public List<NodeInfo> workForNodes() {
         beforeWork();
 
-        ExecutorService execServ = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+        ExecutorService exec = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
         Collection<Future<NodeInfo>> futList = new ArrayList<>(nodeList.size());
 
@@ -72,7 +72,7 @@ public abstract class NodeWorker extends Worker {
             semMap.put(nodeInfo.host(), new Semaphore(1));
 
         for (final NodeInfo nodeInfo : nodeList) {
-            futList.add(execServ.submit(new Callable<NodeInfo>() {
+            futList.add(exec.submit(new Callable<NodeInfo>() {
                 @Override public NodeInfo call() throws Exception {
                     String host = nodeInfo.host();
 
@@ -113,7 +113,7 @@ public abstract class NodeWorker extends Worker {
             }
         }
 
-        execServ.shutdown();
+        exec.shutdown();
 
         afterWork();
 
@@ -124,14 +124,14 @@ public abstract class NodeWorker extends Worker {
      * @return Response node list.
      */
     public List<NodeInfo> resNodeList() {
-        return resNodeList;
+        return new ArrayList<>(resNodeList);
     }
 
     /**
      * @return Node list.
      */
     public List<NodeInfo> nodeList() {
-        return nodeList;
+        return new ArrayList<>(nodeList);
     }
 
     /**

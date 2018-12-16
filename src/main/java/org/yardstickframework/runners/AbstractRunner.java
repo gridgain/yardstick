@@ -110,9 +110,9 @@ public class AbstractRunner {
 
         checkPlain(new CheckJavaWorker(runCtx, runCtx.uniqueHostsByMode(RunMode.PLAIN)));
 
-        List<NodeType> dockerList = runCtx.nodeTypes(RunMode.DOCKER);
+        dockerList = runCtx.nodeTypes(RunMode.DOCKER);
 
-        DockerRunner dockerRunner = new DockerRunner(runCtx);
+        dockerRunner = new DockerRunner(runCtx);
 
         if (!dockerList.isEmpty()) {
             dockerRunner.check(dockerList);
