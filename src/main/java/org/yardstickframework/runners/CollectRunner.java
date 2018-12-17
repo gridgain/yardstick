@@ -16,6 +16,10 @@ public class CollectRunner extends AbstractRunner {
         super(runCtx);
     }
 
+    /**
+     *
+     * @param args Command line arguments.
+     */
     public static void main(String[] args) {
         RunContext runCtx = RunContext.getRunContext(args);
 

@@ -11,11 +11,16 @@ import org.yardstickframework.runners.context.RestartSchedule;
 import org.yardstickframework.runners.context.RestartContext;
 import org.yardstickframework.runners.context.RunContext;
 
+/**
+ * Restart nodes.
+ */
 public class RestartNodeWorker extends StartNodeWorker {
+    /** {@inheritDoc} */
     public RestartNodeWorker(RunContext runCtx, List<NodeInfo> nodeList, String cfgFullStr) {
         super(runCtx, nodeList, cfgFullStr);
     }
 
+    /** {@inheritDoc} */
     @Override public void beforeWork() {
         super.beforeWork();
 
@@ -24,6 +29,7 @@ public class RestartNodeWorker extends StartNodeWorker {
         drvrLogDirFullName = String.format("%s/log_drivers_restarted", baseLogDirFullName);
     }
 
+    /** {@inheritDoc} */
     @Override public NodeInfo doWork(NodeInfo nodeInfo) throws InterruptedException {
         String host = nodeInfo.host();
 
@@ -74,7 +80,7 @@ public class RestartNodeWorker extends StartNodeWorker {
                 break;
             }
             catch (IOException e) {
-                e.printStackTrace();
+                log().error(String.format("Failed to restart node '%s'", nodeInfo.toShortStr()), e);
             }
 
             log().debug("Restart worker stopped.");

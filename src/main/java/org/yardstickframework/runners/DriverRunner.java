@@ -16,6 +16,10 @@ public class DriverRunner extends AbstractRunner {
         super(runCtx);
     }
 
+    /**
+     *
+     * @param args Command line arguments.
+     */
     public static void main(String[] args) {
         RunContext runCtx = RunContext.getRunContext(args);
 
@@ -25,7 +29,7 @@ public class DriverRunner extends AbstractRunner {
     }
 
     public int run1() {
-        generalPrapare();
+        generalPrepare();
 
         for (String cfgStr : runCtx.configList()) {
             List<NodeInfo> drvrRes = startNodes(NodeType.DRIVER, cfgStr);

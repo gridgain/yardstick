@@ -1,15 +1,9 @@
 package org.yardstickframework.runners;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
@@ -30,14 +24,21 @@ import org.yardstickframework.runners.workers.node.NodeWorker;
 import org.yardstickframework.runners.workers.node.StartNodeWorker;
 import org.yardstickframework.runners.workers.node.WaitNodeWorker;
 
+/**
+ * Parent for runners.
+ */
 public class AbstractRunner {
+    /** Run context. */
     protected RunContext runCtx;
 
-    protected DockerRunner dockerRunner;
+    /** */
+    private DockerRunner dockerRunner;
 
-    protected List<NodeType> dockerList;
+    /** */
+    private List<NodeType> dockerList;
 
     /**
+     * Constructor.
      *
      * @param runCtx Run context.
      */
@@ -45,54 +46,11 @@ public class AbstractRunner {
         this.runCtx = runCtx;
     }
 
-    protected List<String> runCmd(final String cmd){
-
-        List<String> res = new ArrayList<>();
-
-        final Process p;
-
-        ExecutorService errStreamPrinter = Executors.newSingleThreadExecutor();
-
-
-        try {
-            p = Runtime.getRuntime().exec(cmd);
-            p.waitFor();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
-
-
-            errStreamPrinter.submit(new Callable<Object>() {
-                @Override public Object call() throws IOException {
-                    String line = "";
-
-
-                    BufferedReader errReader = new BufferedReader(new InputStreamReader(p.getErrorStream()));
-
-                    while ((line = errReader.readLine())!= null)
-                        System.out.println(String.format("Command '%s' returned error line: %s:", cmd, line));
-
-                    return null;
-                }
-            });
-
-            String line = "";
-
-            while ((line = reader.readLine())!= null) {
-                res.add(line);
-
-                if(line.contains("Successfully built "))
-                     log().info(line);
-            }
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        errStreamPrinter.shutdown();
-
-        return res;
-    }
-
-    protected void checkPlain(HostWorker checkWorker) {
+    /**
+     *
+     * @param checkWorker Check worker.
+     */
+    void checkPlain(HostWorker checkWorker) {
         List<WorkResult> checks = checkWorker.workOnHosts();
 
         for (WorkResult check : checks) {
@@ -103,7 +61,10 @@ public class AbstractRunner {
         }
     }
 
-    protected void generalPrapare(){
+    /**
+     *
+     */
+    void generalPrepare(){
         List<String> fullList = runCtx.getFullUniqueList();
 
         checkPlain(new CheckConnWorker(runCtx, fullList));
@@ -131,7 +92,10 @@ public class AbstractRunner {
         }
     }
 
-    protected void generalCleanUp(){
+    /**
+     *
+     */
+    void generalCleanUp(){
         if (!dockerList.isEmpty()) {
             dockerRunner.collect(dockerList);
 
@@ -139,21 +103,18 @@ public class AbstractRunner {
         }
     }
 
-    protected List<String> getHosts(NodeType type){
-        return type == NodeType.SERVER ? runCtx.serverList() : runCtx.driverList();
-    }
-
-    protected List<String> getUniqHosts(NodeType type){
-        return type == NodeType.SERVER ? runCtx.serverUniqueList() : runCtx.driverUniqueList();
-    }
-
+    /**
+     *
+     * @return Logger.
+     */
     protected Logger log(){
-        Logger log = LogManager.getLogger(getClass().getSimpleName());
-
-        return log;
+        return LogManager.getLogger(getClass().getSimpleName());
     }
 
-    protected void createCharts() {
+    /**
+     *
+     */
+    void createCharts() {
         String mainResDir = String.format("%s/output/result-%s", runCtx.localeWorkDirectory(), runCtx.mainDateTime());
 
         String cp = String.format("%s/libs/*", runCtx.localeWorkDirectory());
@@ -172,8 +133,6 @@ public class AbstractRunner {
 
         hand.runLocalJava(charts);
 
-        File outDir = new File(mainResDir).getParentFile();
-
         try {
             new CountDownLatch(1).await(3000L, TimeUnit.MILLISECONDS);
         }
@@ -181,27 +140,44 @@ public class AbstractRunner {
             e.printStackTrace();
         }
 
+        File outDir = new File(mainResDir).getParentFile();
+
         if (outDir.exists() && outDir.isDirectory()) {
             File[] arr = outDir.listFiles();
 
             for (File resComp : arr) {
                 if (resComp.getName().startsWith("results-compound")) {
-                    String mvCmd = String.format("mv %s %s",
-                        resComp.getAbsolutePath(), mainResDir);
+                    try {
+                        String mvCmd = String.format("mv %s %s",
+                            resComp.getAbsolutePath(), mainResDir);
 
-                    runCmd(mvCmd);
+                        hand.runCmd("localhost", mvCmd);
+                    }
+                    catch (IOException | InterruptedException e) {
+                        log().error("Failed to create charts", e);
+                    }
                 }
             }
         }
     }
 
-    protected List<NodeInfo> startNodes(NodeType type, String cfgStr) {
+    /**
+     *
+     * @param type Node type.
+     * @param cfgStr Config string.
+     * @return List of {@code NodeInfo} objects.
+     */
+    List<NodeInfo> startNodes(NodeType type, String cfgStr) {
         NodeWorker startServWorker = new StartNodeWorker(runCtx, runCtx.getNodes(type), cfgStr);
 
         return startServWorker.workForNodes();
     }
 
-    protected void checkLogs(List<NodeInfo> list){
+    /**
+     *
+     * @param list List of {@code NodeInfo} objects.
+     */
+    void checkLogs(List<NodeInfo> list){
         NodeWorker checkWorker = new CheckLogWorker(runCtx,list);
 
         List<NodeInfo> resList = checkWorker.workForNodes();
@@ -212,7 +188,12 @@ public class AbstractRunner {
         }
     }
 
-    protected void waitForNodes(List<NodeInfo> nodeList, NodeStatus expStatus) {
+    /**
+     *
+     * @param nodeList List of {@code NodeInfo} objects.
+     * @param expStatus Expected status.
+     */
+    void waitForNodes(List<NodeInfo> nodeList, NodeStatus expStatus) {
         NodeWorker waitWorker = new WaitNodeWorker(runCtx, nodeList, expStatus);
 
         waitWorker.workForNodes();

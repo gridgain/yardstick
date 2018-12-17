@@ -13,19 +13,27 @@ import org.yardstickframework.runners.context.DockerContext;
 import org.yardstickframework.runners.context.RunContext;
 import org.yardstickframework.runners.context.RunMode;
 
+/**
+ * Starts docker containers.
+ */
 public class DockerStartContWorker extends NodeWorker {
-    private static final String DFLT_START_CMD = "sleep 365d";
+    /** */
+    private static final String DFLT_START_CMD = "sleep 5d";
 
-    private static final String DFLT_RUN_CMD_ARGS = "-d --network host";
+    /** */
+    private static final String DFLT_RUN_CMD = "run -d --network host";
 
+    /** */
     private DockerContext dockerCtx;
 
+    /** {@inheritDoc} */
     public DockerStartContWorker(RunContext runCtx, List<NodeInfo> nodeList) {
         super(runCtx, nodeList);
 
         dockerCtx = runCtx.dockerContext();
     }
 
+    /** {@inheritDoc} */
     @Override public NodeInfo doWork(NodeInfo nodeInfo) throws InterruptedException {
         String host = nodeInfo.host();
 
@@ -45,32 +53,20 @@ public class DockerStartContWorker extends NodeWorker {
 
         String startContCmd = getStartContCmd();
 
-        String runCmdArgs = getRunArgs();
-
-//        System.out.println(startContCmd);
+        String runCmdArgs = getRunCmd();
 
         if(runCmdArgs.contains("NAME_PLACEHOLDER"))
             runCmdArgs = runCmdArgs.replace("NAME_PLACEHOLDER", contName);
 
-        String startCmd = String.format("run %s %s %s",
+        String startCmd = String.format("%s %s %s",
             runCmdArgs, imageName, startContCmd);
 
         CommandHandler hand = new CommandHandler(runCtx);
 
-//        System.out.println(startCmd);
-
-
-
         try {
             hand.runDockerCmd(host, startCmd);
 
-//            String contId = getContId(host, contName);
-
             String mkdirCmd = String.format("exec %s mkdir -p %s", contName, runCtx.remoteWorkDirectory());
-
-            synchronized (this) {
-                setDockerJavaHome(nodeInfo);
-            }
 
             hand.runDockerCmd(host, mkdirCmd);
 
@@ -82,26 +78,51 @@ public class DockerStartContWorker extends NodeWorker {
 
             hand.runDockerCmd(host, cpCmd);
         }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
-        catch (InterruptedException e) {
-            e.printStackTrace();
+        catch (IOException | InterruptedException e) {
+            log().error(String.format("Failed to start container '%s' on the host '%s'",
+                contName, host), e);
         }
 
         return nodeInfo;
     }
 
+    /**
+     *
+     * @return Command to start container.
+     */
     private String getStartContCmd() {
         return dockerCtx.getStartContCmd() != null ? dockerCtx.getStartContCmd() : DFLT_START_CMD;
     }
 
-    private String getRunArgs() {
+    /**
+     *
+     * @return Docker run command.
+     */
+    private String getRunCmd() {
         return dockerCtx.getDockerRunCmd() != null ?
             dockerCtx.getDockerRunCmd() :
-            DFLT_RUN_CMD_ARGS;
+            DFLT_RUN_CMD;
     }
 
+    /** {@inheritDoc} */
+    @Override public void afterWork() {
+        if(!resNodeList().isEmpty()) {
+            try {
+                setDockerJavaHome(resNodeList().get(0));
+            }
+            catch (IOException | InterruptedException e) {
+                log().error(String.format("Failed to set Java home for the node type'%s'",
+                    resNodeList().get(0).nodeType()), e);
+            }
+        }
+    }
+
+    /**
+     *
+     * @param nodeInfo Node info.
+     * @throws IOException if failed.
+     * @throws InterruptedException if interrupted.
+     */
     private void setDockerJavaHome(NodeInfo nodeInfo) throws IOException, InterruptedException {
         NodeType type = nodeInfo.nodeType();
 
@@ -151,9 +172,5 @@ public class DockerStartContWorker extends NodeWorker {
             System.exit(1);
         }
 
-    }
-
-    @Override public String workerName() {
-        return getClass().getSimpleName();
     }
 }

@@ -23,7 +23,7 @@ removeImagesFlags:
 
 # List of arguments to use with docker 'run' command. If 'NAME_PLACE_HOLDER' is present it will be replaced with
 # YARDSTICK-<NODETYPE>-<ID> name.
-dockerRunCmdArgs: "-d --network host --name NAME_PLACEHOLDER"
+dockerRunCmd: "run -d --network host --name NAME_PLACEHOLDER"
 
 # Command which starts docker container.
 startContCmd: "sleep 1d"

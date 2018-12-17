@@ -7,12 +7,16 @@ import org.yardstickframework.runners.context.NodeInfo;
 import org.yardstickframework.runners.context.RunMode;
 import org.yardstickframework.runners.context.RunContext;
 
+/**
+ * Terminates nodes.
+ */
 public class StopNodeWorker extends NodeWorker {
-
+    /** {@inheritDoc} */
     public StopNodeWorker(RunContext runCtx, List<NodeInfo> nodeList) {
         super(runCtx, nodeList);
     }
 
+    /** {@inheritDoc} */
     @Override public NodeInfo doWork(NodeInfo nodeInfo) throws InterruptedException {
         log().info(String.format("Stopping node '%s' on the host '%s'.",
             nodeInfo.toShortStr(),
@@ -28,6 +32,13 @@ public class StopNodeWorker extends NodeWorker {
         return nodeInfo;
     }
 
+    /**
+     *
+     * @param nodeInfo Node info.
+     * @return Node  info.
+     * @throws IOException if failed.
+     * @throws InterruptedException if interrupted.
+     */
     public NodeInfo stopNode(NodeInfo nodeInfo) throws IOException, InterruptedException {
         CommandHandler hand = new CommandHandler(runCtx);
 
@@ -36,6 +47,7 @@ public class StopNodeWorker extends NodeWorker {
         return nodeInfo;
     }
 
+    /** {@inheritDoc} */
     @Override public void afterWork() {
         if (!nodeList().isEmpty()) {
             NodeInfo nodeInfo = nodeList().get(0);

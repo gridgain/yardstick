@@ -9,15 +9,19 @@ import org.yardstickframework.runners.workers.host.CleanRemDirWorker;
 import org.yardstickframework.runners.workers.host.HostWorker;
 import org.yardstickframework.runners.workers.host.KillWorker;
 
+/**
+ * Cleans up docker on hosts.
+ */
 public class CleanUpRunner  extends AbstractRunner {
-    /**
-     *
-     * @param runCtx Run context.
-     */
-    public CleanUpRunner(RunContext runCtx) {
+    /** {@inheritDoc} */
+    private CleanUpRunner(RunContext runCtx) {
         super(runCtx);
     }
 
+    /**
+     *
+     * @param args Command line arguments.
+     */
     public static void main(String[] args) {
         RunContext runCtx = RunContext.getRunContext(args);
 

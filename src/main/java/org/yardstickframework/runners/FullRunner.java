@@ -25,6 +25,10 @@ public class FullRunner extends AbstractRunner {
         super(runCtx);
     }
 
+    /**
+     *
+     * @param args Command line arguments.
+     */
     public static void main(String[] args) {
         RunContext runCtx = RunContext.getRunContext(args);
 
@@ -34,7 +38,7 @@ public class FullRunner extends AbstractRunner {
     }
 
     public int run1() {
-        generalPrapare();
+        generalPrepare();
 
         String cfgStr0 = runCtx.properties().getProperty("CONFIGS").split(",")[0];
 
@@ -84,11 +88,11 @@ public class FullRunner extends AbstractRunner {
             }
         }
 
-//        if(runCtx.startServersOnce()){
-//            stopNodes(servRes);
-//
-//            waitForNodes(servRes, NodeStatus.NOT_RUNNING);
-//        }
+        if(runCtx.startServersOnce()){
+            stopNodes(servRes);
+
+            waitForNodes(servRes, NodeStatus.NOT_RUNNING);
+        }
 
         generalCleanUp();
 
