@@ -43,7 +43,7 @@ public class CollectWorker extends HostWorker {
         try {
             String pathRem = String.format("%s/*", nodeOutDir);
 
-            hand.download(host, pathRem, pathLoc);
+            hand.download(host, pathLoc, pathRem);
         }
         catch (IOException | InterruptedException e) {
             log().error(String.format("Failed to collect data from the host '%s'", host), e);

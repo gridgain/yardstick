@@ -20,7 +20,7 @@ SCRIPT_DIR=$(cd $(dirname "$0"); pwd)
 
 cd ${SCRIPT_DIR}/../
 
-mvn clean install -DskipTests -Dmaven.javadoc.skip=true
+mvn clean install -DskipTests # -Dmaven.javadoc.skip=true
 
 cp /home/oostanin/.m2/repository/org/yardstickframework/yardstick/0.8.7/yardstick-0.8.7.jar /home/oostanin/gg/incubator-ignite/modules/yardstick/target/assembly/libs/yardstick-0.8.7.jar
 

@@ -221,10 +221,9 @@ public class CommandHandler {
      * @param logPath Log file path.
      * @return Command execution result.
      * @throws IOException If failed.
-     * @throws InterruptedException If interrupted.
      */
     private CommandExecutionResult startNodeLocal(String cmd,
-        String logPath) throws IOException, InterruptedException {
+        String logPath) throws IOException {
 
         while (cmd.contains("  "))
             cmd = cmd.replace("  ", " ");
@@ -245,9 +244,9 @@ public class CommandHandler {
 
         final Process proc = pb.start();
 
-        ExecutorService nodeServ = Executors.newSingleThreadExecutor();
+        ExecutorService exec = Executors.newSingleThreadExecutor();
 
-        nodeServ.submit(new Callable<Object>() {
+        exec.submit(new Callable<Object>() {
             @Override public Process call() throws InterruptedException{
                     proc.waitFor();
 
@@ -255,7 +254,7 @@ public class CommandHandler {
             }
         });
 
-        nodeServ.shutdown();
+        exec.shutdown();
 
         return new CommandExecutionResult(0, null, null, proc);
     }
@@ -393,7 +392,7 @@ public class CommandHandler {
                 errStream.add(e.getMessage());
             }
 
-            return new CommandExecutionResult(errStream.size(), new ArrayList<String>(), errStream, null);
+            return new CommandExecutionResult(errStream.size(), new ArrayList<>(), errStream, null);
         }
         else {
             String mkdirCmd = String.format("%s mkdir -p %s",
@@ -483,7 +482,7 @@ public class CommandHandler {
         if (isLocal(host))
             return true;
 
-        CommandExecutionResult res = null;
+        CommandExecutionResult res;
 
         String checkCmd = String.format("%s echo check", getFullSSHPref(host));
 
