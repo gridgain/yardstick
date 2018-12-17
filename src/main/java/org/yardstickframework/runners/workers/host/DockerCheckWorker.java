@@ -27,8 +27,8 @@ public class DockerCheckWorker extends CheckWorker {
         try {
             CommandExecutionResult res = hand.runDockerCmd(host, "images");
 
-            if(res.getExitCode() != 0 || !res.getErrStream().isEmpty()){
-                for(String err : res.getErrStream())
+            if(res.exitCode() != 0 || !res.errorList().isEmpty()){
+                for(String err : res.errorList())
                     log().error(err);
 
                 workRes.exit(true);

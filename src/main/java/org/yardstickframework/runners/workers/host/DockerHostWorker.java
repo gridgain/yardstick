@@ -182,7 +182,7 @@ abstract class DockerHostWorker extends HostWorker {
         try {
             CommandExecutionResult cmdRes = hand.runDockerCmd(host, cmd);
 
-            List<String> outStr = cmdRes.getOutStream();
+            List<String> outStr = cmdRes.outputList();
 
             Collection<Map<String, String>> res = new ArrayList<>();
 

@@ -44,7 +44,7 @@ public class InDockerNodeChecker extends AbstractRunner implements NodeChecker {
             e.printStackTrace();
         }
 
-        if(res.getOutStream().isEmpty())
+        if(res.outputList().isEmpty())
             nodeInfo.nodeStatus(NodeStatus.NOT_RUNNING);
         else
             nodeInfo.nodeStatus(NodeStatus.RUNNING);

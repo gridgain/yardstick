@@ -59,13 +59,13 @@ public class CheckLogWorker extends NodeWorker {
 
             CommandExecutionResult res = hand.runCmd(host, cmd);
 
-            if(!res.getOutStream().isEmpty()){
-                nodeInfo.errorMessages().addAll(res.getOutStream());
+            if(!res.outputList().isEmpty()){
+                nodeInfo.errorMessages().addAll(res.outputList());
 
                 log().info(String.format("WARNING! Log file '%s' contains following error messages:",
                     logPath));
 
-                for(String msg : res.getOutStream())
+                for(String msg : res.outputList())
                     log().info(msg);
 
                 return nodeInfo;

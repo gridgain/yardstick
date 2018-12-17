@@ -25,10 +25,10 @@ public class DriverRunner extends AbstractRunner {
 
         DriverRunner runner = new DriverRunner(runCtx);
 
-        runner.run1();
+        runner.run0();
     }
 
-    public int run1() {
+    public int run0() {
         generalPrepare();
 
         for (String cfgStr : runCtx.configList()) {

@@ -136,8 +136,8 @@ public class DockerStartContWorker extends NodeWorker {
 
         CommandExecutionResult res = hand.runDockerCmd(host, echoCmd);
 
-        if(!res.getOutStream().isEmpty()){
-            String javaHome = res.getOutStream().get(0);
+        if(!res.outputList().isEmpty()){
+            String javaHome = res.outputList().get(0);
 
             switch (type){
                 case SERVER:

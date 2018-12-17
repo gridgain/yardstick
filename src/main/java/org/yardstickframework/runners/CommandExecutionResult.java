@@ -1,49 +1,77 @@
 package org.yardstickframework.runners;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Collection;
 
 /**
- *
+ * Command execution result.
  */
 public class CommandExecutionResult {
-
+    /** */
     private int exitCode;
 
-    private List<String> outStream;
+    /** */
+    private List<String> outList;
 
-    private List<String> errStream;
+    /** */
+    private List<String> errList;
 
+    /** */
     private Process proc;
 
-    public CommandExecutionResult(int exitCode, List<String> outStream, List<String> errStream, Process proc) {
+    /**
+     * Constructor.
+     *
+     * @param exitCode Exit code.
+     * @param outList Output stream.
+     * @param errList Error stream.
+     * @param proc Process.
+     */
+    CommandExecutionResult(int exitCode, List<String> outList, List<String> errList, Process proc) {
         this.exitCode = exitCode;
-        this.outStream = outStream;
-        this.errStream = errStream;
+        this.outList = new ArrayList<>(outList);
+        this.errList = new ArrayList<>(errList);
         this.proc = proc;
     }
 
-    public int getExitCode() {
+    /**
+     *
+     * @return Exit code.
+     */
+    public int exitCode() {
         return exitCode;
     }
 
-    public List<String> getOutStream() {
-        return outStream;
+    /**
+     *
+     * @return Output stream.
+     */
+    public List<String> outputList() {
+        return new ArrayList<>(outList);
     }
 
-    public List<String> getErrStream() {
-        return errStream;
+    /**
+     *
+     * @return Error stream.
+     */
+    public List<String> errorList() {
+        return new ArrayList<>(errList);
     }
 
-    public Process getProc() {
+    /**
+     *
+     * @return Process.
+     */
+    public Process process() {
         return proc;
     }
 
+    /** {@inheritDoc} */
     @Override public String toString() {
         return "CommandExecutionResult{" +
             "exitCode=" + exitCode +
-            ", outStream=" + outStream +
-            ", errStream=" + errStream +
+            ", outputList=" + outList +
+            ", errorList=" + errList +
             '}';
     }
 }

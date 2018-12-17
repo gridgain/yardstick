@@ -34,10 +34,10 @@ public class FullRunner extends AbstractRunner {
 
         FullRunner runner = new FullRunner(runCtx);
 
-        runner.run1();
+        runner.run0();
     }
 
-    public int run1() {
+    public int run0() {
         generalPrepare();
 
         String cfgStr0 = runCtx.properties().getProperty("CONFIGS").split(",")[0];

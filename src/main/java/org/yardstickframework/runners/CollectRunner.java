@@ -7,12 +7,16 @@ import org.yardstickframework.runners.context.RunMode;
 import org.yardstickframework.runners.workers.host.CheckConnWorker;
 import org.yardstickframework.runners.workers.host.CollectWorker;
 
+/**
+ * Collects data.
+ */
 public class CollectRunner extends AbstractRunner {
     /**
+     * Constructor.
      *
      * @param runCtx Run context.
      */
-    public CollectRunner(RunContext runCtx) {
+     private CollectRunner(RunContext runCtx) {
         super(runCtx);
     }
 
@@ -25,10 +29,14 @@ public class CollectRunner extends AbstractRunner {
 
         CollectRunner runner = new CollectRunner(runCtx);
 
-        runner.run1();
+        runner.run0();
     }
 
-    public int run1() {
+    /**
+     *
+     * @return Exit code.
+     */
+    private int run0() {
         checkPlain(new CheckConnWorker(runCtx, runCtx.getFullUniqueList()));
 
         List<NodeType> dockerList = runCtx.nodeTypes(RunMode.DOCKER);

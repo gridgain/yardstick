@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.apache.log4j.LogManager;
@@ -15,17 +16,36 @@ import org.yardstickframework.runners.context.NodeStatus;
 import org.yardstickframework.runners.context.RunContext;
 import org.yardstickframework.runners.context.RunMode;
 
+/**
+ * Command handler.
+ */
 public class CommandHandler {
+    /** */
     private static final String DFLT_SSH_PREF = "ssh -o StrictHostKeyChecking=no";
 
+    /** */
     private RunContext runCtx;
 
+    /** Field to store last executed command to avoid repetition in log. */
     private String lastCmd = "";
 
+    /**
+     * Constructor.
+     * 
+     * @param runCtx Run context.
+     */
     public CommandHandler(RunContext runCtx) {
         this.runCtx = runCtx;
     }
 
+    /**
+     * 
+     * @param host Host.
+     * @param cmd Command to execute.
+     * @return Command execution result.
+     * @throws IOException If failed.
+     * @throws InterruptedException If interrupted.
+     */
     public CommandExecutionResult runCmd(String host, String cmd) throws IOException, InterruptedException {
         while (cmd.contains("  "))
             cmd = cmd.replace("  ", " ");
@@ -38,6 +58,13 @@ public class CommandHandler {
         return runRmtCmd(fullCmd);
     }
 
+    /**
+     * 
+     * @param cmd Command to execute.
+     * @return Command execution result.
+     * @throws IOException If failed.
+     * @throws InterruptedException If interrupted.
+     */
     private CommandExecutionResult runLocCmd(String cmd) throws IOException, InterruptedException {
         while (cmd.contains("  "))
             cmd = cmd.replace("  ", " ");
@@ -60,7 +87,7 @@ public class CommandHandler {
 
         BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
 
-        String lineE = "";
+        String lineE;
 
         List<String> errList = new ArrayList<>();
 
@@ -72,9 +99,7 @@ public class CommandHandler {
             errList.add(lineE);
         }
 
-        List<String> errStr = errList;
-
-        String lineO = "";
+        String lineO;
 
         final List<String> outStr = new ArrayList<>();
 
@@ -85,14 +110,17 @@ public class CommandHandler {
                 log().info(lineO);
         }
 
-        CommandExecutionResult res = new CommandExecutionResult(exitCode, outStr, errStr, p);
-
-//        System.out.println(res.toString());
-
-        return res;
+        return new CommandExecutionResult(exitCode, outStr, errList, p);
     }
 
-    protected CommandExecutionResult runRmtCmd(final String cmd) throws IOException, InterruptedException {
+    /**
+     * 
+     * @param cmd Command to execute.
+     * @return Command execution result.
+     * @throws IOException If failed.
+     * @throws InterruptedException If interrupted.
+     */
+    private CommandExecutionResult runRmtCmd(final String cmd) throws IOException, InterruptedException {
         if(!cmd.equals(lastCmd))
             log().debug(String.format("Running remote cmd '%s'", cmd));
 
@@ -106,7 +134,7 @@ public class CommandHandler {
 
         BufferedReader outReader = new BufferedReader(new InputStreamReader(proc.getInputStream()));
 
-        String lineE = "";
+        String lineE;
 
         List<String> errStr = new ArrayList<>();
 
@@ -120,7 +148,7 @@ public class CommandHandler {
 
         errStreamPrinter.shutdown();
 
-        String lineO = "";
+        String lineO;
 
         final List<String> outStr = new ArrayList<>();
 
@@ -131,13 +159,18 @@ public class CommandHandler {
                 log().info(lineO);
         }
 
-        CommandExecutionResult res = new CommandExecutionResult(exitCode, outStr, errStr, proc);
-
-//        System.out.println(res.toString());
-
-        return res;
+        return new CommandExecutionResult(exitCode, outStr, errStr, proc);
     }
 
+    /**
+     * 
+     * @param host Host.
+     * @param cmd Command to execute.
+     * @param logPath Log file path.
+     * @return Command execution result.
+     * @throws IOException If failed.
+     * @throws InterruptedException If interrupted.
+     */
     public CommandExecutionResult startNode(String host, String cmd,
         String logPath) throws IOException, InterruptedException {
         if (isLocal(host))
@@ -148,22 +181,48 @@ public class CommandHandler {
         return runRmtCmd(startNodeCmd);
     }
 
-    public CommandExecutionResult upload(String host, String pathLoc, String pathRem) throws IOException, InterruptedException {
+    /**
+     * 
+     * @param host Host.
+     * @param pathLoc Locale path.
+     * @param pathRem Remote path.
+     * @return Command execution result.
+     * @throws IOException If failed.
+     * @throws InterruptedException If interrupted.
+     */
+    public CommandExecutionResult upload(String host, String pathLoc, String pathRem)
+        throws IOException, InterruptedException {
         String cpCmd = String.format("scp -o StrictHostKeyChecking=no -rq %s %s:%s",
             pathLoc, host, pathRem);
 
         return runRmtCmd(cpCmd);
     }
 
-    public CommandExecutionResult download(String host, String pathRem, String pathLoc) throws IOException, InterruptedException {
+    /**
+     * 
+     * @param host Host.
+     * @param pathLoc Locale path.
+     * @param pathRem Remote path.
+     * @return Command execution result.
+     * @throws IOException If failed.
+     * @throws InterruptedException If interrupted.
+     */
+    public CommandExecutionResult download(String host, String pathLoc, String pathRem)
+        throws IOException, InterruptedException {
         String cpCmd = String.format("scp -o StrictHostKeyChecking=no -rq %s:%s %s",
             host, pathRem, pathLoc);
 
         return runRmtCmd(cpCmd);
     }
 
-
-
+    /**
+     * 
+     * @param cmd Command to execute.
+     * @param logPath Log file path.
+     * @return Command execution result.
+     * @throws IOException If failed.
+     * @throws InterruptedException If interrupted.
+     */
     private CommandExecutionResult startNodeLocal(String cmd,
         String logPath) throws IOException, InterruptedException {
 
@@ -188,14 +247,11 @@ public class CommandHandler {
 
         ExecutorService nodeServ = Executors.newSingleThreadExecutor();
 
-        nodeServ.submit(new Runnable() {
-            @Override public void run() {
-                try {
+        nodeServ.submit(new Callable<Object>() {
+            @Override public Process call() throws InterruptedException{
                     proc.waitFor();
-                }
-                catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+
+                    return proc;
             }
         });
 
@@ -204,11 +260,18 @@ public class CommandHandler {
         return new CommandExecutionResult(0, null, null, proc);
     }
 
+    /**
+     *
+     * @param nodeInfo Node info.
+     * @return Node info.
+     * @throws IOException If failed.
+     * @throws InterruptedException If interrupted.
+     */
     public NodeInfo checkPlainNode(NodeInfo nodeInfo) throws IOException, InterruptedException {
         String host = nodeInfo.host();
 
         if (isLocal(host)) {
-            Process proc = nodeInfo.commandExecutionResult().getProc();
+            Process proc = nodeInfo.commandExecutionResult().process();
 
             if (proc != null && proc.isAlive())
                 nodeInfo.nodeStatus(NodeStatus.RUNNING);
@@ -226,7 +289,7 @@ public class CommandHandler {
 
         String toLook = String.format("-Dyardstick.%s ", nodeInfo.toShortStr());
 
-        for (String str : res.getOutStream())
+        for (String str : res.outputList())
             if (str.contains(toLook))
                 found = true;
 
@@ -238,16 +301,20 @@ public class CommandHandler {
         return nodeInfo;
     }
 
+    /**
+     *
+     * @param nodeInfo Node info.
+     * @return Node info.
+     * @throws IOException If failed.
+     * @throws InterruptedException If interrupted.
+     */
     public NodeInfo killNode(NodeInfo nodeInfo) throws IOException, InterruptedException {
-//        log().info(String.format("Killing node -Dyardstick.%s%s",
-//            nodeInfo.nodeType().toString().toLowerCase(), nodeInfo.id()));
-
         String host = nodeInfo.host();
 
         RunMode runMode = nodeInfo.runMode();
 
         if (isLocal(host) && runMode == RunMode.PLAIN) {
-            Process proc = nodeInfo.commandExecutionResult().getProc();
+            Process proc = nodeInfo.commandExecutionResult().process();
 
             proc.destroyForcibly();
 
@@ -271,9 +338,12 @@ public class CommandHandler {
         return nodeInfo;
     }
 
+    /**
+     * 
+     * @param args Arguments.
+     * @return Command execution result.
+     */
     public CommandExecutionResult runLocalJava(String args) {
-        String fullCmd = "";
-
         while (args.contains("  "))
             args = args.replace("  ", " ");
 
@@ -294,19 +364,27 @@ public class CommandHandler {
             pb.start();
         }
         catch (IOException e) {
-            e.printStackTrace();
+            log().error("Failed to start java process.", e);
         }
 
         return null;
     }
 
+    /**
+     * 
+     * @param host Host.
+     * @param path Directory to create.
+     * @return Command execution result.
+     * @throws IOException If failed.
+     * @throws InterruptedException If interrupted.
+     */
     public CommandExecutionResult runMkdirCmd(String host, String path) throws IOException, InterruptedException {
         if (isLocal(host)) {
-            File dirToMake = new File(path);
-
             List<String> errStream = new ArrayList<>();
 
             try {
+                File dirToMake = new File(path);
+
                 dirToMake.mkdirs();
             }
             catch (Exception e) {
@@ -326,6 +404,14 @@ public class CommandHandler {
         }
     }
 
+    /**
+     * 
+     * @param host Host.
+     * @param cmd Command to execute.
+     * @return Command execution result.
+     * @throws IOException If failed.
+     * @throws InterruptedException If interrupted.
+     */
     public CommandExecutionResult runDockerCmd(String host, String cmd) throws IOException, InterruptedException {
         String fullCmd = String.format("docker %s", cmd);
 
@@ -338,47 +424,61 @@ public class CommandHandler {
         }
     }
 
-    public static boolean isLocal(String host) {
+    /**
+     *
+     * @param host Host.
+     * @return {@code true} if host address is "localhost" or "127.0.0.1" or {@code false} otherwise.
+     */
+    private boolean isLocal(String host) {
         return host.equalsIgnoreCase("localhost") || host.equals("127.0.0.1");
     }
 
+    /**
+     *
+     * @param host Host.
+     * @return Full ssh prefix.
+     */
     private String getFullSSHPref(String host) {
-//        if (host.equals(runCtx.currentHost()))
-//            return "";
-
         if (runCtx.remoteUser() == null || runCtx.remoteUser().isEmpty())
             return String.format("%s %s", DFLT_SSH_PREF, host);
 
         return String.format("%s %s@%s", DFLT_SSH_PREF, runCtx.remoteUser(), host);
     }
 
+    /**
+     *
+     * @param host Host.
+     * @return Host Java home.
+     */
     public String getHostJavaHome(String host) {
         String javaHome = null;
 
         if (isLocal(host))
             javaHome = System.getProperty("java.home");
         else {
-            String echoCmd = "echo $JAVA_HOME";
-
             CommandExecutionResult res = null;
 
             try {
+                String echoCmd = "echo $JAVA_HOME";
+
                 res = runCmd(host, echoCmd);
             }
-            catch (IOException e) {
-                e.printStackTrace();
-            }
-            catch (InterruptedException e) {
-                e.printStackTrace();
+            catch (IOException | InterruptedException e) {
+                log().error(String.format("Failed to get Java home from the host '%s'", host), e);
             }
 
-            if (!res.getOutStream().isEmpty())
-                javaHome = res.getOutStream().get(0);
+            if (!res.outputList().isEmpty())
+                javaHome = res.outputList().get(0);
         }
 
         return javaHome;
     }
 
+    /**
+     *
+     * @param host Host.
+     * @return {@code true} if connection is established or {@code false} otherwise.
+     */
     public boolean checkConn(String host) {
         if (isLocal(host))
             return true;
@@ -391,17 +491,23 @@ public class CommandHandler {
             res = runRmtCmd(checkCmd);
         }
         catch (IOException | InterruptedException e) {
-            e.printStackTrace();
+            log().error(String.format("Failed to check connection to the host '%s'", host), e);
 
             return false;
         }
 
         return res != null
-            && res.getExitCode() == 0
-            && !res.getOutStream().isEmpty()
-            && res.getOutStream().get(0).equals("check");
+            && res.exitCode() == 0
+            && !res.outputList().isEmpty()
+            && res.outputList().get(0).equals("check");
     }
 
+    /**
+     *
+     * @param host Host.
+     * @param javaHome Path to Java home.
+     * @return {@code true} if Java actually exists at the specified path or {@code false} otherwise.
+     */
     public boolean checkRemJava(String host, String javaHome) {
         String checkCmd = String.format("%s test -f %s/bin/java", getFullSSHPref(host), javaHome);
 
@@ -410,16 +516,19 @@ public class CommandHandler {
         try {
             res = runRmtCmd(checkCmd);
         }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
-        catch (InterruptedException e) {
-            e.printStackTrace();
+        catch (IOException | InterruptedException e) {
+            log().error(String.format("Failed to check Java home on the host '%s'", host), e);
         }
 
-        return res != null && res.getExitCode() == 0;
+        return res != null && res.exitCode() == 0;
     }
 
+    /**
+     *
+     * @param host Host.
+     * @param path Path.
+     * @return {@code true} if file actually exists at the specified path or {@code false} otherwise.
+     */
     public boolean checkRemFile(String host, String path) {
         String checkCmd = String.format("%s test -f %s", getFullSSHPref(host), path);
 
@@ -428,19 +537,18 @@ public class CommandHandler {
         try {
             res = runRmtCmd(checkCmd);
         }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
-        catch (InterruptedException e) {
-            e.printStackTrace();
+        catch (IOException | InterruptedException e) {
+            log().error(String.format("Failed to check file '%s' home on the host '%s'", path, host), e);
         }
 
-        return res != null && res.getExitCode() == 0;
+        return res != null && res.exitCode() == 0;
     }
 
+    /**
+     *
+     * @return Logger.
+     */
     protected Logger log(){
-        Logger log = LogManager.getLogger(getClass().getSimpleName());
-
-        return log;
+        return LogManager.getLogger(getClass().getSimpleName());
     }
 }

@@ -27,10 +27,14 @@ public class CleanUpRunner  extends AbstractRunner {
 
         CleanUpRunner runner = new CleanUpRunner(runCtx);
 
-        runner.run1();
+        runner.run0();
     }
 
-    public int run1() {
+    /**
+     *
+     * @return Exit code.
+     */
+    private int run0() {
         checkPlain(new CheckConnWorker(runCtx, runCtx.getFullUniqueList()));
 
         List<NodeType> dockerList = runCtx.nodeTypes(RunMode.DOCKER);

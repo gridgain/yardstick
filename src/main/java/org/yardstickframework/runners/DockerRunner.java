@@ -1,6 +1,8 @@
 package org.yardstickframework.runners;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -16,8 +18,12 @@ import org.yardstickframework.runners.workers.host.DockerCleanImagesWorker;
 import org.yardstickframework.runners.workers.node.DockerCollectWorker;
 import org.yardstickframework.runners.workers.node.DockerStartContWorker;
 
+/**
+ * Executes docker related tasks.
+ */
 public class DockerRunner extends AbstractRunner {
     /**
+     * Constructor.
      *
      * @param runCtx Run context.
      */
@@ -25,7 +31,11 @@ public class DockerRunner extends AbstractRunner {
         super(runCtx);
     }
 
-    public void check(List<NodeType> nodeTypeList){
+    /**
+     *
+     * @param nodeTypeList Node type list.
+     */
+    public void check(Iterable<NodeType> nodeTypeList){
         for(NodeType type : nodeTypeList) {
             log().info(String.format("Run mode DOCKER enabled for %s nodes.", type.toString().toLowerCase()));
 
@@ -33,16 +43,24 @@ public class DockerRunner extends AbstractRunner {
         }
     }
 
-    public void checkForNodeType(NodeType type){
+    /**
+     *
+     * @param type Node type.
+     */
+    private void checkForNodeType(NodeType type){
         new DockerCheckWorker(runCtx, runCtx.uniqueHostsByType(type)).workOnHosts();
     }
 
-    public void prepare(List<NodeType> nodeTypeList){
+    /**
+     *
+     * @param nodeTypeList Node type list.
+     */
+    public void prepare(Iterable<NodeType> nodeTypeList){
         int poolSize = runCtx.checkIfDifferentHosts() ? 2 : 1;
 
         ExecutorService prepareServ = Executors.newFixedThreadPool(poolSize);
 
-        List<Future<?>> futList = new ArrayList<>(2);
+        Collection<Future<?>> futList = new ArrayList<>(2);
 
         for(final NodeType type : nodeTypeList) {
             futList.add(prepareServ.submit(new Callable<Object>() {
@@ -61,23 +79,30 @@ public class DockerRunner extends AbstractRunner {
             try {
                 fut.get();
             }
-            catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            catch (ExecutionException e) {
-                e.printStackTrace();
+            catch (ExecutionException | InterruptedException e) {
+                log().error("Failed to prepare docker", e);
             }
         }
 
         prepareServ.shutdown();
     }
 
-    public void cleanUp(List<NodeType> nodeTypeList, String flag){
+    /**
+     *
+     * @param nodeTypeList Node type list.
+     * @param flag Flag.
+     */
+    public void cleanUp(Iterable<NodeType> nodeTypeList, String flag){
         for(final NodeType type : nodeTypeList)
             cleanForNodeType(type, flag);
     }
 
-    public void cleanForNodeType(NodeType type, String flag){
+    /**
+     *
+     * @param type Node type.
+     * @param flag Flag.
+     */
+    private void cleanForNodeType(NodeType type, String flag){
         if(runCtx.dockerContext().getRemoveContainersFlags().get(flag))
             new DockerCleanContWorker(runCtx, runCtx.uniqueHostsByType(type)).workOnHosts();
 
@@ -85,28 +110,46 @@ public class DockerRunner extends AbstractRunner {
             new DockerCleanImagesWorker(runCtx, runCtx.uniqueHostsByType(type)).workOnHosts();
     }
 
-
-    public void prepareForNodeType(NodeType type){
+    /**
+     *
+     * @param type Node type.
+     */
+    private void prepareForNodeType(NodeType type){
         new DockerBuildImagesWorker(runCtx, runCtx.uniqueHostsByType(type), type).workOnHosts();
     }
 
-    public void start(List<NodeType> nodeTypeList){
+    /**
+     *
+     * @param nodeTypeList Node type list.
+     */
+    public void start(Iterable<NodeType> nodeTypeList){
         for (NodeType type : nodeTypeList)
             startForNodeType(type);
 
     }
 
-    public void startForNodeType(NodeType type){
+    /**
+     *
+     * @param type Node type.
+     */
+    private void startForNodeType(NodeType type){
         new DockerStartContWorker(runCtx, runCtx.getNodes(type)).workForNodes();
     }
 
-
-    public void collect(List<NodeType> nodeTypeList){
+    /**
+     *
+     * @param nodeTypeList Node type list.
+     */
+    public void collect(Iterable<NodeType> nodeTypeList){
         for(NodeType type : nodeTypeList)
             collectForNodeType(type);
     }
 
-    public void collectForNodeType(NodeType type){
+    /**
+     *
+     * @param type Node type.
+     */
+    private void collectForNodeType(NodeType type){
         new DockerCollectWorker(runCtx, runCtx.getNodes(type)).workForNodes();
     }
 }
