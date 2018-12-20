@@ -21,7 +21,7 @@ public class FullRunner extends AbstractRunner {
      *
      * @param runCtx Run context.
      */
-    public FullRunner(RunContext runCtx) {
+    FullRunner(RunContext runCtx) {
         super(runCtx);
     }
 
@@ -37,7 +37,11 @@ public class FullRunner extends AbstractRunner {
         runner.run0();
     }
 
-    public int run0() {
+    /**
+     *
+     * @return Exit code. TODO implement exit code return.
+     */
+    private int run0() {
         generalPrepare();
 
         String cfgStr0 = runCtx.properties().getProperty("CONFIGS").split(",")[0];
@@ -103,6 +107,13 @@ public class FullRunner extends AbstractRunner {
         return 0;
     }
 
+    /**
+     *
+     * @param nodeList Node list.
+     * @param cfgStr Config string.
+     * @param type Node type.
+     * @return List of nodes.
+     */
     private List<NodeInfo> restart(List<NodeInfo> nodeList, String cfgStr, NodeType type){
         if(runCtx.restartContext(type) == null)
             return nodeList;
@@ -111,11 +122,14 @@ public class FullRunner extends AbstractRunner {
 
         restWorker.runAsyncOnHost(true);
 
-        restWorker.threads(runCtx.restartContext(type).size());
-
         return restWorker.workForNodes();
     }
 
+    /**
+     *
+     * @param nodeList Node list.
+     * @return List of nodes.
+     */
     private List<NodeInfo> stopNodes(List<NodeInfo> nodeList) {
         NodeWorker stopWorker = new StopNodeWorker(runCtx, nodeList);
 

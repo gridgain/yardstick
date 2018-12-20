@@ -34,7 +34,7 @@ public class CommandHandler {
 
     /**
      * Constructor.
-     * 
+     *
      * @param runCtx Run context.
      */
     private CommandHandler(RunContext runCtx) {
@@ -42,19 +42,21 @@ public class CommandHandler {
     }
 
     /**
-     *
      * @param runCtx Run context.
      * @return Command handler.
      */
-    public static synchronized CommandHandler getCommandHandler(RunContext runCtx){
-        if(instance == null)
-            instance = new CommandHandler(runCtx);
+    public static CommandHandler getCommandHandler(RunContext runCtx) {
+        if (instance == null) {
+            synchronized (CommandHandler.class) {
+                if (instance == null)
+                    instance = new CommandHandler(runCtx);
+            }
+        }
 
         return instance;
     }
 
     /**
-     * 
      * @param host Host.
      * @param cmd Command to execute.
      * @return Command execution result.
@@ -74,7 +76,6 @@ public class CommandHandler {
     }
 
     /**
-     * 
      * @param cmd Command to execute.
      * @return Command execution result.
      * @throws IOException If failed.
@@ -84,7 +85,7 @@ public class CommandHandler {
         while (cmd.contains("  "))
             cmd = cmd.replace("  ", " ");
 
-        if(!cmd.equals(lastCmd))
+        if (!cmd.equals(lastCmd))
             log().debug(String.format("Running local cmd '%s'", cmd));
 
         lastCmd = cmd;
@@ -129,14 +130,13 @@ public class CommandHandler {
     }
 
     /**
-     * 
      * @param cmd Command to execute.
      * @return Command execution result.
      * @throws IOException If failed.
      * @throws InterruptedException If interrupted.
      */
     private CommandExecutionResult runRmtCmd(final String cmd) throws IOException, InterruptedException {
-        if(!cmd.equals(lastCmd))
+        if (!cmd.equals(lastCmd))
             log().debug(String.format("Running remote cmd '%s'", cmd));
 
         lastCmd = cmd;
@@ -178,7 +178,6 @@ public class CommandHandler {
     }
 
     /**
-     * 
      * @param host Host.
      * @param cmd Command to execute.
      * @param logPath Log file path.
@@ -197,7 +196,6 @@ public class CommandHandler {
     }
 
     /**
-     * 
      * @param host Host.
      * @param pathLoc Locale path.
      * @param pathRem Remote path.
@@ -214,7 +212,6 @@ public class CommandHandler {
     }
 
     /**
-     * 
      * @param host Host.
      * @param pathLoc Locale path.
      * @param pathRem Remote path.
@@ -231,7 +228,6 @@ public class CommandHandler {
     }
 
     /**
-     * 
      * @param cmd Command to execute.
      * @param logPath Log file path.
      * @return Command execution result.
@@ -262,10 +258,10 @@ public class CommandHandler {
         ExecutorService exec = Executors.newSingleThreadExecutor();
 
         exec.submit(new Callable<Object>() {
-            @Override public Process call() throws InterruptedException{
-                    proc.waitFor();
+            @Override public Process call() throws InterruptedException {
+                proc.waitFor();
 
-                    return proc;
+                return proc;
             }
         });
 
@@ -275,7 +271,6 @@ public class CommandHandler {
     }
 
     /**
-     *
      * @param nodeInfo Node info.
      * @return Node info.
      * @throws IOException If failed.
@@ -307,7 +302,7 @@ public class CommandHandler {
             if (str.contains(toLook))
                 found = true;
 
-        if(found)
+        if (found)
             nodeInfo.nodeStatus(NodeStatus.RUNNING);
         else
             nodeInfo.nodeStatus(NodeStatus.NOT_RUNNING);
@@ -316,7 +311,6 @@ public class CommandHandler {
     }
 
     /**
-     *
      * @param nodeInfo Node info.
      * @return Node info.
      * @throws IOException If failed.
@@ -353,7 +347,6 @@ public class CommandHandler {
     }
 
     /**
-     * 
      * @param args Arguments.
      * @return Command execution result.
      */
@@ -385,7 +378,6 @@ public class CommandHandler {
     }
 
     /**
-     * 
      * @param host Host.
      * @param path Directory to create.
      * @return Command execution result.
@@ -419,7 +411,6 @@ public class CommandHandler {
     }
 
     /**
-     * 
      * @param host Host.
      * @param cmd Command to execute.
      * @return Command execution result.
@@ -439,7 +430,6 @@ public class CommandHandler {
     }
 
     /**
-     *
      * @param host Host.
      * @return {@code true} if host address is "localhost" or "127.0.0.1" or {@code false} otherwise.
      */
@@ -448,7 +438,6 @@ public class CommandHandler {
     }
 
     /**
-     *
      * @param host Host.
      * @return Full ssh prefix.
      */
@@ -460,7 +449,6 @@ public class CommandHandler {
     }
 
     /**
-     *
      * @param host Host.
      * @return Host Java home.
      */
@@ -489,7 +477,6 @@ public class CommandHandler {
     }
 
     /**
-     *
      * @param host Host.
      * @return {@code true} if connection is established or {@code false} otherwise.
      */
@@ -517,7 +504,6 @@ public class CommandHandler {
     }
 
     /**
-     *
      * @param host Host.
      * @param javaHome Path to Java home.
      * @return {@code true} if Java actually exists at the specified path or {@code false} otherwise.
@@ -538,7 +524,6 @@ public class CommandHandler {
     }
 
     /**
-     *
      * @param host Host.
      * @param path Path.
      * @return {@code true} if file actually exists at the specified path or {@code false} otherwise.
@@ -559,10 +544,9 @@ public class CommandHandler {
     }
 
     /**
-     *
      * @return Logger.
      */
-    protected Logger log(){
+    protected Logger log() {
         return LogManager.getLogger(getClass().getSimpleName());
     }
 }

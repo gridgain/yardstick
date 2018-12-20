@@ -27,9 +27,6 @@ public abstract class NodeWorker extends Worker {
     /** Flag indicating whether or not task should run on the same host at the same time. */
     private boolean runAsyncOnHost;
 
-    /** Number of threads to set in ExecutorService. */
-    private int threads = Runtime.getRuntime().availableProcessors();
-
     /**
      * Constructor.
      *
@@ -40,13 +37,6 @@ public abstract class NodeWorker extends Worker {
         super(runCtx);
         this.nodeList = new ArrayList<>(nodeList);
         resNodeList = new ArrayList<>(nodeList.size());
-    }
-
-    /**
-     * @param threads New number of threads to set in ExecutorService.
-     */
-    public void threads(int threads) {
-        this.threads = threads;
     }
 
     /**
@@ -71,7 +61,7 @@ public abstract class NodeWorker extends Worker {
     public List<NodeInfo> workForNodes() {
         beforeWork();
 
-        ExecutorService exec = Executors.newFixedThreadPool(threads);
+        ExecutorService exec = Executors.newFixedThreadPool(nodeList.size());
 
         Collection<Future<NodeInfo>> futList = new ArrayList<>(nodeList.size());
 

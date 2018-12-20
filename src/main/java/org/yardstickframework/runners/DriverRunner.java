@@ -28,7 +28,11 @@ public class DriverRunner extends AbstractRunner {
         runner.run0();
     }
 
-    public int run0() {
+    /**
+     *
+     * @return Exit code. TODO implement exit code return.
+     */
+    private int run0() {
         generalPrepare();
 
         for (String cfgStr : runCtx.configList()) {
