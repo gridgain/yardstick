@@ -27,7 +27,7 @@ public class InDockerNodeStarter extends AbstractRunner implements NodeStarter {
 
         String nodeLogDir = new File(nodeInfo.logPath()).getParent();
 
-        CommandHandler hand = new CommandHandler(runCtx);
+
 
         String javaParams = nodeInfo.parameterString();
 
@@ -40,9 +40,9 @@ public class InDockerNodeStarter extends AbstractRunner implements NodeStarter {
 
             String cmd = String.format("exec %s nohup %s > %s 2>& 1 &", contName, startNodeCmd, nodeInfo.logPath());
 
-            hand.runDockerCmd(nodeInfo.host(), mkdirCmd);
+            runCtx.handler().runDockerCmd(nodeInfo.host(), mkdirCmd);
 
-            hand.runDockerCmd(nodeInfo.host(), cmd);
+            runCtx.handler().runDockerCmd(nodeInfo.host(), cmd);
         }
         catch (IOException e) {
             e.printStackTrace();

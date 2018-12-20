@@ -10,6 +10,7 @@ import java.util.Properties;
 import java.util.Set;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import org.yardstickframework.runners.CommandHandler;
 import org.yardstickframework.runners.checkers.InDockerNodeChecker;
 import org.yardstickframework.runners.starters.InDockerNodeStarter;
 import org.yardstickframework.runners.checkers.NodeChecker;
@@ -81,12 +82,14 @@ public class RunContext {
     /** */
     private RestartContext servRestartCtx;
 
-
     /** */
     private RestartContext driverRestartCtx;
 
     /** */
     private DockerContext dockerCtx;
+
+    /** */
+    private CommandHandler hand;
 
     /**
      * Constructor.
@@ -114,7 +117,6 @@ public class RunContext {
     }
 
     /**
-     *
      * @return Full list of server and driver IP addresses.
      */
     public List<String> getFullHostList() {
@@ -126,7 +128,6 @@ public class RunContext {
     }
 
     /**
-     *
      * @return Full unique list of server and driver IP addresses.
      */
     public List<String> getFullUniqueList() {
@@ -140,7 +141,6 @@ public class RunContext {
     }
 
     /**
-     *
      * @return Unique list of server IP addresses.
      */
     public List<String> serverUniqueList() {
@@ -148,7 +148,6 @@ public class RunContext {
     }
 
     /**
-     *
      * @return Unique list of driver IP addresses.
      */
     public List<String> driverUniqueList() {
@@ -156,7 +155,6 @@ public class RunContext {
     }
 
     /**
-     *
      * @return Unique list of server IP addresses.
      */
     public List<String> serverList() {
@@ -164,7 +162,6 @@ public class RunContext {
     }
 
     /**
-     *
      * @return Unique list of driver IP addresses.
      */
     public List<String> driverList() {
@@ -188,7 +185,6 @@ public class RunContext {
     }
 
     /**
-     *
      * @param nodeInfo Node info.
      * @return Node starter depending on node run mode.
      */
@@ -206,7 +202,6 @@ public class RunContext {
     }
 
     /**
-     *
      * @param nodeInfo Node info.
      * @return Node checker depending on node run mode.
      */
@@ -224,7 +219,6 @@ public class RunContext {
     }
 
     /**
-     *
      * @param nodeInfo Node info.
      * @return Node run mode.
      */
@@ -233,7 +227,6 @@ public class RunContext {
     }
 
     /**
-     *
      * @param src {@code String} Source string.
      * @return Description.
      */
@@ -264,7 +257,7 @@ public class RunContext {
      * @return Remote path.
      */
     public String resolveRemotePath(String srcPath) {
-        if(!srcPath.startsWith(remWorkDir))
+        if (!srcPath.startsWith(remWorkDir))
             return String.format("%s/%s", remWorkDir, srcPath);
 
         return srcPath;
@@ -272,6 +265,7 @@ public class RunContext {
 
     /**
      * Checks if server host list contains any of driver hosts and vice versa.
+     *
      * @return {@code true} if all hosts are different or {@code false} otherwise.
      */
     public boolean checkIfDifferentHosts() {
@@ -283,7 +277,6 @@ public class RunContext {
     }
 
     /**
-     *
      * @param mode Run mode.
      * @return List of related node types depending on run mode.
      */
@@ -300,7 +293,6 @@ public class RunContext {
     }
 
     /**
-     *
      * @param type Node type.
      * @return List of related hosts depending on node type.
      */
@@ -309,7 +301,6 @@ public class RunContext {
     }
 
     /**
-     *
      * @param mode Run mode.
      * @return List of related hosts depending on run mode.
      */
@@ -326,7 +317,6 @@ public class RunContext {
     }
 
     /**
-     *
      * @param type Node type.
      * @return List of unique related hosts depending on node type.
      */
@@ -335,7 +325,6 @@ public class RunContext {
     }
 
     /**
-     *
      * @param mode Run mode.
      * @return List of unique related hosts depending on run mode.
      */
@@ -344,7 +333,6 @@ public class RunContext {
     }
 
     /**
-     *
      * @param host Host.
      * @return {@code String} Host Java home.
      */
@@ -353,7 +341,6 @@ public class RunContext {
     }
 
     /**
-     *
      * @param type Node type.
      * @return Node run mode.
      */
@@ -369,7 +356,6 @@ public class RunContext {
     }
 
     /**
-     *
      * @param type Node type.
      * @return List of {@code NodeInfo} objects created with related run modes.
      */
@@ -387,7 +373,6 @@ public class RunContext {
     }
 
     /**
-     *
      * @param type Node type.
      * @return Restart context.
      */
@@ -403,7 +388,6 @@ public class RunContext {
     }
 
     /**
-     *
      * @return Logger.
      */
     protected static Logger log() {
@@ -681,5 +665,15 @@ public class RunContext {
      */
     public void hostJavaHomeMap(Map<String, String> hostJavaHomeMap) {
         this.hostJavaHomeMap = new HashMap<>(hostJavaHomeMap);
+    }
+
+    /**
+     * @return Command Handler.
+     */
+    public CommandHandler handler() {
+        if(hand == null)
+            hand = CommandHandler.getCommandHandler(this);
+
+        return hand;
     }
 }

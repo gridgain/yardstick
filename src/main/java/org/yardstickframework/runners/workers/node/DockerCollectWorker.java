@@ -30,16 +30,16 @@ public class DockerCollectWorker extends NodeWorker {
 
         String cpCmd = String.format("cp %s:%s/output %s", contName, runCtx.remoteWorkDirectory(), runCtx.remoteWorkDirectory());
 
-        CommandHandler hand = new CommandHandler(runCtx);
+
 
         log().info(String.format("Collecting data from the container '%s' on the host '%s'.", contName, host));
 
         try {
             String mkdirCmd = String.format("mkdir -p %s", nodeOutDir);
 
-            hand.runCmd(host, mkdirCmd);
+            runCtx.handler().runCmd(host, mkdirCmd);
 
-            hand.runDockerCmd(host, cpCmd);
+            runCtx.handler().runDockerCmd(host, cpCmd);
         }
         catch (IOException | InterruptedException e) {
             log().error(String.format("Failed to collect data from container '%s' on the host '%s'",

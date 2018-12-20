@@ -18,16 +18,16 @@ public class KillWorker extends HostWorker {
 
     /** {@inheritDoc} */
     @Override public WorkResult doWork(String host, int cnt) {
-        CommandHandler hand = new CommandHandler(runCtx);
+
 
         try {
             String killServCmd = "pkill -9 -f \"Dyardstick.server\"";
 
-            hand.runCmd(host, killServCmd);
+            runCtx.handler().runCmd(host, killServCmd);
 
             String killDrvrCmd = "pkill -9 -f \"Dyardstick.driver\"";
 
-            hand.runCmd(host, killDrvrCmd);
+            runCtx.handler().runCmd(host, killDrvrCmd);
         }
         catch (IOException | InterruptedException e) {
             log().error(String.format("Failed to kill nodes on the host '%s'", host), e);

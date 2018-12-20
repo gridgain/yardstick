@@ -43,7 +43,7 @@ public class DockerBuildImagesWorker extends DockerHostWorker {
                 runCtx.resolveRemotePath(dockerCtx.getServerDockerfilePath()):
                 runCtx.resolveRemotePath(dockerCtx.getDriverDockerfilePath());
 
-            CommandHandler hand = new CommandHandler(runCtx);
+
 
             String src = dockerCtx.getDockerBuildCmd();
 
@@ -53,7 +53,7 @@ public class DockerBuildImagesWorker extends DockerHostWorker {
                 String buildCmd = src.replace(IMAGE_NAME_PLACEHOLDER, nameToUse)
                     .replace(DOCKERFILE_PATH_PLACEHOLDER, docFilePath);
 
-                hand.runDockerCmd(host, buildCmd);
+                runCtx.handler().runDockerCmd(host, buildCmd);
             }
             catch (IOException | InterruptedException e) {
                 log().error(String.format("Failed to build images on the host '%s'", host), e);

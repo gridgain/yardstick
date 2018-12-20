@@ -37,14 +37,14 @@ public class CleanRemDirWorker extends HostWorker {
 
         log().info(String.format("Cleaning up directory '%s' on the host '%s'", remDir, host));
 
-        CommandHandler hand = new CommandHandler(runCtx);
+
 
         try {
             for(String name : toClean){
                 String cleanCmd = String.format("rm -rf %s/%s",
                     runCtx.remoteWorkDirectory(), name);
 
-                hand.runCmd(host, cleanCmd);
+                runCtx.handler().runCmd(host, cleanCmd);
             }
 
         }

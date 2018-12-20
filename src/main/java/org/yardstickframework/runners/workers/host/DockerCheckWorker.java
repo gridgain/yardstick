@@ -20,12 +20,12 @@ public class DockerCheckWorker extends CheckWorker {
 
     /** {@inheritDoc} */
     @Override public WorkResult doWork(String host, int cnt) {
-        CommandHandler hand = new CommandHandler(runCtx);
+
 
         CheckWorkResult workRes = new CheckWorkResult();
 
         try {
-            CommandExecutionResult res = hand.runDockerCmd(host, "images");
+            CommandExecutionResult res = runCtx.handler().runDockerCmd(host, "images");
 
             if(res.exitCode() != 0 || !res.errorList().isEmpty()){
                 for(String err : res.errorList())

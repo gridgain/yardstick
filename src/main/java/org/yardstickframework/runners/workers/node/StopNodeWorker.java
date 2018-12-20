@@ -40,9 +40,9 @@ public class StopNodeWorker extends NodeWorker {
      * @throws InterruptedException if interrupted.
      */
     public NodeInfo stopNode(NodeInfo nodeInfo) throws IOException, InterruptedException {
-        CommandHandler hand = new CommandHandler(runCtx);
 
-        nodeInfo = hand.killNode(nodeInfo);
+
+        nodeInfo = runCtx.handler().killNode(nodeInfo);
 
         return nodeInfo;
     }

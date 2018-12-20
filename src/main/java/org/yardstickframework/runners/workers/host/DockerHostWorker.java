@@ -80,14 +80,14 @@ abstract class DockerHostWorker extends HostWorker {
      * @return Command execution result.
      */
     private CommandExecutionResult removeSingleCont(String host, String contId) {
-        CommandHandler hand = new CommandHandler(runCtx);
+
 
         CommandExecutionResult cmdRes = null;
 
         try {
-            hand.runDockerCmd(host, String.format("stop %s", contId));
+            runCtx.handler().runDockerCmd(host, String.format("stop %s", contId));
 
-            cmdRes = hand.runDockerCmd(host, String.format("rm %s", contId));
+            cmdRes = runCtx.handler().runDockerCmd(host, String.format("rm %s", contId));
         }
         catch (IOException | InterruptedException e) {
             e.printStackTrace();
@@ -114,7 +114,7 @@ abstract class DockerHostWorker extends HostWorker {
      * @return Command execution result.
      */
     private CommandExecutionResult removeImage(String host, String imageId, String imageName) {
-        CommandHandler hand = new CommandHandler(runCtx);
+
 
         log().info(String.format("Removing the image '%s' (id=%s) from the host '%s'",
             imageName, imageId, host));
@@ -122,7 +122,7 @@ abstract class DockerHostWorker extends HostWorker {
         CommandExecutionResult cmdRes = null;
 
         try {
-            cmdRes = hand.runDockerCmd(host, String.format("rmi -f %s", imageId));
+            cmdRes = runCtx.handler().runDockerCmd(host, String.format("rmi -f %s", imageId));
         }
         catch (IOException | InterruptedException e) {
             e.printStackTrace();
@@ -177,10 +177,10 @@ abstract class DockerHostWorker extends HostWorker {
      * @return Maps with docker command response.
      */
     private Collection<Map<String, String>> getMaps(String host, String cmd, String[] headers) {
-        CommandHandler hand = new CommandHandler(runCtx);
+
 
         try {
-            CommandExecutionResult cmdRes = hand.runDockerCmd(host, cmd);
+            CommandExecutionResult cmdRes = runCtx.handler().runDockerCmd(host, cmd);
 
             List<String> outStr = cmdRes.outputList();
 

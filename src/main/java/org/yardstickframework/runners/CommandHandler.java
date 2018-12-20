@@ -21,6 +21,9 @@ import org.yardstickframework.runners.context.RunMode;
  */
 public class CommandHandler {
     /** */
+    private static CommandHandler instance;
+
+    /** */
     private static final String DFLT_SSH_PREF = "ssh -o StrictHostKeyChecking=no";
 
     /** */
@@ -34,8 +37,20 @@ public class CommandHandler {
      * 
      * @param runCtx Run context.
      */
-    public CommandHandler(RunContext runCtx) {
+    private CommandHandler(RunContext runCtx) {
         this.runCtx = runCtx;
+    }
+
+    /**
+     *
+     * @param runCtx Run context.
+     * @return Command handler.
+     */
+    public static synchronized CommandHandler getCommandHandler(RunContext runCtx){
+        if(instance == null)
+            instance = new CommandHandler(runCtx);
+
+        return instance;
     }
 
     /**

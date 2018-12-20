@@ -125,13 +125,13 @@ public class AbstractRunner {
 
         String stdCharts = String.format("%s -cp %s %s -gm STANDARD -i %s", jvmOpts, cp, mainClass, mainResDir);
 
-        CommandHandler hand = new CommandHandler(runCtx);
 
-        hand.runLocalJava(stdCharts);
+
+        runCtx.handler().runLocalJava(stdCharts);
 
         String charts = String.format("%s -cp %s %s -i %s", jvmOpts, cp, mainClass, mainResDir);
 
-        hand.runLocalJava(charts);
+        runCtx.handler().runLocalJava(charts);
 
         try {
             new CountDownLatch(1).await(3000L, TimeUnit.MILLISECONDS);
@@ -151,7 +151,7 @@ public class AbstractRunner {
                         String mvCmd = String.format("mv %s %s",
                             resComp.getAbsolutePath(), mainResDir);
 
-                        hand.runCmd("localhost", mvCmd);
+                        runCtx.handler().runCmd("localhost", mvCmd);
                     }
                     catch (IOException | InterruptedException e) {
                         log().error("Failed to create charts", e);

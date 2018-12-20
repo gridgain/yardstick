@@ -26,14 +26,14 @@ public class CheckLogWorker extends NodeWorker {
 
         String logPath = nodeInfo.logPath();
 
-        CommandHandler hand = new CommandHandler(runCtx);
+
 
         boolean fileExists = false;
 
         int cnt = 10;
 
         while (!fileExists && cnt-- > 0) {
-            fileExists = hand.checkRemFile(host, logPath);
+            fileExists = runCtx.handler().checkRemFile(host, logPath);
 
             new CountDownLatch(1).await(1000L, TimeUnit.MILLISECONDS);
         }
@@ -57,7 +57,7 @@ public class CheckLogWorker extends NodeWorker {
         try {
             String cmd = String.format("head -20 %s | grep 'Exception'", logPath);
 
-            CommandExecutionResult res = hand.runCmd(host, cmd);
+            CommandExecutionResult res = runCtx.handler().runCmd(host, cmd);
 
             if(!res.outputList().isEmpty()){
                 nodeInfo.errorMessages().addAll(res.outputList());
