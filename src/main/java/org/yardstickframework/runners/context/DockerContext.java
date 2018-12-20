@@ -41,9 +41,6 @@ public class DockerContext {
     private String dockerRunCmd;
 
     /** */
-    private String startContCmd;
-
-    /** */
     private Map<String, Boolean> removeContainersFlags;
 
     /** */
@@ -182,22 +179,6 @@ public class DockerContext {
      */
     public void setDockerRunCmd(String dockerRunCmd) {
         this.dockerRunCmd = dockerRunCmd;
-    }
-
-    /**
-     *
-     * @return {@code String} Docker start container command.
-     */
-    public String getStartContCmd() {
-        return startContCmd;
-    }
-
-    /**
-     *
-     * @param startContCmd Docker start container command.
-     */
-    public void setStartContCmd(String startContCmd) {
-        this.startContCmd = startContCmd;
     }
 
     /**

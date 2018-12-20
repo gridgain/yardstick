@@ -24,8 +24,11 @@ public abstract class NodeWorker extends Worker {
     /** Result list */
     private List<NodeInfo> resNodeList;
 
-    /** Flag indicating whether or not task should run on the same host at the same time.*/
+    /** Flag indicating whether or not task should run on the same host at the same time. */
     private boolean runAsyncOnHost;
+
+    /** Number of threads to set in ExecutorService. */
+    private int threads = Runtime.getRuntime().availableProcessors();
 
     /**
      * Constructor.
@@ -40,6 +43,13 @@ public abstract class NodeWorker extends Worker {
     }
 
     /**
+     * @param threads New number of threads to set in ExecutorService.
+     */
+    public void threads(int threads) {
+        this.threads = threads;
+    }
+
+    /**
      * Executes actual work for node.
      *
      * @param nodeInfo {@code NodeInfo} object to work with.
@@ -49,7 +59,6 @@ public abstract class NodeWorker extends Worker {
     public abstract NodeInfo doWork(NodeInfo nodeInfo) throws InterruptedException;
 
     /**
-     *
      * @return {@code int} Number of objects in the main list.
      */
     int getNodeListSize() {
@@ -62,7 +71,7 @@ public abstract class NodeWorker extends Worker {
     public List<NodeInfo> workForNodes() {
         beforeWork();
 
-        ExecutorService exec = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+        ExecutorService exec = Executors.newFixedThreadPool(threads);
 
         Collection<Future<NodeInfo>> futList = new ArrayList<>(nodeList.size());
 
@@ -78,7 +87,7 @@ public abstract class NodeWorker extends Worker {
 
                     Thread.currentThread().setName(threadName(nodeInfo));
 
-                    if(!runAsyncOnHost)
+                    if (!runAsyncOnHost)
                         semMap.get(host).acquire();
 
                     final NodeInfo res = doWork(nodeInfo);

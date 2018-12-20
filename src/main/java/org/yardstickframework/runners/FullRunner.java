@@ -111,6 +111,8 @@ public class FullRunner extends AbstractRunner {
 
         restWorker.runAsyncOnHost(true);
 
+        restWorker.threads(runCtx.restartContext(type).size());
+
         return restWorker.workForNodes();
     }
 

@@ -18,10 +18,14 @@ import org.yardstickframework.runners.context.RunMode;
  */
 public class DockerStartContWorker extends NodeWorker {
     /** */
-    private static final String DFLT_START_CMD = "sleep 5d";
+    private static final String DFLT_RUN_CMD =
+        "run -d --network host --name CONT_NAME_PLACEHOLDER IMAGE_NAME_PLACEHOLDER sleep 1d";
 
     /** */
-    private static final String DFLT_RUN_CMD = "run -d --network host";
+    private static final String CONT_NAME_PLACEHOLDER = "CONT_NAME_PLACEHOLDER";
+
+    /** */
+    private static final String IMAGE_NAME_PLACEHOLDER = "IMAGE_NAME_PLACEHOLDER";
 
     /** */
     private DockerContext dockerCtx;
@@ -51,20 +55,12 @@ public class DockerStartContWorker extends NodeWorker {
 
         log().info(String.format("Starting the container '%s' on the host '%s'", contName, host));
 
-        String startContCmd = getStartContCmd();
-
-        String runCmdArgs = getRunCmd();
-
-        if(runCmdArgs.contains("NAME_PLACEHOLDER"))
-            runCmdArgs = runCmdArgs.replace("NAME_PLACEHOLDER", contName);
-
-        String startCmd = String.format("%s %s %s",
-            runCmdArgs, imageName, startContCmd);
+        String startContCmd = getStartContCmd(imageName, contName);
 
         CommandHandler hand = new CommandHandler(runCtx);
 
         try {
-            hand.runDockerCmd(host, startCmd);
+            hand.runDockerCmd(host, startContCmd);
 
             String mkdirCmd = String.format("exec %s mkdir -p %s", contName, runCtx.remoteWorkDirectory());
 
@@ -88,20 +84,16 @@ public class DockerStartContWorker extends NodeWorker {
 
     /**
      *
-     * @return Command to start container.
+     * @param imageName Image name.
+     * @param contName Container name.
+     * @return Command to start docker container.
      */
-    private String getStartContCmd() {
-        return dockerCtx.getStartContCmd() != null ? dockerCtx.getStartContCmd() : DFLT_START_CMD;
-    }
+    private String getStartContCmd(String imageName, String contName) {
+        String withPlaceHolders = dockerCtx.getDockerRunCmd() != null ? dockerCtx.getDockerRunCmd() : DFLT_RUN_CMD;
 
-    /**
-     *
-     * @return Docker run command.
-     */
-    private String getRunCmd() {
-        return dockerCtx.getDockerRunCmd() != null ?
-            dockerCtx.getDockerRunCmd() :
-            DFLT_RUN_CMD;
+        String withImageName = withPlaceHolders.replace(IMAGE_NAME_PLACEHOLDER, imageName);
+
+        return withImageName.replace(CONT_NAME_PLACEHOLDER, contName);
     }
 
     /** {@inheritDoc} */
