@@ -1,10 +1,9 @@
 package org.yardstickframework.runners.workers.host;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.Set;
 import org.yardstickframework.runners.workers.CheckWorkResult;
 import org.yardstickframework.runners.CommandExecutionResult;
-import org.yardstickframework.runners.CommandHandler;
 import org.yardstickframework.runners.context.RunContext;
 
 import org.yardstickframework.runners.workers.WorkResult;
@@ -14,14 +13,12 @@ import org.yardstickframework.runners.workers.WorkResult;
  */
 public class DockerCheckWorker extends CheckWorker {
     /** {@inheritDoc} */
-    public DockerCheckWorker(RunContext runCtx, List<String> hostList) {
-        super(runCtx, hostList);
+    public DockerCheckWorker(RunContext runCtx, Set<String> hostSet) {
+        super(runCtx, hostSet);
     }
 
     /** {@inheritDoc} */
     @Override public WorkResult doWork(String host, int cnt) {
-
-
         CheckWorkResult workRes = new CheckWorkResult();
 
         try {

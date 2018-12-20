@@ -2,7 +2,9 @@ package org.yardstickframework.runners.workers.host;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Set;
 import java.util.List;
+import java.util.TreeSet;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -16,7 +18,7 @@ import org.yardstickframework.runners.context.RunContext;
  */
 public abstract class HostWorker extends Worker {
     /** Main host list to work with. */
-    private final List<String> hostList;
+    private final Set<String> hostSet;
 
     /** Result list. */
     private final List<WorkResult> resList;
@@ -34,13 +36,13 @@ public abstract class HostWorker extends Worker {
      * Constructor.
      *
      * @param runCtx Run context.
-     * @param hostList Main host list to work with.
+     * @param hostSet Main host list to work with.
      */
-    HostWorker(RunContext runCtx, List<String> hostList) {
+    HostWorker(RunContext runCtx, Set<String> hostSet) {
         super(runCtx);
-        this.hostList = new ArrayList<>(hostList);
+        this.hostSet = new TreeSet<>(hostSet);
 
-        resList = new ArrayList<>(hostList.size());
+        resList = new ArrayList<>(hostSet.size());
     }
 
     /**
@@ -63,6 +65,8 @@ public abstract class HostWorker extends Worker {
         ExecutorService exec = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
         Collection<Future<WorkResult>> futList = new ArrayList<>();
+
+        List<String> hostList = new ArrayList<>(hostSet);
 
         for (int cnt = 0; cnt < hostList.size(); cnt++) {
             final int cntF = cnt;

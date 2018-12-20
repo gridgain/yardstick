@@ -1,8 +1,7 @@
 package org.yardstickframework.runners.workers.host;
 
 import java.io.IOException;
-import java.util.List;
-import org.yardstickframework.runners.CommandHandler;
+import java.util.Set;
 import org.yardstickframework.runners.context.NodeType;
 import org.yardstickframework.runners.context.RunContext;
 
@@ -25,12 +24,12 @@ public class DockerBuildImagesWorker extends DockerHostWorker {
      * Constructor.
      *
      * @param runCtx Run context.
-     * @param hostList Main host list to work with.
+     * @param hostSet Main host list to work with.
      * @param nodeType Node type
      */
-    public DockerBuildImagesWorker(RunContext runCtx, List<String> hostList,
+    public DockerBuildImagesWorker(RunContext runCtx, Set<String> hostSet,
         NodeType nodeType) {
-        super(runCtx, hostList);
+        super(runCtx, hostSet);
         this.nodeType = nodeType;
     }
 
@@ -38,16 +37,12 @@ public class DockerBuildImagesWorker extends DockerHostWorker {
     @Override public WorkResult doWork(String host, int cnt) {
         String nameToUse = getImageNameToUse(nodeType);
 
-        if(!checkIfImageExists(host, nameToUse)  || dockerCtx.isRebuildImagesIfExist()) {
+        if (!checkIfImageExists(host, nameToUse) || dockerCtx.isRebuildImagesIfExist()) {
             String docFilePath = nodeType == NodeType.SERVER ?
-                runCtx.resolveRemotePath(dockerCtx.getServerDockerfilePath()):
+                runCtx.resolveRemotePath(dockerCtx.getServerDockerfilePath()) :
                 runCtx.resolveRemotePath(dockerCtx.getDriverDockerfilePath());
 
-
-
             String src = dockerCtx.getDockerBuildCmd();
-
-
 
             try {
                 String buildCmd = src.replace(IMAGE_NAME_PLACEHOLDER, nameToUse)

@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import org.yardstickframework.runners.CommandExecutionResult;
-import org.yardstickframework.runners.CommandHandler;
 import org.yardstickframework.runners.context.DockerInfo;
 import org.yardstickframework.runners.DockerRunner;
 import org.yardstickframework.runners.context.NodeInfo;
@@ -41,7 +40,7 @@ public class DockerStartContWorker extends NodeWorker {
     @Override public NodeInfo doWork(NodeInfo nodeInfo) throws InterruptedException {
         String host = nodeInfo.host();
 
-        String id  = nodeInfo.id();
+        String id = nodeInfo.id();
 
         NodeType type = nodeInfo.nodeType();
 
@@ -56,8 +55,6 @@ public class DockerStartContWorker extends NodeWorker {
         log().info(String.format("Starting the container '%s' on the host '%s'", contName, host));
 
         String startContCmd = getStartContCmd(imageName, contName);
-
-
 
         try {
             runCtx.handler().runDockerCmd(host, startContCmd);
@@ -83,7 +80,6 @@ public class DockerStartContWorker extends NodeWorker {
     }
 
     /**
-     *
      * @param imageName Image name.
      * @param contName Container name.
      * @return Command to start docker container.
@@ -98,7 +94,7 @@ public class DockerStartContWorker extends NodeWorker {
 
     /** {@inheritDoc} */
     @Override public void afterWork() {
-        if(!resNodeList().isEmpty()) {
+        if (!resNodeList().isEmpty()) {
             try {
                 setDockerJavaHome(resNodeList().get(0));
             }
@@ -110,7 +106,6 @@ public class DockerStartContWorker extends NodeWorker {
     }
 
     /**
-     *
      * @param nodeInfo Node info.
      * @throws IOException if failed.
      * @throws InterruptedException if interrupted.
@@ -122,18 +117,16 @@ public class DockerStartContWorker extends NodeWorker {
 
         String echoCmd = String.format("exec %s sh -c 'echo $JAVA_HOME'", contName);
 
-
-
         String host = nodeInfo.host();
 
         CommandExecutionResult res = runCtx.handler().runDockerCmd(host, echoCmd);
 
-        if(!res.outputList().isEmpty()){
+        if (!res.outputList().isEmpty()) {
             String javaHome = res.outputList().get(0);
 
-            switch (type){
+            switch (type) {
                 case SERVER:
-                    if(dockerCtx.serverDockerJavaHome() == null) {
+                    if (dockerCtx.serverDockerJavaHome() == null) {
                         log().info(String.format("Using docker JAVA_HOME for server nodes: '%s'",
                             javaHome));
 
@@ -141,7 +134,7 @@ public class DockerStartContWorker extends NodeWorker {
                     }
                     break;
                 case DRIVER:
-                    if(dockerCtx.driverDockerJavaHome() == null) {
+                    if (dockerCtx.driverDockerJavaHome() == null) {
                         log().info(String.format("Using docker JAVA_HOME for driver nodes: '%s'",
                             javaHome));
 
@@ -152,7 +145,7 @@ public class DockerStartContWorker extends NodeWorker {
                     log().info("Unknown node type " + type);
             }
         }
-        else{
+        else {
             log().info(String.format("Failed to get JAVA_HOME variable from docker container '%s'", contName));
 
             log().info("Will clean up docker and exit.");

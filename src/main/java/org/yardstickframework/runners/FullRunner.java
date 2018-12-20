@@ -100,7 +100,7 @@ public class FullRunner extends AbstractRunner {
 
         generalCleanUp();
 
-        new CollectWorker(runCtx, runCtx.getFullUniqueList()).workOnHosts();
+        new CollectWorker(runCtx, runCtx.getHostSet()).workOnHosts();
 
         createCharts();
 

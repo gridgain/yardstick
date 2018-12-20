@@ -2,7 +2,6 @@ package org.yardstickframework.runners.workers.node;
 
 import java.io.IOException;
 import java.util.List;
-import org.yardstickframework.runners.CommandHandler;
 import org.yardstickframework.runners.context.NodeInfo;
 import org.yardstickframework.runners.context.RunMode;
 import org.yardstickframework.runners.context.RunContext;
@@ -26,21 +25,21 @@ public class StopNodeWorker extends NodeWorker {
             return stopNode(nodeInfo);
         }
         catch (IOException e) {
-            e.printStackTrace();
+            log().error(String.format("Failed to stop node '%s' on the host '%s'",
+                nodeInfo.toShortStr(),
+                nodeInfo.host()), e);
         }
 
         return nodeInfo;
     }
 
     /**
-     *
      * @param nodeInfo Node info.
      * @return Node  info.
      * @throws IOException if failed.
      * @throws InterruptedException if interrupted.
      */
     public NodeInfo stopNode(NodeInfo nodeInfo) throws IOException, InterruptedException {
-
 
         nodeInfo = runCtx.handler().killNode(nodeInfo);
 

@@ -1,8 +1,7 @@
 package org.yardstickframework.runners.workers.host;
 
 import java.io.IOException;
-import java.util.List;
-import org.yardstickframework.runners.CommandHandler;
+import java.util.Set;
 import org.yardstickframework.runners.workers.WorkResult;
 import org.yardstickframework.runners.context.RunContext;
 
@@ -11,11 +10,11 @@ import org.yardstickframework.runners.context.RunContext;
  */
 public class CleanRemDirWorker extends HostWorker {
     /** */
-    private String[] toClean = new String[]{"bin", "config", "libs", "output", "work"};
+    private String[] toClean = new String[] {"bin", "config", "libs", "output", "work"};
 
     /** {@inheritDoc} */
-    public CleanRemDirWorker(RunContext runCtx, List<String> hostList) {
-        super(runCtx, hostList);
+    public CleanRemDirWorker(RunContext runCtx, Set<String> hostSet) {
+        super(runCtx, hostSet);
     }
 
     /** {@inheritDoc} */
@@ -24,23 +23,20 @@ public class CleanRemDirWorker extends HostWorker {
     }
 
     /**
-     *
      * @param host Host
      * @return Work result.
      */
-    private WorkResult clean(String host){
+    private WorkResult clean(String host) {
         if ((isLocal(host) && runCtx.localeWorkDirectory().equals(runCtx.remoteWorkDirectory()))
             || host.equals(runCtx.currentHost()) && runCtx.localeWorkDirectory().equals(runCtx.remoteWorkDirectory()))
             return null;
 
-        String remDir =  runCtx.remoteWorkDirectory();
+        String remDir = runCtx.remoteWorkDirectory();
 
         log().info(String.format("Cleaning up directory '%s' on the host '%s'", remDir, host));
 
-
-
         try {
-            for(String name : toClean){
+            for (String name : toClean) {
                 String cleanCmd = String.format("rm -rf %s/%s",
                     runCtx.remoteWorkDirectory(), name);
 

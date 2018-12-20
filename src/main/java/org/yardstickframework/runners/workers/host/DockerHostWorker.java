@@ -6,8 +6,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.yardstickframework.runners.CommandExecutionResult;
-import org.yardstickframework.runners.CommandHandler;
 import org.yardstickframework.runners.context.NodeType;
 import org.yardstickframework.runners.context.DockerContext;
 import org.yardstickframework.runners.context.RunContext;
@@ -26,14 +26,13 @@ abstract class DockerHostWorker extends HostWorker {
     DockerContext dockerCtx;
 
     /** {@inheritDoc} */
-    DockerHostWorker(RunContext runCtx, List<String> hostList) {
-        super(runCtx, hostList);
+    DockerHostWorker(RunContext runCtx, Set<String> hostSet) {
+        super(runCtx, hostSet);
 
         dockerCtx = runCtx.dockerContext();
     }
 
     /**
-     *
      * @param host Host.
      */
     void removeImages(String host) {
@@ -48,12 +47,11 @@ abstract class DockerHostWorker extends HostWorker {
                 toRem.put(imageMap.get("IMAGE ID"), imageName);
         }
 
-        for(String id : toRem.keySet())
+        for (String id : toRem.keySet())
             removeImage(host, id, toRem.get(id));
     }
 
     /**
-     *
      * @param host Host.
      */
     void removeContainers(String host) {
@@ -74,13 +72,11 @@ abstract class DockerHostWorker extends HostWorker {
     }
 
     /**
-     *
      * @param host Host.
      * @param contId Container id.
      * @return Command execution result.
      */
     private CommandExecutionResult removeSingleCont(String host, String contId) {
-
 
         CommandExecutionResult cmdRes = null;
 
@@ -97,8 +93,8 @@ abstract class DockerHostWorker extends HostWorker {
 
         String res = "removed";
 
-        for(Map<String, String> proc : processes)
-            if(proc.get("CONTAINER ID").equals(contId))
+        for (Map<String, String> proc : processes)
+            if (proc.get("CONTAINER ID").equals(contId))
                 res = "not removed";
 
         log().info(String.format("The container '%s' is %s.", contId, res));
@@ -107,14 +103,12 @@ abstract class DockerHostWorker extends HostWorker {
     }
 
     /**
-     *
      * @param host Host.
      * @param imageId Image id.
      * @param imageName Image name.
      * @return Command execution result.
      */
     private CommandExecutionResult removeImage(String host, String imageId, String imageName) {
-
 
         log().info(String.format("Removing the image '%s' (id=%s) from the host '%s'",
             imageName, imageId, host));
@@ -132,7 +126,6 @@ abstract class DockerHostWorker extends HostWorker {
     }
 
     /**
-     *
      * @param host Host.
      * @param name Image name.
      * @return {@code true} if image with given name exists on the specified host or {@code false} otherwise.
@@ -150,7 +143,6 @@ abstract class DockerHostWorker extends HostWorker {
     }
 
     /**
-     *
      * @param host Host.
      * @return Result of 'docker images' execution.
      */
@@ -159,7 +151,6 @@ abstract class DockerHostWorker extends HostWorker {
     }
 
     /**
-     *
      * @param host Host.
      * @return Result of 'docker ps -a' execution.
      */
@@ -177,7 +168,6 @@ abstract class DockerHostWorker extends HostWorker {
      * @return Maps with docker command response.
      */
     private Collection<Map<String, String>> getMaps(String host, String cmd, String[] headers) {
-
 
         try {
             CommandExecutionResult cmdRes = runCtx.handler().runDockerCmd(host, cmd);
@@ -222,23 +212,21 @@ abstract class DockerHostWorker extends HostWorker {
     }
 
     /**
-     *
      * @param type Node type.
      * @return Image name for the given type.
      */
-    String getImageNameToUse(NodeType type){
+    String getImageNameToUse(NodeType type) {
         return type == NodeType.SERVER ?
-            dockerCtx.getServerImageName():
+            dockerCtx.getServerImageName() :
             dockerCtx.getDriverImageName();
     }
 
     /**
-     *
      * @param name Image name.
      * @return {@code true} if image name is defined server image name or driver image name,
      * or {@code false otherwise}.
      */
-    private boolean nameToDelete(String name){
+    private boolean nameToDelete(String name) {
         return name.equals(dockerCtx.getServerImageName()) || name.equals(dockerCtx.getDriverImageName());
     }
 }

@@ -2,7 +2,6 @@ package org.yardstickframework.runners.workers.node;
 
 import java.io.IOException;
 import java.util.List;
-import org.yardstickframework.runners.CommandHandler;
 import org.yardstickframework.runners.context.NodeInfo;
 import org.yardstickframework.runners.context.NodeType;
 import org.yardstickframework.runners.context.RunContext;
@@ -29,8 +28,6 @@ public class DockerCollectWorker extends NodeWorker {
         String nodeOutDir = String.format("%s/output", runCtx.remoteWorkDirectory());
 
         String cpCmd = String.format("cp %s:%s/output %s", contName, runCtx.remoteWorkDirectory(), runCtx.remoteWorkDirectory());
-
-
 
         log().info(String.format("Collecting data from the container '%s' on the host '%s'.", contName, host));
 

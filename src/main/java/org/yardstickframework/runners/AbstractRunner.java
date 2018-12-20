@@ -2,6 +2,7 @@ package org.yardstickframework.runners;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Set;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -65,9 +66,9 @@ public class AbstractRunner {
      *
      */
     void generalPrepare(){
-        List<String> fullList = runCtx.getFullUniqueList();
+        Set<String> fullSet = runCtx.getHostSet();
 
-        checkPlain(new CheckConnWorker(runCtx, fullList));
+        checkPlain(new CheckConnWorker(runCtx, fullSet));
 
         checkPlain(new CheckJavaWorker(runCtx, runCtx.uniqueHostsByMode(RunMode.PLAIN)));
 
@@ -81,9 +82,9 @@ public class AbstractRunner {
             dockerRunner.cleanUp(dockerList, "before");
         }
 
-        new KillWorker(runCtx, fullList).workOnHosts();
+        new KillWorker(runCtx, fullSet).workOnHosts();
 
-        new DeployWorker(runCtx, fullList).workOnHosts();
+        new DeployWorker(runCtx, fullSet).workOnHosts();
 
         if (!dockerList.isEmpty()) {
             dockerRunner.prepare(dockerList);

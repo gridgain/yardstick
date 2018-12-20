@@ -1,6 +1,6 @@
 package org.yardstickframework.runners.workers.host;
 
-import java.util.List;
+import java.util.Set;
 import org.yardstickframework.runners.workers.CheckWorkResult;
 import org.yardstickframework.runners.workers.WorkResult;
 import org.yardstickframework.runners.context.RunContext;
@@ -10,8 +10,8 @@ import org.yardstickframework.runners.context.RunContext;
  */
 public abstract class CheckWorker extends HostWorker {
     /** {@inheritDoc} */
-    CheckWorker(RunContext runCtx, List<String> hostList) {
-        super(runCtx, hostList);
+    CheckWorker(RunContext runCtx, Set<String> hostSet) {
+        super(runCtx, hostSet);
     }
 
     /** {@inheritDoc} */

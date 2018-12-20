@@ -2,7 +2,7 @@ package org.yardstickframework.runners.workers.host;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Set;
 import org.yardstickframework.runners.workers.CheckWorkResult;
 import org.yardstickframework.runners.CommandHandler;
 import org.yardstickframework.runners.workers.WorkResult;
@@ -19,8 +19,8 @@ public class CheckJavaWorker extends CheckWorker {
     private static final Collection<String> checked = new HashSet<>();
 
     /** {@inheritDoc} */
-    public CheckJavaWorker(RunContext runCtx, List<String> hostList) {
-        super(runCtx, hostList);
+    public CheckJavaWorker(RunContext runCtx, Set<String> hostSet) {
+        super(runCtx, hostSet);
     }
 
     /** {@inheritDoc} */
@@ -40,8 +40,6 @@ public class CheckJavaWorker extends CheckWorker {
 
             checked.add(host);
         }
-
-
 
         if (runCtx.remoteJavaHome() != null) {
             if (!runCtx.handler().checkRemJava(host, runCtx.remoteJavaHome())) {

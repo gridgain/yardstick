@@ -2,7 +2,7 @@ package org.yardstickframework.runners.workers.host;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
+import java.util.Set;
 import org.yardstickframework.runners.CommandHandler;
 import org.yardstickframework.runners.workers.WorkResult;
 import org.yardstickframework.runners.context.RunContext;
@@ -15,8 +15,8 @@ public class CollectWorker extends HostWorker {
     private File outDir;
 
     /** {@inheritDoc} */
-    public CollectWorker(RunContext runCtx, List<String> hostList) {
-        super(runCtx, hostList);
+    public CollectWorker(RunContext runCtx, Set<String> hostSet) {
+        super(runCtx, hostSet);
 
         outDir = new File(String.format("%s/output", runCtx.localeWorkDirectory()));
     }
@@ -35,8 +35,6 @@ public class CollectWorker extends HostWorker {
         String nodeOutDir = String.format("%s/output", runCtx.remoteWorkDirectory());
 
         log().info(String.format("Collecting data from the host '%s'.", host));
-
-
 
         String pathLoc = outDir.getAbsolutePath();
 

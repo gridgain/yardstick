@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import org.yardstickframework.runners.CommandExecutionResult;
-import org.yardstickframework.runners.CommandHandler;
 import org.yardstickframework.runners.checkers.NodeChecker;
 import org.yardstickframework.runners.context.NodeInfo;
 import org.yardstickframework.runners.context.NodeStatus;
@@ -26,8 +25,6 @@ public class CheckLogWorker extends NodeWorker {
 
         String logPath = nodeInfo.logPath();
 
-
-
         boolean fileExists = false;
 
         int cnt = 10;
@@ -42,13 +39,12 @@ public class CheckLogWorker extends NodeWorker {
 
         checker.checkNode(nodeInfo);
 
-        if(nodeInfo.nodeStatus() == NodeStatus.NOT_RUNNING)
+        if (nodeInfo.nodeStatus() == NodeStatus.NOT_RUNNING)
             log().info(String.format("Node '%s' on the host '%s' in not running. Will check log file and exit.",
                 nodeInfo.toShortStr(),
                 host));
 
-
-        if(!fileExists){
+        if (!fileExists) {
             log().info(String.format("No log file '%s' on the host '%s'.", logPath, host));
 
             return nodeInfo;
@@ -59,13 +55,13 @@ public class CheckLogWorker extends NodeWorker {
 
             CommandExecutionResult res = runCtx.handler().runCmd(host, cmd);
 
-            if(!res.outputList().isEmpty()){
+            if (!res.outputList().isEmpty()) {
                 nodeInfo.errorMessages().addAll(res.outputList());
 
                 log().info(String.format("WARNING! Log file '%s' contains following error messages:",
                     logPath));
 
-                for(String msg : res.outputList())
+                for (String msg : res.outputList())
                     log().info(msg);
 
                 return nodeInfo;

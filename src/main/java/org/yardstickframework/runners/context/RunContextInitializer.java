@@ -8,10 +8,8 @@ import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
@@ -279,7 +277,7 @@ public class RunContextInitializer {
 
         ctx.driverHosts(getHosts("DRIVER_HOSTS"));
 
-        List<String> allHosts = ctx.getFullUniqueList();
+        Set<String> allHosts = ctx.getHostSet();
 
         Enumeration e = null;
 

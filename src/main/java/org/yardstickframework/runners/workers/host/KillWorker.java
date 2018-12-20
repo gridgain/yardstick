@@ -1,9 +1,7 @@
 package org.yardstickframework.runners.workers.host;
 
 import java.io.IOException;
-import java.util.List;
-import org.yardstickframework.runners.CommandHandler;
-import org.yardstickframework.runners.context.NodeInfo;
+import java.util.Set;
 import org.yardstickframework.runners.workers.WorkResult;
 import org.yardstickframework.runners.context.RunContext;
 
@@ -12,8 +10,8 @@ import org.yardstickframework.runners.context.RunContext;
  */
 public class KillWorker extends HostWorker {
     /** {@inheritDoc} */
-    public KillWorker(RunContext runCtx, List<String> hostList) {
-        super(runCtx, hostList);
+    public KillWorker(RunContext runCtx, Set<String> hostSet) {
+        super(runCtx, hostSet);
     }
 
     /** {@inheritDoc} */

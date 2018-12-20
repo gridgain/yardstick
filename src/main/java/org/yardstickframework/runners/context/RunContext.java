@@ -4,10 +4,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Set;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
+import java.util.List;
+import java.util.TreeSet;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.yardstickframework.runners.CommandHandler;
@@ -130,14 +131,12 @@ public class RunContext {
     /**
      * @return Full unique list of server and driver IP addresses.
      */
-    public List<String> getFullUniqueList() {
-        List<String> res = new ArrayList<>();
+    public Set<String> getHostSet() {
+        Set<String> res = new TreeSet<>(servHosts);
 
-        res.addAll(serverList());
+        res.addAll(drvrHosts);
 
-        res.addAll(driverList());
-
-        return makeUnique(res);
+        return res;
     }
 
     /**
@@ -320,16 +319,16 @@ public class RunContext {
      * @param type Node type.
      * @return List of unique related hosts depending on node type.
      */
-    public List<String> uniqueHostsByType(NodeType type) {
-        return makeUnique(hostsByType(type));
+    public Set<String> uniqueHostsByType(NodeType type) {
+        return new TreeSet<>(hostsByType(type));
     }
 
     /**
      * @param mode Run mode.
      * @return List of unique related hosts depending on run mode.
      */
-    public List<String> uniqueHostsByMode(RunMode mode) {
-        return makeUnique(hostsByMode(mode));
+    public Set<String> uniqueHostsByMode(RunMode mode) {
+        return new TreeSet<>(hostsByMode(mode));
     }
 
     /**

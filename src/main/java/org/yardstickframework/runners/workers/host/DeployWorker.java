@@ -2,7 +2,7 @@ package org.yardstickframework.runners.workers.host;
 
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.List;
+import java.util.Set;
 import org.yardstickframework.runners.CommandHandler;
 import org.yardstickframework.runners.workers.WorkResult;
 import org.yardstickframework.runners.context.RunContext;
@@ -18,10 +18,10 @@ public class DeployWorker extends HostWorker {
     private CleanRemDirWorker cleaner;
 
     /** {@inheritDoc} */
-    public DeployWorker(RunContext runCtx, List<String> hostList) {
-        super(runCtx, hostList);
+    public DeployWorker(RunContext runCtx, Set<String> hostSet) {
+        super(runCtx, hostSet);
 
-        cleaner = new CleanRemDirWorker(runCtx, hostList);
+        cleaner = new CleanRemDirWorker(runCtx, hostSet);
     }
 
     /** {@inheritDoc} */
@@ -36,8 +36,6 @@ public class DeployWorker extends HostWorker {
             return null;
 
         String createCmd = String.format("mkdir -p %s", runCtx.remoteWorkDirectory());
-
-
 
         try {
             runCtx.handler().runCmd(host, createCmd);

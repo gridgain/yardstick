@@ -1,6 +1,6 @@
 package org.yardstickframework.runners.workers.host;
 
-import java.util.List;
+import java.util.Set;
 import org.yardstickframework.runners.context.RunContext;
 
 import org.yardstickframework.runners.workers.WorkResult;
@@ -10,8 +10,8 @@ import org.yardstickframework.runners.workers.WorkResult;
  */
 public class DockerCleanContWorker extends DockerHostWorker {
     /** {@inheritDoc} */
-    public DockerCleanContWorker(RunContext runCtx, List<String> hostList) {
-        super(runCtx, hostList);
+    public DockerCleanContWorker(RunContext runCtx, Set<String> hostSet) {
+        super(runCtx, hostSet);
     }
 
     /** {@inheritDoc} */
