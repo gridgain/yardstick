@@ -73,7 +73,7 @@ public class CheckJavaWorker extends CheckWorker {
 
             log().info(warn);
 
-            runCtx.hostJavaHomeMap().put(host, hostJava);
+            runCtx.putInJavaHostMap(host, hostJava);
         }
 
         return res;

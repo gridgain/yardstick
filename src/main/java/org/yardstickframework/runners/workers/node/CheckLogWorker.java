@@ -51,7 +51,7 @@ public class CheckLogWorker extends NodeWorker {
         }
 
         try {
-            String cmd = String.format("head -20 %s | grep 'Exception'", logPath);
+            String cmd = String.format("head -20 %s | grep -e 'Exception' -e 'failed' -e 'Error'", logPath);
 
             CommandExecutionResult res = runCtx.handler().runCmd(host, cmd);
 

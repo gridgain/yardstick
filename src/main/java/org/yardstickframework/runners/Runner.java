@@ -2,12 +2,18 @@ package org.yardstickframework.runners;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Set;
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import org.yardstickframework.BenchmarkUtils;
 import org.yardstickframework.runners.context.NodeInfo;
 import org.yardstickframework.runners.context.NodeStatus;
 import org.yardstickframework.runners.context.NodeType;
@@ -17,34 +23,53 @@ import org.yardstickframework.runners.workers.CheckWorkResult;
 import org.yardstickframework.runners.workers.WorkResult;
 import org.yardstickframework.runners.workers.host.CheckConnWorker;
 import org.yardstickframework.runners.workers.host.CheckJavaWorker;
+import org.yardstickframework.runners.workers.host.CollectWorker;
 import org.yardstickframework.runners.workers.host.DeployWorker;
 import org.yardstickframework.runners.workers.host.HostWorker;
 import org.yardstickframework.runners.workers.host.KillWorker;
 import org.yardstickframework.runners.workers.node.CheckLogWorker;
 import org.yardstickframework.runners.workers.node.NodeWorker;
+import org.yardstickframework.runners.workers.node.RestartNodeWorker;
 import org.yardstickframework.runners.workers.node.StartNodeWorker;
+import org.yardstickframework.runners.workers.node.StopNodeWorker;
 import org.yardstickframework.runners.workers.node.WaitNodeWorker;
 
 /**
  * Parent for runners.
  */
-public class AbstractRunner {
+public class Runner {
     /** Run context. */
     protected RunContext runCtx;
-
-    /** */
-    private DockerRunner dockerRunner;
-
-    /** */
-    private List<NodeType> dockerList;
 
     /**
      * Constructor.
      *
      * @param runCtx Run context.
      */
-    public AbstractRunner(RunContext runCtx) {
+    public Runner(RunContext runCtx) {
         this.runCtx = runCtx;
+    }
+
+    /**
+     *
+     * @return Exit code.
+     */
+    protected int run0(){ return 0; };
+
+    /**
+     *
+     * @return Runner.
+     */
+    protected static Runner runner(RunContext runCtx){
+        return runCtx.dockerEnabled() ? new DockerRunner(runCtx) : new PlainRunner(runCtx);
+    }
+
+    /**
+     *
+     * @return Runner.
+     */
+    static Runner driverRunner(RunContext runCtx){
+        return runCtx.dockerEnabled() ? new DockerDriverRunner(runCtx) : new PlainDriverRunner(runCtx);
     }
 
     /**
@@ -68,40 +93,112 @@ public class AbstractRunner {
     void generalPrepare(){
         Set<String> fullSet = runCtx.getHostSet();
 
-        checkPlain(new CheckConnWorker(runCtx, fullSet));
-
-        checkPlain(new CheckJavaWorker(runCtx, runCtx.uniqueHostsByMode(RunMode.PLAIN)));
-
-        dockerList = runCtx.nodeTypes(RunMode.DOCKER);
-
-        dockerRunner = new DockerRunner(runCtx);
-
-        if (!dockerList.isEmpty()) {
-            dockerRunner.check(dockerList);
-
-            dockerRunner.cleanUp(dockerList, "before");
-        }
+        check(fullSet);
 
         new KillWorker(runCtx, fullSet).workOnHosts();
 
         new DeployWorker(runCtx, fullSet).workOnHosts();
-
-        if (!dockerList.isEmpty()) {
-            dockerRunner.prepare(dockerList);
-
-            dockerRunner.start(dockerList);
-        }
     }
 
     /**
      *
      */
-    void generalCleanUp(){
-        if (!dockerList.isEmpty()) {
-            dockerRunner.collect(dockerList);
+    void driverPrepare(){
+        Set<String> driverSet = runCtx.driverSet();
 
-            dockerRunner.cleanUp(dockerList, "after");
+        check(driverSet);
+
+        new DeployWorker(runCtx, driverSet).workOnHosts();
+    }
+
+    /**
+     *
+     * @param hostSet Host set.
+     */
+    private void check(Set<String> hostSet){
+        checkPlain(new CheckConnWorker(runCtx, hostSet));
+
+        checkPlain(new CheckJavaWorker(runCtx, runCtx.uniqueHostsByMode(RunMode.PLAIN)));
+    }
+
+    /**
+     *
+     * @return
+     */
+    protected int execute(){
+        String cfgStr0 = runCtx.properties().getProperty("CONFIGS").split(",")[0];
+
+        List<NodeInfo> servRes = null;
+
+        if (runCtx.startServersOnce())
+            servRes = startNodes(NodeType.SERVER, cfgStr0);
+
+        for (String cfgStr : runCtx.configList()) {
+            if (!runCtx.startServersOnce())
+                servRes = startNodes(NodeType.SERVER, cfgStr);
+
+            checkLogs(servRes);
+
+            waitForNodes(servRes, NodeStatus.RUNNING);
+
+            iterationBody(cfgStr, servRes);
+
+            if (!runCtx.startServersOnce()) {
+                stopNodes(servRes);
+
+                waitForNodes(servRes, NodeStatus.NOT_RUNNING);
+            }
         }
+
+//        if(runCtx.startServersOnce()){
+//            stopNodes(servRes);
+//
+//            waitForNodes(servRes, NodeStatus.NOT_RUNNING);
+//        }
+
+        return 0;
+    }
+
+    /**
+     *
+     * @param cfgStr Config string.
+     * @param servRes List of started server nodes.
+     */
+    void iterationBody(String cfgStr, List<NodeInfo> servRes){
+        List<NodeInfo> drvrRes = startNodes(NodeType.DRIVER, cfgStr);
+
+        checkLogs(drvrRes);
+
+        waitForNodes(drvrRes, NodeStatus.RUNNING);
+
+        ExecutorService restServ = Executors.newSingleThreadExecutor();
+
+        final List<NodeInfo> forRestart = new ArrayList<>(servRes);
+
+        Future<List<NodeInfo>> restFut = restServ.submit(new Callable<List<NodeInfo>>() {
+            @Override public List<NodeInfo> call() throws Exception {
+                String threadName = String.format("Restart-handler-%s", BenchmarkUtils.hms());
+
+                Thread.currentThread().setName(threadName);
+
+                return restart(forRestart, cfgStr, NodeType.SERVER);
+            }
+        });
+
+        waitForNodes(drvrRes, NodeStatus.NOT_RUNNING);
+
+        restFut.cancel(true);
+
+        restServ.shutdown();
+    }
+
+    /**
+     *
+     */
+    void afterExecution(){
+        new CollectWorker(runCtx, runCtx.getHostSet()).workOnHosts();
+
+        createCharts();
     }
 
     /**
@@ -198,5 +295,36 @@ public class AbstractRunner {
         NodeWorker waitWorker = new WaitNodeWorker(runCtx, nodeList, expStatus);
 
         waitWorker.workForNodes();
+    }
+
+    /**
+     *
+     * @param nodeList Node list.
+     * @return List of nodes.
+     */
+    private List<NodeInfo> stopNodes(List<NodeInfo> nodeList) {
+        NodeWorker stopWorker = new StopNodeWorker(runCtx, nodeList);
+
+        stopWorker.workForNodes();
+
+        return null;
+    }
+
+    /**
+     *
+     * @param nodeList Node list.
+     * @param cfgStr Config string.
+     * @param type Node type.
+     * @return List of nodes.
+     */
+    private List<NodeInfo> restart(List<NodeInfo> nodeList, String cfgStr, NodeType type){
+        if(runCtx.restartContext(type) == null)
+            return nodeList;
+
+        RestartNodeWorker restWorker = new RestartNodeWorker(runCtx, nodeList, cfgStr);
+
+        restWorker.runAsyncOnHost(true);
+
+        return restWorker.workForNodes();
     }
 }

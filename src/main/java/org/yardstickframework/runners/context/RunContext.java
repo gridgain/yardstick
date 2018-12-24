@@ -1,6 +1,7 @@
 package org.yardstickframework.runners.context;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -121,9 +122,9 @@ public class RunContext {
      * @return Full list of server and driver IP addresses.
      */
     public List<String> getFullHostList() {
-        List<String> res = new ArrayList<>(serverList());
+        List<String> res = new ArrayList<>(servHosts);
 
-        res.addAll(driverList());
+        res.addAll(drvrHosts);
 
         return res;
     }
@@ -140,47 +141,10 @@ public class RunContext {
     }
 
     /**
-     * @return Unique list of server IP addresses.
-     */
-    public List<String> serverUniqueList() {
-        return makeUnique(serverList());
-    }
-
-    /**
      * @return Unique list of driver IP addresses.
      */
-    public List<String> driverUniqueList() {
-        return makeUnique(driverList());
-    }
-
-    /**
-     * @return Unique list of server IP addresses.
-     */
-    public List<String> serverList() {
-        return new ArrayList<>(servHosts);
-    }
-
-    /**
-     * @return Unique list of driver IP addresses.
-     */
-    public List<String> driverList() {
-        return new ArrayList<>(drvrHosts);
-    }
-
-    /**
-     * Removes repeated addresses from the list.
-     *
-     * @param src Source list.
-     * @return Unique list.
-     */
-    private List<String> makeUnique(List<String> src) {
-        Set<String> set = new HashSet<>(src);
-
-        List<String> res = new ArrayList<>(set);
-
-        Collections.sort(res);
-
-        return res;
+    public Set<String> driverSet() {
+        return new TreeSet<>(drvrHosts);
     }
 
     /**
@@ -188,7 +152,7 @@ public class RunContext {
      * @return Node starter depending on node run mode.
      */
     public NodeStarter nodeStarter(NodeInfo nodeInfo) {
-        RunMode mode = runMode(nodeInfo);
+        RunMode mode = nodeInfo.runMode();
 
         switch (mode) {
             case PLAIN:
@@ -205,7 +169,7 @@ public class RunContext {
      * @return Node checker depending on node run mode.
      */
     public NodeChecker nodeChecker(NodeInfo nodeInfo) {
-        RunMode mode = runMode(nodeInfo);
+        RunMode mode = nodeInfo.runMode();
 
         switch (mode) {
             case PLAIN:
@@ -218,14 +182,6 @@ public class RunContext {
     }
 
     /**
-     * @param nodeInfo Node info.
-     * @return Node run mode.
-     */
-    private RunMode runMode(NodeInfo nodeInfo) {
-        return nodeInfo.runMode();
-    }
-
-    /**
      * @param src {@code String} Source string.
      * @return Description.
      */
@@ -235,7 +191,7 @@ public class RunContext {
         String res = "Unknown";
 
         for (int i = 0; i < argArr.length; i++) {
-            if (argArr[i].equals("-ds") || argArr[i].equals("--descriptions")) {
+            if ("-ds".equals(argArr[i]) || "--descriptions".equals(argArr[i])) {
                 if (argArr.length < i + 2) {
                     log().info("Failed to get description");
 
@@ -268,8 +224,8 @@ public class RunContext {
      * @return {@code true} if all hosts are different or {@code false} otherwise.
      */
     public boolean checkIfDifferentHosts() {
-        for (String host : serverUniqueList())
-            if (driverUniqueList().contains(host))
+        for (String host : servHosts)
+            if (drvrHosts.contains(host))
                 return false;
 
         return true;
@@ -282,10 +238,10 @@ public class RunContext {
     public List<NodeType> nodeTypes(RunMode mode) {
         List<NodeType> res = new ArrayList<>();
 
-        if (serverRunMode() == mode)
+        if (servRunMode == mode)
             res.add(NodeType.SERVER);
 
-        if (driverRunMode() == mode)
+        if (drvrRunMode == mode)
             res.add(NodeType.DRIVER);
 
         return res;
@@ -541,24 +497,10 @@ public class RunContext {
     }
 
     /**
-     * @return Server run mode.
-     */
-    private RunMode serverRunMode() {
-        return servRunMode;
-    }
-
-    /**
      * @param servRunMode New server run mode.
      */
     public void serverRunMode(RunMode servRunMode) {
         this.servRunMode = servRunMode;
-    }
-
-    /**
-     * @return Driver run mode.
-     */
-    private RunMode driverRunMode() {
-        return drvrRunMode;
     }
 
     /**
@@ -660,10 +602,12 @@ public class RunContext {
     }
 
     /**
-     * @param hostJavaHomeMap New host java home map.
+     *
+     * @param host Host.
+     * @param javaHome Java home.
      */
-    public void hostJavaHomeMap(Map<String, String> hostJavaHomeMap) {
-        this.hostJavaHomeMap = new HashMap<>(hostJavaHomeMap);
+    public void putInJavaHostMap(String host, String javaHome){
+        hostJavaHomeMap.put(host, javaHome);
     }
 
     /**
@@ -674,5 +618,13 @@ public class RunContext {
             hand = CommandHandler.getCommandHandler(this);
 
         return hand;
+    }
+
+    /**
+     *
+     * @return {@code true} if docker is enabled for server or driver nodes or {@code false} otherwise.
+     */
+    public boolean dockerEnabled(){
+        return servRunMode == RunMode.DOCKER || drvrRunMode == RunMode.DOCKER;
     }
 }

@@ -1,9 +1,8 @@
 package org.yardstickframework.runners.checkers;
 
 import java.io.IOException;
-import org.yardstickframework.runners.AbstractRunner;
+import org.yardstickframework.runners.Runner;
 import org.yardstickframework.runners.CommandExecutionResult;
-import org.yardstickframework.runners.CommandHandler;
 import org.yardstickframework.runners.context.NodeInfo;
 import org.yardstickframework.runners.context.NodeStatus;
 import org.yardstickframework.runners.context.RunContext;
@@ -11,7 +10,7 @@ import org.yardstickframework.runners.context.RunContext;
 /**
  * Node checker for docker run.
  */
-public class InDockerNodeChecker extends AbstractRunner implements NodeChecker {
+public class InDockerNodeChecker extends Runner implements NodeChecker {
     /**
      * Constructor.
      *

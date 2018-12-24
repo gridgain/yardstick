@@ -63,7 +63,8 @@ public class RunContextInitializer {
 
         setRestartCtx(NodeType.SERVER);
 
-        setDockerContext();
+        if(ctx.dockerEnabled())
+            setDockerContext();
 
         handleAdditionalArgs();
     }
@@ -84,7 +85,7 @@ public class RunContextInitializer {
         }
 
         if (ctx.config().scriptDirectory() == null) {
-            LOG.error("Script directory is not defined.");
+            System.out.println("Error: Script directory is not defined.");
 
             System.exit(1);
         }
@@ -156,18 +157,14 @@ public class RunContextInitializer {
     private void setRestartCtx(NodeType type) {
         String restProp = ctx.properties().getProperty(String.format("RESTART_%sS", type));
 
-        boolean val = false;
-
         if (restProp == null) {
-            setRestart(val, type);
+            setRestart(false, type);
 
             return;
         }
 
-        if (restProp.toLowerCase().equals("true") || restProp.toLowerCase().equals("false")) {
-            val = Boolean.valueOf(restProp);
-
-            setRestart(val, type);
+        if ("true".equals(restProp.toLowerCase()) || "false".equals(restProp.toLowerCase())) {
+            setRestart(Boolean.valueOf(restProp), type);
 
             return;
         }
@@ -186,6 +183,7 @@ public class RunContextInitializer {
     }
 
     /**
+     * Parse following string e.g. 172.25.1.49:0:5:5:5,172.25.1.49:1:5:5:5 to create restart schedule for node.
      *
      * @param restProp Restart property string.
      * @param type Node type.
@@ -279,24 +277,20 @@ public class RunContextInitializer {
 
         Set<String> allHosts = ctx.getHostSet();
 
-        Enumeration e = null;
+        Enumeration<NetworkInterface> e = null;
 
         try {
             e = NetworkInterface.getNetworkInterfaces();
         }
         catch (SocketException e1) {
-            e1.printStackTrace();
+            LOG.error("Failed to get network interfaces.", e1);
         }
 
         while (e.hasMoreElements()) {
-            NetworkInterface n = (NetworkInterface)e.nextElement();
-
-            Enumeration ee = n.getInetAddresses();
+            Enumeration<InetAddress> ee = e.nextElement().getInetAddresses();
 
             while (ee.hasMoreElements()) {
-                InetAddress i = (InetAddress)ee.nextElement();
-
-                String adr = i.getHostAddress();
+                String adr = ee.nextElement().getHostAddress();
 
                 if (allHosts.contains(adr)) {
                     LOG.info(String.format("Setting current host address as %s.", adr));
@@ -547,6 +541,7 @@ public class RunContextInitializer {
         //add appender to any Logger (here is root)
         Logger.getRootLogger().addAppender(fa);
 
+        //TODO remove
         if (new File("/home/oostanin/yardstick").exists()) {
             FileAppender fa1 = new FileAppender();
             fa1.setName("FileLogger1");

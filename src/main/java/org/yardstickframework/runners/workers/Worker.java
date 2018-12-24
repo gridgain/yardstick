@@ -33,9 +33,12 @@ public abstract class Worker{
     /**
      * Executes before workOnHosts()
      */
-    public void beforeWork(){
-        //NO_OP
-    }
+    public void beforeWork(){};
+
+    /**
+     * Executes after workOnHosts().
+     */
+    public void afterWork(){};
 
     /**
      *
@@ -76,12 +79,5 @@ public abstract class Worker{
      */
     protected boolean isLocal(String host) {
         return LOC_ADR_SET.contains(host.toLowerCase());
-    }
-
-    /**
-     * Executes after workOnHosts().
-     */
-    public void afterWork(){
-        //NO_OP
     }
 }

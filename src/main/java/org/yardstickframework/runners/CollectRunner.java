@@ -10,7 +10,7 @@ import org.yardstickframework.runners.workers.host.CollectWorker;
 /**
  * Collects data.
  */
-public class CollectRunner extends AbstractRunner {
+public class CollectRunner extends Runner {
     /**
      * Constructor.
      *
@@ -36,7 +36,7 @@ public class CollectRunner extends AbstractRunner {
      *
      * @return Exit code.
      */
-    private int run0() {
+    @Override protected int run0() {
         checkPlain(new CheckConnWorker(runCtx, runCtx.getHostSet()));
 
         List<NodeType> dockerList = runCtx.nodeTypes(RunMode.DOCKER);

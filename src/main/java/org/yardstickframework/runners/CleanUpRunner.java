@@ -12,7 +12,7 @@ import org.yardstickframework.runners.workers.host.KillWorker;
 /**
  * Cleans up docker on hosts.
  */
-public class CleanUpRunner  extends AbstractRunner {
+public class CleanUpRunner  extends Runner {
     /** {@inheritDoc} */
     private CleanUpRunner(RunContext runCtx) {
         super(runCtx);
@@ -34,7 +34,7 @@ public class CleanUpRunner  extends AbstractRunner {
      *
      * @return Exit code.
      */
-    private int run0() {
+    @Override protected int run0() {
         checkPlain(new CheckConnWorker(runCtx, runCtx.getHostSet()));
 
         List<NodeType> dockerList = runCtx.nodeTypes(RunMode.DOCKER);

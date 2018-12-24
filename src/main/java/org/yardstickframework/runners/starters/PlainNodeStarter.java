@@ -3,16 +3,15 @@ package org.yardstickframework.runners.starters;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import org.yardstickframework.runners.AbstractRunner;
+import org.yardstickframework.runners.Runner;
 import org.yardstickframework.runners.CommandExecutionResult;
-import org.yardstickframework.runners.CommandHandler;
 import org.yardstickframework.runners.context.NodeInfo;
 import org.yardstickframework.runners.context.RunContext;
 
 /**
  * Starts nodes.
  */
-public class PlainNodeStarter extends AbstractRunner implements NodeStarter {
+public class PlainNodeStarter extends Runner implements NodeStarter {
     /** */
     private static Map<String, String> hostJavaHomeMap = new HashMap<>();
 
@@ -40,7 +39,7 @@ public class PlainNodeStarter extends AbstractRunner implements NodeStarter {
             res = runCtx.handler().startNode(host, withJavaHome, nodeInfo.logPath());
         }
         catch (IOException e) {
-            e.printStackTrace();
+            log().error(String.format("Failed to start node '%s' on the host '%s'", nodeInfo.toShortStr(), host), e);
         }
 
         nodeInfo.commandExecutionResult(res);

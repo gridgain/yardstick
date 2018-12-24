@@ -60,9 +60,13 @@ public abstract class HostWorker extends Worker {
      * @return List of {@code WorkResult} objects.
      */
     public List<WorkResult> workOnHosts() {
+        if (hostSet.isEmpty())
+            return new ArrayList<>();
+
         beforeWork();
 
-        ExecutorService exec = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+        ExecutorService exec = Executors.newFixedThreadPool(Math.min(hostSet.size(),
+            Runtime.getRuntime().availableProcessors()));
 
         Collection<Future<WorkResult>> futList = new ArrayList<>();
 

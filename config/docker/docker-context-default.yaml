@@ -1,14 +1,16 @@
-# Path to the Dockerfile for server nodes images build.
-serverDockerfilePath: config/docker/Dockerfile-server
+# Server context.
+serverCtx:
+  # Path to the Dockerfile.
+  dockerfilePath: config/docker/Dockerfile-server
+  # Image name.
+  imageName: yardstickserver
 
-# Path to the Dockerfile for driver nodes images build.
-driverDockerfilePath: config/docker/Dockerfile-driver
-
-# Server image name.
-serverImageName: yardstickserver
-
-# Driver image name.
-driverImageName: yardstickdriver
+# Driver context.
+driverCtx:
+  # Path to the Dockerfile.
+  dockerfilePath: config/docker/Dockerfile-driver
+  # Image name.
+  imageName: yardstickdriver
 
 # Flag to rebuild images even if they already exist.
 rebuildImagesIfExist: false

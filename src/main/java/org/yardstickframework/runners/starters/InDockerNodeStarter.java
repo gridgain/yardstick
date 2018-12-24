@@ -2,17 +2,15 @@ package org.yardstickframework.runners.starters;
 
 import java.io.File;
 import java.io.IOException;
-import org.yardstickframework.runners.AbstractRunner;
-import org.yardstickframework.runners.CommandHandler;
+import org.yardstickframework.runners.Runner;
 import org.yardstickframework.runners.context.NodeInfo;
-import org.yardstickframework.runners.context.NodeType;
 import org.yardstickframework.runners.context.DockerInfo;
 import org.yardstickframework.runners.context.RunContext;
 
 /**
  * Starts nodes in docker containers.
  */
-public class InDockerNodeStarter extends AbstractRunner implements NodeStarter {
+public class InDockerNodeStarter extends Runner implements NodeStarter {
     /**
      *
      * @param runCtx Run context.

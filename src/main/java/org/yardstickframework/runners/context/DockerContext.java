@@ -17,16 +17,10 @@ public class DockerContext {
     private static final Logger LOG = LogManager.getLogger(DockerContext.class);
 
     /** */
-    private String serverDockerfilePath = "config/docker/Dockerfile-server";
+    private NodeDockerContext serverCtx;
 
     /** */
-    private String driverDockerfilePath = "config/docker/Dockerfile-driver";
-
-    /** */
-    private String serverImageName = "yardstickserver";
-
-    /** */
-    private String driverImageName = "yardstickdriver";
+    private NodeDockerContext driverCtx;
 
     /** */
     private boolean rebuildImagesIfExist;
@@ -52,68 +46,20 @@ public class DockerContext {
     /** */
     private String driverDockerJavaHome;
 
-    /**
-     *
-     * @return {@code String} server dockerfile path.
-     */
-    public String getServerDockerfilePath() {
-        return serverDockerfilePath;
+    public NodeDockerContext getServerCtx() {
+        return serverCtx;
     }
 
-    /**
-     *
-     * @param serverDockerfilePath server dockerfile path.
-     */
-    public void setServerDockerfilePath(String serverDockerfilePath) {
-        this.serverDockerfilePath = serverDockerfilePath;
+    public void setServerCtx(NodeDockerContext serverCtx) {
+        this.serverCtx = serverCtx;
     }
 
-    /**
-     *
-     * @return {@code String} driver dockerfile path.
-     */
-    public String getDriverDockerfilePath() {
-        return driverDockerfilePath;
+    public NodeDockerContext getDriverCtx() {
+        return driverCtx;
     }
 
-    /**
-     *
-     * @param driverDockerfilePath driver dockerfile path.
-     */
-    public void setDriverDockerfilePath(String driverDockerfilePath) {
-        this.driverDockerfilePath = driverDockerfilePath;
-    }
-
-    /**
-     *
-     * @return {@code String} server image name.
-     */
-    public String getServerImageName() {
-        return serverImageName;
-    }
-
-    /**
-     *
-     * @param serverImageName server image name.
-     */
-    public void setServerImageName(String serverImageName) {
-        this.serverImageName = serverImageName;
-    }
-
-    /**
-     *
-     * @return {@code String} driver image name.
-     */
-    public String getDriverImageName() {
-        return driverImageName;
-    }
-
-    /**
-     *
-     * @param driverImageName server image name.
-     */
-    public void setDriverImageName(String driverImageName) {
-        this.driverImageName = driverImageName;
+    public void setDriverCtx(NodeDockerContext driverCtx) {
+        this.driverCtx = driverCtx;
     }
 
     /**
@@ -267,17 +213,10 @@ public class DockerContext {
     /**
      *
      * @param type {@code NodeType} Node type.
-     * @return {@code String} Image mane depending on node type.
+     * @return {@code String} Image name depending on node type.
      */
     public String getImageName(NodeType type){
-        switch (type) {
-            case SERVER:
-                return serverImageName;
-            case DRIVER:
-                return driverImageName;
-            default:
-                throw new IllegalArgumentException(String.format("Unknown node type: %s", type));
-        }
+        return getNodeContext(type).getImageName();
     }
 
     /**
@@ -289,5 +228,21 @@ public class DockerContext {
         return type == NodeType.SERVER ?
             serverDockerJavaHome:
             driverDockerJavaHome;
+    }
+
+    /**
+     *
+     * @param type Node type.
+     * @return Node docker context.
+     */
+    public NodeDockerContext getNodeContext(NodeType type){
+        switch (type) {
+            case SERVER:
+                return serverCtx;
+            case DRIVER:
+                return driverCtx;
+            default:
+                throw new IllegalArgumentException(String.format("Unknown node type: %s", type));
+        }
     }
 }
