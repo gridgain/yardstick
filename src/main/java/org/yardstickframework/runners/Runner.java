@@ -54,7 +54,7 @@ public class Runner {
      *
      * @return Exit code.
      */
-    protected int run0(){ return 0; };
+    protected int run0(){ return 0; }
 
     /**
      *
@@ -123,7 +123,7 @@ public class Runner {
 
     /**
      *
-     * @return
+     * @return Exit value.
      */
     protected int execute(){
         String cfgStr0 = runCtx.properties().getProperty("CONFIGS").split(",")[0];
@@ -150,11 +150,11 @@ public class Runner {
             }
         }
 
-//        if(runCtx.startServersOnce()){
-//            stopNodes(servRes);
-//
-//            waitForNodes(servRes, NodeStatus.NOT_RUNNING);
-//        }
+        if(runCtx.startServersOnce()){
+            stopNodes(servRes);
+
+            waitForNodes(servRes, NodeStatus.NOT_RUNNING);
+        }
 
         return 0;
     }
@@ -212,22 +212,22 @@ public class Runner {
     /**
      *
      */
-    void createCharts() {
+    private void createCharts() {
         String mainResDir = String.format("%s/output/result-%s", runCtx.localeWorkDirectory(), runCtx.mainDateTime());
 
         String cp = String.format("%s/libs/*", runCtx.localeWorkDirectory());
 
-        String mainClass = "org.yardstickframework.report.jfreechart.JFreeChartGraphPlotter";
+        String mainCls = "org.yardstickframework.report.jfreechart.JFreeChartGraphPlotter";
 
         String jvmOpts = "-Xmx1g";
 
-        String stdCharts = String.format("%s -cp %s %s -gm STANDARD -i %s", jvmOpts, cp, mainClass, mainResDir);
+        String stdCharts = String.format("%s -cp %s %s -gm STANDARD -i %s", jvmOpts, cp, mainCls, mainResDir);
 
 
 
         runCtx.handler().runLocalJava(stdCharts);
 
-        String charts = String.format("%s -cp %s %s -i %s", jvmOpts, cp, mainClass, mainResDir);
+        String charts = String.format("%s -cp %s %s -i %s", jvmOpts, cp, mainCls, mainResDir);
 
         runCtx.handler().runLocalJava(charts);
 
@@ -265,7 +265,7 @@ public class Runner {
      * @param cfgStr Config string.
      * @return List of {@code NodeInfo} objects.
      */
-    List<NodeInfo> startNodes(NodeType type, String cfgStr) {
+    private List<NodeInfo> startNodes(NodeType type, String cfgStr) {
         NodeWorker startServWorker = new StartNodeWorker(runCtx, runCtx.getNodes(type), cfgStr);
 
         return startServWorker.workForNodes();
@@ -275,7 +275,7 @@ public class Runner {
      *
      * @param list List of {@code NodeInfo} objects.
      */
-    void checkLogs(List<NodeInfo> list){
+    private void checkLogs(List<NodeInfo> list){
         NodeWorker checkWorker = new CheckLogWorker(runCtx,list);
 
         List<NodeInfo> resList = checkWorker.workForNodes();
@@ -291,7 +291,7 @@ public class Runner {
      * @param nodeList List of {@code NodeInfo} objects.
      * @param expStatus Expected status.
      */
-    void waitForNodes(List<NodeInfo> nodeList, NodeStatus expStatus) {
+    private void waitForNodes(List<NodeInfo> nodeList, NodeStatus expStatus) {
         NodeWorker waitWorker = new WaitNodeWorker(runCtx, nodeList, expStatus);
 
         waitWorker.workForNodes();
