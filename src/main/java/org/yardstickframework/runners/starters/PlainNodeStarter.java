@@ -11,7 +11,7 @@ import org.yardstickframework.runners.context.RunContext;
 /**
  * Starts nodes.
  */
-public class PlainNodeStarter extends Runner implements NodeStarter {
+public class PlainNodeStarter extends NodeStarter {
     /** */
     private static Map<String, String> hostJavaHomeMap = new HashMap<>();
 

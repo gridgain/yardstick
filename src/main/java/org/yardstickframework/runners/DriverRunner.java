@@ -23,4 +23,14 @@ public class DriverRunner extends Runner {
 
         runner.run0();
     }
+
+    /**
+     *
+     */
+    @Override protected void printHelp(){
+        System.out.println("Script for starting driver nodes.");
+        System.out.println("Usage: ./bin/run-drivers.sh <options>.");
+
+        commonHelp();
+    }
 }

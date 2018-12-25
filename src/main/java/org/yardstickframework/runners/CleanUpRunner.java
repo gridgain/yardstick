@@ -35,6 +35,8 @@ public class CleanUpRunner  extends Runner {
      * @return Exit code.
      */
     @Override protected int run0() {
+        super.run0();
+
         checkPlain(new CheckConnWorker(runCtx, runCtx.getHostSet()));
 
         List<NodeType> dockerList = runCtx.nodeTypes(RunMode.DOCKER);
@@ -56,5 +58,15 @@ public class CleanUpRunner  extends Runner {
         cleanWorker.workOnHosts();
 
         return 0;
+    }
+
+    /**
+     *
+     */
+    @Override protected void printHelp(){
+        System.out.println("Script for cleaning up remote work directory.");
+        System.out.println("Usage: ./bin/clean-up.sh <options>.");
+
+        commonHelp();
     }
 }

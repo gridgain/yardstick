@@ -37,7 +37,7 @@ import org.yardstickframework.runners.workers.node.WaitNodeWorker;
 /**
  * Parent for runners.
  */
-public class Runner {
+public abstract class Runner {
     /** Run context. */
     protected RunContext runCtx;
 
@@ -54,7 +54,33 @@ public class Runner {
      *
      * @return Exit code.
      */
-    protected int run0(){ return 0; }
+    protected int run0(){ 
+        if (runCtx.config().help()) {
+            printHelp();
+
+            System.exit(0);
+        }
+        
+        return 0; 
+    }
+
+    /**
+     *
+     */
+    protected abstract void printHelp();
+
+    /**
+     * 
+     */
+    protected void commonHelp(){
+        System.out.println();
+        System.out.println("Options:");
+        System.out.println();
+        System.out.println("-pf  || --propertyFile      Property file.");
+        System.out.println("-rwd || --remoteWorkDir     Remote work directory path.");
+        System.out.println("-s   || --serverHosts       Comma separated list of server nodes addresses.");
+        System.out.println("-d   || --driverHosts       Comma separated list of driver nodes addresses.");
+    }
 
     /**
      *
@@ -266,7 +292,7 @@ public class Runner {
      * @return List of {@code NodeInfo} objects.
      */
     private List<NodeInfo> startNodes(NodeType type, String cfgStr) {
-        NodeWorker startServWorker = new StartNodeWorker(runCtx, runCtx.getNodes(type), cfgStr);
+        NodeWorker startServWorker = new StartNodeWorker(runCtx, runCtx.getNodeInfos(type), cfgStr);
 
         return startServWorker.workForNodes();
     }

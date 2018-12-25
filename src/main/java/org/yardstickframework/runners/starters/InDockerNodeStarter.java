@@ -10,7 +10,7 @@ import org.yardstickframework.runners.context.RunContext;
 /**
  * Starts nodes in docker containers.
  */
-public class InDockerNodeStarter extends Runner implements NodeStarter {
+public class InDockerNodeStarter extends NodeStarter {
     /**
      *
      * @param runCtx Run context.

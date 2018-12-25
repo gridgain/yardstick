@@ -8,7 +8,7 @@ import org.yardstickframework.runners.context.RunContext;
 /**
  * Node checker for plain run.
  */
-public class PlainNodeChecker extends Runner implements NodeChecker {
+public class PlainNodeChecker extends NodeChecker {
     /**
      * Constructor.
      *

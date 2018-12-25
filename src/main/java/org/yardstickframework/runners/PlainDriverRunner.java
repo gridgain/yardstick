@@ -18,6 +18,8 @@ public class PlainDriverRunner extends Runner {
      * @return Exit code. TODO implement exit code return.
      */
     @Override protected int run0() {
+        super.run0();
+
         driverPrepare();
 
         for (String cfgStr : runCtx.configList())
@@ -26,5 +28,15 @@ public class PlainDriverRunner extends Runner {
         afterExecution();
 
         return 0;
+    }
+
+    /**
+     *
+     */
+    @Override protected void printHelp(){
+        System.out.println("Script for starting driver nodes.");
+        System.out.println("Usage: ./bin/run-drivers.sh <options>.");
+
+        commonHelp();
     }
 }

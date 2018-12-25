@@ -49,7 +49,7 @@ public class CheckJavaWorker extends CheckWorker {
                 res.exit(true);
             }
             else
-                runCtx.hostJavaHomeMap().put(host, runCtx.remoteJavaHome());
+                runCtx.putInJavaHostMap(host, runCtx.remoteJavaHome());
 
             return res;
         }
@@ -57,7 +57,7 @@ public class CheckJavaWorker extends CheckWorker {
         if (runCtx.handler().checkRemJava(host, locJavaHome)) {
             log().info(String.format("Using JAVA_HOME '%s' on the host %s.", locJavaHome, host));
 
-            runCtx.hostJavaHomeMap().put(host, locJavaHome);
+            runCtx.putInJavaHostMap(host, locJavaHome);
         }
         else {
             String hostJava = runCtx.handler().getHostJavaHome(host);

@@ -1,10 +1,7 @@
 package org.yardstickframework.runners.context;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.Map;
 import java.util.Properties;
@@ -29,6 +26,9 @@ public class RunContext {
 
     /** */
     private static RunnerConfiguration cfg = new RunnerConfiguration();
+
+    /** */
+    private boolean help;
 
     /** */
     private Properties props;
@@ -98,6 +98,13 @@ public class RunContext {
      */
     private RunContext() {
         //No_op
+    }
+
+    /**
+     * @return Help.
+     */
+    public boolean help() {
+        return help;
     }
 
     /**
@@ -314,7 +321,7 @@ public class RunContext {
      * @param type Node type.
      * @return List of {@code NodeInfo} objects created with related run modes.
      */
-    public List<NodeInfo> getNodes(NodeType type) {
+    public List<NodeInfo> getNodeInfos(NodeType type) {
         List<String> hosts = hostsByType(type);
 
         RunMode mode = getRunMode(type);

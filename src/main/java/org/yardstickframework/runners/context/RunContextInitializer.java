@@ -43,11 +43,13 @@ public class RunContextInitializer {
     /**
      *
      * @param args Command line arguments.
+     * @return {@code true} if initialization completed or {@code false} otherwise.
      */
     void initialize(String[] args) {
         ctx.mainDateTime(BenchmarkUtils.dateTime());
 
-        handleArgs(args);
+        if (!handleArgs(args))
+            return;
 
         setHosts();
 
@@ -71,8 +73,9 @@ public class RunContextInitializer {
 
     /**
      * @param args Command line arguments.
+     * @return {@code true} if '-h' or '--help' was not passed or {@code false} otherwise.
      */
-    private void handleArgs(String[] args) {
+    private boolean handleArgs(String[] args) {
         try {
             BenchmarkUtils.jcommander(args, ctx.config(), "<benchmark-runner>");
         }
@@ -83,6 +86,9 @@ public class RunContextInitializer {
 
             System.exit(1);
         }
+
+        if (ctx.config().help())
+            return false;
 
         if (ctx.config().scriptDirectory() == null) {
             System.out.println("Error: Script directory is not defined.");
@@ -135,6 +141,8 @@ public class RunContextInitializer {
         catch (IOException e) {
             e.printStackTrace();
         }
+
+        return true;
     }
 
     /**

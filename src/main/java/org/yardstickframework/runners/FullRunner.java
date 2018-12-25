@@ -25,4 +25,14 @@ public class FullRunner extends Runner {
 
         runner.run0();
     }
+
+    /**
+     *
+     */
+    @Override protected void printHelp(){
+        System.out.println("Script for running benchmarks. Starts servers and drivers and collects results.");
+        System.out.println("Usage: ./bin/run-benchmarks.sh <options>.");
+
+        commonHelp();
+    }
 }

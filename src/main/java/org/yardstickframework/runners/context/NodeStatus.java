@@ -5,25 +5,8 @@ package org.yardstickframework.runners.context;
  */
 public enum NodeStatus {
     /** */
-    RUNNING("RUNNING"),
+    RUNNING,
 
     /** */
-    NOT_RUNNING("NOT_RUNNING");
-
-    /** */
-    private final String text;
-
-    /**
-     * Constructor.
-     *
-     * @param text String value.
-     */
-    NodeStatus(final String text) {
-        this.text = text;
-    }
-
-    /** {@inheritDoc} */
-    @Override public String toString() {
-        return text;
-    }
+    NOT_RUNNING
 }

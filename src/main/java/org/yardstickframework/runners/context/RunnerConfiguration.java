@@ -26,11 +26,15 @@ public class RunnerConfiguration implements Serializable {
     private static final long serialVersionUID = 0L;
 
     /** */
-    @Parameter(names = {"-sd", "--scriptDir"}, description = "Local work directory path")
+    @Parameter(names = {"-h", "--help"}, description = "Print help message", help = true, hidden = true)
+    private boolean help;
+
+    /** */
+    @Parameter(names = {"-sd", "--scriptDir"}, description = "Local script directory path")
     private String scriptDir;
 
     /** */
-    @Parameter(names = {"-rwd", "--remoteWorkDir"}, description = "Local work directory path")
+    @Parameter(names = {"-rwd", "--remoteWorkDir"}, description = "Remote work directory path")
     private String remoteWorkDir;
 
     /** */
@@ -44,6 +48,13 @@ public class RunnerConfiguration implements Serializable {
     /** */
     @Parameter(names = {"-d", "--driverHosts"}, description = "Comma separated list of driver nodes addresses.")
     private String driverHosts;
+
+    /**
+     * @return Help.
+     */
+    public boolean help() {
+        return help;
+    }
 
     /**
      * @return Local work directory.

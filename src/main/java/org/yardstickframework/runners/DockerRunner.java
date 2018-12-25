@@ -11,6 +11,8 @@ import java.util.concurrent.Future;
 import org.yardstickframework.runners.context.NodeType;
 import org.yardstickframework.runners.context.RunContext;
 import org.yardstickframework.runners.context.RunMode;
+import org.yardstickframework.runners.workers.CheckWorkResult;
+import org.yardstickframework.runners.workers.WorkResult;
 import org.yardstickframework.runners.workers.host.DockerBuildImagesWorker;
 import org.yardstickframework.runners.workers.host.DockerCheckWorker;
 import org.yardstickframework.runners.workers.host.DockerCleanContWorker;
@@ -21,7 +23,7 @@ import org.yardstickframework.runners.workers.node.DockerStartContWorker;
 /**
  * Helper class. Executes docker related tasks.
  */
-public class DockerRunner extends Runner {
+public class DockerRunner extends FullRunner {
     /** */
     private List<NodeType> dockerList;
 
@@ -38,6 +40,8 @@ public class DockerRunner extends Runner {
      * @return Exit code. TODO implement exit code return.
      */
     @Override protected int run0() {
+        super.run0();
+
         generalPrepare();
 
         dockerPrepare();
@@ -153,7 +157,15 @@ public class DockerRunner extends Runner {
      * @param type Node type.
      */
     private void prepareForNodeType(NodeType type) {
-        new DockerBuildImagesWorker(runCtx, runCtx.uniqueHostsByType(type), type).workOnHosts();
+        List<WorkResult> resList = new DockerBuildImagesWorker(runCtx, runCtx.uniqueHostsByType(type), type)
+            .workOnHosts();
+
+        for(WorkResult wRes : resList){
+            CheckWorkResult cRes = (CheckWorkResult) wRes;
+
+            if(cRes.exit())
+                System.exit(1);
+        }
     }
 
     /**
@@ -169,7 +181,7 @@ public class DockerRunner extends Runner {
      * @param type Node type.
      */
     private void startForNodeType(NodeType type) {
-        new DockerStartContWorker(runCtx, runCtx.getNodes(type)).workForNodes();
+        new DockerStartContWorker(runCtx, runCtx.getNodeInfos(type)).workForNodes();
     }
 
     /**
@@ -184,6 +196,6 @@ public class DockerRunner extends Runner {
      * @param type Node type.
      */
     private void collectForNodeType(NodeType type) {
-        new DockerCollectWorker(runCtx, runCtx.getNodes(type)).workForNodes();
+        new DockerCollectWorker(runCtx, runCtx.getNodeInfos(type)).workForNodes();
     }
 }

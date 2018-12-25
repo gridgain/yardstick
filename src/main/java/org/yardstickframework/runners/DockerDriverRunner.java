@@ -18,6 +18,8 @@ public class DockerDriverRunner extends DockerRunner {
      * @return Exit code. TODO implement exit code return.
      */
     @Override protected int run0() {
+        super.run0();
+
         driverPrepare();
 
         dockerPrepare();
@@ -30,5 +32,15 @@ public class DockerDriverRunner extends DockerRunner {
         afterExecution();
 
         return 0;
+    }
+
+    /**
+     *
+     */
+    @Override protected void printHelp(){
+        System.out.println("Script for starting driver nodes.");
+        System.out.println("Usage: ./bin/run-drivers.sh <options>.");
+
+        commonHelp();
     }
 }

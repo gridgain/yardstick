@@ -37,6 +37,8 @@ public class CollectRunner extends Runner {
      * @return Exit code.
      */
     @Override protected int run0() {
+        super.run0();
+
         checkPlain(new CheckConnWorker(runCtx, runCtx.getHostSet()));
 
         List<NodeType> dockerList = runCtx.nodeTypes(RunMode.DOCKER);
@@ -49,5 +51,15 @@ public class CollectRunner extends Runner {
         new CollectWorker(runCtx, runCtx.getHostSet()).workOnHosts();
 
         return 0;
+    }
+
+    /**
+     *
+     */
+    @Override protected void printHelp(){
+        System.out.println("Script for collecting data from remote hosts.");
+        System.out.println("Usage: ./bin/collect.sh <options>.");
+
+        commonHelp();
     }
 }

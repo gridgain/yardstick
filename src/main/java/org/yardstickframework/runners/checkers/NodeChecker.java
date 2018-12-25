@@ -1,11 +1,26 @@
 package org.yardstickframework.runners.checkers;
 
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 import org.yardstickframework.runners.context.NodeInfo;
+import org.yardstickframework.runners.context.RunContext;
 
 /**
  * Node checker.
  */
-public interface NodeChecker {
+public abstract class NodeChecker {
+    /** */
+    protected RunContext runCtx;
+
+    /**
+     *
+     * @param runCtx Run context.
+     */
+    public NodeChecker(RunContext runCtx) {
+        this.runCtx = runCtx;
+    }
+
+
     /**
      * Sets {@code NodeInfo.nodeStatus} to NodeStatus.RUNNING if node is running or NodeStatus.NOT_RUNNING otherwise.
      *
@@ -13,5 +28,5 @@ public interface NodeChecker {
      * @return {@code Nodeinfo} object.
      * @throws InterruptedException
      */
-    public NodeInfo checkNode(NodeInfo nodeInfo) throws InterruptedException;
+    public abstract NodeInfo checkNode(NodeInfo nodeInfo) throws InterruptedException;
 }

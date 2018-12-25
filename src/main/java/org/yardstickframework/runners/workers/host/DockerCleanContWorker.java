@@ -29,6 +29,12 @@ public class DockerCleanContWorker extends DockerHostWorker {
      * @param host Host.
      */
     private void removeContainers(String host) {
+        if (dockerCtx.getContainersToRemove() == null){
+            log().error("Failed to remove containers. Property 'containersToRemove' is not defined.");
+
+            return;
+        }
+
         Collection<Map<String, String>> contMaps = getProcesses(host);
 
         for (Map<String, String> contMap : contMaps) {

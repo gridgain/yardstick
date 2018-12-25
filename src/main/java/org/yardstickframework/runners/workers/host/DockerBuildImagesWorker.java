@@ -5,6 +5,7 @@ import java.util.Set;
 import org.yardstickframework.runners.context.NodeType;
 import org.yardstickframework.runners.context.RunContext;
 
+import org.yardstickframework.runners.workers.CheckWorkResult;
 import org.yardstickframework.runners.workers.WorkResult;
 
 /**
@@ -37,15 +38,24 @@ public class DockerBuildImagesWorker extends DockerHostWorker {
     @Override public WorkResult doWork(String host, int cnt) {
         String nameToUse = getImageNameToUse(nodeType);
 
+        CheckWorkResult res = new CheckWorkResult();
+
         if (!checkIfImageExists(host, nameToUse) || dockerCtx.isRebuildImagesIfExist()) {
             String docFilePath = runCtx.resolveRemotePath(dockerCtx.getNodeContext(nodeType).getDockerfilePath());
 
+            if(!runCtx.handler().checkRemFile(host, docFilePath)){
+                log().error(String.format("Failed to find file '%s' on the host '%s'. Cannot build docker image.",
+                    docFilePath, host));
+
+                res.exit(true);
+            }
+
             String src = dockerCtx.getDockerBuildCmd();
 
-            try {
-                String buildCmd = src.replace(IMAGE_NAME_PLACEHOLDER, nameToUse)
-                    .replace(DOCKERFILE_PATH_PLACEHOLDER, docFilePath);
+            String buildCmd = src.replace(IMAGE_NAME_PLACEHOLDER, nameToUse)
+                .replace(DOCKERFILE_PATH_PLACEHOLDER, docFilePath);
 
+            try {
                 runCtx.handler().runDockerCmd(host, buildCmd);
             }
             catch (IOException | InterruptedException e) {
@@ -53,6 +63,6 @@ public class DockerBuildImagesWorker extends DockerHostWorker {
             }
         }
 
-        return null;
+        return res;
     }
 }

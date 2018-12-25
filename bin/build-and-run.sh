@@ -33,6 +33,7 @@ cp -r /home/oostanin/yardstick/bin/* /home/oostanin/gg/incubator-ignite/modules/
 
 cd /home/oostanin/gg/incubator-ignite/modules/yardstick/target/assembly
 
+/home/oostanin/gg/incubator-ignite/modules/yardstick/target/assembly/bin/run-benchmarks.sh -h
 /home/oostanin/gg/incubator-ignite/modules/yardstick/target/assembly/bin/run-benchmarks.sh -pf config/docker/benchmark.properties
 
 /home/oostanin/gg/incubator-ignite/modules/yardstick/target/assembly/bin/run-benchmarks.sh

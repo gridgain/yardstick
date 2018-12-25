@@ -10,7 +10,7 @@ import org.yardstickframework.runners.context.RunContext;
 /**
  * Node checker for docker run.
  */
-public class InDockerNodeChecker extends Runner implements NodeChecker {
+public class InDockerNodeChecker extends NodeChecker {
     /**
      * Constructor.
      *
