@@ -32,6 +32,11 @@ public class CommandHandler {
     /** Field to store last executed command to avoid repetition in log. */
     private String lastCmd = "";
 
+    /** */
+    private static final String[] excluded = new String[]{
+        "image has dependent child images"
+    };
+
     /**
      * Constructor.
      *
@@ -156,7 +161,8 @@ public class CommandHandler {
         BufferedReader errReader = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
 
         while ((lineE = errReader.readLine()) != null) {
-            log().error(String.format("Command '%s' returned error line: %s:", cmd, lineE));
+            if(!checkIfExcluded(lineE))
+                log().error(String.format("Command '%s' returned error line: %s:", cmd, lineE));
 
             errStr.add(lineE);
         }
@@ -541,6 +547,19 @@ public class CommandHandler {
         }
 
         return res != null && res.exitCode() == 0;
+    }
+
+    /**
+     *
+     * @param lineE Source string.
+     * @return {@code true} if  source string contains excluded patern or {@code false} otherwise.
+     */
+    private boolean checkIfExcluded(String lineE){
+        for(String excl : excluded)
+            if (lineE.contains(excl))
+                return true;
+
+        return false;
     }
 
     /**

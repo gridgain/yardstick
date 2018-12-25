@@ -7,6 +7,7 @@ import java.util.Set;
 import org.yardstickframework.runners.CommandExecutionResult;
 import org.yardstickframework.runners.context.RunContext;
 
+import org.yardstickframework.runners.workers.CheckWorkResult;
 import org.yardstickframework.runners.workers.WorkResult;
 
 /**
@@ -20,19 +21,22 @@ public class DockerCleanContWorker extends DockerHostWorker {
 
     /** {@inheritDoc} */
     @Override public WorkResult doWork(String host, int cnt) {
-        removeContainers(host);
-
-        return null;
+        return removeContainers(host);
     }
 
     /**
      * @param host Host.
+     * @return Work result.
      */
-    private void removeContainers(String host) {
+    private WorkResult removeContainers(String host) {
+        CheckWorkResult res = new CheckWorkResult();
+
         if (dockerCtx.getContainersToRemove() == null){
             log().error("Failed to remove containers. Property 'containersToRemove' is not defined.");
 
-            return;
+            res.exit(true);
+
+            return res;
         }
 
         Collection<Map<String, String>> contMaps = getProcesses(host);
@@ -49,6 +53,8 @@ public class DockerCleanContWorker extends DockerHostWorker {
                 }
             }
         }
+
+        return res;
     }
 
     /**

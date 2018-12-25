@@ -100,7 +100,7 @@ public class RunContextInitializer {
 
         configLog();
 
-        LOG.info(String.format("Local work directory is %s", ctx.localeWorkDirectory()));
+        LOG.info(String.format("Locale work directory is '%s'", ctx.localeWorkDirectory()));
 
         if (ctx.config().propertyFile() == null) {
             String dfltPropPath = String.format("%s/config/benchmark.properties", ctx.localeWorkDirectory());
@@ -108,7 +108,7 @@ public class RunContextInitializer {
             LOG.info(String.format("Using as a default property file %s", dfltPropPath));
 
             if (!new File(dfltPropPath).exists()) {
-                LOG.info(String.format("Failed to find default property file %s", dfltPropPath));
+                LOG.info(String.format("Failed to find default property file '%s'", dfltPropPath));
 
                 System.exit(1);
             }
@@ -123,13 +123,13 @@ public class RunContextInitializer {
             else if (Paths.get(ctx.localeWorkDirectory(), propFilePath).toFile().exists())
                 ctx.propertyPath(Paths.get(ctx.localeWorkDirectory(), propFilePath).toAbsolutePath().toString());
             else {
-                LOG.info(String.format("Error. Failed to find property %s", propFilePath));
+                LOG.info(String.format("Error. Failed to find property '%s'", propFilePath));
 
                 System.exit(1);
             }
         }
 
-        LOG.info(String.format("Property file path is %s", ctx.propertyPath()));
+        LOG.info(String.format("Property file path is '%s'", ctx.propertyPath()));
 
         try {
             Properties propsOrig = new Properties();
@@ -205,7 +205,7 @@ public class RunContextInitializer {
             String[] values = nodeInfo.split(":");
 
             if (values.length != 5) {
-                LOG.error(String.format("Wrong value for RESTART_%sS property. String %s does not have 5 values.",
+                LOG.error(String.format("Wrong value for 'RESTART_%sS' property. String '%s' does not have 5 values.",
                     type, nodeInfo));
 
                 System.exit(1);
@@ -231,14 +231,14 @@ public class RunContextInitializer {
                 restCtx.put(host, hostMap);
             }
             catch (NumberFormatException e) {
-                LOG.error(String.format("Wrong value for RESTART_%sS property. %s",
+                LOG.error(String.format("Wrong value for 'RESTART_%sS' property. %s",
                     type, e.getMessage()));
 
                 System.exit(1);
             }
         }
 
-        LOG.debug(String.format("Restart context for %s nodes set as %s", type, restCtx));
+        LOG.debug(String.format("Restart context for '%s' nodes set as '%s'", type, restCtx));
 
         if (type == NodeType.SERVER)
             ctx.serverRestartContext(restCtx);

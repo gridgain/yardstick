@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-FROM openjdk:8u181-jdk-stretch
+FROM airdock/oracle-jdk
 
 RUN apt-get update && apt-get install -y apt-transport-https dstat
 

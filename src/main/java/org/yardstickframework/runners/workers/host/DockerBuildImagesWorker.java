@@ -13,6 +13,10 @@ import org.yardstickframework.runners.workers.WorkResult;
  */
 public class DockerBuildImagesWorker extends DockerHostWorker {
     /** */
+    private static final String DFLT_BUILD_CMD = "build --no-cache -t IMAGE_NAME_PLACEHOLDER -f " +
+        "DOCKERFILE_PATH_PLACEHOLDER .";
+
+    /** */
     private static final String IMAGE_NAME_PLACEHOLDER = "IMAGE_NAME_PLACEHOLDER";
 
     /** */
@@ -48,9 +52,12 @@ public class DockerBuildImagesWorker extends DockerHostWorker {
                     docFilePath, host));
 
                 res.exit(true);
+
+                return res;
             }
 
-            String src = dockerCtx.getDockerBuildCmd();
+            String src = dockerCtx.getDockerBuildCmd() != null ? dockerCtx.getDockerBuildCmd() :
+                DFLT_BUILD_CMD;
 
             String buildCmd = src.replace(IMAGE_NAME_PLACEHOLDER, nameToUse)
                 .replace(DOCKERFILE_PATH_PLACEHOLDER, docFilePath);

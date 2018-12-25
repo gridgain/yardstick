@@ -353,4 +353,18 @@ public abstract class Runner {
 
         return restWorker.workForNodes();
     }
+
+    /**
+     * Checks work result list and exit if some of the check results return exit() == true.
+     *
+     * @param resList Work result list.
+     */
+    protected void checkRes(List<WorkResult> resList){
+        for(WorkResult wRes : resList){
+            CheckWorkResult cRes = (CheckWorkResult) wRes;
+
+            if(cRes.exit())
+                System.exit(1);
+        }
+    }
 }

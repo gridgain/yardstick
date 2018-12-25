@@ -46,7 +46,9 @@ public class DockerStartContWorker extends NodeWorker {
 
         String imageName = dockerCtx.getImageName(type);
 
-        String contName = String.format("YARDSTICK_%s_%s", type, id);
+        String contNamePref = dockerCtx.contNamePrefix(type);
+
+        String contName = String.format("%s_%s", contNamePref, id);
 
         DockerInfo docInfo = new DockerInfo(imageName, contName);
 

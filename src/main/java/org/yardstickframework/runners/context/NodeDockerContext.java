@@ -10,6 +10,9 @@ public class NodeDockerContext {
     /** */
     private String imageName;
 
+    /** Container name prefix. */
+    private String contPref;
+
     /**
      *
      * @return Dockerfile path.
@@ -32,6 +35,22 @@ public class NodeDockerContext {
      */
     public String getImageName() {
         return imageName;
+    }
+
+    /**
+     *
+     * @return Container name prefix.
+     */
+    public String getContPref() {
+        return contPref;
+    }
+
+    /**
+     *
+     * @param contPref Container name prefix.
+     */
+    public void setContPref(String contPref) {
+        this.contPref = contPref;
     }
 
     /**

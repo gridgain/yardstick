@@ -40,8 +40,16 @@ public class DockerCleanImagesWorker extends DockerHostWorker {
                 toRem.put(imageMap.get("IMAGE ID"), imageName);
         }
 
-        for (String id : toRem.keySet())
-            removeImage(host, id, toRem.get(id));
+        int tryes = 2;
+
+        // Removing images twice because some of the images can have child images and therefore cannot be removed
+        // right away.
+        while (tryes-- > 0) {
+            for (String id : toRem.keySet()) {
+                if (checkIfImageIdExists(host, id))
+                    removeImage(host, id, toRem.get(id));
+            }
+        }
     }
 
     /**
@@ -51,7 +59,6 @@ public class DockerCleanImagesWorker extends DockerHostWorker {
      * @return Command execution result.
      */
     private CommandExecutionResult removeImage(String host, String imageId, String imageName) {
-
         log().info(String.format("Removing the image '%s' (id=%s) from the host '%s'",
             imageName, imageId, host));
 
@@ -63,6 +70,11 @@ public class DockerCleanImagesWorker extends DockerHostWorker {
         catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
+
+        if(!checkIfImageIdExists(host, imageId))
+            log().info(String.format("Image '%s' on the host '%s' is successfully removed.", imageName, host));
+        else
+            log().info(String.format("Image '%s' on the host '%s' is not removed.", imageName, host));
 
         return cmdRes;
     }

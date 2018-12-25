@@ -146,8 +146,12 @@ public class DockerRunner extends FullRunner {
      * @param flag Flag.
      */
     private void cleanForNodeType(NodeType type, String flag) {
-        if (runCtx.dockerContext().getRemoveContainersFlags().get(flag))
-            new DockerCleanContWorker(runCtx, runCtx.uniqueHostsByType(type)).workOnHosts();
+        if (runCtx.dockerContext().getRemoveContainersFlags().get(flag)) {
+            List<WorkResult> resList = new DockerCleanContWorker(runCtx, runCtx.uniqueHostsByType(type))
+                .workOnHosts();
+
+            checkRes(resList);
+        }
 
         if (runCtx.dockerContext().getRemoveImagesFlags().get(flag))
             new DockerCleanImagesWorker(runCtx, runCtx.uniqueHostsByType(type)).workOnHosts();
@@ -160,12 +164,7 @@ public class DockerRunner extends FullRunner {
         List<WorkResult> resList = new DockerBuildImagesWorker(runCtx, runCtx.uniqueHostsByType(type), type)
             .workOnHosts();
 
-        for(WorkResult wRes : resList){
-            CheckWorkResult cRes = (CheckWorkResult) wRes;
-
-            if(cRes.exit())
-                System.exit(1);
-        }
+        checkRes(resList);
     }
 
     /**

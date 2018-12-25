@@ -245,4 +245,13 @@ public class DockerContext {
                 throw new IllegalArgumentException(String.format("Unknown node type: %s", type));
         }
     }
+
+    /**
+     *
+     * @param type Node type.
+     * @return Container name prefix.
+     */
+    public String contNamePrefix(NodeType type){
+        return getNodeContext(type).getContPref();
+    }
 }

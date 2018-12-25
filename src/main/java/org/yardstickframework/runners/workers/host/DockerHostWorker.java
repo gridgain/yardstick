@@ -52,6 +52,23 @@ abstract class DockerHostWorker extends HostWorker {
 
     /**
      * @param host Host.
+     * @param id Image id.
+     * @return {@code true} if image with given name exists on the specified host or {@code false} otherwise.
+     */
+    boolean checkIfImageIdExists(String host, String id) {
+        Collection<Map<String, String>> imageMaps = getImages(host);
+
+        for (Map<String, String> imageMap : imageMaps) {
+            if (imageMap.get("IMAGE ID").contains(id))
+                return true;
+
+        }
+
+        return false;
+    }
+
+    /**
+     * @param host Host.
      * @return Result of 'docker images' execution.
      */
     Collection<Map<String, String>> getImages(String host) {
