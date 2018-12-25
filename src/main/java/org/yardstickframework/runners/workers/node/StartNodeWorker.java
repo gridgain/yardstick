@@ -29,13 +29,13 @@ public class StartNodeWorker extends NodeWorker {
     protected String servLogDirFullName;
 
     /** */
-    private String servMainClass = "org.yardstickframework.BenchmarkServerStartUp";
+    private String servMainCls = "org.yardstickframework.BenchmarkServerStartUp";
 
     /** */
     protected String drvrLogDirFullName;
 
     /** */
-    private String drvrMainClass = "org.yardstickframework.BenchmarkDriverStartUp";
+    private String drvrMainCls = "org.yardstickframework.BenchmarkDriverStartUp";
 
     /**
      * Constructor.
@@ -99,8 +99,6 @@ public class StartNodeWorker extends NodeWorker {
             mode));
 
         String logDirFullName = logDirFullName(type);
-
-
 
         try {
             runCtx.handler().runMkdirCmd(host, logDirFullName);
@@ -217,9 +215,9 @@ public class StartNodeWorker extends NodeWorker {
     private String mainClass(NodeType type){
         switch (type) {
             case SERVER:
-                return servMainClass;
+                return servMainCls;
             case DRIVER:
-                return drvrMainClass;
+                return drvrMainCls;
             default:
                 throw new IllegalArgumentException("Unknown node type");
         }
