@@ -87,12 +87,15 @@ public class StartNodeWorker extends NodeWorker {
 
         String mode = "";
 
-        if(nodeInfo.runMode() != RunMode.PLAIN)
-            mode = String.format(" (Run mode - %s)", nodeInfo.runMode());
+        String descript = runCtx.description(cfgFullStr);
 
-        log().info(String.format("Starting node '%s' on the host '%s'.%s",
+        if(nodeInfo.runMode() != RunMode.PLAIN)
+            mode = String.format(" Run mode - %s.", nodeInfo.runMode());
+
+        log().info(String.format("Starting node '%s' on the host '%s' (%s).%s",
             nodeInfo.toShortStr(),
             host,
+            descript,
             mode));
 
         String logDirFullName = logDirFullName(type);
@@ -105,8 +108,6 @@ public class StartNodeWorker extends NodeWorker {
         catch (IOException e) {
             e.printStackTrace();
         }
-
-        String descript = runCtx.description(cfgFullStr);
 
         nodeInfo.description(descript);
 
