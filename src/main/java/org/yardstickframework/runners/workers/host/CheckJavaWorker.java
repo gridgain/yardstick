@@ -4,7 +4,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import org.yardstickframework.runners.workers.CheckWorkResult;
-import org.yardstickframework.runners.CommandHandler;
 import org.yardstickframework.runners.workers.WorkResult;
 import org.yardstickframework.runners.context.RunContext;
 
@@ -42,7 +41,7 @@ public class CheckJavaWorker extends CheckWorker {
         }
 
         if (runCtx.remoteJavaHome() != null) {
-            if (!runCtx.handler().checkRemJava(host, runCtx.remoteJavaHome())) {
+            if (!runCtx.handler().checkJava(host, runCtx.remoteJavaHome())) {
                 log().info(String.format("Failed to find %s/bin/java on the host %s.",
                     runCtx.remoteJavaHome(), host));
 
@@ -54,7 +53,7 @@ public class CheckJavaWorker extends CheckWorker {
             return res;
         }
 
-        if (runCtx.handler().checkRemJava(host, locJavaHome)) {
+        if (runCtx.handler().checkJava(host, locJavaHome)) {
             log().info(String.format("Using JAVA_HOME '%s' on the host %s.", locJavaHome, host));
 
             runCtx.putInJavaHostMap(host, locJavaHome);

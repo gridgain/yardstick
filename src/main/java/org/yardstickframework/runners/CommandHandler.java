@@ -2,6 +2,7 @@ package org.yardstickframework.runners;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -33,7 +34,7 @@ public class CommandHandler {
     private String lastCmd = "";
 
     /** */
-    private static final String[] excluded = new String[]{
+    private static final String[] excluded = new String[] {
         "image has dependent child images"
     };
 
@@ -78,6 +79,64 @@ public class CommandHandler {
         String fullCmd = String.format("%s %s", getFullSSHPref(host), cmd);
 
         return runRmtCmd(fullCmd);
+    }
+
+    /**
+     * @param host Host.
+     * @param path File path.
+     * @param keyWords Key words to look for.
+     * @return Command execution result.
+     * @throws IOException If failed.
+     * @throws InterruptedException If interrupted.
+     */
+    public CommandExecutionResult runGrepCmd(String host, String path, List<String> keyWords)
+        throws IOException, InterruptedException {
+        if(isLocal(host))
+            return runGrepCmdLocale(path, keyWords);
+
+
+        StringBuilder sb = new StringBuilder(String.format("head -20 %s | grep", path));
+
+        for (String keyWord : keyWords)
+            sb.append(String.format(" -e '%s'", keyWord));
+
+
+        return runCmd(host, sb.toString());
+    }
+
+    /**
+     * @param host Host.
+     * @param keyWords Key words to look for.
+     * @return Command execution result.
+     * @throws IOException If failed.
+     * @throws InterruptedException If interrupted.
+     */
+    public CommandExecutionResult runGrepCmdLocale(String path, List<String> keyWords)
+        throws IOException, InterruptedException{
+        List<String> outRes = new ArrayList<>();
+        List<String> errRes = new ArrayList<>();
+
+        int exitCode = 0;
+
+        try (BufferedReader br = new BufferedReader(new FileReader(path))) {
+            String line;
+
+            while ((line = br.readLine()) != null)
+                for(String keyWord : keyWords) {
+                    if (line.contains(keyWord))
+                        outRes.add(line);
+                }
+
+        }
+        catch (IOException e) {
+            log().error(String.format("Failed to check file '%s'.", path), e);
+
+            errRes.add(e.getMessage());
+
+            exitCode = 1;
+        }
+
+        return new CommandExecutionResult(exitCode, outRes, errRes, null);
     }
 
     /**
@@ -161,7 +220,7 @@ public class CommandHandler {
         BufferedReader errReader = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
 
         while ((lineE = errReader.readLine()) != null) {
-            if(!checkIfExcluded(lineE))
+            if (!checkIfExcluded(lineE))
                 log().error(String.format("Command '%s' returned error line: %s:", cmd, lineE));
 
             errStr.add(lineE);
@@ -273,7 +332,7 @@ public class CommandHandler {
 
         exec.shutdown();
 
-        return new CommandExecutionResult(0, null, null, proc);
+        return new CommandExecutionResult(0, new ArrayList<>(), new ArrayList<>(), proc);
     }
 
     /**
@@ -514,7 +573,10 @@ public class CommandHandler {
      * @param javaHome Path to Java home.
      * @return {@code true} if Java actually exists at the specified path or {@code false} otherwise.
      */
-    public boolean checkRemJava(String host, String javaHome) {
+    public boolean checkJava(String host, String javaHome) {
+        if (isLocal(host))
+            return new File(javaHome + "/bin/java").exists();
+
         String checkCmd = String.format("%s test -f %s/bin/java", getFullSSHPref(host), javaHome);
 
         CommandExecutionResult res = null;
@@ -535,6 +597,9 @@ public class CommandHandler {
      * @return {@code true} if file actually exists at the specified path or {@code false} otherwise.
      */
     public boolean checkRemFile(String host, String path) {
+        if (isLocal(host))
+            return new File(path).exists();
+
         String checkCmd = String.format("%s test -f %s", getFullSSHPref(host), path);
 
         CommandExecutionResult res = null;
@@ -550,12 +615,11 @@ public class CommandHandler {
     }
 
     /**
-     *
      * @param lineE Source string.
      * @return {@code true} if  source string contains excluded patern or {@code false} otherwise.
      */
-    private boolean checkIfExcluded(String lineE){
-        for(String excl : excluded)
+    private boolean checkIfExcluded(String lineE) {
+        for (String excl : excluded)
             if (lineE.contains(excl))
                 return true;
 

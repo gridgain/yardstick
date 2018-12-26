@@ -1,6 +1,7 @@
 package org.yardstickframework.runners.workers.node;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -18,6 +19,9 @@ public class CheckLogWorker extends NodeWorker {
     public CheckLogWorker(RunContext runCtx, List<NodeInfo> nodeList) {
         super(runCtx, nodeList);
     }
+
+    /** */
+    private static final String[] keyWords = new String[]{"Exception", "failed", "Error"};
 
     /** {@inheritDoc} */
     @Override public NodeInfo doWork(NodeInfo nodeInfo) throws InterruptedException {
@@ -51,9 +55,7 @@ public class CheckLogWorker extends NodeWorker {
         }
 
         try {
-            String cmd = String.format("head -20 %s | grep -e 'Exception' -e 'failed' -e 'Error'", logPath);
-
-            CommandExecutionResult res = runCtx.handler().runCmd(host, cmd);
+            CommandExecutionResult res = runCtx.handler().runGrepCmd(host, logPath, Arrays.asList(keyWords));
 
             if (!res.outputList().isEmpty()) {
                 nodeInfo.errorMessages().addAll(res.outputList());
