@@ -23,7 +23,9 @@ public class DockerCollectWorker extends NodeWorker {
 
         String id = nodeInfo.id();
 
-        String contName = nodeInfo.dockerInfo().contName();
+        String contNamePref = runCtx.dockerContext().contNamePrefix(type);
+
+        String contName = String.format("%s_%s", contNamePref, id);
 
         String nodeOutDir = String.format("%s/output", runCtx.remoteWorkDirectory());
 
