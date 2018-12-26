@@ -21,11 +21,10 @@ public class InDockerNodeStarter extends NodeStarter {
 
     /** {@inheritDoc} */
     @Override public NodeInfo startNode(NodeInfo nodeInfo) throws InterruptedException {
-        String contName = String.format("YARDSTICK_%s_%s", nodeInfo.nodeType(), nodeInfo.id());
+        String contName = String.format("%s_%s", runCtx.dockerContext().contNamePrefix(nodeInfo.nodeType()),
+            nodeInfo.id());
 
         String nodeLogDir = new File(nodeInfo.logPath()).getParent();
-
-
 
         String javaParams = nodeInfo.parameterString();
 
