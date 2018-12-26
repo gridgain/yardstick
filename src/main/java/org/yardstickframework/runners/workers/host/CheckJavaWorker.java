@@ -54,7 +54,7 @@ public class CheckJavaWorker extends CheckWorker {
         }
 
         if (runCtx.handler().checkJava(host, locJavaHome)) {
-            log().info(String.format("Using JAVA_HOME '%s' on the host %s.", locJavaHome, host));
+            log().info(String.format("Using JAVA_HOME '%s' on the host '%s'.", locJavaHome, host));
 
             runCtx.putInJavaHostMap(host, locJavaHome);
         }

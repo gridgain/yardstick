@@ -100,15 +100,15 @@ public class RunContextInitializer {
 
         configLog();
 
-        LOG.info(String.format("Locale work directory is '%s'", ctx.localeWorkDirectory()));
+        LOG.info(String.format("Locale work directory is '%s'.", ctx.localeWorkDirectory()));
 
         if (ctx.config().propertyFile() == null) {
             String dfltPropPath = String.format("%s/config/benchmark.properties", ctx.localeWorkDirectory());
 
-            LOG.info(String.format("Using as a default property file %s", dfltPropPath));
+            LOG.info(String.format("Using as a default property file '%s'.", dfltPropPath));
 
             if (!new File(dfltPropPath).exists()) {
-                LOG.info(String.format("Failed to find default property file '%s'", dfltPropPath));
+                LOG.info(String.format("Failed to find default property file '%s'.", dfltPropPath));
 
                 System.exit(1);
             }
@@ -129,7 +129,7 @@ public class RunContextInitializer {
             }
         }
 
-        LOG.info(String.format("Property file path is '%s'", ctx.propertyPath()));
+        LOG.info(String.format("Property file path is '%s'.", ctx.propertyPath()));
 
         try {
             Properties propsOrig = new Properties();
@@ -272,7 +272,7 @@ public class RunContextInitializer {
 
         ctx.remoteWorkDirectory(remWorkDir);
 
-        LOG.info(String.format("Remote work directory is %s", ctx.remoteWorkDirectory()));
+        LOG.info(String.format("Remote work directory is '%s'.", ctx.remoteWorkDirectory()));
     }
 
     /**
@@ -301,7 +301,7 @@ public class RunContextInitializer {
                 String adr = ee.nextElement().getHostAddress();
 
                 if (allHosts.contains(adr)) {
-                    LOG.info(String.format("Setting current host address as %s.", adr));
+                    LOG.info(String.format("Setting current host address as '%s'.", adr));
 
                     ctx.currentHost(adr);
                 }
@@ -309,7 +309,7 @@ public class RunContextInitializer {
         }
 
         if (ctx.currentHost() == null) {
-            LOG.info("Setting current host address as 127.0.0.1");
+            LOG.info("Setting current host address as '127.0.0.1'.");
 
             ctx.currentHost("127.0.0.1");
         }
@@ -366,7 +366,7 @@ public class RunContextInitializer {
         else {
             String locUser = System.getProperty("user.name");
 
-            LOG.info(String.format("REMOTE_USER is not defined in property file. Will use '%s' " +
+            LOG.info(String.format("'REMOTE_USER' is not defined in property file. Will use '%s' " +
                 "username for remote connections.", locUser));
 
             remUser = locUser;

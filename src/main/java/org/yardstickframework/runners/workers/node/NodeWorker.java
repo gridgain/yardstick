@@ -116,6 +116,11 @@ public abstract class NodeWorker extends Worker {
 
         afterWork();
 
+        for(NodeInfo nodeInfo : resNodeList){
+            if(nodeInfo.commandExecutionResult() != null && nodeInfo.commandExecutionResult().exitCode() != 0)
+                System.exit(nodeInfo.commandExecutionResult().exitCode());
+        }
+
         return new ArrayList<>(resNodeList);
     }
 

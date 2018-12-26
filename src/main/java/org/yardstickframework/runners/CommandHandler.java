@@ -91,15 +91,13 @@ public class CommandHandler {
      */
     public CommandExecutionResult runGrepCmd(String host, String path, List<String> keyWords)
         throws IOException, InterruptedException {
-        if(isLocal(host))
+        if (isLocal(host))
             return runGrepCmdLocale(path, keyWords);
-
 
         StringBuilder sb = new StringBuilder(String.format("head -20 %s | grep", path));
 
         for (String keyWord : keyWords)
             sb.append(String.format(" -e '%s'", keyWord));
-
 
         return runCmd(host, sb.toString());
     }
@@ -112,7 +110,7 @@ public class CommandHandler {
      * @throws InterruptedException If interrupted.
      */
     public CommandExecutionResult runGrepCmdLocale(String path, List<String> keyWords)
-        throws IOException, InterruptedException{
+        throws IOException, InterruptedException {
         List<String> outRes = new ArrayList<>();
         List<String> errRes = new ArrayList<>();
 
@@ -122,7 +120,7 @@ public class CommandHandler {
             String line;
 
             while ((line = br.readLine()) != null)
-                for(String keyWord : keyWords) {
+                for (String keyWord : keyWords) {
                     if (line.contains(keyWord))
                         outRes.add(line);
                 }
@@ -253,7 +251,7 @@ public class CommandHandler {
     public CommandExecutionResult startNode(String host, String cmd,
         String logPath) throws IOException, InterruptedException {
         if (isLocal(host))
-            return startNodeLocal(cmd, logPath);
+            return startNodeLocale(cmd, logPath);
 
         String startNodeCmd = String.format("%s nohup %s > %s 2>& 1 &", getFullSSHPref(host), cmd, logPath);
 
@@ -298,13 +296,21 @@ public class CommandHandler {
      * @return Command execution result.
      * @throws IOException If failed.
      */
-    private CommandExecutionResult startNodeLocal(String cmd,
+    private CommandExecutionResult startNodeLocale(String cmd,
         String logPath) throws IOException {
 
         while (cmd.contains("  "))
             cmd = cmd.replace("  ", " ");
 
         String[] cmdArr = cmd.split(" ");
+
+        String java = cmdArr[0];
+
+        if(!new File(java).exists()){
+            log().error(String.format("Failed to find java '%s'.", java));
+
+            return new CommandExecutionResult(1, new ArrayList<>(), new ArrayList<>(), null);
+        }
 
         File logFile = new File(logPath);
 

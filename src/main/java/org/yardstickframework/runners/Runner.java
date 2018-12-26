@@ -51,17 +51,16 @@ public abstract class Runner {
     }
 
     /**
-     *
      * @return Exit code.
      */
-    protected int run0(){ 
+    protected int run0() {
         if (runCtx.config().help()) {
             printHelp();
 
             System.exit(0);
         }
-        
-        return 0; 
+
+        return 0;
     }
 
     /**
@@ -70,9 +69,9 @@ public abstract class Runner {
     protected abstract void printHelp();
 
     /**
-     * 
+     *
      */
-    protected void commonHelp(){
+    protected void commonHelp() {
         System.out.println();
         System.out.println("Options:");
         System.out.println();
@@ -83,23 +82,20 @@ public abstract class Runner {
     }
 
     /**
-     *
      * @return Runner.
      */
-    protected static Runner runner(RunContext runCtx){
+    protected static Runner runner(RunContext runCtx) {
         return runCtx.dockerEnabled() ? new DockerRunner(runCtx) : new PlainRunner(runCtx);
     }
 
     /**
-     *
      * @return Runner.
      */
-    static Runner driverRunner(RunContext runCtx){
+    static Runner driverRunner(RunContext runCtx) {
         return runCtx.dockerEnabled() ? new DockerDriverRunner(runCtx) : new PlainDriverRunner(runCtx);
     }
 
     /**
-     *
      * @param checkWorker Check worker.
      */
     void checkPlain(HostWorker checkWorker) {
@@ -116,7 +112,7 @@ public abstract class Runner {
     /**
      *
      */
-    void generalPrepare(){
+    void generalPrepare() {
         Set<String> fullSet = runCtx.getHostSet();
 
         check(fullSet);
@@ -129,7 +125,7 @@ public abstract class Runner {
     /**
      *
      */
-    void driverPrepare(){
+    void driverPrepare() {
         Set<String> driverSet = runCtx.driverSet();
 
         check(driverSet);
@@ -138,20 +134,18 @@ public abstract class Runner {
     }
 
     /**
-     *
      * @param hostSet Host set.
      */
-    private void check(Set<String> hostSet){
+    private void check(Set<String> hostSet) {
         checkPlain(new CheckConnWorker(runCtx, hostSet));
 
         checkPlain(new CheckJavaWorker(runCtx, runCtx.uniqueHostsByMode(RunMode.PLAIN)));
     }
 
     /**
-     *
      * @return Exit value.
      */
-    protected int execute(){
+    protected int execute() {
         String cfgStr0 = runCtx.properties().getProperty("CONFIGS").split(",")[0];
 
         List<NodeInfo> servRes = null;
@@ -176,7 +170,7 @@ public abstract class Runner {
             }
         }
 
-        if(runCtx.startServersOnce()){
+        if (runCtx.startServersOnce()) {
             stopNodes(servRes);
 
             waitForNodes(servRes, NodeStatus.NOT_RUNNING);
@@ -186,11 +180,10 @@ public abstract class Runner {
     }
 
     /**
-     *
      * @param cfgStr Config string.
      * @param servRes List of started server nodes.
      */
-    void iterationBody(String cfgStr, List<NodeInfo> servRes){
+    void iterationBody(String cfgStr, List<NodeInfo> servRes) {
         List<NodeInfo> drvrRes = startNodes(NodeType.DRIVER, cfgStr);
 
         checkLogs(drvrRes);
@@ -221,17 +214,16 @@ public abstract class Runner {
     /**
      *
      */
-    void afterExecution(){
+    void afterExecution() {
         new CollectWorker(runCtx, runCtx.getHostSet()).workOnHosts();
 
         createCharts();
     }
 
     /**
-     *
      * @return Logger.
      */
-    protected Logger log(){
+    protected Logger log() {
         return LogManager.getLogger(getClass().getSimpleName());
     }
 
@@ -241,6 +233,8 @@ public abstract class Runner {
     private void createCharts() {
         String mainResDir = String.format("%s/output/result-%s", runCtx.localeWorkDirectory(), runCtx.mainDateTime());
 
+        log().info(String.format("Creating charts for result directory '%s'.", mainResDir));
+
         String cp = String.format("%s/libs/*", runCtx.localeWorkDirectory());
 
         String mainCls = "org.yardstickframework.report.jfreechart.JFreeChartGraphPlotter";
@@ -248,8 +242,6 @@ public abstract class Runner {
         String jvmOpts = "-Xmx1g";
 
         String stdCharts = String.format("%s -cp %s %s -gm STANDARD -i %s", jvmOpts, cp, mainCls, mainResDir);
-
-
 
         runCtx.handler().runLocalJava(stdCharts);
 
@@ -286,7 +278,6 @@ public abstract class Runner {
     }
 
     /**
-     *
      * @param type Node type.
      * @param cfgStr Config string.
      * @return List of {@code NodeInfo} objects.
@@ -298,22 +289,20 @@ public abstract class Runner {
     }
 
     /**
-     *
      * @param list List of {@code NodeInfo} objects.
      */
-    private void checkLogs(List<NodeInfo> list){
-        NodeWorker checkWorker = new CheckLogWorker(runCtx,list);
+    private void checkLogs(List<NodeInfo> list) {
+        NodeWorker checkWorker = new CheckLogWorker(runCtx, list);
 
         List<NodeInfo> resList = checkWorker.workForNodes();
 
-        for (NodeInfo nodeInfo : resList){
-            if(nodeInfo.nodeStatus() == NodeStatus.NOT_RUNNING)
+        for (NodeInfo nodeInfo : resList) {
+            if (nodeInfo.nodeStatus() == NodeStatus.NOT_RUNNING)
                 System.exit(1);
         }
     }
 
     /**
-     *
      * @param nodeList List of {@code NodeInfo} objects.
      * @param expStatus Expected status.
      */
@@ -324,7 +313,6 @@ public abstract class Runner {
     }
 
     /**
-     *
      * @param nodeList Node list.
      * @return List of nodes.
      */
@@ -337,14 +325,13 @@ public abstract class Runner {
     }
 
     /**
-     *
      * @param nodeList Node list.
      * @param cfgStr Config string.
      * @param type Node type.
      * @return List of nodes.
      */
-    private List<NodeInfo> restart(List<NodeInfo> nodeList, String cfgStr, NodeType type){
-        if(runCtx.restartContext(type) == null)
+    private List<NodeInfo> restart(List<NodeInfo> nodeList, String cfgStr, NodeType type) {
+        if (runCtx.restartContext(type) == null)
             return nodeList;
 
         RestartNodeWorker restWorker = new RestartNodeWorker(runCtx, nodeList, cfgStr);
@@ -359,11 +346,11 @@ public abstract class Runner {
      *
      * @param resList Work result list.
      */
-    protected void checkRes(List<WorkResult> resList){
-        for(WorkResult wRes : resList){
-            CheckWorkResult cRes = (CheckWorkResult) wRes;
+    protected void checkRes(List<WorkResult> resList) {
+        for (WorkResult wRes : resList) {
+            CheckWorkResult cRes = (CheckWorkResult)wRes;
 
-            if(cRes.exit())
+            if (cRes.exit())
                 System.exit(1);
         }
     }

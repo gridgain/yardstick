@@ -18,6 +18,9 @@ public class CheckConnWorker extends CheckWorker {
     @Override public WorkResult doWork(String host, int cnt) {
         CheckWorkResult res = new CheckWorkResult();
 
+        if (isLocal(host))
+            return res;
+
         log().info(String.format("Checking ssh connection to the host '%s'.", host));
 
         if (!runCtx.handler().checkConn(host)) {
