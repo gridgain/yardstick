@@ -2,7 +2,7 @@ package org.yardstickframework.runners.starters;
 
 import java.io.File;
 import java.io.IOException;
-import org.yardstickframework.runners.Runner;
+import org.yardstickframework.runners.CommandExecutionResult;
 import org.yardstickframework.runners.context.NodeInfo;
 import org.yardstickframework.runners.context.DockerInfo;
 import org.yardstickframework.runners.context.RunContext;
@@ -42,7 +42,11 @@ public class InDockerNodeStarter extends NodeStarter {
             runCtx.handler().runDockerCmd(nodeInfo.host(), cmd);
         }
         catch (IOException e) {
-            e.printStackTrace();
+            log().error(String.format("Failed to start node '%s' on the host '%s'.",
+                nodeInfo.toShortStr(),
+                nodeInfo.host()));
+
+            nodeInfo.commandExecutionResult(CommandExecutionResult.emptyFailedResult());
         }
 
         nodeInfo.dockerInfo(new DockerInfo(null, contName));

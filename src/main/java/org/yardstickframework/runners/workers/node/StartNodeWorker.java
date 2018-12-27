@@ -98,7 +98,7 @@ public class StartNodeWorker extends NodeWorker {
             descript,
             mode));
 
-        String logDirFullName = logDirFullName(type);
+        String logDirFullName = logDirFullName(nodeInfo);
 
         try {
             runCtx.handler().runMkdirCmd(host, logDirFullName);
@@ -159,7 +159,7 @@ public class StartNodeWorker extends NodeWorker {
 
         String gcJvmOpts = concJvmOpts.contains("PrintGC") ?
             String.format(" -Xloggc:%s/gc-%s-%s-id%s-%s-%s.log",
-                logDirFullName(type),
+                logDirFullName(nodeInfo),
                 nodeInfo.nodeStartTime(),
                 nodeInfo.typeLow(),
                 id,
@@ -185,7 +185,7 @@ public class StartNodeWorker extends NodeWorker {
             outputFolderParam,
             cfgStr,
             propPath,
-            logDirFullName(type),
+            logDirFullName(nodeInfo),
             runCtx.remoteUser(),
             runCtx.remoteWorkDirectory(),
             runCtx.remoteWorkDirectory());
@@ -196,22 +196,39 @@ public class StartNodeWorker extends NodeWorker {
      * @param type Node type.
      * @return Path to log directory.
      */
-    private String logDirFullName(NodeType type){
+    private String logDirFullName(NodeInfo nodeInfo) {
+        String path;
+
+        NodeType type = nodeInfo.nodeType();
+
         switch (type) {
             case SERVER:
-                return servLogDirFullName;
+                path = servLogDirFullName;
+
+                break;
             case DRIVER:
-                return drvrLogDirFullName;
+                path = drvrLogDirFullName;
+
+                break;
             default:
                 throw new IllegalArgumentException("Unknown node type");
         }
+
+        // Log directory name suffix for non PLAIN run modes.
+        String runModeSuf = "";
+
+        if (nodeInfo.runMode() != RunMode.PLAIN)
+            runModeSuf = String.format("_%s", nodeInfo.runMode().toString().toLowerCase());
+
+        return path + runModeSuf;
     }
 
-    /**
-     *
-     * @param type Node type
-     * @return Main class to start node.
-     */
+
+        /**
+         *
+         * @param type Node type
+         * @return Main class to start node.
+         */
     private String mainClass(NodeType type){
         switch (type) {
             case SERVER:

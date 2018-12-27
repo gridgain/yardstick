@@ -309,7 +309,7 @@ public class CommandHandler {
         if(!new File(java).exists()){
             log().error(String.format("Failed to find java '%s'.", java));
 
-            return new CommandExecutionResult(1, new ArrayList<>(), new ArrayList<>(), null);
+            return CommandExecutionResult.emptyFailedResult();
         }
 
         File logFile = new File(logPath);

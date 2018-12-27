@@ -36,6 +36,14 @@ public class CommandExecutionResult {
 
     /**
      *
+     * @return Command execution result with exit code 1 and empty output and error stream.
+     */
+    public static CommandExecutionResult emptyFailedResult(){
+        return new CommandExecutionResult(1, new ArrayList<>(), new ArrayList<>(), null);
+    }
+
+    /**
+     *
      * @return Exit code.
      */
     public int exitCode() {

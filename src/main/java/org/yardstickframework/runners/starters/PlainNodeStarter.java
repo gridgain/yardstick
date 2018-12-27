@@ -37,12 +37,16 @@ public class PlainNodeStarter extends NodeStarter {
             String withJavaHome = String.format("%s/bin/java %s", javaHome, param);
 
             res = runCtx.handler().startNode(host, withJavaHome, nodeInfo.logPath());
+
+            nodeInfo.commandExecutionResult(res);
         }
         catch (IOException e) {
-            log().error(String.format("Failed to start node '%s' on the host '%s'", nodeInfo.toShortStr(), host), e);
-        }
+            log().error(String.format("Failed to start node '%s' on the host '%s'.",
+                nodeInfo.toShortStr(),
+                nodeInfo.host()));
 
-        nodeInfo.commandExecutionResult(res);
+            nodeInfo.commandExecutionResult(CommandExecutionResult.emptyFailedResult());
+        }
 
         return nodeInfo;
     }
