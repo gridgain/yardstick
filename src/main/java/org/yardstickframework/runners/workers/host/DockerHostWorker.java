@@ -42,7 +42,7 @@ abstract class DockerHostWorker extends HostWorker {
         Collection<Map<String, String>> imageMaps = getImages(host);
 
         for (Map<String, String> imageMap : imageMaps) {
-            if (imageMap.get("REPOSITORY").contains(name))
+            if (imageMap.get("REPOSITORY").equals(name))
                 return true;
 
         }
@@ -59,7 +59,7 @@ abstract class DockerHostWorker extends HostWorker {
         Collection<Map<String, String>> imageMaps = getImages(host);
 
         for (Map<String, String> imageMap : imageMaps) {
-            if (imageMap.get("IMAGE ID").contains(id))
+            if (imageMap.get("IMAGE ID").equals(id))
                 return true;
 
         }
