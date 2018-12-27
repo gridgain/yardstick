@@ -46,7 +46,7 @@ public class RestartNodeWorker extends StartNodeWorker {
         RestartContext restCtx = runCtx.restartContext(type);
 
         if (restCtx.get(host) == null || restCtx.get(host).get(id) == null) {
-            log().debug(String.format("No restart schedule for '%s' node.", nodeInfo.toShortStr()));
+            log().info(String.format("No restart schedule for '%s' node.", nodeInfo.toShortStr()));
 
             return nodeInfo;
         }
