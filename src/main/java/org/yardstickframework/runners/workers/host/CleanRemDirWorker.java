@@ -33,7 +33,7 @@ public class CleanRemDirWorker extends HostWorker {
 
         String remDir = runCtx.remoteWorkDirectory();
 
-        log().info(String.format("Cleaning up directory '%s' on the host '%s'", remDir, host));
+        log().info(String.format("Cleaning up directory '%s' on the host '%s'.", remDir, host));
 
         try {
             for (String name : toClean) {

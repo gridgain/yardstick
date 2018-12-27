@@ -44,7 +44,10 @@ public class DockerBuildImagesWorker extends DockerHostWorker {
 
         CheckWorkResult res = new CheckWorkResult();
 
-        if (!checkIfImageExists(host, nameToUse) || dockerCtx.isRebuildImagesIfExist()) {
+        if (!checkIfImageExists(host, nameToUse)) {
+            log().info(String.format("Building docker image '%s' on the host '%s'.", nameToUse,
+                host));
+
             String docFilePath = runCtx.resolveRemotePath(dockerCtx.getNodeContext(nodeType).getDockerfilePath());
 
             if(!runCtx.handler().checkRemFile(host, docFilePath)){
@@ -64,11 +67,17 @@ public class DockerBuildImagesWorker extends DockerHostWorker {
 
             try {
                 runCtx.handler().runDockerCmd(host, buildCmd);
+
+                if(checkIfImageExists(host, nameToUse))
+                    log().info(String.format("Successfully built image '%s' on the host '%s'.", nameToUse,
+                        host));
             }
             catch (IOException | InterruptedException e) {
                 log().error(String.format("Failed to build images on the host '%s'", host), e);
             }
         }
+        else
+            log().info(String.format("Found image '%s' on the host '%s'.", nameToUse, host));
 
         return res;
     }

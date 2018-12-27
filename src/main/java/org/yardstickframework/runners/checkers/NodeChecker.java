@@ -26,7 +26,15 @@ public abstract class NodeChecker {
      *
      * @param nodeInfo {@code Nodeinfo} object.
      * @return {@code Nodeinfo} object.
-     * @throws InterruptedException
+     * @throws InterruptedException if interrupted.
      */
     public abstract NodeInfo checkNode(NodeInfo nodeInfo) throws InterruptedException;
+
+    /**
+     *
+     * @return Logger.
+     */
+    protected Logger log(){
+        return LogManager.getLogger(getClass().getSimpleName());
+    }
 }

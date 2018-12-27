@@ -7,7 +7,6 @@ serverCtx:
   # Container name prefix.
   contPref: YARDSTICK_SERVER
 
-
 # Driver context.
 driverCtx:
   # Path to the Dockerfile.
@@ -16,9 +15,6 @@ driverCtx:
   imageName: yardstickdriver
   # Container name prefix.
   contPref: YARDSTICK_DRIVER
-
-# Flag to rebuild images even if they already exist.
-rebuildImagesIfExist: false
 
 # Command to build docker images. If 'IMAGE_NAME_PLACEHOLDER' is present it will be replaced with defined image name.
 dockerBuildCmd: "build --no-cache -t IMAGE_NAME_PLACEHOLDER -f DOCKERFILE_PATH_PLACEHOLDER ."

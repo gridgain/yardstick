@@ -23,9 +23,6 @@ public class DockerContext {
     private NodeDockerContext driverCtx;
 
     /** */
-    private boolean rebuildImagesIfExist;
-
-    /** */
     private Map<String, Boolean> removeImagesFlags;
 
     /** */
@@ -76,22 +73,6 @@ public class DockerContext {
      */
     public void setDockerBuildCmd(String dockerBuildCmd) {
         this.dockerBuildCmd = dockerBuildCmd;
-    }
-
-    /**
-     *
-     * @return {@code boolean} Flag indicating whether or not images should be rebuild if exist.
-     */
-    public boolean isRebuildImagesIfExist() {
-        return rebuildImagesIfExist;
-    }
-
-    /**
-     *
-     * @param rebuildImagesIfExist Flag indicating whether or not images should be rebuild if exist.
-     */
-    public void setRebuildImagesIfExist(boolean rebuildImagesIfExist) {
-        this.rebuildImagesIfExist = rebuildImagesIfExist;
     }
 
     /**

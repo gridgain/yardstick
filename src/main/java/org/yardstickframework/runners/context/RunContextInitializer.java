@@ -82,9 +82,9 @@ public class RunContextInitializer {
         catch (Exception e) {
             BenchmarkUtils.println("Failed to parse command line arguments. " + e.getMessage());
 
-            e.printStackTrace();
+            ctx.config().help(true);
 
-            System.exit(1);
+            return false;
         }
 
         if (ctx.config().help())
@@ -494,8 +494,15 @@ public class RunContextInitializer {
             LOG.info(String.format("DOCKER_CONTEXT_PATH is not defined in property file. Will try " +
                 "to use default docker context configuration %s", dockerCtxPropPath));
         }
-        else
+        else {
             dockerCtxPropPath = resolvePath(ctx.properties().getProperty("DOCKER_CONTEXT_PATH"));
+
+            if(dockerCtxPropPath == null || !new File(dockerCtxPropPath).exists()){
+                LOG.error(String.format("Failed to find docker context file '%s'.", dockerCtxPropPath));
+
+                System.exit(1);
+            }
+        }
 
         ctx.dockerContext(DockerContext.getDockerContext(dockerCtxPropPath));
     }
@@ -506,6 +513,9 @@ public class RunContextInitializer {
      * @return Absolute path.
      */
     private String resolvePath(String srcPath) {
+        if (srcPath == null || srcPath.isEmpty())
+            return null;
+
         if (new File(srcPath).exists())
             return srcPath;
 
@@ -517,7 +527,7 @@ public class RunContextInitializer {
         if (new File(fullPath).exists())
             return fullPath;
 
-        LOG.info(String.format("Failed to find %s or %s.", srcPath, fullPath));
+        LOG.info(String.format("Failed to find '%s' or '%s'.", srcPath, fullPath));
 
         System.exit(1);
 

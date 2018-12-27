@@ -103,7 +103,7 @@ public class CommandHandler {
     }
 
     /**
-     * @param host Host.
+     * @param path File path.
      * @param keyWords Key words to look for.
      * @return Command execution result.
      * @throws IOException If failed.
@@ -181,12 +181,8 @@ public class CommandHandler {
 
         final List<String> outStr = new ArrayList<>();
 
-        while ((lineO = reader.readLine()) != null) {
+        while ((lineO = reader.readLine()) != null)
             outStr.add(lineO);
-
-            if (lineO.contains("Successfully built "))
-                log().info(lineO);
-        }
 
         return new CommandExecutionResult(exitCode, outStr, errList, p);
     }
@@ -230,12 +226,8 @@ public class CommandHandler {
 
         final List<String> outStr = new ArrayList<>();
 
-        while ((lineO = outReader.readLine()) != null) {
+        while ((lineO = outReader.readLine()) != null)
             outStr.add(lineO);
-
-            if (lineO.contains("Successfully built "))
-                log().info(lineO);
-        }
 
         return new CommandExecutionResult(exitCode, outStr, errStr, proc);
     }

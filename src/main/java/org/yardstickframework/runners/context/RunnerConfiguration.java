@@ -49,11 +49,19 @@ public class RunnerConfiguration implements Serializable {
     @Parameter(names = {"-d", "--driverHosts"}, description = "Comma separated list of driver nodes addresses.")
     private String driverHosts;
 
+
     /**
      * @return Help.
      */
     public boolean help() {
         return help;
+    }
+
+    /**
+     * @param help New help.
+     */
+    public void help(boolean help) {
+        this.help = help;
     }
 
     /**

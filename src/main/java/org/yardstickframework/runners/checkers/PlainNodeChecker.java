@@ -1,6 +1,7 @@
 package org.yardstickframework.runners.checkers;
 
 import java.io.IOException;
+import org.yardstickframework.runners.CommandExecutionResult;
 import org.yardstickframework.runners.Runner;
 import org.yardstickframework.runners.context.NodeInfo;
 import org.yardstickframework.runners.context.RunContext;
@@ -24,7 +25,11 @@ public class PlainNodeChecker extends NodeChecker {
             return runCtx.handler().checkPlainNode(nodeInfo);
         }
         catch (IOException e) {
-            e.printStackTrace();
+            log().error(String.format("Failed to check node '%s' on the host '%s'.",
+                nodeInfo.toShortStr(),
+                nodeInfo.host()));
+
+            nodeInfo.commandExecutionResult(CommandExecutionResult.emptyFailedResult());
         }
 
         return nodeInfo;

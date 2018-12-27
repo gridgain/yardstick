@@ -29,13 +29,17 @@ public class InDockerNodeChecker extends NodeChecker {
 
         String checkCmd = String.format("exec %s pgrep -f \"%s\"", nodeInfo.dockerInfo().contName(), nodeToCheck);
 
-        CommandExecutionResult res = null;
+        CommandExecutionResult res = CommandExecutionResult.emptyFailedResult();
 
         try {
             res = runCtx.handler().runDockerCmd(host, checkCmd);
         }
         catch (IOException e) {
-            e.printStackTrace();
+            log().error(String.format("Failed to check node '%s' on the host '%s'.",
+                nodeInfo.toShortStr(),
+                nodeInfo.host()));
+
+            nodeInfo.commandExecutionResult(res);
         }
 
         if(res.outputList().isEmpty())

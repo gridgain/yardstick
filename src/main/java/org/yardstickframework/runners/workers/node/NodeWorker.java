@@ -57,6 +57,8 @@ public abstract class NodeWorker extends Worker {
 
     /**
      * Executes doWork() method defined in worker class asynchronously.
+     *
+     * @return List of NodeInfo objects.
      */
     public List<NodeInfo> workForNodes() {
         beforeWork();
