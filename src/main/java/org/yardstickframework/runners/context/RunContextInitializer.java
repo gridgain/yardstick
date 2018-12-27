@@ -215,6 +215,28 @@ public class RunContextInitializer {
             String id = values[1];
 
             try {
+                int idInt = Integer.valueOf(id);
+
+                List<String> hosts = ctx.hostsByType(type);
+
+                String node = String.format("%s%s", type.toString().toLowerCase(), id);
+
+                if(idInt >= hosts.size())
+                    LOG.warn(String.format("Restart schedule '%s' was set for the node '%s' on the host '%s', but " +
+                        "node '%s' will not start. (Number of defined hosts is less than %d).",
+                        nodeInfo, node, host, node, idInt));
+
+                if(idInt < hosts.size() && !hosts.get(idInt).equals(host))
+                    LOG.warn(String.format("Restart schedule '%s' was set for the node '%s' on the host '%s', but " +
+                        "node '%s' will be started on the host '%s'", nodeInfo, node, host, node, hosts.get(idInt)));
+
+            }
+            catch (NumberFormatException e){
+                LOG.error(String.format("Wrong value for 'RESTART_%sS' property. %s",
+                    type, nodeInfo, e.getMessage()));
+            }
+
+            try {
                 Long delay = convertSecToMillis(values[2]);
                 Long pause = convertSecToMillis(values[3]);
                 Long period = convertSecToMillis(values[4]);

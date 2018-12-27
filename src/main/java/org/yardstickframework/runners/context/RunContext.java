@@ -258,7 +258,7 @@ public class RunContext {
      * @param type Node type.
      * @return List of related hosts depending on node type.
      */
-    private List<String> hostsByType(NodeType type) {
+    List<String> hostsByType(NodeType type) {
         return type == NodeType.SERVER ? servHosts : drvrHosts;
     }
 
