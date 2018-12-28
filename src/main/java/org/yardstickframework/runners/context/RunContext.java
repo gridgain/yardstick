@@ -25,6 +25,9 @@ public class RunContext {
     private static RunContext instance;
 
     /** */
+    private int exitCode;
+
+    /** */
     private static RunnerConfiguration cfg = new RunnerConfiguration();
 
     /** */
@@ -98,6 +101,20 @@ public class RunContext {
      */
     private RunContext() {
         //No_op
+    }
+
+    /**
+     * @return Exit code.
+     */
+    public int exitCode() {
+        return exitCode;
+    }
+
+    /**
+     * @param exitCode New exit code.
+     */
+    public void exitCode(int exitCode) {
+        this.exitCode = exitCode;
     }
 
     /**
@@ -609,11 +626,10 @@ public class RunContext {
     }
 
     /**
-     *
      * @param host Host.
      * @param javaHome Java home.
      */
-    public void putInJavaHostMap(String host, String javaHome){
+    public void putInJavaHostMap(String host, String javaHome) {
         hostJavaHomeMap.put(host, javaHome);
     }
 
@@ -621,17 +637,16 @@ public class RunContext {
      * @return Command Handler.
      */
     public CommandHandler handler() {
-        if(hand == null)
+        if (hand == null)
             hand = CommandHandler.getCommandHandler(this);
 
         return hand;
     }
 
     /**
-     *
      * @return {@code true} if docker is enabled for server or driver nodes or {@code false} otherwise.
      */
-    public boolean dockerEnabled(){
+    public boolean dockerEnabled() {
         return servRunMode == RunMode.DOCKER || drvrRunMode == RunMode.DOCKER;
     }
 }

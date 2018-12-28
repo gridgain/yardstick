@@ -50,7 +50,7 @@ public class CollectRunner extends Runner {
 
         new CollectWorker(runCtx, runCtx.getHostSet()).workOnHosts();
 
-        return 0;
+        return runCtx.exitCode();
     }
 
     /**

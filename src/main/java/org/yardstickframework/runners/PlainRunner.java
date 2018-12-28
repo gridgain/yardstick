@@ -27,7 +27,7 @@ public class PlainRunner extends FullRunner {
 
         afterExecution();
 
-        return 0;
+        return runCtx.exitCode();
     }
 
     /**

@@ -31,7 +31,7 @@ public class DockerDriverRunner extends DockerRunner {
 
         afterExecution();
 
-        return 0;
+        return runCtx.exitCode();
     }
 
     /**

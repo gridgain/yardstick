@@ -27,7 +27,7 @@ public class PlainDriverRunner extends Runner {
 
         afterExecution();
 
-        return 0;
+        return runCtx.exitCode();
     }
 
     /**

@@ -20,7 +20,7 @@ public abstract class CheckWorker extends HostWorker {
             CheckWorkResult checkRes = (CheckWorkResult) res;
 
             if(checkRes.exit())
-                System.exit(1);
+                System.exit(runCtx.exitCode());
         }
     }
 }

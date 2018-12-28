@@ -60,7 +60,7 @@ public abstract class Runner {
             System.exit(0);
         }
 
-        return 0;
+        return runCtx.exitCode();
     }
 
     /**
@@ -109,7 +109,7 @@ public abstract class Runner {
             CheckWorkResult res = (CheckWorkResult)check;
 
             if (res.exit())
-                System.exit(1);
+                System.exit(runCtx.exitCode());
         }
     }
 
@@ -180,7 +180,7 @@ public abstract class Runner {
             waitForNodes(servRes, NodeStatus.NOT_RUNNING);
         }
 
-        return 0;
+        return runCtx.exitCode();
     }
 
     /**
@@ -302,7 +302,7 @@ public abstract class Runner {
 
         for (NodeInfo nodeInfo : resList) {
             if (nodeInfo.nodeStatus() == NodeStatus.NOT_RUNNING)
-                System.exit(1);
+                System.exit(runCtx.exitCode());
         }
     }
 
@@ -355,7 +355,7 @@ public abstract class Runner {
             CheckWorkResult cRes = (CheckWorkResult)wRes;
 
             if (cRes.exit())
-                System.exit(1);
+                System.exit(runCtx.exitCode());
         }
     }
 }

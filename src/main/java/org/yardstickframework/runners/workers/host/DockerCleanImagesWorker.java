@@ -42,8 +42,8 @@ public class DockerCleanImagesWorker extends DockerHostWorker {
 
         int tryes = 2;
 
-        // Removing images twice because some of the images can have child images and therefore cannot be removed
-        // right away.
+        // Removing images twice because some of the server-node images can have child driver-node images and therefore
+        // cannot be removed right away.
         while (tryes-- > 0) {
             for (String id : toRem.keySet()) {
                 if (checkIfImageIdExists(host, id))
@@ -62,13 +62,13 @@ public class DockerCleanImagesWorker extends DockerHostWorker {
         log().info(String.format("Removing the image '%s' (id=%s) from the host '%s'",
             imageName, imageId, host));
 
-        CommandExecutionResult cmdRes = null;
+        CommandExecutionResult cmdRes = CommandExecutionResult.emptyFailedResult();
 
         try {
             cmdRes = runCtx.handler().runDockerCmd(host, String.format("rmi -f %s", imageId));
         }
         catch (IOException | InterruptedException e) {
-            e.printStackTrace();
+            log().error(String.format("Failed to remove image '%s' from the host '%s'.", imageName, host));
         }
 
         if(!checkIfImageIdExists(host, imageId))

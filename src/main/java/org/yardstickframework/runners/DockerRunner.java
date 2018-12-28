@@ -37,7 +37,7 @@ public class DockerRunner extends FullRunner {
     }
 
     /**
-     * @return Exit code. TODO implement exit code return.
+     * @return Exit code.
      */
     @Override protected int run0() {
         super.run0();
@@ -52,7 +52,7 @@ public class DockerRunner extends FullRunner {
 
         afterExecution();
 
-        return 0;
+        return runCtx.exitCode();
     }
 
     /**
@@ -84,7 +84,7 @@ public class DockerRunner extends FullRunner {
      */
     public void check(Iterable<NodeType> nodeTypeList) {
         for (NodeType type : nodeTypeList) {
-            log().info(String.format("Run mode DOCKER enabled for %s nodes.", type.toString().toLowerCase()));
+            log().info(String.format("Run mode 'DOCKER' enabled for '%s' nodes.", type.toString().toLowerCase()));
 
             checkForNodeType(type);
         }
@@ -155,8 +155,9 @@ public class DockerRunner extends FullRunner {
 
         if (runCtx.dockerContext().getRemoveImagesFlags().get(flag)) {
             if (!runCtx.dockerContext().getRemoveContainersFlags().get(flag)) {
-                log().error(String.format("Cannot remove docker images because removeContainersFlag in docker " +
-                    "context file '%s' is set to '%s'", flag, "false"));
+                log().error(String.format("Cannot remove docker images. removeContainersFlag '%s' in docker " +
+                    "context file is set to '%s'. Docker images can be removed only after removing all " +
+                    "related containers.", flag, "false"));
             }
             else
                 new DockerCleanImagesWorker(runCtx, runCtx.uniqueHostsByType(type)).workOnHosts();

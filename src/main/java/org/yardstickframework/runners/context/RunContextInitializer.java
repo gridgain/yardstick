@@ -84,6 +84,8 @@ public class RunContextInitializer {
 
             ctx.config().help(true);
 
+            ctx.exitCode(1);
+
             return false;
         }
 
@@ -93,7 +95,9 @@ public class RunContextInitializer {
         if (ctx.config().scriptDirectory() == null) {
             System.out.println("Error: Script directory is not defined.");
 
-            System.exit(1);
+            ctx.exitCode(1);
+
+            System.exit(ctx.exitCode());
         }
 
         ctx.localeWorkDirectory(new File(ctx.config().scriptDirectory()).getParentFile().getAbsolutePath());
@@ -110,7 +114,9 @@ public class RunContextInitializer {
             if (!new File(dfltPropPath).exists()) {
                 LOG.info(String.format("Failed to find default property file '%s'.", dfltPropPath));
 
-                System.exit(1);
+                ctx.exitCode(1);
+
+                System.exit(ctx.exitCode());
             }
 
             ctx.propertyPath(dfltPropPath);
@@ -125,7 +131,9 @@ public class RunContextInitializer {
             else {
                 LOG.info(String.format("Error. Failed to find property '%s'", propFilePath));
 
-                System.exit(1);
+                ctx.exitCode(1);
+
+                System.exit(ctx.exitCode());
             }
         }
 
@@ -166,7 +174,7 @@ public class RunContextInitializer {
         String restProp = ctx.properties().getProperty(String.format("RESTART_%sS", type));
 
         if (restProp == null) {
-            setRestart(false, type);
+            setRestart(true, type);
 
             return;
         }
@@ -208,7 +216,9 @@ public class RunContextInitializer {
                 LOG.error(String.format("Wrong value for 'RESTART_%sS' property. String '%s' does not have 5 values.",
                     type, nodeInfo));
 
-                System.exit(1);
+                ctx.exitCode(1);
+
+                System.exit(ctx.exitCode());
             }
 
             String host = values[0];
@@ -228,7 +238,7 @@ public class RunContextInitializer {
 
                 if(idInt < hosts.size() && !hosts.get(idInt).equals(host))
                     LOG.warn(String.format("Restart schedule '%s' was set for the node '%s' on the host '%s', but " +
-                        "node '%s' will be started on the host '%s'", nodeInfo, node, host, node, hosts.get(idInt)));
+                        "node '%s' will be started on the host '%s'.", nodeInfo, node, host, node, hosts.get(idInt)));
 
             }
             catch (NumberFormatException e){
@@ -256,7 +266,9 @@ public class RunContextInitializer {
                 LOG.error(String.format("Wrong value for 'RESTART_%sS' property. %s",
                     type, e.getMessage()));
 
-                System.exit(1);
+                ctx.exitCode(1);
+
+                System.exit(ctx.exitCode());
             }
         }
 
@@ -522,7 +534,9 @@ public class RunContextInitializer {
             if(dockerCtxPropPath == null || !new File(dockerCtxPropPath).exists()){
                 LOG.error(String.format("Failed to find docker context file '%s'.", dockerCtxPropPath));
 
-                System.exit(1);
+                ctx.exitCode(1);
+
+                System.exit(ctx.exitCode());
             }
         }
 
@@ -551,7 +565,9 @@ public class RunContextInitializer {
 
         LOG.info(String.format("Failed to find '%s' or '%s'.", srcPath, fullPath));
 
-        System.exit(1);
+        ctx.exitCode(1);
+
+        System.exit(ctx.exitCode());
 
         return null;
     }

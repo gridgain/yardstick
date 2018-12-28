@@ -57,7 +57,7 @@ public class CleanUpRunner  extends Runner {
 
         cleanWorker.workOnHosts();
 
-        return 0;
+        return runCtx.exitCode();
     }
 
     /**
