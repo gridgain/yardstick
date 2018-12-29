@@ -26,7 +26,7 @@ abstract class DockerHostWorker extends HostWorker {
     DockerContext dockerCtx;
 
     /** {@inheritDoc} */
-    DockerHostWorker(RunContext runCtx, Set<String> hostSet) {
+    public DockerHostWorker(RunContext runCtx, Set<String> hostSet) {
         super(runCtx, hostSet);
 
         dockerCtx = runCtx.dockerContext();
@@ -38,7 +38,7 @@ abstract class DockerHostWorker extends HostWorker {
      * @param name Image name.
      * @return {@code true} if image with given name exists on the specified host or {@code false} otherwise.
      */
-    boolean checkIfImageExists(String host, String name) {
+    public boolean checkIfImageExists(String host, String name) {
         Collection<Map<String, String>> imageMaps = getImages(host);
 
         for (Map<String, String> imageMap : imageMaps) {

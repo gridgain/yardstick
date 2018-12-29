@@ -52,6 +52,14 @@ public class CommandExecutionResult {
 
     /**
      *
+     * @param exitCode New exit code.
+     */
+    public void exitCode(int exitCode){
+        this.exitCode = exitCode;
+    }
+
+    /**
+     *
      * @return Output stream.
      */
     public List<String> outputList() {

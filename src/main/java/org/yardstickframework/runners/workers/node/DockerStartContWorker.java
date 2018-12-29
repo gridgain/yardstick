@@ -3,6 +3,7 @@ package org.yardstickframework.runners.workers.node;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.TreeSet;
 import org.yardstickframework.runners.CommandExecutionResult;
 import org.yardstickframework.runners.context.DockerInfo;
 import org.yardstickframework.runners.DockerRunner;
@@ -11,6 +12,7 @@ import org.yardstickframework.runners.context.NodeType;
 import org.yardstickframework.runners.context.DockerContext;
 import org.yardstickframework.runners.context.RunContext;
 import org.yardstickframework.runners.context.RunMode;
+import org.yardstickframework.runners.workers.host.DockerBuildImagesWorker;
 
 /**
  * Starts docker containers.
@@ -46,6 +48,18 @@ public class DockerStartContWorker extends NodeWorker {
 
         String imageName = dockerCtx.getImageName(type);
 
+        DockerBuildImagesWorker imageWorker = new DockerBuildImagesWorker(runCtx, new TreeSet<>(), nodeInfo.nodeType());
+
+        nodeInfo.commandExecutionResult(CommandExecutionResult.emptyFailedResult());
+
+        if (!imageWorker.checkIfImageExists(host, imageName)){
+            log().error(String.format("Image '%s' does not exist on the host '%s'. Cannot start containers."));
+
+            runCtx.exitCode(1);
+
+            return nodeInfo;
+        }
+
         String contNamePref = dockerCtx.contNamePrefix(type);
 
         String contName = String.format("%s_%s", contNamePref, id);
@@ -76,7 +90,13 @@ public class DockerStartContWorker extends NodeWorker {
         catch (IOException | InterruptedException e) {
             log().error(String.format("Failed to start container '%s' on the host '%s'",
                 contName, host), e);
+
+            runCtx.exitCode(1);
+
+            return nodeInfo;
         }
+
+        nodeInfo.commandExecutionResult().exitCode(0);
 
         return nodeInfo;
     }

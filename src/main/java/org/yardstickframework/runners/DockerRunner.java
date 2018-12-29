@@ -8,6 +8,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import org.yardstickframework.runners.context.NodeInfo;
 import org.yardstickframework.runners.context.NodeType;
 import org.yardstickframework.runners.context.RunContext;
 import org.yardstickframework.runners.context.RunMode;
@@ -187,7 +188,12 @@ public class DockerRunner extends FullRunner {
      * @param type Node type.
      */
     private void startForNodeType(NodeType type) {
-        new DockerStartContWorker(runCtx, runCtx.getNodeInfos(type)).workForNodes();
+        Collection<NodeInfo> resList = new DockerStartContWorker(runCtx, runCtx.getNodeInfos(type)).workForNodes();
+
+        for(NodeInfo nodeInfo : resList){
+            if(nodeInfo.commandExecutionResult().exitCode() != 0)
+                System.exit(runCtx.exitCode());
+        }
     }
 
     /**
