@@ -71,16 +71,16 @@ public class DockerBuildImagesWorker extends DockerHostWorker {
                 if(checkIfImageExists(host, nameToUse))
                     log().info(String.format("Successfully built image '%s' on the host '%s'.", nameToUse,
                         host));
-                else {
-                    log().error(String.format("Failed to build image '%s' on the host '%s'", nameToUse, host));
-
-                    runCtx.exitCode(1);
-
-                    res.exit(true);
-                }
+//                else {
+//                    log().error(String.format("Failed to build image '%s' on the host '%s'.", nameToUse, host));
+//
+//                    runCtx.exitCode(1);
+//
+//                    res.exit(true);
+//                }
             }
             catch (IOException | InterruptedException e) {
-                log().error(String.format("Failed to build image '%s' on the host '%s'", nameToUse, host), e);
+                log().error(String.format("Failed to build image '%s' on the host '%s'.", nameToUse, host), e);
             }
         }
         else

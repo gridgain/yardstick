@@ -53,7 +53,8 @@ public class DockerStartContWorker extends NodeWorker {
         nodeInfo.commandExecutionResult(CommandExecutionResult.emptyFailedResult());
 
         if (!imageWorker.checkIfImageExists(host, imageName)){
-            log().error(String.format("Image '%s' does not exist on the host '%s'. Cannot start containers."));
+            log().error(String.format("Image '%s' does not exist on the host '%s'. Cannot start containers.",
+                imageName, host));
 
             runCtx.exitCode(1);
 
@@ -116,6 +117,9 @@ public class DockerStartContWorker extends NodeWorker {
 
     /** {@inheritDoc} */
     @Override public void afterWork() {
+        if (runCtx.exitCode() != 0)
+            System.exit(runCtx.exitCode());
+
         if (!resNodeList().isEmpty()) {
             try {
                 setDockerJavaHome(resNodeList().get(0));
