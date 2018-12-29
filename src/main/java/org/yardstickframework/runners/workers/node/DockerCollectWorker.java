@@ -43,6 +43,8 @@ public class DockerCollectWorker extends NodeWorker {
         catch (IOException | InterruptedException e) {
             log().error(String.format("Failed to collect data from container '%s' on the host '%s'",
                 contName, host), e);
+
+            runCtx.exitCode(1);
         }
 
         return nodeInfo;

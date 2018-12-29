@@ -25,6 +25,9 @@ public class DockerContext {
     /** */
     private Map<String, Boolean> removeImagesFlags;
 
+    /** Flag indicating whether or not run docker commands with sudo.*/
+    private boolean sudo;
+
     /** */
     private String dockerBuildCmd;
 
@@ -91,6 +94,21 @@ public class DockerContext {
         this.removeImagesFlags = removeImagesFlags;
     }
 
+    /**
+     *
+     * @return Flag indicating whether or not run docker commands with sudo.
+     */
+    public boolean sudo() {
+        return sudo;
+    }
+
+    /**
+     *
+     * @param sudo Flag indicating whether or not run docker commands with sudo.
+     */
+    public void setSudo(boolean sudo) {
+        this.sudo = sudo;
+    }
 
     /**
      *

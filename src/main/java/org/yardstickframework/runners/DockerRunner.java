@@ -155,9 +155,9 @@ public class DockerRunner extends FullRunner {
 
         if (runCtx.dockerContext().getRemoveImagesFlags().get(flag)) {
             if (!runCtx.dockerContext().getRemoveContainersFlags().get(flag)) {
-                log().error(String.format("Cannot remove docker images. removeContainersFlag '%s' in docker " +
+                log().error(String.format("Cannot remove %s docker images. removeContainersFlag '%s' in docker " +
                     "context file is set to '%s'. Docker images can be removed only after removing all " +
-                    "related containers.", flag, "false"));
+                    "related containers.", type.toString().toLowerCase(), flag, "false"));
             }
             else
                 new DockerCleanImagesWorker(runCtx, runCtx.uniqueHostsByType(type)).workOnHosts();

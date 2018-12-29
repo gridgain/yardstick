@@ -45,6 +45,8 @@ public class CollectWorker extends HostWorker {
         }
         catch (IOException | InterruptedException e) {
             log().error(String.format("Failed to collect data from the host '%s'", host), e);
+
+            runCtx.exitCode(1);
         }
 
         return null;
