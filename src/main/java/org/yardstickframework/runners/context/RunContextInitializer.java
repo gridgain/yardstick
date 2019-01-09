@@ -65,6 +65,8 @@ public class RunContextInitializer {
 
         setRestartCtx(NodeType.SERVER);
 
+        setRestartCtx(NodeType.DRIVER);
+
         if(ctx.dockerEnabled())
             setDockerContext();
 
@@ -173,11 +175,8 @@ public class RunContextInitializer {
     private void setRestartCtx(NodeType type) {
         String restProp = ctx.properties().getProperty(String.format("RESTART_%sS", type));
 
-        if (restProp == null) {
-            setRestart(true, type);
-
+        if (restProp == null)
             return;
-        }
 
         if ("true".equals(restProp.toLowerCase()) || "false".equals(restProp.toLowerCase())) {
             setRestart(Boolean.valueOf(restProp), type);

@@ -15,6 +15,9 @@ import org.yardstickframework.runners.context.RunContext;
  * Restart nodes.
  */
 public class RestartNodeWorker extends StartNodeWorker {
+    /** */
+    private long startTime;
+
     /** {@inheritDoc} */
     public RestartNodeWorker(RunContext runCtx, List<NodeInfo> nodeList, String cfgFullStr) {
         super(runCtx, nodeList, cfgFullStr);
@@ -23,6 +26,8 @@ public class RestartNodeWorker extends StartNodeWorker {
     /** {@inheritDoc} */
     @Override public void beforeWork() {
         super.beforeWork();
+
+        startTime = System.currentTimeMillis();
 
         servLogDirFullName = String.format("%s/log_servers_restarted", baseLogDirFullName);
 
@@ -70,7 +75,22 @@ public class RestartNodeWorker extends StartNodeWorker {
 
                 new CountDownLatch(1).await(restartInfo.pause(), TimeUnit.MILLISECONDS);
 
+                long currTime = System.currentTimeMillis();
+
+                long newDuration = initDuration - ((currTime - startTime) / 1000);
+
+                if(newDuration <= 0)
+                    break;
+
+                // Set warmup to '0' for restarted node.
+                warmup("0");
+
+                duration(String.valueOf(newDuration));
+
                 startNode(nodeInfo);
+
+                if(newDuration * 1000L <= restartInfo.delay() + restartInfo.period())
+                    break;
 
                 new CountDownLatch(1).await(restartInfo.period(), TimeUnit.MILLISECONDS);
             }

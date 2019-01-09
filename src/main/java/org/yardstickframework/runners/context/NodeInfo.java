@@ -3,6 +3,7 @@ package org.yardstickframework.runners.context;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nullable;
+import org.yardstickframework.BenchmarkConfiguration;
 import org.yardstickframework.runners.CommandExecutionResult;
 import org.yardstickframework.runners.workers.WorkResult;
 
@@ -48,6 +49,9 @@ public class NodeInfo implements WorkResult {
 
     /** */
     private String descr;
+
+    /** */
+    private BenchmarkConfiguration cfg;
 
     /**
      * Constructor.
@@ -253,5 +257,19 @@ public class NodeInfo implements WorkResult {
      */
     public String toShortStr() {
         return String.format("%s%s", typeLow(), id);
+    }
+
+    /**
+     * @return Config.
+     */
+    public BenchmarkConfiguration config() {
+        return cfg;
+    }
+
+    /**
+     * @param cfg New config.
+     */
+    public void config(BenchmarkConfiguration cfg) {
+        this.cfg = cfg;
     }
 }

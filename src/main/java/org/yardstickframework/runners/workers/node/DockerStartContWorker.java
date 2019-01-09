@@ -48,37 +48,39 @@ public class DockerStartContWorker extends NodeWorker {
 
         String imageName = dockerCtx.getImageName(type);
 
-        DockerBuildImagesWorker imageWorker = new DockerBuildImagesWorker(runCtx, new TreeSet<>(), nodeInfo.nodeType());
-
-        nodeInfo.commandExecutionResult(CommandExecutionResult.emptyFailedResult());
-
-        if (!imageWorker.checkIfImageExists(host, imageName)){
-            log().error(String.format("Image '%s' does not exist on the host '%s'. Cannot start containers.",
-                imageName, host));
-
-            runCtx.exitCode(1);
-
-            return nodeInfo;
-        }
-
-        String contNamePref = dockerCtx.contNamePrefix(type);
-
-        String contName = String.format("%s_%s", contNamePref, id);
-
-        DockerInfo docInfo = new DockerInfo(imageName, contName);
-
-        nodeInfo.dockerInfo(docInfo);
-
-        log().info(String.format("Starting the container '%s' on the host '%s'", contName, host));
-
-        String startContCmd = getStartContCmd(imageName, contName);
+        String contName = "Undefined";
 
         try {
-            runCtx.handler().runDockerCmd(host, startContCmd);
+            CommandExecutionResult res = CommandExecutionResult.emptyFailedResult();
+
+            DockerBuildImagesWorker imageWorker = new DockerBuildImagesWorker(runCtx, new TreeSet<>(), nodeInfo.nodeType());
+
+            if (!imageWorker.checkIfImageExists(host, imageName)) {
+                log().error(String.format("Image '%s' does not exist on the host '%s'. Cannot start containers.",
+                    imageName, host));
+
+                runCtx.exitCode(1);
+
+                return nodeInfo;
+            }
+
+            String contNamePref = dockerCtx.contNamePrefix(type);
+
+            contName = String.format("%s_%s", contNamePref, id);
+
+            DockerInfo docInfo = new DockerInfo(imageName, contName);
+
+            nodeInfo.dockerInfo(docInfo);
+
+            log().info(String.format("Starting the container '%s' on the host '%s'", contName, host));
+
+            String startContCmd = getStartContCmd(imageName, contName);
+
+            res = runCtx.handler().runDockerCmd(host, startContCmd);
 
             String mkdirCmd = String.format("exec %s mkdir -p %s", contName, runCtx.remoteWorkDirectory());
 
-            runCtx.handler().runDockerCmd(host, mkdirCmd);
+            res = runCtx.handler().runDockerCmd(host, mkdirCmd);
 
             String remPath = runCtx.remoteWorkDirectory();
 
@@ -86,7 +88,9 @@ public class DockerStartContWorker extends NodeWorker {
 
             String cpCmd = String.format("cp %s %s:%s", remPath, contName, parentPath);
 
-            runCtx.handler().runDockerCmd(host, cpCmd);
+            res = runCtx.handler().runDockerCmd(host, cpCmd);
+
+            nodeInfo.commandExecutionResult(res);
         }
         catch (IOException | InterruptedException e) {
             log().error(String.format("Failed to start container '%s' on the host '%s'",
@@ -94,10 +98,10 @@ public class DockerStartContWorker extends NodeWorker {
 
             runCtx.exitCode(1);
 
+            nodeInfo.commandExecutionResult(CommandExecutionResult.emptyFailedResult());
+
             return nodeInfo;
         }
-
-        nodeInfo.commandExecutionResult().exitCode(0);
 
         return nodeInfo;
     }

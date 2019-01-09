@@ -123,7 +123,7 @@ public abstract class Runner {
 
         new KillWorker(runCtx, fullSet).workOnHosts();
 
-        new DeployWorker(runCtx, fullSet).workOnHosts();
+//        new DeployWorker(runCtx, fullSet).workOnHosts();
     }
 
     /**
@@ -207,6 +207,9 @@ public abstract class Runner {
                 return restart(forRestart, cfgStr, NodeType.SERVER);
             }
         });
+
+        if(runCtx.restartContext(NodeType.DRIVER) != null)
+            restart(drvrRes, cfgStr, NodeType.DRIVER);
 
         waitForNodes(drvrRes, NodeStatus.NOT_RUNNING);
 

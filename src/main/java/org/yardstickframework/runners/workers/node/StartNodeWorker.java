@@ -2,6 +2,7 @@ package org.yardstickframework.runners.workers.node;
 
 import java.io.IOException;
 import java.util.List;
+import org.yardstickframework.BenchmarkConfiguration;
 import org.yardstickframework.BenchmarkUtils;
 import org.yardstickframework.runners.context.NodeInfo;
 import org.yardstickframework.runners.starters.NodeStarter;
@@ -37,6 +38,15 @@ public class StartNodeWorker extends NodeWorker {
     /** */
     private String drvrMainCls = "org.yardstickframework.BenchmarkDriverStartUp";
 
+    /** */
+    private String warmup;
+
+    /** */
+    private String duration;
+
+    /** Initial duration. */
+    protected Long initDuration;
+
     /**
      * Constructor.
      *
@@ -46,7 +56,11 @@ public class StartNodeWorker extends NodeWorker {
      */
     public StartNodeWorker(RunContext runCtx, List<NodeInfo> nodeList, String cfgFullStr) {
         super(runCtx, nodeList);
-        this.cfgFullStr = cfgFullStr;
+
+        // We need to extract data from config string into BenchmarkConfiguration object, set warmap and durations
+        // from that object and than remove --warmap (-w) and -- duration (-d) from config string in order to oveerride
+        // those values later if needed.
+        parseConfigString(cfgFullStr);
     }
 
     /** {@inheritDoc} */
@@ -81,7 +95,7 @@ public class StartNodeWorker extends NodeWorker {
 
         String host = nodeInfo.host();
 
-        String id  = nodeInfo.id();
+        String id = nodeInfo.id();
 
         NodeType type = nodeInfo.nodeType();
 
@@ -89,12 +103,16 @@ public class StartNodeWorker extends NodeWorker {
 
         String descript = runCtx.description(cfgFullStr);
 
-        if(nodeInfo.runMode() != RunMode.PLAIN)
-            mode = String.format(" Run mode - %s.", nodeInfo.runMode());
+        if (nodeInfo.runMode() != RunMode.PLAIN)
+            mode = String.format(" Run mode - '%s';", nodeInfo.runMode());
 
-        log().info(String.format("Starting node '%s' on the host '%s' (%s).%s",
+        String wd = nodeInfo.nodeType() == NodeType.DRIVER ?
+            String.format("Warmup=%s; Duration=%s; ", warmup, duration) : "";
+
+        log().info(String.format("Starting node '%s' on the host '%s'; %sDescription='%s';%s",
             nodeInfo.toShortStr(),
             host,
+            wd,
             descript,
             mode));
 
@@ -128,14 +146,13 @@ public class StartNodeWorker extends NodeWorker {
     }
 
     /**
-     *
      * @param nodeInfo Node info.
      * @return Parameter string.
      */
-    private String getParamStr(NodeInfo nodeInfo){
+    private String getParamStr(NodeInfo nodeInfo) {
         String host = nodeInfo.host();
 
-        String id  = nodeInfo.id();
+        String id = nodeInfo.id();
 
         NodeType type = nodeInfo.nodeType();
 
@@ -146,13 +163,13 @@ public class StartNodeWorker extends NodeWorker {
             String.format("--outputFolder %s", drvrResDir);
 
         String jvmOptsStr = runCtx.properties().getProperty("JVM_OPTS") != null ?
-            runCtx.properties().getProperty("JVM_OPTS"):
+            runCtx.properties().getProperty("JVM_OPTS") :
             "";
 
         String nodeJvmOptsProp = String.format("%s_JVM_OPTS", type);
 
         String nodeJvmOptsStr = runCtx.properties().getProperty(nodeJvmOptsProp) != null ?
-            runCtx.properties().getProperty(nodeJvmOptsProp):
+            runCtx.properties().getProperty(nodeJvmOptsProp) :
             "";
 
         String concJvmOpts = jvmOptsStr + " " + nodeJvmOptsStr;
@@ -164,7 +181,7 @@ public class StartNodeWorker extends NodeWorker {
                 nodeInfo.typeLow(),
                 id,
                 host,
-                nodeInfo.description()):
+                nodeInfo.description()) :
             "";
 
         String fullJvmOpts = (concJvmOpts + " " + gcJvmOpts).replace("\"", "");
@@ -173,9 +190,8 @@ public class StartNodeWorker extends NodeWorker {
 
         String cfgStr = cfgFullStr.replace(runCtx.localeWorkDirectory(), runCtx.remoteWorkDirectory());
 
-
-        return String.format("%s -Dyardstick.%s%s -cp :%s/libs/* %s -id %s %s %s --config %s " +
-                "--logsFolder %s --remoteuser %s --currentFolder %s --scriptsFolder %s/bin",
+        return String.format("%s -Dyardstick.%s%s -cp :%s/libs/* %s -id %s %s %s --warmup %s --duration %s " +
+                "--config %s --logsFolder %s --remoteuser %s --currentFolder %s --scriptsFolder %s/bin",
             fullJvmOpts,
             nodeInfo.typeLow(),
             id,
@@ -184,6 +200,8 @@ public class StartNodeWorker extends NodeWorker {
             id,
             outputFolderParam,
             cfgStr,
+            warmup,
+            duration,
             propPath,
             logDirFullName(nodeInfo),
             runCtx.remoteUser(),
@@ -192,7 +210,6 @@ public class StartNodeWorker extends NodeWorker {
     }
 
     /**
-     *
      * @param type Node type.
      * @return Path to log directory.
      */
@@ -223,13 +240,11 @@ public class StartNodeWorker extends NodeWorker {
         return path + runModeSuf;
     }
 
-
-        /**
-         *
-         * @param type Node type
-         * @return Main class to start node.
-         */
-    private String mainClass(NodeType type){
+    /**
+     * @param type Node type
+     * @return Main class to start node.
+     */
+    private String mainClass(NodeType type) {
         switch (type) {
             case SERVER:
                 return servMainCls;
@@ -238,5 +253,78 @@ public class StartNodeWorker extends NodeWorker {
             default:
                 throw new IllegalArgumentException("Unknown node type");
         }
+    }
+
+    /**
+     * @param cfgStr Config string.
+     * @return Benchmark configuration.
+     */
+    private BenchmarkConfiguration parseConfigString(String cfgStr) {
+        BenchmarkConfiguration cfg = new BenchmarkConfiguration();
+
+        String[] toNewCfg = cfgStr.split(" ");
+
+        BenchmarkUtils.jcommander(toNewCfg, cfg, "");
+
+        this.warmup = String.valueOf(cfg.warmup());
+
+        this.duration = String.valueOf(cfg.duration());
+
+        this.initDuration = cfg.duration();
+
+        StringBuilder sb = new StringBuilder();
+
+        for (int i = 0; i < toNewCfg.length; i++) {
+            if (toNewCfg[i].equals("-w")
+                || toNewCfg[i].equals("--warmup")
+                || toNewCfg[i].equals("-d")
+                || toNewCfg[i].equals("--duration")) {
+                i++;
+
+                continue;
+            }
+            else {
+                sb.append(toNewCfg[i]);
+
+                if (i < toNewCfg.length - 1)
+                    sb.append(" ");
+            }
+        }
+
+        String newCfgStr = sb.toString();
+
+        log().debug(String.format("Config string after removing warmap and duration: %s", newCfgStr));
+
+        this.cfgFullStr = newCfgStr;
+
+        return cfg;
+    }
+
+    /**
+     * @return Warmup.
+     */
+    public String warmup() {
+        return warmup;
+    }
+
+    /**
+     * @param warmup New warmup.
+     */
+    public void warmup(String warmup) {
+        this.warmup = warmup;
+    }
+
+    /**
+     * @return Duration.
+     */
+    public String duration() {
+        return duration;
+    }
+
+    /**
+     * @param duration New duration.
+     */
+    public void duration(String duration) {
+        this.duration = duration;
     }
 }

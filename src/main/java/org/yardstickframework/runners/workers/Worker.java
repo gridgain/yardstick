@@ -62,14 +62,9 @@ public abstract class Worker{
      * @return Thread name.
      */
     protected String threadName(NodeInfo nodeInfo){
-        StringBuilder sb = new StringBuilder(String.format("%s-%s",
+        return String.format("%s-%s",
             workerName(),
-            nodeInfo.host()));
-
-        if (workerName().startsWith("Restart"))
-            sb.append("-").append(BenchmarkUtils.hms());
-
-        return sb.toString();
+            nodeInfo.host());
     }
 
     /**
