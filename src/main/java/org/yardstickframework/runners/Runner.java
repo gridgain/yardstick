@@ -123,7 +123,7 @@ public abstract class Runner {
 
         new KillWorker(runCtx, fullSet).workOnHosts();
 
-//        new DeployWorker(runCtx, fullSet).workOnHosts();
+        new DeployWorker(runCtx, fullSet).workOnHosts();
     }
 
     /**
