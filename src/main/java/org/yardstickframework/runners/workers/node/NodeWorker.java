@@ -63,6 +63,9 @@ public abstract class NodeWorker extends Worker {
     public List<NodeInfo> workForNodes() {
         beforeWork();
 
+        if (nodeList.isEmpty())
+            return nodeList;
+
         ExecutorService exec = Executors.newFixedThreadPool(nodeList.size());
 
         Collection<Future<NodeInfo>> futList = new ArrayList<>(nodeList.size());
