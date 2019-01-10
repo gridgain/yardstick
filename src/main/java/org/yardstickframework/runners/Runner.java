@@ -290,9 +290,18 @@ public abstract class Runner {
      * @return List of {@code NodeInfo} objects.
      */
     private List<NodeInfo> startNodes(NodeType type, String cfgStr) {
-        NodeWorker startServWorker = new StartNodeWorker(runCtx, runCtx.getNodeInfos(type), cfgStr);
+        List<NodeInfo> nodeList = runCtx.getNodeInfos(type);
 
-        return startServWorker.workForNodes();
+        if(nodeList.isEmpty()){
+            log().info(String.format("%s_HOSTS property is not set. Will not start %s nodes.", type,
+                type.toString().toLowerCase()));
+
+            return nodeList;
+        }
+
+        NodeWorker startNodeWorker = new StartNodeWorker(runCtx, nodeList, cfgStr);
+
+        return startNodeWorker.workForNodes();
     }
 
     /**
