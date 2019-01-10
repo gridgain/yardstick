@@ -45,14 +45,4 @@ public class StopNodeWorker extends NodeWorker {
 
         return nodeInfo;
     }
-
-    /** {@inheritDoc} */
-    @Override public void afterWork() {
-        if (!nodeList().isEmpty()) {
-            NodeInfo nodeInfo = nodeList().get(0);
-
-            if (nodeInfo.runMode() == RunMode.DOCKER)
-                log().info("Keeping docker containers running.");
-        }
-    }
 }
