@@ -481,14 +481,12 @@ public class CommandHandler {
      * @throws InterruptedException If interrupted.
      */
     public CommandExecutionResult runDockerCmd(String host, String cmd) throws IOException, InterruptedException {
-        String sudoPref = runCtx.dockerContext().sudo() ? "sudo " : "";
-
-        String fullCmd = String.format("%sdocker %s", sudoPref, cmd);
+        String fullCmd = String.format("docker %s", cmd);
 
         if (isLocal(host))
             return runRmtCmd(fullCmd);
         else {
-            fullCmd = String.format("%s %sdocker %s", getFullSSHPref(host), sudoPref, cmd);
+            fullCmd = String.format("%s docker %s", getFullSSHPref(host), cmd);
 
             return runRmtCmd(fullCmd);
         }

@@ -131,9 +131,10 @@ public class StartNodeWorker extends NodeWorker {
 
         nodeInfo.parameterString(paramStr);
 
-        String logFileName = String.format("%s/%s-id%s-%s-%s.log",
+        String logFileName = String.format("%s/%s-%s-id%s-%s-%s.log",
             logDirFullName,
             nodeStartTime,
+            nodeInfo.nodeType().toString().toLowerCase(),
             id,
             host,
             descript);
