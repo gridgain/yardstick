@@ -77,7 +77,10 @@ public class RestartNodeWorker extends StartNodeWorker {
 
                 long currTime = System.currentTimeMillis();
 
-                long newDuration = initDuration - ((currTime - startTime) / 1000);
+                // Set new duration only for DRIVER nodes to avoid stopping server restarts due to small duration.
+                long newDuration = nodeInfo.nodeType() == NodeType.DRIVER ?
+                    initDuration - ((currTime - startTime) / 1000) :
+                    initDuration;
 
                 if(newDuration <= 0)
                     break;
