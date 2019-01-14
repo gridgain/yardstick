@@ -47,6 +47,9 @@ public class StartNodeWorker extends NodeWorker {
     /** Initial duration. */
     protected Long initDuration;
 
+    /** */
+    private BenchmarkConfiguration cfg;
+
     /**
      * Constructor.
      *
@@ -90,6 +93,9 @@ public class StartNodeWorker extends NodeWorker {
      */
     NodeInfo startNode(NodeInfo nodeInfo) throws InterruptedException {
         final String nodeStartTime = BenchmarkUtils.dateTime();
+
+        if(nodeInfo.config() == null)
+            nodeInfo.config(cfg);
 
         nodeInfo.nodeStartTime(nodeStartTime);
 
@@ -261,7 +267,7 @@ public class StartNodeWorker extends NodeWorker {
      * @return Benchmark configuration.
      */
     private BenchmarkConfiguration parseConfigString(String cfgStr) {
-        BenchmarkConfiguration cfg = new BenchmarkConfiguration();
+        cfg = new BenchmarkConfiguration();
 
         String[] toNewCfg = cfgStr.split(" ");
 

@@ -312,10 +312,7 @@ public abstract class Runner {
 
         List<NodeInfo> resList = checkWorker.workForNodes();
 
-        for (NodeInfo nodeInfo : resList) {
-            if (nodeInfo.nodeStatus() == NodeStatus.NOT_RUNNING)
-                System.exit(runCtx.exitCode());
-        }
+        exitIfNodeNotRunning(resList);
     }
 
     /**
@@ -325,7 +322,26 @@ public abstract class Runner {
     private void waitForNodes(List<NodeInfo> nodeList, NodeStatus expStatus) {
         NodeWorker waitWorker = new WaitNodeWorker(runCtx, nodeList, expStatus);
 
-        waitWorker.workForNodes();
+        List<NodeInfo> resList = waitWorker.workForNodes();
+
+        if (expStatus == NodeStatus.RUNNING)
+            exitIfNodeNotRunning(resList);
+    }
+
+    /**
+     *
+     * @param nodeList List of {@code NodeInfo} objects.
+     */
+    private void exitIfNodeNotRunning(List<NodeInfo> nodeList){
+        for (NodeInfo nodeInfo : nodeList){
+            if (nodeInfo.nodeStatus() != NodeStatus.RUNNING){
+                new CollectWorker(runCtx, runCtx.getHostSet()).workOnHosts();
+
+                runCtx.exitCode(1);
+
+                System.exit(runCtx.exitCode());
+            }
+        }
     }
 
     /**

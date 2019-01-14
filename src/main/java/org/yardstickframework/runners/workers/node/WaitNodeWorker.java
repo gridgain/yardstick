@@ -31,23 +31,51 @@ public class WaitNodeWorker extends NodeWorker {
 
     /** {@inheritDoc} */
     @Override public NodeInfo doWork(NodeInfo nodeInfo) throws InterruptedException {
-        boolean unexpected = true;
+        boolean exp = false;
 
         NodeChecker checker = runCtx.nodeChecker(nodeInfo);
 
-        while (unexpected) {
+        int waitCnt = 0;
+
+        boolean noMoreWaiting = false;
+
+        int fullTime = (int) (nodeInfo.config().warmup() + nodeInfo.config().duration());
+
+        double warnTime = fullTime * 1.25;
+
+        while (!exp && !noMoreWaiting) {
             checker.checkNode(nodeInfo);
 
             if (nodeInfo.nodeStatus() == expStatus) {
-                unexpected = false;
+                exp = true;
+
+                noMoreWaiting = true;
+            }
+            else{
+                waitCnt++;
+
+                if (expStatus == NodeStatus.RUNNING){
+                    if (waitCnt > 10){
+                        log().error(String.format("Node '%s' is not running after %d seconds.",
+                            nodeInfo.toShortStr(), 10));
+
+                        noMoreWaiting = true;
+                    }
+                }
+                else{
+                    if (nodeInfo.nodeType() == NodeType.DRIVER){
+                        if (waitCnt > warnTime && waitCnt % 30 == 0){
+                            log().info(String.format("Combined warmup and duration time for node '%s' is %d but " +
+                                "node still running after %d seconds.", nodeInfo.toShortStr(), fullTime, waitCnt));
+                        }
+                    }
+                }
 
                 new CountDownLatch(1).await(1000L, TimeUnit.MILLISECONDS);
             }
         }
 
-        nodeInfo.nodeStatus(expStatus);
-
-        String status = expStatus.toString().toLowerCase().replace("_", " ");
+        String status = nodeInfo.nodeStatus().toString().toLowerCase().replace("_", " ");
 
         log().info(String.format("Node '%s' on the host '%s' is %s.",
             nodeInfo.toShortStr(),

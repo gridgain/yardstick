@@ -1,6 +1,8 @@
 package org.yardstickframework.runners.context;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.InetAddress;
@@ -10,6 +12,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
@@ -103,6 +106,7 @@ public class RunContextInitializer {
         }
 
         ctx.localeWorkDirectory(new File(ctx.config().scriptDirectory()).getParentFile().getAbsolutePath());
+//        ctx.localeWorkDirectory("/home/oostanin/yardstick-infinispan");
 
         configLog();
 
@@ -142,6 +146,8 @@ public class RunContextInitializer {
         LOG.info(String.format("Property file path is '%s'.", ctx.propertyPath()));
 
         try {
+            checkPropertyFile();
+
             Properties propsOrig = new Properties();
 
             propsOrig.load(new FileReader(ctx.propertyPath()));
@@ -569,6 +575,40 @@ public class RunContextInitializer {
         System.exit(ctx.exitCode());
 
         return null;
+    }
+
+    /**
+     *
+     * @return {@code true} if property file is OK or {@code false} otherwise.
+     * @throws IOException if failed.
+     */
+    private boolean checkPropertyFile() throws IOException {
+        String path = ctx.propertyPath();
+
+        Set<String> propSet = new HashSet<>();
+
+        BufferedReader reader = new BufferedReader(new FileReader(path));
+
+        String line;
+
+        while ((line = reader.readLine()) != null) {
+            if (!line.contains("=") || line.startsWith("#"))
+                continue;
+
+            int idx0 = line.indexOf("=");
+
+            String propName = line.substring(0, idx0);
+
+            if (propSet.contains(propName)) {
+                LOG.error(String.format("Property '%s' defined more than once in property file.", propName));
+
+                System.exit(1);
+            }
+            else
+                propSet.add(propName);
+        }
+
+        return false;
     }
 
     /**
