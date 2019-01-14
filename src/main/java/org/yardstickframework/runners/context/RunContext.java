@@ -162,7 +162,8 @@ public class RunContext {
     public Set<String> getHostSet() {
         Set<String> res = new TreeSet<>(servHosts);
 
-        res.addAll(drvrHosts);
+        if(!startServEndExit)
+            res.addAll(drvrHosts);
 
         return res;
     }
@@ -268,7 +269,7 @@ public class RunContext {
         if (servRunMode == mode)
             res.add(NodeType.SERVER);
 
-        if (drvrRunMode == mode)
+        if (drvrRunMode == mode && !startServEndExit)
             res.add(NodeType.DRIVER);
 
         return res;
@@ -292,7 +293,7 @@ public class RunContext {
         if (servRunMode == mode)
             res.addAll(servHosts);
 
-        if (drvrRunMode == mode)
+        if (drvrRunMode == mode && !startServEndExit)
             res.addAll(drvrHosts);
 
         return res;

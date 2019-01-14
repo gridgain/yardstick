@@ -22,7 +22,11 @@ public class DockerServerRunner extends DockerRunner {
      * @return Exit code. TODO implement exit code return.
      */
     @Override protected int run0() {
-        super.run0();
+        if (runCtx.config().help()) {
+            printHelp();
+
+            System.exit(0);
+        }
 
         generalPrepare();
 
