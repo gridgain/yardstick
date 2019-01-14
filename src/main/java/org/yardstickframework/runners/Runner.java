@@ -193,6 +193,19 @@ public abstract class Runner {
     }
 
     /**
+     *
+     */
+    protected void startServers(){
+        String cfgStr0 = runCtx.properties().getProperty("CONFIGS").split(",")[0];
+
+        List<NodeInfo> servRes = startNodes(NodeType.SERVER, cfgStr0);
+
+        checkLogs(servRes);
+
+        waitForNodes(servRes, NodeStatus.RUNNING);
+    }
+
+    /**
      * @param cfgStr Config string.
      * @param servRes List of started server nodes.
      */

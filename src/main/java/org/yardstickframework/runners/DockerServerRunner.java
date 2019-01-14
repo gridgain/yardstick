@@ -1,6 +1,9 @@
 package org.yardstickframework.runners;
 
 import java.util.ArrayList;
+import java.util.List;
+import org.yardstickframework.runners.context.NodeInfo;
+import org.yardstickframework.runners.context.NodeStatus;
 import org.yardstickframework.runners.context.NodeType;
 import org.yardstickframework.runners.context.RunContext;
 
@@ -25,9 +28,7 @@ public class DockerServerRunner extends DockerRunner {
 
         dockerPrepare();
 
-        String cfgStr0 = runCtx.properties().getProperty("CONFIGS").split(",")[0];
-
-        startNodes(NodeType.SERVER, cfgStr0);
+        startServers();
 
         return runCtx.exitCode();
     }
@@ -36,8 +37,8 @@ public class DockerServerRunner extends DockerRunner {
      *
      */
     @Override protected void printHelp(){
-        System.out.println("Script for starting driver nodes.");
-        System.out.println("Usage: ./bin/run-drivers.sh <options>.");
+        System.out.println("Script for starting server nodes.");
+        System.out.println("Usage: ./bin/run-servers.sh <options>.");
 
         commonHelp();
     }

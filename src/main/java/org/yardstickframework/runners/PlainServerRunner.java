@@ -3,6 +3,7 @@
 import java.util.ArrayList;
 import java.util.List;
 import org.yardstickframework.runners.context.NodeInfo;
+import org.yardstickframework.runners.context.NodeStatus;
 import org.yardstickframework.runners.context.NodeType;
 import org.yardstickframework.runners.context.RunContext;
 
@@ -25,9 +26,7 @@ public class PlainServerRunner extends Runner {
 
         generalPrepare();
 
-        String cfgStr0 = runCtx.properties().getProperty("CONFIGS").split(",")[0];
-
-        startNodes(NodeType.SERVER, cfgStr0);
+        startServers();
 
         return runCtx.exitCode();
     }
