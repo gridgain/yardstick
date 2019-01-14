@@ -100,6 +100,15 @@ public abstract class Runner {
     }
 
     /**
+     *
+     * @param  runCtx Run context.
+     * @return Runner.
+     */
+    static Runner serverRunner(RunContext runCtx) {
+        return runCtx.dockerEnabled() ? new DockerServerRunner(runCtx) : new PlainServerRunner(runCtx);
+    }
+
+    /**
      * @param checkWorker Check worker.
      */
     void checkPlain(HostWorker checkWorker) {
@@ -289,7 +298,7 @@ public abstract class Runner {
      * @param cfgStr Config string.
      * @return List of {@code NodeInfo} objects.
      */
-    private List<NodeInfo> startNodes(NodeType type, String cfgStr) {
+    protected List<NodeInfo> startNodes(NodeType type, String cfgStr) {
         List<NodeInfo> nodeList = runCtx.getNodeInfos(type);
 
         if(nodeList.isEmpty()){
