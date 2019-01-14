@@ -85,6 +85,9 @@ public class RunContext {
     private boolean startServOnce;
 
     /** */
+    private boolean startServEndExit;
+
+    /** */
     private RestartContext servRestartCtx;
 
     /** */
@@ -392,6 +395,20 @@ public class RunContext {
      */
     public void startServersOnce(boolean startSrvsOnce) {
         startServOnce = startSrvsOnce;
+    }
+
+    /**
+     * @return Start serv end exit.
+     */
+    public boolean startServersEndExit() {
+        return startServEndExit;
+    }
+
+    /**
+     * @param startServEndExit New start serv end exit.
+     */
+    public void startServersEndExit(boolean startServEndExit) {
+        this.startServEndExit = startServEndExit;
     }
 
     /**

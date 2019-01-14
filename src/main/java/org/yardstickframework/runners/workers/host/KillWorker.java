@@ -19,11 +19,11 @@ public class KillWorker extends HostWorker {
 
 
         try {
-            String killServCmd = "pkill -9 -f \"Dyardstick.server\"";
+            String killServCmd = "pkill -9 -f Dyardstick.server";
 
             runCtx.handler().runCmd(host, killServCmd);
 
-            String killDrvrCmd = "pkill -9 -f \"Dyardstick.driver\"";
+            String killDrvrCmd = "pkill -9 -f Dyardstick.driver";
 
             runCtx.handler().runCmd(host, killDrvrCmd);
         }

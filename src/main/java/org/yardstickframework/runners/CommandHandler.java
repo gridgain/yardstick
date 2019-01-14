@@ -322,7 +322,8 @@ public class CommandHandler {
 
         exec.submit(new Callable<Object>() {
             @Override public Process call() throws InterruptedException {
-                proc.waitFor();
+                if(!runCtx.startServersEndExit())
+                    proc.waitFor();
 
                 return proc;
             }

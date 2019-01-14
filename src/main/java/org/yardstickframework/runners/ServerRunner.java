@@ -19,6 +19,8 @@ public class ServerRunner extends Runner {
     public static void main(String[] args) {
         RunContext runCtx = RunContext.getRunContext(args);
 
+        runCtx.startServersEndExit(true);
+
         Runner runner = serverRunner(runCtx);
 
         runner.run0();
