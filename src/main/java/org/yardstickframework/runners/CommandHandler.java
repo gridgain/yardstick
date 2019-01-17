@@ -312,6 +312,7 @@ public class CommandHandler {
         final ProcessBuilder pb = new ProcessBuilder().command(cmdArr);
 
         pb.redirectErrorStream(true);
+
         pb.redirectOutput(logFile);
 
         pb.directory(new File(runCtx.localeWorkDirectory()));

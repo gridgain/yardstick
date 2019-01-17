@@ -636,37 +636,46 @@ public class RunContextInitializer {
 
                 PropertyConfigurator.configure(logProps);
             } catch (IOException e) {
-                LOG.error(String.format("Unable to load logging property file %s :", logPropPath), e);
+                configDefaultLog(logPath);
+
+                LOG.error(String.format("Failed to load logging property file %s :", logPropPath), e);
             }
         }
-        else {
-            ConsoleAppender console = new ConsoleAppender();
+        else
+            configDefaultLog(logPath);
+    }
 
-            String ptrn = "[%d{yyyy-MM-dd HH:mm:ss}][%-5p] %m%n";
+    /**
+     *
+     * @param logPath Log file path.
+     */
+    private void configDefaultLog(String logPath){
+        ConsoleAppender console = new ConsoleAppender();
 
-            console.setLayout(new PatternLayout(ptrn));
+        String ptrn = "[%d{yyyy-MM-dd HH:mm:ss}][%-5p] %m%n";
 
-            console.setThreshold(Level.INFO);
+        console.setLayout(new PatternLayout(ptrn));
 
-            console.activateOptions();
+        console.setThreshold(Level.INFO);
 
-            Logger.getRootLogger().addAppender(console);
+        console.activateOptions();
 
-            FileAppender fileApp = new FileAppender();
+        Logger.getRootLogger().addAppender(console);
 
-            fileApp.setName("FileLogger");
+        FileAppender fileApp = new FileAppender();
 
-            fileApp.setFile(logPath);
+        fileApp.setName("FileLogger");
 
-            fileApp.setLayout(new PatternLayout("[%d{yyyy-MM-dd HH:mm:ss,SSS}][%-5p][%t] %m%n"));
+        fileApp.setFile(logPath);
 
-            fileApp.setThreshold(Level.INFO);
+        fileApp.setLayout(new PatternLayout("[%d{yyyy-MM-dd HH:mm:ss,SSS}][%-5p][%t] %m%n"));
 
-            fileApp.setAppend(true);
+        fileApp.setThreshold(Level.INFO);
 
-            fileApp.activateOptions();
+        fileApp.setAppend(true);
 
-            Logger.getRootLogger().addAppender(fileApp);
-        }
+        fileApp.activateOptions();
+
+        Logger.getRootLogger().addAppender(fileApp);
     }
 }
