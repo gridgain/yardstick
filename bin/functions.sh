@@ -13,22 +13,6 @@
 #    limitations under the License.
 
 #
-# Script that starts BenchmarkServer or BenchmarkDriver.
-#
-
-SCRIPT_DIR=$(cd $(dirname "$0"); pwd)
-
-if [ "${CUR_DIR}" != "" ]; then
-    cd ${CUR_DIR}
-fi
-
-if [ "${MAIN_CLASS}" == "" ]; then
-    echo "ERROR: Java class is not defined."
-    echo "Type \"--help\" for usage."
-    exit 1
-fi
-
-#
 # Discovers path to Java executable and checks it's version.
 # The function exports JAVA variable with path to Java executable.
 #
@@ -68,44 +52,3 @@ checkJava() {
         exit 1
     fi
 }
-
-#
-# Discover path to Java executable and check it's version.
-#
-checkJava
-
-ARGS=$*
-
-CP=${CP}":${SCRIPT_DIR}/../libs/*"
-
-#
-# JVM options. See http://java.sun.com/javase/technologies/hotspot/vmoptions.jsp for more details.
-#
-# ADD YOUR/CHANGE ADDITIONAL OPTIONS HERE
-#
-JVM_OPTS="-Xms2g -Xmx2g -server -Djava.net.preferIPv4Stack=true "${JVM_OPTS}
-
-#
-# Assertions are disabled by default.
-# If you want to enable them - set 'ENABLE_ASSERTIONS' flag to '1'.
-#
-ENABLE_ASSERTIONS="0"
-
-#
-# Set '-ea' options if assertions are enabled.
-#
-if [ "${ENABLE_ASSERTIONS}" = "1" ]; then
-    JVM_OPTS="${JVM_OPTS} -ea"
-fi
-
-if [ -z "$PROPS_ENV" ]; then
-    if [ "$PROPS_ENV0" != "" ]; then
-        export PROPS_ENV=$PROPS_ENV0
-    fi
-fi
-
-ARGS=${ARGS}" --currentFolder ${CUR_DIR} --scriptsFolder ${SCRIPT_DIR}"
-
-export JAVA
-
-"$JAVA" ${JVM_OPTS} -cp ${CP} ${MAIN_CLASS} ${ARGS}

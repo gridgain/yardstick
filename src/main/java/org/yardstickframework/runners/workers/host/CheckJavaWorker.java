@@ -27,6 +27,9 @@ public class CheckJavaWorker extends CheckWorker {
         super.beforeWork();
 
         locJavaHome = System.getProperty("java.home");
+
+        if (!runCtx.onlyLocal() && runCtx.properties().getProperty("JAVA_HOME") == null)
+            log().warn("'JAVA_HOME' is not defined in property file.");
     }
 
     /** {@inheritDoc} */
@@ -61,16 +64,18 @@ public class CheckJavaWorker extends CheckWorker {
         else {
             String hostJava = runCtx.handler().getHostJavaHome(host);
 
-            String warn = String.format("WARNING! JAVA_HOME is not defined in property file and default JAVA_HOME " +
-                    "'%s' on the host %s is different from default JAVA_HOME on this host (%s)." +
-                    " Will use '%s' to start nodes on the host %s.",
+            String warn1 = String.format("Default JAVA_HOME " +
+                    "'%s' on the host '%s' is different from default JAVA_HOME on the current host '%s'.",
                 hostJava,
                 host,
-                locJavaHome,
+                locJavaHome);
+
+            String warn2 = String.format("Will use '%s' to start nodes on the host %s.",
                 hostJava,
                 host);
 
-            log().info(warn);
+            log().warn(warn1);
+            log().warn(warn2);
 
             runCtx.putInJavaHostMap(host, hostJava);
         }

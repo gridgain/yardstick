@@ -2,6 +2,7 @@ package org.yardstickframework.runners.context;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -22,6 +23,9 @@ import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
+import org.apache.log4j.PropertyConfigurator;
+import org.apache.log4j.xml.DOMConfigurator;
+import org.w3c.dom.Element;
 import org.yardstickframework.BenchmarkUtils;
 
 /**
@@ -110,7 +114,7 @@ public class RunContextInitializer {
 
         configLog();
 
-        LOG.info(String.format("Locale work directory is '%s'.", ctx.localeWorkDirectory()));
+        LOG.debug(String.format("Locale work directory is '%s'.", ctx.localeWorkDirectory()));
 
         if (ctx.config().propertyFile() == null) {
             String dfltPropPath = String.format("%s/config/benchmark.properties", ctx.localeWorkDirectory());
@@ -118,7 +122,7 @@ public class RunContextInitializer {
             LOG.info(String.format("Using as a default property file '%s'.", dfltPropPath));
 
             if (!new File(dfltPropPath).exists()) {
-                LOG.info(String.format("Failed to find default property file '%s'.", dfltPropPath));
+                LOG.error(String.format("Failed to find default property file '%s'.", dfltPropPath));
 
                 ctx.exitCode(1);
 
@@ -135,7 +139,7 @@ public class RunContextInitializer {
             else if (Paths.get(ctx.localeWorkDirectory(), propFilePath).toFile().exists())
                 ctx.propertyPath(Paths.get(ctx.localeWorkDirectory(), propFilePath).toAbsolutePath().toString());
             else {
-                LOG.info(String.format("Error. Failed to find property '%s'", propFilePath));
+                LOG.error(String.format("Failed to find property file '%s'", propFilePath));
 
                 ctx.exitCode(1);
 
@@ -143,7 +147,7 @@ public class RunContextInitializer {
             }
         }
 
-        LOG.info(String.format("Property file path is '%s'.", ctx.propertyPath()));
+        LOG.debug(String.format("Property file path is '%s'.", ctx.propertyPath()));
 
         try {
             checkPropertyFile();
@@ -311,7 +315,7 @@ public class RunContextInitializer {
 
         ctx.remoteWorkDirectory(remWorkDir);
 
-        LOG.info(String.format("Remote work directory is '%s'.", ctx.remoteWorkDirectory()));
+        LOG.debug(String.format("Remote work directory is '%s'.", ctx.remoteWorkDirectory()));
     }
 
     /**
@@ -340,7 +344,7 @@ public class RunContextInitializer {
                 String adr = ee.nextElement().getHostAddress();
 
                 if (allHosts.contains(adr)) {
-                    LOG.info(String.format("Setting current host address as '%s'.", adr));
+                    LOG.debug(String.format("Setting current host address as '%s'.", adr));
 
                     ctx.currentHost(adr);
                 }
@@ -348,7 +352,7 @@ public class RunContextInitializer {
         }
 
         if (ctx.currentHost() == null) {
-            LOG.info("Setting current host address as '127.0.0.1'.");
+            LOG.debug("Setting current host address as '127.0.0.1'.");
 
             ctx.currentHost("127.0.0.1");
         }
@@ -405,8 +409,10 @@ public class RunContextInitializer {
         else {
             String locUser = System.getProperty("user.name");
 
-            LOG.info(String.format("'REMOTE_USER' is not defined in property file. Will use '%s' " +
-                "username for remote connections.", locUser));
+            if (!ctx.onlyLocal()) {
+                LOG.info(String.format("'REMOTE_USER' is not defined in property file. Will use '%s' " +
+                    "username for remote connections.", locUser));
+            }
 
             remUser = locUser;
         }
@@ -568,7 +574,7 @@ public class RunContextInitializer {
         if (new File(fullPath).exists())
             return fullPath;
 
-        LOG.info(String.format("Failed to find '%s' or '%s'.", srcPath, fullPath));
+        LOG.error(String.format("Failed to find '%s' or '%s'.", srcPath, fullPath));
 
         ctx.exitCode(1);
 
@@ -615,39 +621,53 @@ public class RunContextInitializer {
      *
      */
     private void configLog() {
-        ConsoleAppender console = new ConsoleAppender(); //create appender
-        //configure the appender
-        String ptrn = "[%d{yyyy-MM-dd HH:mm:ss}][%-5p][%t] %m%n";
-        console.setLayout(new PatternLayout(ptrn));
-        console.setThreshold(Level.INFO);
-        console.activateOptions();
-        //add appender to any Logger (here is root)
-        Logger.getRootLogger().addAppender(console);
+        String logPropPath = String.format("%s/config/log4j.properties", ctx.localeWorkDirectory());
 
-        FileAppender fa = new FileAppender();
-        fa.setName("FileLogger");
-        fa.setFile(Paths.get(ctx.localeWorkDirectory(), "output", String.format("logs-%s/%s-run.log",
-            ctx.mainDateTime(), ctx.mainDateTime())).toString());
-        fa.setLayout(new PatternLayout("[%d{yyyy-MM-dd HH:mm:ss,SSS}][%-5p][%t] %m%n"));
-        fa.setThreshold(Level.INFO);
-        fa.setAppend(true);
-        fa.activateOptions();
+        String logPath = Paths.get(ctx.localeWorkDirectory(), "output", String.format("logs-%s/%s-run.log",
+            ctx.mainDateTime(), ctx.mainDateTime())).toString();
 
-        //add appender to any Logger (here is root)
-        Logger.getRootLogger().addAppender(fa);
+        if (new File(logPropPath).exists()){
+            Properties logProps = new Properties();
 
-        //TODO remove
-        if (new File("/home/oostanin/yardstick").exists()) {
-            FileAppender fa1 = new FileAppender();
-            fa1.setName("FileLogger1");
-            fa1.setFile(String.format("/home/oostanin/yardstick/log-%s.log", BenchmarkUtils.hms()));
-            fa1.setLayout(new PatternLayout("[%d{yyyy-MM-dd HH:mm:ss,SSS}][%-5p][%t] %m%n"));
-            fa1.setThreshold(Level.DEBUG);
-            fa1.setAppend(false);
-            fa1.activateOptions();
+            try {
+                logProps.load(new FileInputStream(logPropPath));
 
-            //add appender to any Logger (here is root)
-            Logger.getRootLogger().addAppender(fa1);
+                if (logProps.getProperty("log4j.appender.file.File") == null)
+                    logProps.setProperty("log4j.appender.file.File", logPath);
+
+                PropertyConfigurator.configure(logProps);
+            } catch (IOException e) {
+                LOG.error(String.format("Unable to load logging property file %s :", logPropPath), e);
+            }
+        }
+        else {
+            ConsoleAppender console = new ConsoleAppender();
+
+            String ptrn = "[%d{yyyy-MM-dd HH:mm:ss}][%-5p] %m%n";
+
+            console.setLayout(new PatternLayout(ptrn));
+
+            console.setThreshold(Level.INFO);
+
+            console.activateOptions();
+
+            Logger.getRootLogger().addAppender(console);
+
+            FileAppender fileApp = new FileAppender();
+
+            fileApp.setName("FileLogger");
+
+            fileApp.setFile(logPath);
+
+            fileApp.setLayout(new PatternLayout("[%d{yyyy-MM-dd HH:mm:ss,SSS}][%-5p][%t] %m%n"));
+
+            fileApp.setThreshold(Level.INFO);
+
+            fileApp.setAppend(true);
+
+            fileApp.activateOptions();
+
+            Logger.getRootLogger().addAppender(fileApp);
         }
     }
 }

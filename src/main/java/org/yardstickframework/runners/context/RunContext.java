@@ -162,7 +162,7 @@ public class RunContext {
     public Set<String> getHostSet() {
         Set<String> res = new TreeSet<>(servHosts);
 
-        if(!startServEndExit)
+        if (!startServEndExit)
             res.addAll(drvrHosts);
 
         return res;
@@ -353,6 +353,18 @@ public class RunContext {
             res.add(new NodeInfo(type, hosts.get(i), null, String.valueOf(i), mode));
 
         return res;
+    }
+
+    /**
+     * @return {@code true} If all defined hosts are local.
+     */
+    public boolean onlyLocal() {
+        for (String host : getHostSet()) {
+            if (!host.equalsIgnoreCase("localhost") && !host.equals("127.0.0.1"))
+                return false;
+        }
+
+        return true;
     }
 
     /**
