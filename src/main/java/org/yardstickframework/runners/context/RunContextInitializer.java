@@ -110,7 +110,6 @@ public class RunContextInitializer {
         }
 
         ctx.localeWorkDirectory(new File(ctx.config().scriptDirectory()).getParentFile().getAbsolutePath());
-//        ctx.localeWorkDirectory("/home/oostanin/yardstick-infinispan");
 
         configLog();
 
