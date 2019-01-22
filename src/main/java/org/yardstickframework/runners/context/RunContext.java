@@ -37,7 +37,7 @@ public class RunContext {
     private Properties props;
 
     /** */
-    private Properties propsOrig;
+    private String[] configs;
 
     /** */
     private String locWorkDir;
@@ -65,6 +65,18 @@ public class RunContext {
 
     /** */
     private List<String> drvrHosts;
+
+    /** */
+    private String serverName;
+
+    /** */
+    private String warmup = "20";
+
+    /** */
+    private String duration = "40";
+
+    /** */
+    private String threads = "1";
 
     /** */
     private String currHost;
@@ -495,17 +507,17 @@ public class RunContext {
     }
 
     /**
-     * @return Properties orig.
+     * @return Configs.
      */
-    public Properties propertiesOrig() {
-        return propsOrig;
+    public String[] configs() {
+        return configs;
     }
 
     /**
-     * @param propsOrig New properties orig.
+     * @param configs New configs.
      */
-    public void propertiesOrig(Properties propsOrig) {
-        this.propsOrig = propsOrig;
+    public void configs(String[] configs) {
+        this.configs = configs;
     }
 
     /**
@@ -618,6 +630,62 @@ public class RunContext {
      */
     void driverHosts(List<String> drvrHosts) {
         this.drvrHosts = new ArrayList<>(drvrHosts);
+    }
+
+    /**
+     * @return Server name.
+     */
+    public String serverName() {
+        return serverName;
+    }
+
+    /**
+     * @param srvName New server name.
+     */
+    public void serverName(String srvName) {
+        serverName = srvName;
+    }
+
+    /**
+     * @return Warmap.
+     */
+    public String warmup() {
+        return warmup;
+    }
+
+    /**
+     * @param warmup New warmup.
+     */
+    public void warmup(String warmup) {
+        this.warmup = warmup;
+    }
+
+    /**
+     * @return Duration.
+     */
+    public String duration() {
+        return duration;
+    }
+
+    /**
+     * @param duration New duration.
+     */
+    public void duration(String duration) {
+        this.duration = duration;
+    }
+
+    /**
+     * @return Threads.
+     */
+    public String threads() {
+        return threads;
+    }
+
+    /**
+     * @param threads New threads.
+     */
+    public void threads(String threads) {
+        this.threads = threads;
     }
 
     /**

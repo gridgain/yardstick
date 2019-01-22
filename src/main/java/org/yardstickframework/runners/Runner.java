@@ -159,7 +159,7 @@ public abstract class Runner {
      * @return Exit value.
      */
     protected int execute() {
-        String cfgStr0 = runCtx.properties().getProperty("CONFIGS").split(",")[0];
+        String cfgStr0 = runCtx.configList().get(0);
 
         List<NodeInfo> servRes = null;
 
@@ -196,7 +196,7 @@ public abstract class Runner {
      *
      */
     protected void startServers(){
-        String cfgStr0 = runCtx.properties().getProperty("CONFIGS").split(",")[0];
+        String cfgStr0 = runCtx.configList().get(0);
 
         List<NodeInfo> servRes = startNodes(NodeType.SERVER, cfgStr0);
 

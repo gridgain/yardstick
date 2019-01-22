@@ -64,6 +64,8 @@ public class StartNodeWorker extends NodeWorker {
         // from that object and than remove --warmap (-w) and -- duration (-d) from config string in order to oveerride
         // those values later if needed.
         parseConfigString(cfgFullStr);
+
+        this.cfgFullStr = cfgFullStr;
     }
 
     /** {@inheritDoc} */
@@ -77,6 +79,12 @@ public class StartNodeWorker extends NodeWorker {
         servLogDirFullName = String.format("%s/log_servers", baseLogDirFullName);
 
         drvrLogDirFullName = String.format("%s/log_drivers", baseLogDirFullName);
+
+        warmup = runCtx.warmup();
+
+        duration = runCtx.duration();
+
+        initDuration = Long.valueOf(runCtx.duration());
     }
 
     /** {@inheritDoc} */
@@ -107,7 +115,8 @@ public class StartNodeWorker extends NodeWorker {
 
         String mode = "";
 
-        String descript = runCtx.description(cfgFullStr);
+        String descript = cfg.descriptions() != null ? listToString(cfg.descriptions()) :
+            String.format("%s-%s-threads", listToString(cfg.driverNames()), runCtx.threads());
 
         if (nodeInfo.runMode() != RunMode.PLAIN)
             mode = String.format(" Run mode - '%s';", nodeInfo.runMode());
@@ -197,8 +206,11 @@ public class StartNodeWorker extends NodeWorker {
 
         String cfgStr = cfgFullStr.replace(runCtx.localeWorkDirectory(), runCtx.remoteWorkDirectory());
 
-        return String.format("%s -Dyardstick.%s%s -cp :%s/libs/* %s -id %s %s %s --warmup %s --duration %s " +
-                "--config %s --logsFolder %s --remoteuser %s --currentFolder %s --scriptsFolder %s/bin",
+        String servName = runCtx.serverName() != null ? runCtx.serverName() : cfg.serverName();
+
+        return String.format("%s -Dyardstick.%s%s -cp :%s/libs/* %s -id %s %s %s --serverName %s --warmup %s " +
+                "--duration %s --threads %s --config %s --logsFolder %s --remoteuser %s --currentFolder %s " +
+                "--scriptsFolder %s/bin",
             fullJvmOpts,
             nodeInfo.typeLow(),
             id,
@@ -207,8 +219,10 @@ public class StartNodeWorker extends NodeWorker {
             id,
             outputFolderParam,
             cfgStr,
+            servName,
             warmup,
             duration,
+            runCtx.threads(),
             propPath,
             logDirFullName(nodeInfo),
             runCtx.remoteUser(),
@@ -273,37 +287,6 @@ public class StartNodeWorker extends NodeWorker {
 
         BenchmarkUtils.jcommander(toNewCfg, cfg, "");
 
-        this.warmup = String.valueOf(cfg.warmup());
-
-        this.duration = String.valueOf(cfg.duration());
-
-        this.initDuration = cfg.duration();
-
-        StringBuilder sb = new StringBuilder();
-
-        for (int i = 0; i < toNewCfg.length; i++) {
-            if (toNewCfg[i].equals("-w")
-                || toNewCfg[i].equals("--warmup")
-                || toNewCfg[i].equals("-d")
-                || toNewCfg[i].equals("--duration")) {
-                i++;
-
-                continue;
-            }
-            else {
-                sb.append(toNewCfg[i]);
-
-                if (i < toNewCfg.length - 1)
-                    sb.append(" ");
-            }
-        }
-
-        String newCfgStr = sb.toString();
-
-        log().debug(String.format("Config string after removing warmap and duration: %s", newCfgStr));
-
-        this.cfgFullStr = newCfgStr;
-
         return cfg;
     }
 
@@ -333,5 +316,23 @@ public class StartNodeWorker extends NodeWorker {
      */
     public void duration(String duration) {
         this.duration = duration;
+    }
+
+    /**
+     *
+     * @param list List.
+     * @return Dash separated string of list items.
+     */
+    private String listToString(List<String> list){
+        StringBuilder sb = new StringBuilder();
+
+        for (int i = 0; i < list.size(); i++){
+            sb.append(list.get(i));
+
+            if(i < list.size() - 1)
+                sb.append("-");
+        }
+
+        return sb.toString();
     }
 }

@@ -3,7 +3,6 @@ package org.yardstickframework.runners.context;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.InetAddress;
@@ -24,8 +23,6 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 import org.apache.log4j.PropertyConfigurator;
-import org.apache.log4j.xml.DOMConfigurator;
-import org.w3c.dom.Element;
 import org.yardstickframework.BenchmarkUtils;
 
 /**
@@ -61,6 +58,16 @@ public class RunContextInitializer {
         setHosts();
 
         setProps();
+
+        setConfigs();
+
+        setServerName();
+
+        setWarmup();
+
+        setDuration();
+
+        setThreads();
 
         setJavaHome();
 
@@ -151,11 +158,11 @@ public class RunContextInitializer {
         try {
             checkPropertyFile();
 
-            Properties propsOrig = new Properties();
+            Properties props = new Properties();
 
-            propsOrig.load(new FileReader(ctx.propertyPath()));
+            props.load(new FileReader(ctx.propertyPath()));
 
-            ctx.propertiesOrig(propsOrig);
+            ctx.properties(props);
         }
         catch (IOException e) {
             e.printStackTrace();
@@ -306,7 +313,8 @@ public class RunContextInitializer {
      *
      */
     private void setProps() {
-        ctx.properties(parseProps(ctx.propertiesOrig()));
+//        ctx.properties(parseProps(ctx.propertiesOrig()));
+//        ctx.properties(ctx.propertiesOrig());
 
         String remWorkDir = ctx.properties().getProperty("WORK_DIR") != null ?
             ctx.properties().getProperty("WORK_DIR") :
@@ -355,6 +363,59 @@ public class RunContextInitializer {
 
             ctx.currentHost("127.0.0.1");
         }
+    }
+
+    /**
+     *
+     */
+    private void setConfigs(){
+        String cfgFromProps = ctx.properties().getProperty("CONFIGS");
+
+        if (cfgFromProps == null || cfgFromProps.isEmpty()){
+            LOG.error(String.format("'CONFIGS' property is not defined in property file."));
+
+            System.exit(1);
+        }
+
+        if (cfgFromProps.startsWith("\""))
+            cfgFromProps = cfgFromProps.substring(1, cfgFromProps.length());
+
+        if (cfgFromProps.endsWith("\""))
+            cfgFromProps = cfgFromProps.substring(0, cfgFromProps.length() - 1);
+
+        ctx.configs(cfgFromProps.split(","));
+    }
+
+    /**
+     *
+     */
+    private void setServerName(){
+        if(ctx.properties().getProperty("SERVER_NAME") != null)
+            ctx.serverName(ctx.properties().getProperty("SERVER_NAME"));
+    }
+
+    /**
+     *
+     */
+    private void setWarmup(){
+        if(ctx.properties().getProperty("WARMUP") != null)
+            ctx.warmup(ctx.properties().getProperty("WARMUP"));
+    }
+
+    /**
+     *
+     */
+    private void setDuration(){
+        if(ctx.properties().getProperty("DURATION") != null)
+            ctx.duration(ctx.properties().getProperty("DURATION"));
+    }
+
+    /**
+     *
+     */
+    private void setThreads(){
+        if(ctx.properties().getProperty("THREADS") != null)
+            ctx.threads(ctx.properties().getProperty("THREADS"));
     }
 
     /**
@@ -425,7 +486,7 @@ public class RunContextInitializer {
     private void setCfgList() {
         List<String> cfgList = new ArrayList<>();
 
-        for (String cfgStr : ctx.properties().getProperty("CONFIGS").split(",")) {
+        for (String cfgStr : ctx.configs()) {
             if (cfgStr.length() < 10)
                 continue;
 
@@ -448,7 +509,7 @@ public class RunContextInitializer {
      * @return List of host addresses.
      */
     private List<String> getHosts(String prop) {
-        List<String> res = hostsToList(ctx.propertiesOrig().getProperty(prop));
+        List<String> res = hostsToList(ctx.properties().getProperty(prop));
 
         if (res.isEmpty())
             LOG.info(String.format("WARNING! %s is not defined in property file.", prop));
@@ -469,59 +530,8 @@ public class RunContextInitializer {
 
         String[] ips = commaSepList.split(",");
 
-        for (String ip : ips) {
-            check(ip);
-
+        for (String ip : ips)
             res.add(ip);
-        }
-
-        return res;
-    }
-
-    /**
-     *
-     * @param host Host.
-     */
-    private void check(String host) {
-        //TODO
-    }
-
-    /**
-     *
-     * @param src Source properties.
-     * @return Parsed properties.
-     */
-    private Properties parseProps(Properties src) {
-        Properties res = new Properties();
-
-        for (String propName : src.stringPropertyNames()) {
-            String newVal = parsePropVal(src.getProperty(propName));
-
-            res.setProperty(propName, newVal.replace("\"", ""));
-        }
-
-        return res;
-    }
-
-    /**
-     * @param src Source string
-     * @return Parsed string.
-     */
-    private String parsePropVal(String src) {
-        String res = src.replace("\"", "");
-
-        if (src.contains("${SCRIPT_DIR}/.."))
-            res = res.replace("${SCRIPT_DIR}/..", ctx.localeWorkDirectory());
-        if (src.contains("${nodesNum}"))
-            res = res.replace("${nodesNum}", String.valueOf(getNodesNum()));
-
-        for (String propName : ctx.propertiesOrig().stringPropertyNames()) {
-            if (src.contains(String.format("${%s}", propName)))
-                res = res.replace(String.format("${%s}", propName), ctx.propertiesOrig().get(propName).toString());
-
-            if (src.contains(String.format("$%s", propName)))
-                res = res.replace(String.format("$%s", propName), ctx.propertiesOrig().get(propName).toString());
-        }
 
         return res;
     }

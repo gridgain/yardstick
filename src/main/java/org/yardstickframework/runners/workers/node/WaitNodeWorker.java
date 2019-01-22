@@ -39,7 +39,7 @@ public class WaitNodeWorker extends NodeWorker {
 
         boolean noMoreWaiting = false;
 
-        int fullTime = (int) (nodeInfo.config().warmup() + nodeInfo.config().duration());
+        int fullTime = (int) (Integer.valueOf(runCtx.warmup()) + Integer.valueOf(runCtx.duration()));
 
         double warnTime = fullTime * 1.25;
 
