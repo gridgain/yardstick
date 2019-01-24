@@ -545,8 +545,10 @@ public class RunContextInitializer {
         if (ctx.properties().getProperty("DOCKER_CONTEXT_PATH") == null) {
             dockerCtxPropPath = String.format("%s/config/docker/docker-context-default.yaml", ctx.localeWorkDirectory());
 
-            LOG.info(String.format("DOCKER_CONTEXT_PATH is not defined in property file. Will try " +
-                "to use default docker context configuration %s", dockerCtxPropPath));
+            LOG.info("'DOCKER_CONTEXT_PATH' is not defined in property file. Will " +
+                "use default docker context configuration:");
+
+            LOG.info(dockerCtxPropPath);
         }
         else {
             dockerCtxPropPath = resolvePath(ctx.properties().getProperty("DOCKER_CONTEXT_PATH"));

@@ -77,7 +77,7 @@ public class DockerCleanContWorker extends DockerHostWorker {
 
         Collection<Map<String, String>> processes = getProcesses(host);
 
-        String res = "removed";
+        String res = "successfully removed";
 
         for (Map<String, String> proc : processes)
             if (proc.get("CONTAINER ID").equals(contId))

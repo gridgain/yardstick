@@ -119,7 +119,7 @@ public class StartNodeWorker extends NodeWorker {
             String.format("%s-%s-threads", listToString(cfg.driverNames()), runCtx.threads());
 
         if (nodeInfo.runMode() != RunMode.PLAIN)
-            mode = String.format(" Run mode - '%s';", nodeInfo.runMode());
+            mode = String.format(" Run mode='%s';", nodeInfo.runMode());
 
         String wd = nodeInfo.nodeType() == NodeType.DRIVER ?
             String.format("Warmup=%s; Duration=%s; ", warmup, duration) : "";
@@ -190,15 +190,20 @@ public class StartNodeWorker extends NodeWorker {
 
         String concJvmOpts = jvmOptsStr + " " + nodeJvmOptsStr;
 
-        String gcJvmOpts = concJvmOpts.contains("PrintGC") ?
-            String.format(" -Xloggc:%s/gc-%s-%s-id%s-%s-%s.log",
-                logDirFullName(nodeInfo),
-                nodeInfo.nodeStartTime(),
-                nodeInfo.typeLow(),
-                id,
-                host,
-                nodeInfo.description()) :
-            "";
+        String gcJvmOpts = "";
+
+        // If path for GC log file is not already defined in JVM options, CG log will be directed to node log directory.
+        if (!concJvmOpts.contains("-Xloggc")) {
+            gcJvmOpts = concJvmOpts.contains("PrintGC") ?
+                String.format(" -Xloggc:%s/gc-%s-%s-id%s-%s-%s.log",
+                    logDirFullName(nodeInfo),
+                    nodeInfo.nodeStartTime(),
+                    nodeInfo.typeLow(),
+                    id,
+                    host,
+                    nodeInfo.description()) :
+                "";
+        }
 
         String fullJvmOpts = (concJvmOpts + " " + gcJvmOpts).replace("\"", "");
 

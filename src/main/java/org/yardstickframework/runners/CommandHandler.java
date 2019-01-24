@@ -359,20 +359,31 @@ public class CommandHandler {
 
         CommandExecutionResult res = runRmtCmd(checkCmd);
 
-        boolean found = false;
-
         String toLook = String.format("-Dyardstick.%s ", nodeInfo.toShortStr());
 
-        for (String str : res.outputList())
-            if (str.contains(toLook))
-                found = true;
-
-        if (found)
+        if (checkList(res.outputList(), toLook))
             nodeInfo.nodeStatus(NodeStatus.RUNNING);
         else
             nodeInfo.nodeStatus(NodeStatus.NOT_RUNNING);
 
         return nodeInfo;
+    }
+
+    /**
+     * Checks if at least one line in the list contains a given string.
+     *
+     * @param toCheck List to check.
+     * @param toLook String to look for.
+     * @return
+     */
+    public boolean checkList(List<String> toCheck, String toLook){
+        boolean found = false;
+
+        for (String str : toCheck)
+            if (str.contains(toLook))
+                found = true;
+
+        return found;
     }
 
     /**

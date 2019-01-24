@@ -1,7 +1,6 @@
 package org.yardstickframework.runners.checkers;
 
 import java.io.IOException;
-import org.yardstickframework.runners.Runner;
 import org.yardstickframework.runners.CommandExecutionResult;
 import org.yardstickframework.runners.context.NodeInfo;
 import org.yardstickframework.runners.context.NodeStatus;
@@ -24,10 +23,7 @@ public class InDockerNodeChecker extends NodeChecker {
     @Override public NodeInfo checkNode(NodeInfo nodeInfo) throws InterruptedException{
         String host = nodeInfo.host();
 
-        String nodeToCheck = String.format("Dyardstick.%s%s ",
-            nodeInfo.nodeType().toString().toLowerCase(), nodeInfo.id());
-
-        String checkCmd = String.format("exec %s pgrep -f \"%s\"", nodeInfo.dockerInfo().contName(), nodeToCheck);
+        String checkCmd = String.format("exec %s sh -c 'ps -a|grep java'", nodeInfo.dockerInfo().contName());
 
         CommandExecutionResult res = CommandExecutionResult.emptyFailedResult();
 
@@ -42,10 +38,12 @@ public class InDockerNodeChecker extends NodeChecker {
             nodeInfo.commandExecutionResult(res);
         }
 
-        if(res.outputList().isEmpty())
-            nodeInfo.nodeStatus(NodeStatus.NOT_RUNNING);
-        else
+        String toLook = String.format("-Dyardstick.%s ", nodeInfo.toShortStr());
+
+        if(runCtx.handler().checkList(res.outputList(), toLook))
             nodeInfo.nodeStatus(NodeStatus.RUNNING);
+        else
+            nodeInfo.nodeStatus(NodeStatus.NOT_RUNNING);
 
         return nodeInfo;
     }

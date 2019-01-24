@@ -60,11 +60,11 @@ public class CheckLogWorker extends NodeWorker {
             if (!res.outputList().isEmpty()) {
                 nodeInfo.errorMessages().addAll(res.outputList());
 
-                log().info(String.format("WARNING! Log file '%s' contains following error messages:",
+                log().warn(String.format("Log file '%s' contains following error messages:",
                     logPath));
 
                 for (String msg : res.outputList())
-                    log().info(msg);
+                    log().error(msg);
 
                 return nodeInfo;
             }
