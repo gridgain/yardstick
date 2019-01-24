@@ -377,12 +377,6 @@ public class RunContextInitializer {
             System.exit(1);
         }
 
-        if (cfgFromProps.startsWith("\""))
-            cfgFromProps = cfgFromProps.substring(1, cfgFromProps.length());
-
-        if (cfgFromProps.endsWith("\""))
-            cfgFromProps = cfgFromProps.substring(0, cfgFromProps.length() - 1);
-
         ctx.configs(cfgFromProps.split(","));
     }
 
