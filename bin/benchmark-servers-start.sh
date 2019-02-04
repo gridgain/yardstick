@@ -144,8 +144,6 @@ do
         fi
     done
 
-    file_log=${LOGS_DIR}"/"${now}"-id"${id}"-"${host_name}"-"${DS}".log"
-
     if [[ ${JVM_OPTS_ORIG} == *"#filename#"* ]]
     then
         filename_ptrn=${LOGS_DIR}/${now}-server-id${id}-${host_name}-${DS}
@@ -164,6 +162,8 @@ do
     fi
     
     for SERVER_NODE in $( seq 0 $(( $node_count - 1 )) ); do
+    file_log=${LOGS_DIR}"/"${now}"-id"${id}"-"${host_name}"-"${DS}"-"${SERVER_NODE}".log"
+
     if [[ ${host_name} = "127.0.0.1" || ${host_name} = "localhost" ]]; then
         mkdir -p ${LOGS_DIR}
 
