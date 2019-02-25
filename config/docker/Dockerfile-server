@@ -15,4 +15,4 @@
 # limitations under the License.
 #
 
-FROM airdock/oracle-jdk
+FROM openjdk:8-alpine

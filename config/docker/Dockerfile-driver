@@ -15,9 +15,7 @@
 # limitations under the License.
 #
 
-FROM airdock/oracle-jdk
-
-RUN apt-get update && apt-get install -y apt-transport-https dstat
+FROM openjdk:8-alpine
 
 
 
