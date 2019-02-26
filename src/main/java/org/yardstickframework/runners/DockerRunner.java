@@ -167,6 +167,9 @@ public class DockerRunner extends FullRunner {
 
             checkRes(resList);
         }
+        else
+            log().info(String.format("Will not remove docker containers because flag '%s' in 'removeContainersFlags' " +
+                "property is set to 'false'", flag));
 
         if (runCtx.dockerContext().getRemoveImagesFlags().get(flag)) {
             if (!runCtx.dockerContext().getRemoveContainersFlags().get(flag)) {
@@ -177,6 +180,9 @@ public class DockerRunner extends FullRunner {
             else
                 new DockerCleanImagesWorker(runCtx, runCtx.uniqueHostsByType(type)).workOnHosts();
         }
+        else
+            log().info(String.format("Will not remove docker images because flag '%s' in 'removeImagesFlags' property" +
+                "is set to 'false'", flag));
     }
 
     /**
