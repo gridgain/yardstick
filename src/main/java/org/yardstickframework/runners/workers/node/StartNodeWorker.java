@@ -14,6 +14,7 @@
 
 package org.yardstickframework.runners.workers.node;
 
+import com.beust.jcommander.ParameterException;
 import java.io.IOException;
 import java.util.List;
 import org.yardstickframework.BenchmarkConfiguration;
@@ -75,7 +76,7 @@ public class StartNodeWorker extends NodeWorker {
         super(runCtx, nodeList);
 
         // We need to extract data from config string into BenchmarkConfiguration object, set warmap and durations
-        // from that object and than remove --warmap (-w) and -- duration (-d) from config string in order to oveerride
+        // from that object and than remove --warmap (-w) and -- duration (-d) from config string in order to override
         // those values later if needed.
         parseConfigString(cfgFullStr);
 

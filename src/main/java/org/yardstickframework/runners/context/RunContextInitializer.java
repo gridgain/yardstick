@@ -37,6 +37,7 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 import org.apache.log4j.PropertyConfigurator;
+import org.yardstickframework.BenchmarkConfiguration;
 import org.yardstickframework.BenchmarkUtils;
 
 /**
@@ -495,8 +496,27 @@ public class RunContextInitializer {
         List<String> cfgList = new ArrayList<>();
 
         for (String cfgStr : ctx.configs()) {
-            if (cfgStr.length() < 10)
+            if (cfgStr.length() < 5)
                 continue;
+
+            BenchmarkConfiguration cfg = new BenchmarkConfiguration();
+
+            String[] toNewCfg = cfgStr.split(" ");
+
+            try {
+                BenchmarkUtils.jcommander(toNewCfg, cfg, "");
+            }
+            catch (Exception e){
+                LOG.error(String.format("Failed to parse configuration string '%s': %s.", cfgStr, e.getMessage()));
+
+                System.exit(1);
+            }
+
+            if(cfg.driverNames() == null){
+                LOG.error(String.format("No driver names defined in configuration string %s.", cfgStr));
+
+                System.exit(1);
+            }
 
             cfgList.add(cfgStr);
         }
