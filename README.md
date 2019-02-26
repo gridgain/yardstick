@@ -39,9 +39,9 @@ You can find Yardstick benchmark examples in
 * [Yardstick GridGain Benchmark Repository](https://github.com/gridgain/yardstick-gridgain)
 
 ## Running Yardstick Benchmarks
-The easiest way to run benchmarks is by executing `bin/benchmark-run-all.sh` script which will automatically start benchmark driver and remote servers base based on the properties file passed in (`config/benchmark.properties` used by default):
+The easiest way to run benchmarks is by executing `run-benchmarks.sh` script which will automatically start benchmark driver and remote servers base based on the properties file passed in (`config/benchmark.properties` used by default):
 
-    $ bin/benchmark-run-all.sh config/benchmark.properties
+    $ bin/run-benchmarks.sh -pf config/benchmark.properties
 
 This script will automatically restart benchmark driver and remote servers for every benchmark configuration provided in `config/benchmark.properties` file.
 
@@ -51,39 +51,28 @@ At the end of the run, you can generate graphs by executing `bin/jfreechart-grap
 
 
 ### Starting Remote Servers
-If you do not wish to run `bin/benchmark-run-all.sh` script and prefer to have more control over starting and stopping remote servers, you can use `benchmark-servers-start.sh` script directly.
+If you do not wish to run `bin/run-benchmarks.sh` script and prefer to have more control over starting and stopping remote servers, you can use `run-servers.sh` script directly.
 
-    $ bin/benchmark-servers-start.sh config/benchmark.properties
+    $ bin/run-servers.sh -pf config/benchmark.properties
 
 **Server Log Files** are stored in the `logs-<current time>/logs_servers` folder.
 
 ### Starting Benchmark Driver
-Again, if you do not wish to run `bin/benchmark-run-all.sh` script, you can start benchmark driver directly by executing `benchmark-driver-start.sh` script.
+Again, if you do not wish to run `bin/run-benchmarks.sh` script, you can start benchmark driver directly by executing `run-drivers.sh` script.
 
-    $ bin/benchmark-driver-start.sh config/benchmark.properties
+    $ bin/run-drivers.sh -pf config/benchmark.properties
 
 **Driver Log Files** are stored in the `logs-<current time>/logs_drivers` folder.
 
+### Collecting data from remote servers.
+To collect data from remote servers and drivers after the benchmark is finished, you can execute `collect.sh` script.
+
+    $ bin/collect.sh -pf config/benchmark.properties
+
 ### Stopping Remote Servers
-To stop remote servers after the benchmark is finished, you can execute `benchmark-servers-stop.sh` script.
+To stop remote servers and clean up remote directories after the benchmark is finished, you can execute `clean-up.sh` script.
 
-    $ bin/benchmark-servers-stop.sh config/benchmark.properties
-
-### Manual Running
-There are scripts that allow to run servers and drivers on local machine only, no SSH commands are used to start remote servers or drivers.
-
-To start servers you can execute `benchmark-manual-servers-start.sh` script. Optionally the number of servers parameter can be passed to this script.
-If it's not specified then the number of servers will be equal to the number of server hosts (`SERVER_HOSTS` property in properties file).
-
-    $ bin/benchmark-manual-servers-start.sh config/benchmark.properties
-
-To start drivers you can execute `benchmark-manual-drivers-start.sh` script.
-
-    $ bin/benchmark-manual-drivers-start.sh config/benchmark.properties
-
-Servers and drivers are stopped manually, for example by `kill` command.
-
-Windows version of manual scripts is shipped as well: `benchmark-manual-servers-start.bat` and `benchmark-manual-drivers-start.bat` batch scripts.
+    $ bin/clean-up.sh -pf config/benchmark.properties
 
 ### Properties And Command Line Arguments
 
