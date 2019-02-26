@@ -4,7 +4,7 @@ Yardstick is a framework for writing benchmarks. Specifically it helps with writ
 
 The framework comes with a default set of probes that collect various metrics during benchmark execution. Probes can be turned on or off in configuration. You can use a probe  for measuring throughput and latency, or a probe that gathers `vmstat` statistics, etc... At the end of benchmark execution, Yardstick automatically produces files with probe points.
 
-The framework also lets you to run benchmarks in different modes such as 'PLAIN' when nodes run on bare metall servers or 'DOCKER' when nodes run in docker containers.
+The framework also lets you run benchmarks in different modes such as 'PLAIN' when nodes run on bare-metal servers or 'DOCKER' when nodes run in docker containers.
 
 ### GridGain Benchmarks On Yardstick
 See <a href="https://github.com/gridgain/yardstick-gridgain" target="_blank">Yardstick GridGain Benchmarks</a> as an example of Yardstick framework usage.
@@ -14,8 +14,8 @@ See <a href="https://github.com/gridgain/yardstick-gridgain" target="_blank">Yar
 ### Click on individual graphs to Zoom In
 ![Generated Graph](http://www.gridgain.com/images/yardstick/yardstick-compound-magnified1.png)
 
-## Available run modes.
-1. `PLAIN` - nodes run on bare metall servers.
+## Available run modes
+1. `PLAIN` - nodes run on bare-metal servers.
 2. `DOCKER` - nodes run in docker containers.
 
 ## Available Probes
@@ -64,13 +64,13 @@ Again, if you do not wish to run `bin/run-benchmarks.sh` script, you can start b
 
 **Driver Log Files** are stored in the `logs-<current time>/logs_drivers` folder.
 
-### Collecting data from remote servers.
-To collect data from remote servers and drivers after the benchmark is finished, you can execute `collect.sh` script.
+### Collecting data from remote servers
+To collect data from remote servers and drivers when the benchmark is finished, you can execute `collect.sh` script.
 
     $ bin/collect.sh -pf config/benchmark.properties
 
 ### Stopping Remote Servers
-To stop remote servers and clean up remote directories after the benchmark is finished, you can execute `clean-up.sh` script.
+To stop remote servers and clean up remote directories when the benchmark is finished, you can execute `clean-up.sh` script.
 
     $ bin/clean-up.sh -pf config/benchmark.properties
 
@@ -84,11 +84,11 @@ The following properties can be defined in benchmark properties file:
 * `SERVER_HOSTS` - comma-separated list of IP addresses where servers should be started, one server per host
 * `DRIVER_HOSTS` - comma-separated list of IP addresses where drivers should be started, one driver per host, if the property is not defined then the driver will be run on localhost
 * `REMOTE_USER` - SSH user for logging in to remote hosts
-* `RUN_MODE` - run mode. 'PLAIN' run mode is using by default.
+* `RUN_MODE` - run mode. 'PLAIN' run mode is used by default
 * `JVM_OPTS` - list of general JVM options used to start both server and driver node
 * `SERVER_JVM_OPTS` - list of JVM options used to start server node (appended to `JVM_OPTS`)
 * `DRIVER_JVM_OPTS` - list of JVM options used to start driver node (appended to `JVM_OPTS`)
-* `RESTART_SERVERS` - there is two modes to use it. 1. `RESTART_SERVERS=true` - yardstick will start new servers
+* `RESTART_SERVERS` - there are two modes to use it. 1. `RESTART_SERVERS=true` - yardstick will start new servers
 for each benchmark. 2. `RESTART_SERVERS=<hostname_1>:<id_1>:<delay_1>:<pause_1>:<period_1>,<hostname_2>:<id_2>:<delay_2>:<pause_2>:<period_2>` -
 comma-separated list of colon-separated tuples of a hostname,
 a server host id (id - number of hostname at `SERVER_HOSTS` from 0),
@@ -98,7 +98,7 @@ and a period for next restarts.
 The delay, the pause and the period in seconds (Note: it can be 0.1 seconds for example).
 Please pay attention that restarters warmup delay is an absolute time from benchmark start, it does not depends of benchmark's warmup delay.
 In this case, yardstick will start new servers for each benchmark (the same with `RESTART_SERVERS=true`), and after starting of driver,
-yardstick will killing server by the hostname according to the delay, the pause and the period time.
+yardstick will kill server by the hostname according to the delay, the pause and the period time
 * `CONFIGS` - comma-separated list of benchmark run configurations which are passed to the servers and to the benchmarks
 
 Example of `benchmark.properties` file to run 2 instances of `EchoServer`
