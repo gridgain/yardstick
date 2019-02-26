@@ -4,6 +4,8 @@ Yardstick is a framework for writing benchmarks. Specifically it helps with writ
 
 The framework comes with a default set of probes that collect various metrics during benchmark execution. Probes can be turned on or off in configuration. You can use a probe  for measuring throughput and latency, or a probe that gathers `vmstat` statistics, etc... At the end of benchmark execution, Yardstick automatically produces files with probe points.
 
+The framework also lets you to run benchmarks in different modes such as 'PLAIN' when nodes run on bare metall servers or 'DOCKER' when nodes run in docker containers.
+
 ### GridGain Benchmarks On Yardstick
 See <a href="https://github.com/gridgain/yardstick-gridgain" target="_blank">Yardstick GridGain Benchmarks</a> as an example of Yardstick framework usage.
 
@@ -11,6 +13,10 @@ See <a href="https://github.com/gridgain/yardstick-gridgain" target="_blank">Yar
 ![Generated Graph](http://www.gridgain.com/images/yardstick/yardstick-compound1.png)
 ### Click on individual graphs to Zoom In
 ![Generated Graph](http://www.gridgain.com/images/yardstick/yardstick-compound-magnified1.png)
+
+## Available run modes.
+1. `PLAIN` - nodes run on bare metall servers.
+2. `DOCKER` - nodes run in docker containers.
 
 ## Available Probes
 1. `ThroughputLatencyProbe` - measures throughput and latency
@@ -89,6 +95,7 @@ The following properties can be defined in benchmark properties file:
 * `SERVER_HOSTS` - comma-separated list of IP addresses where servers should be started, one server per host
 * `DRIVER_HOSTS` - comma-separated list of IP addresses where drivers should be started, one driver per host, if the property is not defined then the driver will be run on localhost
 * `REMOTE_USER` - SSH user for logging in to remote hosts
+* `RUN_MODE` - run mode. 'PLAIN' run mode is using by default.
 * `JVM_OPTS` - list of general JVM options used to start both server and driver node
 * `SERVER_JVM_OPTS` - list of JVM options used to start server node (appended to `JVM_OPTS`)
 * `DRIVER_JVM_OPTS` - list of JVM options used to start driver node (appended to `JVM_OPTS`)
@@ -117,13 +124,13 @@ Example of `benchmark.properties` file to run 2 instances of `EchoServer`
     # BENCHMARK_WRITER=
     
     # General JVM options.
-    JVM_OPTS=${JVM_OPTS}"-Xms512m"
+    JVM_OPTS=-Xms512m
     
     # Server JVM options.
-    SERVER_JVM_OPTS=${SERVER_JVM_OPTS}"-Xmx512m"
+    SERVER_JVM_OPTS=-Xmx512m
     
     # Driver JVM options.
-    DRIVER_JVM_OPTS=${DRIVER_JVM_OPTS}"-Xmx1024m"
+    DRIVER_JVM_OPTS=-Xmx1024m
     
 
     # Comma-separated list of remote hosts to run BenchmarkServers on.
@@ -137,11 +144,22 @@ Example of `benchmark.properties` file to run 2 instances of `EchoServer`
     # Remote username.
     # REMOTE_USER=
 
+    # Warmup.
+    # WARMUP=
+
+    # Duration.
+    # DURATION=
+
+    # Number of threads.
+    # THREADS=
+
+    # Server node name.
+    # SERVER_NAME=
+
     # Comma-separated list of benchmark driver and server configuration parameters.
-    CONFIGS="\
-    --localBind localhost --duration 30 -t 2 -sn EchoServer -dn EchoBenchmark,\
-    --localBind localhost --duration 30 -t 4 -sn EchoServer -dn EchoBenchmark\
-    "
+    CONFIGS=
+    --localBind localhost -dn EchoBenchmark,\
+    --localBind localhost -dn EchoBenchmark
 
 The following properties can be defined in the benchmark configuration:
 
@@ -149,13 +167,9 @@ The following properties can be defined in the benchmark configuration:
 * `-dn <list>` or `--driverNames <list>` - space-separated list of driver names (required for the driver), the specified drivers will be run in one JVM,
 optionally a weight can be added to the driver name, for example `EchoBenchmark:3 NewEchoBenchmark:7`,
 so `EchoBenchmark` will be run 30% of benchmark time, NewEchoBenchmark will be run 70%
-* `-sn <name>` or `--serverName <name>` - server name (required for the server)
 * `-p <list>` or `--packages <list>` - comma separated list of packages for benchmarks
 * `-pr <list>` or `--probes <list>` - comma separated list of probes for benchmarks
 * `-wr <name>` or `--writer <name>` - probe point writer class name
-* `-t <num>` or `--threads <num>` - thread count (set to 'cpus * 2')
-* `-d <time>` or `--duration <time>` - test duration, in seconds
-* `-w <time>` or `--warmup <time>` - warmup time, in seconds
 * `-sh` or `--shutdown` - flag indicating whether to invoke shutdown hook or not
 * `-of <path>` or `--outputFolder <path>` - output folder for benchmark results, current folder is used by default
 * `-ds <list>` or `--descriptions <list>` - space-separated list of benchmark run descriptions,
@@ -166,7 +180,9 @@ For example if we need to run EchoServer server on localhost and EchoServerBench
 the test should be 20 seconds then the following configuration should be specified in run properties file:
 
 * `SERVER_HOSTS=localhost`
-* `CONFIGS="--duration 20 -sn EchoServer -dn EchoServerBenchmark"`
+* `SERVER_NAME=EchoServer`
+* `DURATION=20`
+* `CONFIGS=-dn EchoServerBenchmark`
 
 ## JFreeChart Graphs
 Yardstick goes with the script `jfreechart-graph-gen.sh` that builds JFreeChart graphs using probe points.
