@@ -20,6 +20,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -166,16 +167,60 @@ public class CommandHandler {
 
         lastCmd = cmd;
 
-        String[] cmdArr = cmd.split(" ");
+        String[] cmdArr = null;
 
-        final ProcessBuilder pb = new ProcessBuilder()
-            .command(cmdArr);
+        boolean redirect = false;
+
+        String logPath = null;
+
+        if(!cmd.endsWith("'echo $JAVA_HOME'") && !cmd.endsWith(" 2>& 1 &"))
+            cmdArr = cmd.split(" ");
+        else if(cmd.endsWith("'echo $JAVA_HOME'")) {
+            String cmdTemp = cmd.replace(" 'echo $JAVA_HOME'", "");
+
+            String[] cmdArrTemp = cmdTemp.split(" ");
+
+            cmdArr = Arrays.copyOf(cmdArrTemp, cmdArrTemp.length + 1);
+
+            cmdArr[cmdArr.length - 1] = "echo $JAVA_HOME";
+        }
+        else if(cmd.endsWith(" 2>& 1 &")) {
+            redirect = true;
+
+            String cmdTemp = cmd.replace("  2>& 1 &", "");
+
+            cmdTemp = cmdTemp.replace(" 2>& 1 &", "");
+
+            String[] cmdAndLog = cmdTemp.split(">");
+
+            String cmd0 = cmdAndLog[0].substring(0, cmdAndLog[0].length() - 1);
+
+            logPath = cmdAndLog[1].substring(1, cmdAndLog[1].length());
+
+            cmdArr = cmd0.split(" ");
+        }
+
+        final ProcessBuilder pb = new ProcessBuilder().command(cmdArr);
+
+        if(redirect) {
+            File logFile = new File(logPath);
+
+            if (!logFile.exists())
+                logFile.createNewFile();
+
+            pb.redirectErrorStream(true);
+
+            pb.redirectOutput(logFile);
+        }
 
         pb.directory(new File(runCtx.localeWorkDirectory()));
 
-        Process p = pb.start();
+        final Process p = pb.start();
 
-        int exitCode = p.waitFor();
+        int exitCode = 0;
+
+        if(!redirect)
+            exitCode = p.waitFor();
 
         BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
 
@@ -419,7 +464,7 @@ public class CommandHandler {
             return nodeInfo;
         }
 
-        String killCmd = String.format("pkill -9 -f \"Dyardstick.%s \"", nodeInfo.toShortStr());
+        String killCmd = String.format("pkill -9 -f Dyardstick.%s ", nodeInfo.toShortStr());
 
         if (runMode == RunMode.DOCKER) {
             String contName = nodeInfo.dockerInfo().contName();
@@ -510,8 +555,12 @@ public class CommandHandler {
     public CommandExecutionResult runDockerCmd(String host, String cmd) throws IOException, InterruptedException {
         String fullCmd = String.format("docker %s", cmd);
 
-        if (isLocal(host))
-            return runRmtCmd(fullCmd);
+        if (isLocal(host)) {
+            if(fullCmd.endsWith("'echo $JAVA_HOME'") || fullCmd.contains(">"))
+                return runLocCmd(fullCmd);
+            else
+                return runRmtCmd(fullCmd);
+        }
         else {
             fullCmd = String.format("%s docker %s", getFullSSHPref(host), cmd);
 
