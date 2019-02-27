@@ -49,7 +49,8 @@ public class InDockerNodeStarter extends NodeStarter {
 
             String startNodeCmd = String.format("%s/bin/java %s", javaHome, javaParams);
 
-            String cmd = String.format("exec %s nohup %s > %s 2>& 1 &", contName, startNodeCmd, nodeInfo.logPath());
+            String cmd = String.format("exec --workdir %s %s nohup %s > %s 2>& 1 &",
+                runCtx.remoteWorkDirectory(), contName,  startNodeCmd, nodeInfo.logPath());
 
             runCtx.handler().runDockerCmd(nodeInfo.host(), mkdirCmd);
 

@@ -187,15 +187,13 @@ public class CommandHandler {
         else if(cmd.endsWith(" 2>& 1 &")) {
             redirect = true;
 
-            String cmdTemp = cmd.replace("  2>& 1 &", "");
+            String cmdTemp = cmd.replace(" 2>& 1 &", "");
 
-            cmdTemp = cmdTemp.replace(" 2>& 1 &", "");
+            String[] cmdAndLog = cmdTemp.split(" > ");
 
-            String[] cmdAndLog = cmdTemp.split(">");
+            String cmd0 = cmdAndLog[0];
 
-            String cmd0 = cmdAndLog[0].substring(0, cmdAndLog[0].length() - 1);
-
-            logPath = cmdAndLog[1].substring(1, cmdAndLog[1].length());
+            logPath = cmdAndLog[1];
 
             cmdArr = cmd0.split(" ");
         }
