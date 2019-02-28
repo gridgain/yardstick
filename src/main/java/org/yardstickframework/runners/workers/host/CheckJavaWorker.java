@@ -84,7 +84,7 @@ public class CheckJavaWorker extends CheckWorker {
                 host,
                 locJavaHome);
 
-            String warn2 = String.format("Will use '%s' to start nodes on the host %s.",
+            String warn2 = String.format("Will use '%s' to start nodes on the host '%s'.",
                 hostJava,
                 host);
 

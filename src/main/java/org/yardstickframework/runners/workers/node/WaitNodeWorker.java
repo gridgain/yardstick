@@ -80,7 +80,7 @@ public class WaitNodeWorker extends NodeWorker {
                     if (nodeInfo.nodeType() == NodeType.DRIVER){
                         if (waitCnt > warnTime && waitCnt % 30 == 0){
                             log().info(String.format("Combined warmup and duration time for node '%s' is %d seconds, but " +
-                                "node still running after %d seconds.", nodeInfo.toShortStr(), fullTime, waitCnt));
+                                "node is still running after %d seconds.", nodeInfo.toShortStr(), fullTime, waitCnt));
                         }
                     }
                 }

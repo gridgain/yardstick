@@ -17,6 +17,7 @@ package org.yardstickframework.runners.workers.host;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Set;
+import org.yardstickframework.runners.workers.CheckWorkResult;
 import org.yardstickframework.runners.workers.WorkResult;
 import org.yardstickframework.runners.context.RunContext;
 
@@ -44,9 +45,10 @@ public class DeployWorker extends HostWorker {
 
     /** {@inheritDoc} */
     @Override public WorkResult doWork(String host, int cnt) {
-        if ((isLocal(host) && runCtx.localeWorkDirectory().equals(runCtx.remoteWorkDirectory()))
-            || host.equals(runCtx.currentHost()) && runCtx.localeWorkDirectory().equals(runCtx.remoteWorkDirectory()))
-            return null;
+        CheckWorkResult res = new CheckWorkResult();
+
+        if ((isLocal(host) && runCtx.dirsEquals()) || host.equals(runCtx.currentHost()) && runCtx.dirsEquals())
+            return res;
 
         String createCmd = String.format("mkdir -p %s", runCtx.remoteWorkDirectory());
 
@@ -68,8 +70,10 @@ public class DeployWorker extends HostWorker {
         }
         catch (IOException | InterruptedException e) {
             log().error(String.format("Failed to deploy on the host '%s'", host), e);
+
+            res.exit(true);
         }
 
-        return null;
+        return res;
     }
 }

@@ -18,6 +18,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Set;
 import org.yardstickframework.runners.CommandHandler;
+import org.yardstickframework.runners.workers.CheckWorkResult;
 import org.yardstickframework.runners.workers.WorkResult;
 import org.yardstickframework.runners.context.RunContext;
 
@@ -43,8 +44,10 @@ public class CollectWorker extends HostWorker {
 
     /** {@inheritDoc} */
     @Override public WorkResult doWork(String host, int cnt) {
-        if (isLocal(host) && runCtx.localeWorkDirectory().equals(runCtx.remoteWorkDirectory()))
-            return null;
+        CheckWorkResult res = new CheckWorkResult();
+
+        if (isLocal(host) && runCtx.dirsEquals())
+            return res;
 
         String nodeOutDir = String.format("%s/output", runCtx.remoteWorkDirectory());
 
@@ -61,8 +64,10 @@ public class CollectWorker extends HostWorker {
             log().error(String.format("Failed to collect data from the host '%s'", host), e);
 
             runCtx.exitCode(1);
+
+            res.exit(true);
         }
 
-        return null;
+        return res;
     }
 }

@@ -503,6 +503,7 @@ public class RunContextInitializer {
 
             String[] toNewCfg = cfgStr.split(" ");
 
+            // Check if parameters defined properly during initialization.
             try {
                 BenchmarkUtils.jcommander(toNewCfg, cfg, "");
             }

@@ -16,6 +16,7 @@ package org.yardstickframework.runners.workers.host;
 
 import java.io.IOException;
 import java.util.Set;
+import org.yardstickframework.runners.workers.CheckWorkResult;
 import org.yardstickframework.runners.workers.WorkResult;
 import org.yardstickframework.runners.context.RunContext;
 
@@ -41,9 +42,10 @@ public class CleanRemDirWorker extends HostWorker {
      * @return Work result.
      */
     private WorkResult clean(String host) {
-        if ((isLocal(host) && runCtx.localeWorkDirectory().equals(runCtx.remoteWorkDirectory()))
-            || host.equals(runCtx.currentHost()) && runCtx.localeWorkDirectory().equals(runCtx.remoteWorkDirectory()))
-            return null;
+        CheckWorkResult res = new CheckWorkResult();
+
+        if ((isLocal(host) && runCtx.dirsEquals()) || host.equals(runCtx.currentHost()) && runCtx.dirsEquals())
+            return res;
 
         String remDir = runCtx.remoteWorkDirectory();
 
@@ -56,12 +58,13 @@ public class CleanRemDirWorker extends HostWorker {
 
                 runCtx.handler().runCmd(host, cleanCmd);
             }
-
         }
         catch (IOException | InterruptedException e) {
             log().error(String.format("Failed to clean remote directory on the host '%s'", host), e);
+
+            res.exit(true);
         }
 
-        return null;
+        return res;
     }
 }

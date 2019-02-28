@@ -38,7 +38,7 @@ public abstract class NodeWorker extends Worker {
     /** Result list */
     private List<NodeInfo> resNodeList;
 
-    /** Flag indicating whether or not task should run on the same host at the same time. */
+    /** Flag indicating whether or not tasks should run on the same host at the same time. */
     private boolean runAsyncOnHost;
 
     /**

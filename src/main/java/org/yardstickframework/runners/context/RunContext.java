@@ -756,6 +756,15 @@ public class RunContext {
     }
 
     /**
+     *
+     * @return {@code true} if locale work directory path is equal to remote work directory path
+     * or {@code false} otherwise.
+     */
+    public boolean dirsEquals(){
+        return localeWorkDirectory().equals(remoteWorkDirectory());
+    }
+
+    /**
      * @return {@code true} if docker is enabled for server or driver nodes or {@code false} otherwise.
      */
     public boolean dockerEnabled() {
