@@ -89,8 +89,6 @@ public class EchoBenchmark extends BenchmarkDriverAdapter {
         if (!req.equals(res))
             throw new Exception("Invalid echo response [req=" + req + ", res=" + res + ']');
 
-        Thread.sleep((long) new Random().nextInt(100));
-
         return true;
     }
 
