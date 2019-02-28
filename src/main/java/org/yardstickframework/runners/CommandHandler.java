@@ -302,7 +302,11 @@ public class CommandHandler {
         if (isLocal(host))
             return startNodeLocale(cmd, logPath);
 
-        String startNodeCmd = String.format("%s nohup %s > %s 2>& 1 &", getFullSSHPref(host), cmd, logPath);
+        String startNodeCmd = String.format("%s cd %s; nohup %s > %s 2>& 1 &",
+            getFullSSHPref(host),
+            runCtx.remoteWorkDirectory(),
+            cmd,
+            logPath);
 
         return runRmtCmd(startNodeCmd);
     }
