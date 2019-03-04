@@ -343,14 +343,13 @@ public class StartNodeWorker extends NodeWorker {
     }
 
     /**
-     *
      * @param concJvmOpts Full JVM options string.
      * @param nodeInfo Node info.
      * @param id Node id.
      * @param host Host.
      * @return garbage collector JVM options.
      */
-    private String gcJvmOpts(String concJvmOpts, NodeInfo nodeInfo, String id, String host){
+    private String gcJvmOpts(String concJvmOpts, NodeInfo nodeInfo, String id, String host) {
         String gcJvmOpts = "";
 
         int javaVer = javaVersion();
@@ -370,13 +369,15 @@ public class StartNodeWorker extends NodeWorker {
             }
         }
         else {
-            gcJvmOpts = String.format(" -Xlog:gc*:file:%s/gc-%s-%s-id%s-%s-%s.log",
-                logDirFullName(nodeInfo),
-                nodeInfo.nodeStartTime(),
-                nodeInfo.typeLow(),
-                id,
-                host,
-                nodeInfo.description());
+            if (!concJvmOpts.contains("-Xlog:gc*")) {
+                gcJvmOpts = String.format(" -Xlog:gc*:file:%s/gc-%s-%s-id%s-%s-%s.log",
+                    logDirFullName(nodeInfo),
+                    nodeInfo.nodeStartTime(),
+                    nodeInfo.typeLow(),
+                    id,
+                    host,
+                    nodeInfo.description());
+            }
         }
 
         return gcJvmOpts;
