@@ -37,12 +37,12 @@ public class InDockerNodeChecker extends NodeChecker {
     @Override public NodeInfo checkNode(NodeInfo nodeInfo) throws InterruptedException{
         String host = nodeInfo.host();
 
-        String checkCmd = String.format("exec %s sh -c ps -a | grep java", nodeInfo.dockerInfo().contName());
+        String checkCmd = String.format("ps -ax|grep java", nodeInfo.dockerInfo().contName());
 
         CommandExecutionResult res = CommandExecutionResult.emptyFailedResult();
 
         try {
-            res = runCtx.handler().runDockerCmd(host, checkCmd);
+            res = runCtx.handler().runCmd(host, checkCmd);
         }
         catch (IOException e) {
             log().error(String.format("Failed to check node '%s' on the host '%s'.",
