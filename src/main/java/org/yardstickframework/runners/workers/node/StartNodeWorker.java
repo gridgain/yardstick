@@ -117,7 +117,7 @@ public class StartNodeWorker extends NodeWorker {
     NodeInfo startNode(NodeInfo nodeInfo) throws InterruptedException {
         final String nodeStartTime = BenchmarkUtils.dateTime();
 
-        if(nodeInfo.config() == null)
+        if (nodeInfo.config() == null)
             nodeInfo.config(cfg);
 
         nodeInfo.nodeStartTime(nodeStartTime);
@@ -205,20 +205,7 @@ public class StartNodeWorker extends NodeWorker {
 
         String concJvmOpts = jvmOptsStr + " " + nodeJvmOptsStr;
 
-        String gcJvmOpts = "";
-
-        // If path for GC log file is not already defined in JVM options, CG log will be directed to node log directory.
-        if (!concJvmOpts.contains("-Xloggc")) {
-            gcJvmOpts = concJvmOpts.contains("PrintGC") ?
-                String.format(" -Xloggc:%s/gc-%s-%s-id%s-%s-%s.log",
-                    logDirFullName(nodeInfo),
-                    nodeInfo.nodeStartTime(),
-                    nodeInfo.typeLow(),
-                    id,
-                    host,
-                    nodeInfo.description()) :
-                "";
-        }
+        String gcJvmOpts = gcJvmOpts(concJvmOpts, nodeInfo, id, host);
 
         String fullJvmOpts = (concJvmOpts + " " + gcJvmOpts).replace("\"", "");
 
@@ -339,20 +326,76 @@ public class StartNodeWorker extends NodeWorker {
     }
 
     /**
-     *
      * @param list List.
      * @return Dash separated string of list items.
      */
-    private String listToString(List<String> list){
+    private String listToString(List<String> list) {
         StringBuilder sb = new StringBuilder();
 
-        for (int i = 0; i < list.size(); i++){
+        for (int i = 0; i < list.size(); i++) {
             sb.append(list.get(i));
 
-            if(i < list.size() - 1)
+            if (i < list.size() - 1)
                 sb.append("-");
         }
 
         return sb.toString();
+    }
+
+    /**
+     *
+     * @param concJvmOpts Full JVM options string.
+     * @param nodeInfo Node info.
+     * @param id Node id.
+     * @param host Host.
+     * @return garbage collector JVM options.
+     */
+    private String gcJvmOpts(String concJvmOpts, NodeInfo nodeInfo, String id, String host){
+        String gcJvmOpts = "";
+
+        int javaVer = javaVersion();
+
+        if (javaVer == 8) {
+            // If path for GC log file is not already defined in JVM options, CG log will be directed to node log directory.
+            if (!concJvmOpts.contains("-Xloggc")) {
+                gcJvmOpts = concJvmOpts.contains("PrintGC") ?
+                    String.format(" -Xloggc:%s/gc-%s-%s-id%s-%s-%s.log",
+                        logDirFullName(nodeInfo),
+                        nodeInfo.nodeStartTime(),
+                        nodeInfo.typeLow(),
+                        id,
+                        host,
+                        nodeInfo.description()) :
+                    "";
+            }
+        }
+        else {
+            gcJvmOpts = String.format(" -Xlog:gc*:file:%s/gc-%s-%s-id%s-%s-%s.log",
+                logDirFullName(nodeInfo),
+                nodeInfo.nodeStartTime(),
+                nodeInfo.typeLow(),
+                id,
+                host,
+                nodeInfo.description());
+        }
+
+        return gcJvmOpts;
+    }
+
+    /**
+     * @return Java version.
+     */
+    private int javaVersion() {
+        String javaVer = System.getProperty("java.version");
+
+        String[] arr = javaVer.split("\\.");
+
+        int i0 = Integer.valueOf(arr[0]);
+        int i1 = Integer.valueOf(arr[1]);
+
+        if (i0 > 1)
+            return i0;
+        else
+            return i1;
     }
 }
