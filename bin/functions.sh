@@ -23,7 +23,7 @@ checkJava() {
 
         if [ $RETCODE -ne 0 ]; then
             echo "ERROR: JAVA_HOME environment variable is not found."
-            echo "Please point JAVA_HOME variable to location of JDK 1.7 or JDK 1.8."
+            echo "Please point JAVA_HOME variable to location of JDK 1.8 or higher."
             echo "You can also download latest JDK at http://java.com/download"
 
             exit 1
@@ -36,17 +36,7 @@ checkJava() {
 
     if [ ! -e "$JAVA" ]; then
         echo "ERROR: JAVA is not found in JAVA_HOME=$JAVA_HOME."
-        echo "Please point JAVA_HOME variable to installation of JDK 1.7 or JDK 1.8."
-        echo "You can also download latest JDK at http://java.com/download"
-
-        exit 1
-    fi
-
-    JAVA_VER=`"$JAVA" -version 2>&1 | egrep "1\.[78]\."`
-
-    if [ "$JAVA_VER" == "" ]; then
-        echo "ERROR: The version of JAVA installed in JAVA_HOME=$JAVA_HOME is incorrect."
-        echo "Please point JAVA_HOME variable to installation of JDK 1.7 or JDK 1.8."
+        echo "Please point JAVA_HOME variable to location of JDK 1.8 or higher."
         echo "You can also download latest JDK at http://java.com/download"
 
         exit 1
