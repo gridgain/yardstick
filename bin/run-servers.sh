@@ -23,7 +23,6 @@ source "${SCRIPT_DIR}"/functions.sh
 #
 # Discover path to Java executable and check it's version.
 #
-checkJava
 
 ARGS=$*
 

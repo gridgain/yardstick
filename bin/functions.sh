@@ -73,6 +73,8 @@ checkJava() {
     fi
 }
 
+checkJava
+
 if [ $version -eq 8 ] ; then
     JVM_OPTS="\
         -XX:+AggressiveOpts \
