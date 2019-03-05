@@ -73,8 +73,7 @@ checkJava() {
     fi
 }
 
-checkJava
-
+setJvmOpts(){
 if [ $version -eq 8 ] ; then
     JVM_OPTS="\
         -XX:+AggressiveOpts \
@@ -102,3 +101,4 @@ if [ $version -eq 8 ] ; then
                 --illegal-access=permit \
                 ${JVM_OPTS}"
     fi
+}
