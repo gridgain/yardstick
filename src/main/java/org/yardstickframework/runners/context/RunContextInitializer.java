@@ -637,8 +637,10 @@ public class RunContextInitializer {
 
         String line;
 
+        String prevLine = "";
+
         while ((line = reader.readLine()) != null) {
-            if (!line.contains("=") || line.startsWith("#"))
+            if (!line.contains("=") || line.startsWith("#") || prevLine.contains("\\"))
                 continue;
 
             int idx0 = line.indexOf("=");
@@ -652,6 +654,8 @@ public class RunContextInitializer {
             }
             else
                 propSet.add(propName);
+
+            prevLine = line;
         }
 
         return false;

@@ -205,6 +205,8 @@ public class StartNodeWorker extends NodeWorker {
 
         String concJvmOpts = jvmOptsStr + " " + nodeJvmOptsStr;
 
+
+
         String gcJvmOpts = gcJvmOpts(concJvmOpts, nodeInfo, id, host);
 
         String fullJvmOpts = (concJvmOpts + " " + gcJvmOpts).replace("\"", "");

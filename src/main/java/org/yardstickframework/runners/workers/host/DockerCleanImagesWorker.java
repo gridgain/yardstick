@@ -79,7 +79,7 @@ public class DockerCleanImagesWorker extends DockerHostWorker {
         CommandExecutionResult cmdRes = CommandExecutionResult.emptyFailedResult();
 
         try {
-            cmdRes = runCtx.handler().runDockerCmd(host, String.format("rmi -f %s", imageId));
+            cmdRes = runCtx.handler().runDockerCmd(host, String.format("rmi -f %s", imageName));
         }
         catch (IOException | InterruptedException e) {
             log().error(String.format("Failed to remove image '%s' from the host '%s'.", imageName, host));
