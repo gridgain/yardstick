@@ -205,11 +205,15 @@ public class StartNodeWorker extends NodeWorker {
 
         String concJvmOpts = jvmOptsStr + " " + nodeJvmOptsStr;
 
+        concJvmOpts = concJvmOpts.replace("GC_LOG_PATH", String.format("%s/gc-%s-%s-id%s-%s-%s.log",
+            logDirFullName(nodeInfo),
+            nodeInfo.nodeStartTime(),
+            nodeInfo.typeLow(),
+            id,
+            host,
+            nodeInfo.description()));
 
-
-        String gcJvmOpts = gcJvmOpts(concJvmOpts, nodeInfo, id, host);
-
-        String fullJvmOpts = (concJvmOpts + " " + gcJvmOpts).replace("\"", "");
+        String fullJvmOpts = concJvmOpts.replace("\"", "");
 
         String propPath = runCtx.propertyPath().replace(runCtx.localeWorkDirectory(), runCtx.remoteWorkDirectory());
 
@@ -342,63 +346,5 @@ public class StartNodeWorker extends NodeWorker {
         }
 
         return sb.toString();
-    }
-
-    /**
-     * @param concJvmOpts Full JVM options string.
-     * @param nodeInfo Node info.
-     * @param id Node id.
-     * @param host Host.
-     * @return garbage collector JVM options.
-     */
-    private String gcJvmOpts(String concJvmOpts, NodeInfo nodeInfo, String id, String host) {
-        String gcJvmOpts = "";
-
-        int javaVer = javaVersion();
-
-        if (javaVer == 8) {
-            // If path for GC log file is not already defined in JVM options, CG log will be directed to node log directory.
-            if (!concJvmOpts.contains("-Xloggc")) {
-                gcJvmOpts = concJvmOpts.contains("PrintGC") ?
-                    String.format(" -Xloggc:%s/gc-%s-%s-id%s-%s-%s.log",
-                        logDirFullName(nodeInfo),
-                        nodeInfo.nodeStartTime(),
-                        nodeInfo.typeLow(),
-                        id,
-                        host,
-                        nodeInfo.description()) :
-                    "";
-            }
-        }
-        else {
-            if (!concJvmOpts.contains("-Xlog:gc*")) {
-                gcJvmOpts = String.format(" -Xlog:gc*:file:%s/gc-%s-%s-id%s-%s-%s.log",
-                    logDirFullName(nodeInfo),
-                    nodeInfo.nodeStartTime(),
-                    nodeInfo.typeLow(),
-                    id,
-                    host,
-                    nodeInfo.description());
-            }
-        }
-
-        return gcJvmOpts;
-    }
-
-    /**
-     * @return Java version.
-     */
-    private int javaVersion() {
-        String javaVer = System.getProperty("java.version");
-
-        String[] arr = javaVer.split("\\.");
-
-        int i0 = Integer.valueOf(arr[0]);
-        int i1 = Integer.valueOf(arr[1]);
-
-        if (i0 > 1)
-            return i0;
-        else
-            return i1;
     }
 }
