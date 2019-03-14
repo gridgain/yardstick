@@ -24,6 +24,7 @@ import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -39,6 +40,8 @@ import org.apache.log4j.PatternLayout;
 import org.apache.log4j.PropertyConfigurator;
 import org.yardstickframework.BenchmarkConfiguration;
 import org.yardstickframework.BenchmarkUtils;
+
+import static org.yardstickframework.BenchmarkUtils.getJava;
 
 /**
  * Initializes run context.
@@ -438,10 +441,8 @@ public class RunContextInitializer {
 
         String locJavaHome = System.getProperty("java.home");
 
-        String javaPath = Paths.get(locJavaHome, "bin", "java").toString();
-
-        if (ctx.properties().getProperty("JAVA_HOME") != null && new File(javaPath).exists())
-            locJavaHome = Paths.get(remJavaHome, "bin", "java").toString();
+        if (ctx.properties().getProperty("JAVA_HOME") != null && new File(getJava()).exists())
+            locJavaHome = getJava(remJavaHome);
 
         ctx.localeJavaHome(locJavaHome);
 
@@ -561,8 +562,7 @@ public class RunContextInitializer {
 
         String[] ips = commaSepList.split(",");
 
-        for (String ip : ips)
-            res.add(ip);
+        Collections.addAll(res, ips);
 
         return res;
     }
@@ -649,7 +649,7 @@ public class RunContextInitializer {
             if (!line.contains("=") || line.startsWith("#") || prevLine.contains("\\"))
                 continue;
 
-            int idx0 = line.indexOf("=");
+            int idx0 = line.indexOf('=');
 
             String propName = line.substring(0, idx0);
 

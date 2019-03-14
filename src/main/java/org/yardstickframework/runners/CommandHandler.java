@@ -559,10 +559,7 @@ public class CommandHandler {
         String fullCmd = String.format("docker %s", cmd);
 
         if (isLocal(host)) {
-            if(fullCmd.endsWith("'echo $JAVA_HOME'") || fullCmd.contains(">"))
-                return runLocCmd(fullCmd);
-            else
-                return runRmtCmd(fullCmd);
+            return fullCmd.endsWith("'echo $JAVA_HOME'") || fullCmd.contains(">") ? runLocCmd(fullCmd) : runRmtCmd(fullCmd);
         }
         else {
             fullCmd = String.format("%s docker %s", getFullSSHPref(host), cmd);
@@ -576,7 +573,7 @@ public class CommandHandler {
      * @return {@code true} if host address is "localhost" or "127.0.0.1" or {@code false} otherwise.
      */
     private boolean isLocal(String host) {
-        return host.equalsIgnoreCase("localhost") || host.equals("127.0.0.1");
+        return "localhost".equalsIgnoreCase(host) || "127.0.0.1".equals(host);
     }
 
     /**
@@ -642,7 +639,7 @@ public class CommandHandler {
         return res != null
             && res.exitCode() == 0
             && !res.outputList().isEmpty()
-            && res.outputList().get(0).equals("check");
+            && "check".equals(res.outputList().get(0));
     }
 
     /**
@@ -652,9 +649,9 @@ public class CommandHandler {
      */
     public boolean checkJava(String host, String javaHome) {
         if (isLocal(host))
-            return new File(javaHome + "/bin/java").exists();
+            return new File(getJava(javaHome)).exists();
 
-        String checkCmd = String.format("%s test -f %s/bin/java", getFullSSHPref(host), javaHome);
+        String checkCmd = String.format("%s test -f %s", getFullSSHPref(host), getJava(javaHome));
 
         CommandExecutionResult res = null;
 
