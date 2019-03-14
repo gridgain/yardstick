@@ -47,12 +47,10 @@ public class PlainNodeStarter extends NodeStarter {
 
         String javaHome = runCtx.getHostJava(host);
 
-        CommandExecutionResult res = null;
-
         try {
-            String withJavaHome = String.format("%s/bin/java %s", getJava(javaHome), param);
+            String withJavaHome = String.format("%s %s", getJava(javaHome), param);
 
-            res = runCtx.handler().startNode(host, withJavaHome, nodeInfo.logPath());
+            CommandExecutionResult res = runCtx.handler().startNode(host, withJavaHome, nodeInfo.logPath());
 
             nodeInfo.commandExecutionResult(res);
         }

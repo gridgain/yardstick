@@ -45,13 +45,16 @@ public class BenchmarkUtils {
     public static final String WEIGHT_DELIMITER = ":";
 
     /** Indicates whether current OS is Windows. */
-    private static boolean isWin;
+    private static final boolean isWin;
+
+    private static final String javaExecutable;
 
     /**
      * Initializes statics.
      */
     static {
         isWin = System.getProperty("os.name").toLowerCase().contains("win");
+        javaExecutable = isWin ? "java.exe" : "java";
     }
 
     /**
@@ -94,7 +97,7 @@ public class BenchmarkUtils {
         // safely remove " from JAVA_HOME path
         javaHome = javaHome.replace("\"", "");
 
-        return Paths.get(javaHome, "bin", "java").toString();
+        return Paths.get(javaHome, "bin", javaExecutable).toString();
     }
 
 
