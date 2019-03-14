@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
+import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -72,6 +73,27 @@ public class BenchmarkUtils {
 
         return jCommander;
     }
+
+    /**
+     * Get OS specific path to java
+     *
+     * @return system JAVA_HOME/bin/java
+     */
+    public static String getJava() {
+        String javaHome = System.getProperty("java.home");
+
+        return getJava(javaHome);
+    }
+
+    /**
+     * Get OS specific path to java with defined JAVA_HOME
+     *
+     * @return system JAVA_HOME/bin/java
+     */
+    public static String getJava(String javaHome) {
+        return Paths.get(javaHome, "bin", "java").toString();
+    }
+
 
     /**
      * Prints usage string to output.

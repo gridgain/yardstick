@@ -22,6 +22,8 @@ import org.yardstickframework.runners.CommandExecutionResult;
 import org.yardstickframework.runners.context.NodeInfo;
 import org.yardstickframework.runners.context.RunContext;
 
+import static org.yardstickframework.BenchmarkUtils.getJava;
+
 /**
  * Starts nodes.
  */
@@ -48,7 +50,7 @@ public class PlainNodeStarter extends NodeStarter {
         CommandExecutionResult res = null;
 
         try {
-            String withJavaHome = String.format("%s/bin/java %s", javaHome, param);
+            String withJavaHome = String.format("%s/bin/java %s", getJava(javaHome), param);
 
             res = runCtx.handler().startNode(host, withJavaHome, nodeInfo.logPath());
 

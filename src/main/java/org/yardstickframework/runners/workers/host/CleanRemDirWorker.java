@@ -15,6 +15,7 @@
 package org.yardstickframework.runners.workers.host;
 
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.Set;
 import org.yardstickframework.runners.workers.CheckWorkResult;
 import org.yardstickframework.runners.workers.WorkResult;
@@ -53,8 +54,9 @@ public class CleanRemDirWorker extends HostWorker {
 
         try {
             for (String name : toClean) {
-                String cleanCmd = String.format("rm -rf %s/%s",
-                    runCtx.remoteWorkDirectory(), name);
+                String pathToClean = Paths.get(runCtx.remoteWorkDirectory(), name).toString();
+
+                String cleanCmd = String.format("rm -rf %s", pathToClean);
 
                 runCtx.handler().runCmd(host, cleanCmd);
             }

@@ -138,7 +138,7 @@ public class RunContextInitializer {
         LOG.debug(String.format("Locale work directory is '%s'.", ctx.localeWorkDirectory()));
 
         if (ctx.config().propertyFile() == null) {
-            String dfltPropPath = String.format("%s/config/benchmark.properties", ctx.localeWorkDirectory());
+            String dfltPropPath = Paths.get(ctx.localeWorkDirectory(), "config", "benchmark.properties").toString();
 
             LOG.info(String.format("Using as a default property file '%s'.", dfltPropPath));
 
@@ -438,8 +438,10 @@ public class RunContextInitializer {
 
         String locJavaHome = System.getProperty("java.home");
 
-        if (ctx.properties().getProperty("JAVA_HOME") != null && new File(String.format("%s/bin/java", remJavaHome)).exists())
-            locJavaHome = String.format("%s/bin/java", remJavaHome);
+        String javaPath = Paths.get(locJavaHome, "bin", "java").toString();
+
+        if (ctx.properties().getProperty("JAVA_HOME") != null && new File(javaPath).exists())
+            locJavaHome = Paths.get(remJavaHome, "bin", "java").toString();
 
         ctx.localeJavaHome(locJavaHome);
 
@@ -572,7 +574,11 @@ public class RunContextInitializer {
         String dockerCtxPropPath;
 
         if (ctx.properties().getProperty("DOCKER_CONTEXT_PATH") == null) {
-            dockerCtxPropPath = String.format("%s/config/docker/docker-context-default.yaml", ctx.localeWorkDirectory());
+            dockerCtxPropPath = Paths.get(ctx.localeWorkDirectory(),
+                "config",
+                "docker",
+                "docker-context-default.yaml"
+            ).toString();
 
             LOG.info("'DOCKER_CONTEXT_PATH' is not defined in property file. Will " +
                 "use default docker context configuration:");
@@ -609,7 +615,7 @@ public class RunContextInitializer {
         String fullPath = null;
 
         if(!srcPath.startsWith(ctx.localeWorkDirectory()))
-            fullPath = String.format("%s/%s", ctx.localeWorkDirectory(), srcPath);
+            fullPath = Paths.get(ctx.localeWorkDirectory(), srcPath).toString();
 
         if (new File(fullPath).exists())
             return fullPath;
@@ -665,10 +671,11 @@ public class RunContextInitializer {
      *
      */
     private void configLog() {
-        String logPropPath = String.format("%s/config/log4j.properties", ctx.localeWorkDirectory());
+        String logPropPath = Paths.get(ctx.localeWorkDirectory(), "config", "log4j.properties").toString();
 
-        String logPath = Paths.get(ctx.localeWorkDirectory(), "output", String.format("logs-%s/%s-run.log",
-            ctx.mainDateTime(), ctx.mainDateTime())).toString();
+        String logPath = Paths.get(ctx.localeWorkDirectory(), "output",
+            String.format("logs-%s", ctx.mainDateTime()),
+            String.format("%s-run.log", ctx.mainDateTime())).toString();
 
         if (new File(logPropPath).exists()){
             Properties logProps = new Properties();

@@ -21,6 +21,8 @@ import org.yardstickframework.runners.context.NodeInfo;
 import org.yardstickframework.runners.context.DockerInfo;
 import org.yardstickframework.runners.context.RunContext;
 
+import static org.yardstickframework.BenchmarkUtils.getJava;
+
 /**
  * Starts nodes in docker containers.
  */
@@ -47,7 +49,7 @@ public class InDockerNodeStarter extends NodeStarter {
         try {
             String mkdirCmd = String.format("exec %s mkdir -p %s", contName, nodeLogDir);
 
-            String startNodeCmd = String.format("%s/bin/java %s", javaHome, javaParams);
+            String startNodeCmd = String.format("%s %s", getJava(javaHome), javaParams);
 
             String cmd = String.format("exec --workdir %s %s nohup %s > %s 2>& 1 &",
                 runCtx.remoteWorkDirectory(), contName,  startNodeCmd, nodeInfo.logPath());

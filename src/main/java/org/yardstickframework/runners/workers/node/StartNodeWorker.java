@@ -14,55 +14,77 @@
 
 package org.yardstickframework.runners.workers.node;
 
-import com.beust.jcommander.ParameterException;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.List;
 import org.yardstickframework.BenchmarkConfiguration;
 import org.yardstickframework.BenchmarkUtils;
 import org.yardstickframework.runners.context.NodeInfo;
-import org.yardstickframework.runners.starters.NodeStarter;
 import org.yardstickframework.runners.context.NodeType;
-import org.yardstickframework.runners.context.RunMode;
 import org.yardstickframework.runners.context.RunContext;
+import org.yardstickframework.runners.context.RunMode;
+import org.yardstickframework.runners.starters.NodeStarter;
 
 /**
  * Starts node.
  */
 public class StartNodeWorker extends NodeWorker {
-    /** */
+    /**
+     *
+     */
     private String dateTime;
 
-    /** */
+    /**
+     *
+     */
     private String logDirName;
 
-    /** */
+    /**
+     *
+     */
     protected String baseLogDirFullName;
 
-    /** */
+    /**
+     *
+     */
     private String cfgFullStr;
 
-    /** */
+    /**
+     *
+     */
     protected String servLogDirFullName;
 
-    /** */
+    /**
+     *
+     */
     private String servMainCls = "org.yardstickframework.BenchmarkServerStartUp";
 
-    /** */
+    /**
+     *
+     */
     protected String drvrLogDirFullName;
 
-    /** */
+    /**
+     *
+     */
     private String drvrMainCls = "org.yardstickframework.BenchmarkDriverStartUp";
 
-    /** */
+    /**
+     *
+     */
     private String warmup;
 
-    /** */
+    /**
+     *
+     */
     private String duration;
 
     /** Initial duration. */
     protected Long initDuration;
 
-    /** */
+    /**
+     *
+     */
     private BenchmarkConfiguration cfg;
 
     /**
@@ -89,11 +111,11 @@ public class StartNodeWorker extends NodeWorker {
 
         logDirName = String.format("logs-%s", dateTime);
 
-        baseLogDirFullName = String.format("%s/output/%s", runCtx.remoteWorkDirectory(), logDirName);
+        baseLogDirFullName = Paths.get(runCtx.remoteWorkDirectory(), "output", logDirName).toString();
 
-        servLogDirFullName = String.format("%s/log_servers", baseLogDirFullName);
+        servLogDirFullName = Paths.get(baseLogDirFullName, "log_servers").toString();
 
-        drvrLogDirFullName = String.format("%s/log_drivers", baseLogDirFullName);
+        drvrLogDirFullName = Paths.get(baseLogDirFullName, "log_drivers").toString();
 
         warmup = runCtx.warmup();
 
@@ -161,15 +183,14 @@ public class StartNodeWorker extends NodeWorker {
 
         nodeInfo.parameterString(paramStr);
 
-        String logFileName = String.format("%s/%s-%s-id%s-%s-%s.log",
-            logDirFullName,
+        String logFileName = String.format("%s-%s-id%s-%s-%s.log",
             nodeStartTime,
             nodeInfo.nodeType().toString().toLowerCase(),
             id,
             host,
             descript);
 
-        nodeInfo.logPath(logFileName);
+        nodeInfo.logPath(Paths.get(logDirFullName, logFileName).toString());
 
         NodeStarter starter = runCtx.nodeStarter(nodeInfo);
 
@@ -187,10 +208,13 @@ public class StartNodeWorker extends NodeWorker {
 
         NodeType type = nodeInfo.nodeType();
 
-        String drvrResDir = String.format("%s/output/result-%s", runCtx.remoteWorkDirectory(), runCtx.mainDateTime());
+        String drvrResDir = Paths.get(runCtx.remoteWorkDirectory(),
+            "output",
+            String.format("result-%s", runCtx.mainDateTime())
+        ).toString();
 
         String outputFolderParam = getNodeListSize() > 1 ?
-            String.format("--outputFolder %s/%s-%s", drvrResDir, id, host) :
+            String.format("--outputFolder %s", Paths.get(drvrResDir, String.format("%s-%s", id, host))) :
             String.format("--outputFolder %s", drvrResDir);
 
         String jvmOptsStr = runCtx.properties().getProperty("JVM_OPTS") != null ?
@@ -205,14 +229,17 @@ public class StartNodeWorker extends NodeWorker {
 
         String concJvmOpts = jvmOptsStr + " " + nodeJvmOptsStr;
 
-        concJvmOpts = concJvmOpts.replace("GC_LOG_PATH", String.format("%s/gc-%s-%s-id%s-%s-%s.log",
-            logDirFullName(nodeInfo),
-            nodeInfo.nodeStartTime(),
-            nodeInfo.typeLow(),
-            id,
-            host,
-            nodeInfo.description()));
+        concJvmOpts = concJvmOpts.replace("GC_LOG_PATH",
+            Paths.get(logDirFullName(nodeInfo), String.format("gc-%s-%s-id%s-%s-%s.log",
+                nodeInfo.nodeStartTime(),
+                nodeInfo.typeLow(),
+                id,
+                host,
+                nodeInfo.description())
+            ).toString()
+        );
 
+        // TODO: 3/14/2019 ?
         String fullJvmOpts = concJvmOpts.replace("\"", "");
 
         String propPath = runCtx.propertyPath().replace(runCtx.localeWorkDirectory(), runCtx.remoteWorkDirectory());
@@ -221,13 +248,13 @@ public class StartNodeWorker extends NodeWorker {
 
         String servName = runCtx.serverName() != null ? runCtx.serverName() : cfg.serverName();
 
-        return String.format("%s -Dyardstick.%s%s -cp :%s/libs/* %s -id %s %s %s --serverName %s --warmup %s " +
+        return String.format("%s -Dyardstick.%s%s -cp :%s %s -id %s %s %s --serverName %s --warmup %s " +
                 "--duration %s --threads %s --config %s --logsFolder %s --remoteuser %s --currentFolder %s " +
                 "--scriptsFolder %s/bin",
             fullJvmOpts,
             nodeInfo.typeLow(),
             id,
-            runCtx.remoteWorkDirectory(),
+            Paths.get(runCtx.remoteWorkDirectory(), "libs", "*").toString(),
             mainClass(type),
             id,
             outputFolderParam,
@@ -244,7 +271,7 @@ public class StartNodeWorker extends NodeWorker {
     }
 
     /**
-     * @param type Node type.
+     * @param nodeInfo Node type.
      * @return Path to log directory.
      */
     private String logDirFullName(NodeInfo nodeInfo) {

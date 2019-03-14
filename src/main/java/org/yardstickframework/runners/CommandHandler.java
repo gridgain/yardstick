@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -31,6 +32,8 @@ import org.yardstickframework.runners.context.NodeInfo;
 import org.yardstickframework.runners.context.NodeStatus;
 import org.yardstickframework.runners.context.RunContext;
 import org.yardstickframework.runners.context.RunMode;
+
+import static org.yardstickframework.BenchmarkUtils.getJava;
 
 /**
  * Command handler.
@@ -491,9 +494,7 @@ public class CommandHandler {
         while (args.contains("  "))
             args = args.replace("  ", " ");
 
-        String javaHome = System.getProperty("java.home");
-
-        String cmd = String.format("%s/bin/java %s", javaHome, args);
+        String cmd = String.format("%s %s", getJava(), args);
 
         String[] cmdArr = cmd.split(" ");
 

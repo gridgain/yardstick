@@ -16,6 +16,7 @@ package org.yardstickframework.runners;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.List;
@@ -274,11 +275,14 @@ public abstract class Runner {
      *
      */
     private void createCharts() {
-        String mainResDir = String.format("%s/output/result-%s", runCtx.localeWorkDirectory(), runCtx.mainDateTime());
+        String mainResDir = Paths.get(runCtx.localeWorkDirectory(),
+            " output",
+            String.format("result-%s", runCtx.mainDateTime())
+        ).toString();
 
         log().info(String.format("Creating charts for result directory '%s'.", mainResDir));
 
-        String cp = String.format("%s/libs/*", runCtx.localeWorkDirectory());
+        String cp = Paths.get(runCtx.localeWorkDirectory(), "libs", "*").toString();
 
         String mainCls = "org.yardstickframework.report.jfreechart.JFreeChartGraphPlotter";
 
