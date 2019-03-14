@@ -442,7 +442,7 @@ public class RunContextInitializer {
         String locJavaHome = System.getProperty("java.home");
 
         // TODO: 3/14/2019 locaJavaHome may be direct link to JAVA_HOME/bin/java
-        if (ctx.properties().getProperty("JAVA_HOME") != null && new File(getJava()).exists())
+        if (ctx.properties().getProperty("JAVA_HOME") != null && new File(getJava(remJavaHome)).exists())
             locJavaHome = getJava(remJavaHome);
 
         ctx.localeJavaHome(locJavaHome);
