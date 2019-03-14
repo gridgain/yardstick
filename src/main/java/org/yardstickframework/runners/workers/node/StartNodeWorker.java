@@ -14,6 +14,7 @@
 
 package org.yardstickframework.runners.workers.node;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.List;
@@ -248,13 +249,18 @@ public class StartNodeWorker extends NodeWorker {
 
         String servName = runCtx.serverName() != null ? runCtx.serverName() : cfg.serverName();
 
+        String cp = String.format("%s%s%s",
+            Paths.get(runCtx.remoteWorkDirectory(), "libs").toString(),
+            File.separator,
+            "*");
+
         return String.format("%s -Dyardstick.%s%s -cp :%s %s -id %s %s %s --serverName %s --warmup %s " +
                 "--duration %s --threads %s --config %s --logsFolder %s --remoteuser %s --currentFolder %s " +
                 "--scriptsFolder %s/bin",
             fullJvmOpts,
             nodeInfo.typeLow(),
             id,
-            Paths.get(runCtx.remoteWorkDirectory(), "libs", "*").toString(),
+            cp,
             mainClass(type),
             id,
             outputFolderParam,

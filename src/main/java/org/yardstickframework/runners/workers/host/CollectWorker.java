@@ -57,7 +57,7 @@ public class CollectWorker extends HostWorker {
         String pathLoc = outDir.getAbsolutePath();
 
         try {
-            String pathRem = Paths.get(nodeOutDir, "*").toString();
+            String pathRem = String.format("%s%s%s", nodeOutDir, File.separator, "*");
 
             runCtx.handler().download(host, pathLoc, pathRem);
         }

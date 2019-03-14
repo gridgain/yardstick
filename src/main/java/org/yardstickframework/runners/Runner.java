@@ -282,7 +282,10 @@ public abstract class Runner {
 
         log().info(String.format("Creating charts for result directory '%s'.", mainResDir));
 
-        String cp = Paths.get(runCtx.localeWorkDirectory(), "libs", "*").toString();
+        String cp = String.format("%s%s%s",
+            Paths.get(runCtx.localeWorkDirectory(), "libs").toString(),
+            File.separator,
+            "*");
 
         String mainCls = "org.yardstickframework.report.jfreechart.JFreeChartGraphPlotter";
 
