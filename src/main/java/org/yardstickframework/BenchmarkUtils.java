@@ -91,6 +91,9 @@ public class BenchmarkUtils {
      * @return system JAVA_HOME/bin/java
      */
     public static String getJava(String javaHome) {
+        // safely remove " from JAVA_HOME path
+        javaHome = javaHome.replace("\"", "");
+
         return Paths.get(javaHome, "bin", "java").toString();
     }
 

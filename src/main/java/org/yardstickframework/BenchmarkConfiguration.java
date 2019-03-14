@@ -17,6 +17,7 @@ package org.yardstickframework;
 import com.beust.jcommander.Parameter;
 import java.io.PrintStream;
 import java.io.Serializable;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -32,7 +33,7 @@ public class BenchmarkConfiguration implements Serializable {
 
     /** */
     @Parameter(names = {"-cfg", "--config"}, description = "Framework configuration file path")
-    private String propsFileName = "config/benchmark.properties";
+    private String propsFileName = Paths.get("config", "benchmark.properties").toString();
 
     /** For internal use. Should not be used in configs. */
     @Parameter(names = {"--logsFolder"}, description = "Logs directory")
