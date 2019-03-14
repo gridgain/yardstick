@@ -31,7 +31,6 @@ public class KillWorker extends HostWorker {
     /** {@inheritDoc} */
     @Override public WorkResult doWork(String host, int cnt) {
 
-
         try {
             String killServCmd = "pkill -9 -f Dyardstick.server";
 

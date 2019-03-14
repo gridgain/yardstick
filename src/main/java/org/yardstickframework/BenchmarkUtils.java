@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
+import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -44,13 +45,16 @@ public class BenchmarkUtils {
     public static final String WEIGHT_DELIMITER = ":";
 
     /** Indicates whether current OS is Windows. */
-    private static boolean isWin;
+    private static final boolean isWin;
+
+    private static final String javaExecutable;
 
     /**
      * Initializes statics.
      */
     static {
         isWin = System.getProperty("os.name").toLowerCase().contains("win");
+        javaExecutable = isWin ? "java.exe" : "java";
     }
 
     /**
@@ -72,6 +76,30 @@ public class BenchmarkUtils {
 
         return jCommander;
     }
+
+    /**
+     * Get OS specific path to java
+     *
+     * @return system JAVA_HOME/bin/java
+     */
+    public static String getJava() {
+        String javaHome = System.getProperty("java.home");
+
+        return getJava(javaHome);
+    }
+
+    /**
+     * Get OS specific path to java with defined JAVA_HOME
+     *
+     * @return system JAVA_HOME/bin/java
+     */
+    public static String getJava(String javaHome) {
+        // safely remove " from JAVA_HOME path
+        javaHome = javaHome.replace("\"", "");
+
+        return Paths.get(javaHome, "bin", javaExecutable).toString();
+    }
+
 
     /**
      * Prints usage string to output.

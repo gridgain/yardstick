@@ -63,7 +63,7 @@ public class DeployWorker extends HostWorker {
                 if (runCtx.handler().checkRemFile(host, fullPath))
                     runCtx.handler().runMkdirCmd(host, fullPath);
 
-                String locPath = String.format("%s/%s", runCtx.localeWorkDirectory(), name);
+                String locPath = Paths.get(runCtx.localeWorkDirectory(), name).toString();
 
                 runCtx.handler().upload(host, locPath, runCtx.remoteWorkDirectory());
             }

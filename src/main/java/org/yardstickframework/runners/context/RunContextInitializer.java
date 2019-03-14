@@ -24,6 +24,7 @@ import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -39,6 +40,8 @@ import org.apache.log4j.PatternLayout;
 import org.apache.log4j.PropertyConfigurator;
 import org.yardstickframework.BenchmarkConfiguration;
 import org.yardstickframework.BenchmarkUtils;
+
+import static org.yardstickframework.BenchmarkUtils.getJava;
 
 /**
  * Initializes run context.
@@ -138,7 +141,7 @@ public class RunContextInitializer {
         LOG.debug(String.format("Locale work directory is '%s'.", ctx.localeWorkDirectory()));
 
         if (ctx.config().propertyFile() == null) {
-            String dfltPropPath = String.format("%s/config/benchmark.properties", ctx.localeWorkDirectory());
+            String dfltPropPath = Paths.get(ctx.localeWorkDirectory(), "config", "benchmark.properties").toString();
 
             LOG.info(String.format("Using as a default property file '%s'.", dfltPropPath));
 
@@ -438,8 +441,9 @@ public class RunContextInitializer {
 
         String locJavaHome = System.getProperty("java.home");
 
-        if (ctx.properties().getProperty("JAVA_HOME") != null && new File(String.format("%s/bin/java", remJavaHome)).exists())
-            locJavaHome = String.format("%s/bin/java", remJavaHome);
+        // TODO: 3/14/2019 locaJavaHome may be direct link to JAVA_HOME/bin/java
+        if (ctx.properties().getProperty("JAVA_HOME") != null && new File(getJava(remJavaHome)).exists())
+            locJavaHome = getJava(remJavaHome);
 
         ctx.localeJavaHome(locJavaHome);
 
@@ -559,8 +563,7 @@ public class RunContextInitializer {
 
         String[] ips = commaSepList.split(",");
 
-        for (String ip : ips)
-            res.add(ip);
+        Collections.addAll(res, ips);
 
         return res;
     }
@@ -572,7 +575,11 @@ public class RunContextInitializer {
         String dockerCtxPropPath;
 
         if (ctx.properties().getProperty("DOCKER_CONTEXT_PATH") == null) {
-            dockerCtxPropPath = String.format("%s/config/docker/docker-context-default.yaml", ctx.localeWorkDirectory());
+            dockerCtxPropPath = Paths.get(ctx.localeWorkDirectory(),
+                "config",
+                "docker",
+                "docker-context-default.yaml"
+            ).toString();
 
             LOG.info("'DOCKER_CONTEXT_PATH' is not defined in property file. Will " +
                 "use default docker context configuration:");
@@ -609,7 +616,7 @@ public class RunContextInitializer {
         String fullPath = null;
 
         if(!srcPath.startsWith(ctx.localeWorkDirectory()))
-            fullPath = String.format("%s/%s", ctx.localeWorkDirectory(), srcPath);
+            fullPath = Paths.get(ctx.localeWorkDirectory(), srcPath).toString();
 
         if (new File(fullPath).exists())
             return fullPath;
@@ -643,7 +650,7 @@ public class RunContextInitializer {
             if (!line.contains("=") || line.startsWith("#") || prevLine.contains("\\"))
                 continue;
 
-            int idx0 = line.indexOf("=");
+            int idx0 = line.indexOf('=');
 
             String propName = line.substring(0, idx0);
 
@@ -665,10 +672,11 @@ public class RunContextInitializer {
      *
      */
     private void configLog() {
-        String logPropPath = String.format("%s/config/log4j.properties", ctx.localeWorkDirectory());
+        String logPropPath = Paths.get(ctx.localeWorkDirectory(), "config", "log4j.properties").toString();
 
-        String logPath = Paths.get(ctx.localeWorkDirectory(), "output", String.format("logs-%s/%s-run.log",
-            ctx.mainDateTime(), ctx.mainDateTime())).toString();
+        String logPath = Paths.get(ctx.localeWorkDirectory(), "output",
+            String.format("logs-%s", ctx.mainDateTime()),
+            String.format("%s-run.log", ctx.mainDateTime())).toString();
 
         if (new File(logPropPath).exists()){
             Properties logProps = new Properties();

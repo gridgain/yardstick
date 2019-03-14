@@ -21,6 +21,8 @@ import org.yardstickframework.runners.workers.CheckWorkResult;
 import org.yardstickframework.runners.workers.WorkResult;
 import org.yardstickframework.runners.context.RunContext;
 
+import static org.yardstickframework.BenchmarkUtils.getJava;
+
 /**
  * Checks java on remote hosts and set host map.
  */
@@ -59,8 +61,7 @@ public class CheckJavaWorker extends CheckWorker {
 
         if (runCtx.remoteJavaHome() != null) {
             if (!runCtx.handler().checkJava(host, runCtx.remoteJavaHome())) {
-                log().info(String.format("Failed to find %s/bin/java on the host %s.",
-                    runCtx.remoteJavaHome(), host));
+                log().info(String.format("Failed to find %s on the host %s.", getJava(runCtx.remoteJavaHome()), host));
 
                 res.exit(true);
             }

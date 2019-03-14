@@ -14,6 +14,7 @@
 
 package org.yardstickframework.runners.context;
 
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
@@ -267,7 +268,7 @@ public class RunContext {
      */
     public String resolveRemotePath(String srcPath) {
         if (!srcPath.startsWith(remWorkDir))
-            return String.format("%s/%s", remWorkDir, srcPath);
+            return Paths.get(remWorkDir, srcPath).toString();
 
         return srcPath;
     }

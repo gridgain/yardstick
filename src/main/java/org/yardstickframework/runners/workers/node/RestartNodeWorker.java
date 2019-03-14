@@ -15,6 +15,7 @@
 package org.yardstickframework.runners.workers.node;
 
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -43,9 +44,9 @@ public class RestartNodeWorker extends StartNodeWorker {
 
         startTime = System.currentTimeMillis();
 
-        servLogDirFullName = String.format("%s/log_servers_restarted", baseLogDirFullName);
+        servLogDirFullName = Paths.get(baseLogDirFullName, "log_servers_restarted").toString();
 
-        drvrLogDirFullName = String.format("%s/log_drivers_restarted", baseLogDirFullName);
+        drvrLogDirFullName = Paths.get(baseLogDirFullName, "log_drivers_restarted").toString();
     }
 
     /** {@inheritDoc} */
