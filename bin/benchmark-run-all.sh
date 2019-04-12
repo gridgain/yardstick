@@ -66,6 +66,50 @@ then
     mkdir ${SCRIPT_DIR}/../output
 fi
 
+function do_ssh()
+{
+    ip="$1"
+    command="$2"
+
+    if [[ "${REMOTE_USER}" != "" ]]; then
+        user_and_ip="${REMOTE_USER}@${ip}"
+    else
+        user_and_ip="${ip}"
+    fi
+
+    ssh -o StrictHostKeyChecking=no "${user_and_ip}" "${command}"
+}
+
+function do_scp_to_remote()
+{
+    ip="$1"
+    local_path="$2"
+    remote_path="$3"
+
+    if [[ "${REMOTE_USER}" != "" ]]; then
+        user_and_ip="${REMOTE_USER}@${ip}"
+    else
+        user_and_ip="${ip}"
+    fi
+
+    scp -o StrictHostKeyChecking=no -rq "${local_path}" "${user_and_ip}:${remote_path}"
+}
+
+function do_scp_from_remote()
+{
+    ip="$1"
+    remote_path="$2"
+    local_path="$3"
+
+    if [[ "${REMOTE_USER}" != "" ]]; then
+        user_and_ip="${REMOTE_USER}@${ip}"
+    else
+        user_and_ip="${ip}"
+    fi
+
+    scp -o StrictHostKeyChecking=no -rq "${user_and_ip}:${remote_path}" "${local_path}"
+}
+
 # Creating an array of IP addresses of the remote hosts from SERVER_HOSTS and DRIVER_HOSTS variables.
 function define_ips()
 {
@@ -85,11 +129,7 @@ function define_ips()
 # $1 IP address of the remote host
 function clear_remote_work_directory()
 {
-    ssh -o StrictHostKeyChecking=no $1 rm -rf $MAIN_DIR/bin
-    ssh -o StrictHostKeyChecking=no $1 rm -rf $MAIN_DIR/config
-    ssh -o StrictHostKeyChecking=no $1 rm -rf $MAIN_DIR/libs
-    ssh -o StrictHostKeyChecking=no $1 rm -rf $MAIN_DIR/output
-    ssh -o StrictHostKeyChecking=no $1 rm -rf $MAIN_DIR/work
+    do_ssh "$1" "rm -rf $MAIN_DIR/bin $MAIN_DIR/config $MAIN_DIR/libs $MAIN_DIR/output $MAIN_DIR/work"
 }
 
 # Copying working directory to remote hosts.
@@ -101,9 +141,10 @@ function copy_to_hosts()
         if [[ $ip != "127.0.0.1" && $ip != "localhost" ]]
         then
             echo "<"$(date +"%H:%M:%S")"><yardstick> Copying yardstick to the host ${ip}"
-            ssh -o StrictHostKeyChecking=no $ip mkdir -p $MAIN_DIR
-            clear_remote_work_directory $ip
-            scp -o StrictHostKeyChecking=no -rq $MAIN_DIR/* $ip:$MAIN_DIR
+
+            do_ssh "$ip" "mkdir -p $MAIN_DIR"
+            clear_remote_work_directory "$ip"
+            do_scp_to_remote "$ip" "$MAIN_DIR" "$MAIN_DIR"
         fi
     done
 }
@@ -172,9 +213,9 @@ function collect_results()
             # Checking if current IP belongs to the driver-host and therefore there should be the "results" directory
             if [[ ${DRIVER_HOSTS} == *"$ip"* ]]
             then
-                scp -o StrictHostKeyChecking=no -rq $ip:$results_folder/../../output/$result_dir_name/* $MAIN_DIR/output/$result_dir_name
+                do_scp_from_remote $ip "$results_folder/../../output/$result_dir_name/*" "$MAIN_DIR/output/$result_dir_name"
             fi
-            scp -o StrictHostKeyChecking=no -rq $ip:$LOGS_BASE/../../output/$log_dir_name/* $MAIN_DIR/output/$log_dir_name
+            do_scp_from_remote $ip "$LOGS_BASE/../../output/$log_dir_name/*" "$MAIN_DIR/output/$log_dir_name"
             clear_remote_work_directory $ip
         fi
     done
