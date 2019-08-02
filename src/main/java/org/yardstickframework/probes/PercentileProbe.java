@@ -102,7 +102,12 @@ public class PercentileProbe implements BenchmarkExecutionAwareProbe, BenchmarkT
 
     /** {@inheritDoc} */
     @Override public Collection<BenchmarkProbePoint> points() {
-        long[] buckets0 = new long[bucketsCnt];
+        int maxLen = 0;
+
+        for (ThreadAgent agent : agents)
+            maxLen = Math.max(maxLen, agent.buckets.length);
+
+        long[] buckets0 = new long[maxLen];
 
         for (ThreadAgent agent : agents) {
             long[] b0 = agent.reset();
@@ -116,13 +121,30 @@ public class PercentileProbe implements BenchmarkExecutionAwareProbe, BenchmarkT
         if (bucketsCnt > 0)
             ret.add(new BenchmarkProbePoint(0, new double[] {0}));
 
-        long sum = 0;
+        // Total sum of operations from all thread agents;
+        long totalSum = 0;
 
         for (long b : buckets0)
-            sum += b;
+            totalSum += b;
 
-        for (int i = 0; i < buckets0.length; i++)
-            ret.add(new BenchmarkProbePoint((i + 1) * bucketInterval, new double[] {((double)buckets0[i]) / sum}));
+        int currBucket = 0;
+
+        // Counted operations.
+        double counted = buckets0[currBucket];
+
+        double p;
+
+        do{
+            p = (counted * 100) / totalSum;
+
+            ret.add(new BenchmarkProbePoint(currBucket * bucketInterval, new double[] {p}));
+            ret.add(new BenchmarkProbePoint((currBucket + 1) * bucketInterval, new double[] {p}));
+
+            currBucket++;
+
+            counted += buckets0[currBucket];
+        }
+        while (p < 99);
 
         return ret;
     }
@@ -208,13 +230,19 @@ public class PercentileProbe implements BenchmarkExecutionAwareProbe, BenchmarkT
 
             long bucketIdx = timeUnit.convert(latency, NANOSECONDS) / bucketInterval;
 
-            int idx = bucketIdx >= bucketsCnt ? bucketsCnt - 1 : (int)bucketIdx;
+            int bucketIdxInt = (int)bucketIdx;
 
-            long[] b = buckets;
+            if (bucketIdxInt >= buckets.length) {
+                long[] newArr = new long[(int)(bucketIdxInt * 1.2)];
 
-            b[idx]++;
+                System.arraycopy(buckets, 0, newArr, 0, buckets.length);
 
-            buckets = b;
+                newArr[bucketIdxInt]++;
+
+                buckets = newArr;
+            }
+            else
+                buckets[bucketIdxInt]++;
         }
 
         /**

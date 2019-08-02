@@ -177,7 +177,9 @@ public class BenchmarkProbeSet {
                                 BenchmarkProbePointWriter writer = entry.getValue();
 
                                 try {
-                                    writer.writePoints(probe, probe.points());
+                                    Collection<BenchmarkProbePoint> pointList = probe.points();
+
+                                    writer.writePoints(probe, pointList);
                                 } catch (Exception e) {
                                     errorHelp(cfg, "Exception is raised during point write.", e);
                                 }

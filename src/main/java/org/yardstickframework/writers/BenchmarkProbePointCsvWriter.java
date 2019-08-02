@@ -177,7 +177,7 @@ public class BenchmarkProbePointCsvWriter implements BenchmarkProbePointWriter {
             double[] vals = pt.values();
 
             for (int i = 0; i < vals.length; i++) {
-                print(String.format(Locale.US, "%.2f", vals[i]));
+                print(String.format(Locale.US, "%.3f", vals[i]));
 
                 if (i != vals.length - 1)
                     print(",");
