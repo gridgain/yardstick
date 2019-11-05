@@ -1,0 +1,39 @@
+# Server context.
+serverCtx:
+  # Path to the Dockerfile.
+  dockerfilePath: config/docker/Dockerfile-server
+  # Image name.
+  imageName: yardstickserver
+  # Container name prefix.
+  contPref: YARDSTICK_SERVER
+
+# Driver context.
+driverCtx:
+  # Path to the Dockerfile.
+  dockerfilePath: config/docker/Dockerfile-driver
+  # Image name.
+  imageName: yardstickdriver
+  # Container name prefix.
+  contPref: YARDSTICK_DRIVER
+
+# Command to build docker images. If 'IMAGE_NAME_PLACEHOLDER' is present it will be replaced with defined image name.
+dockerBuildCmd: "build --no-cache -t IMAGE_NAME_PLACEHOLDER -f DOCKERFILE_PATH_PLACEHOLDER ."
+
+# Flags to remove images.
+removeImagesFlags:
+  before: true
+  after: true
+
+# List of arguments to use with docker 'run' command. If 'CONT_NAME_PLACEHOLDER' is present it will be replaced with
+# YARDSTICK-<NODETYPE>-<ID> name.
+dockerRunCmd: "run -d --network host --name CONT_NAME_PLACEHOLDER IMAGE_NAME_PLACEHOLDER sleep 1d"
+
+# Flags to remove containers.
+removeContainersFlags:
+  before: true
+  after: true
+
+# List of container name prefixes to remove.
+containersToRemove:
+ - YARDSTICK_DRIVER
+ - YARDSTICK_SERVER
