@@ -108,4 +108,7 @@ ARGS=${ARGS}" --currentFolder ${CUR_DIR} --scriptsFolder ${SCRIPT_DIR}"
 
 export JAVA
 
-"$JAVA" ${JVM_OPTS} -cp ${CP} ${MAIN_CLASS} ${ARGS}
+CMD_LINE="$JAVA ${JVM_OPTS} -cp ${CP} ${MAIN_CLASS} ${ARGS}"
+
+eval "${CMD_LINE}"
+
