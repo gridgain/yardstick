@@ -192,15 +192,18 @@ public class BenchmarkRunner {
 
                             long elapsed = (now - testStart) / 1_000;
 
-                            long elapsedIterationNanos = (System.nanoTime() - iterationStartNanos);
-                            long iterationFreqNanos = 500L * 1000;
+                            if (cfg.iterInterval() > 0) {
+                                long elapsedIterationNanos = (System.nanoTime() - iterationStartNanos);
+                                long iterationFreqNanos = cfg.iterInterval();
 
-                            if (elapsedIterationNanos < iterationFreqNanos)
-                                Thread.sleep(0, (int) elapsedIterationNanos);
-                            else
-                                BenchmarkUtils.println(
-                                        String.format("Current iteration took longer than %d", iterationFreqNanos)
-                                );
+                                if (elapsedIterationNanos < iterationFreqNanos)
+                                    Thread.sleep(0, (int) elapsedIterationNanos);
+                                else
+                                    BenchmarkUtils.println(
+                                            String.format("Current iteration took longer than %d ns: %d",
+                                                    iterationFreqNanos, elapsedIterationNanos)
+                                    );
+                            }
 
                             if (reset && elapsed > cfg.warmup()) {
                                 phaser.arriveAndAwaitAdvance();

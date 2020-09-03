@@ -120,6 +120,10 @@ public class BenchmarkConfiguration implements Serializable {
     @Parameter(names = { "-h", "--help" }, description = "Print help message", help = true, hidden = true)
     private boolean help;
 
+    /** */
+    @Parameter(names = {"-iint", "--iterInterval"}, description = "Minimum interval between test iterations (ns)")
+    private long iterInterval = 0;
+
     /** Non-parsed command line arguments. */
     private String[] cmdArgs;
 
@@ -228,6 +232,10 @@ public class BenchmarkConfiguration implements Serializable {
      */
     public int logIterationsFrequency() {
         return logIterFreq;
+    }
+
+    public long iterInterval() {
+        return iterInterval;
     }
 
     /**
