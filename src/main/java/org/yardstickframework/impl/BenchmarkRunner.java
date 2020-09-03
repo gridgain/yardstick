@@ -172,6 +172,8 @@ public class BenchmarkRunner {
 
                             BenchmarkProbeSet probeSet = probeSets[idx];
 
+                            long iterationStartNanos = System.nanoTime();
+
                             probeSet.onBeforeExecute(threadIdx);
 
                             // Execute benchmark code.
@@ -189,6 +191,16 @@ public class BenchmarkRunner {
                             long now = System.currentTimeMillis();
 
                             long elapsed = (now - testStart) / 1_000;
+
+                            long elapsedIterationNanos = (System.nanoTime() - iterationStartNanos);
+                            long iterationFreqNanos = 500L * 1000;
+
+                            if (elapsedIterationNanos < iterationFreqNanos)
+                                Thread.sleep(0, (int) elapsedIterationNanos);
+                            else
+                                BenchmarkUtils.println(
+                                        String.format("Current iteration took longer than %d", iterationFreqNanos)
+                                );
 
                             if (reset && elapsed > cfg.warmup()) {
                                 phaser.arriveAndAwaitAdvance();
