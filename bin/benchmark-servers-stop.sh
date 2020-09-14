@@ -71,7 +71,7 @@ if [ "${REMOTE_USER}" == "" ]; then
     exit 1
 fi
 
-pkill -9 -f "benchmark-server-restarter-start.sh"
+pkill -f "benchmark-server-restarter-start.sh"
 
 if [[ "${RESTART_SERVERS}" != "true" ]] && [[ "${RESTART_SERVERS}" != "false" ]]; then
     echo "<"$(date +"%H:%M:%S")"><yardstick> All server restartets are stopped."
@@ -82,10 +82,10 @@ for host_name in "${hosts0[@]}";
 do
     if [[ ${host_name} = "127.0.0.1" || ${host_name} = "localhost" ]]
         then
-            pkill -9 -f "Dyardstick.server"
+            pkill -f "Dyardstick.server"
 
         else
-            `ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} pkill -9 -f "Dyardstick.server"`
+            `ssh -o PasswordAuthentication=no ${REMOTE_USER}"@"${host_name} pkill -f "Dyardstick.server"`
         fi
 
     echo "<"$(date +"%H:%M:%S")"><yardstick> Server is stopped on "${host_name}
