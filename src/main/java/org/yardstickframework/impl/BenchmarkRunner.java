@@ -196,11 +196,15 @@ public class BenchmarkRunner {
                                 long elapsedIterationNanos = (System.nanoTime() - iterationStartNanos);
                                 long iterationFreqNanos = cfg.iterInterval();
 
-                                if (elapsedIterationNanos < iterationFreqNanos)
-                                    Thread.sleep(0, (int) elapsedIterationNanos);
+                                long timeToSleep = iterationFreqNanos - elapsedIterationNanos;
+                                if (timeToSleep > 0) {
+                                    long sleepMillis = timeToSleep / 1_000;
+                                    int sleepNanos = (int) (timeToSleep % 1_000);
+                                    Thread.sleep(sleepMillis, sleepNanos);
+                                }
                                 else
                                     BenchmarkUtils.println(
-                                            String.format("Current iteration took longer than %d ns: %d",
+                                            String.format("Current iteration took same time or longer than %d ns: %d",
                                                     iterationFreqNanos, elapsedIterationNanos)
                                     );
                             }
