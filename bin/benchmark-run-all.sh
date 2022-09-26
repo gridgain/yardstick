@@ -129,7 +129,7 @@ fi
 if [[ "$RESTART_SERVERS" == "false" ]]; then
     /bin/bash ${SCRIPT_DIR}/benchmark-servers-start.sh ${CONFIG_INCLUDE}
 
-    sleep 3s
+    sleep 3
 fi
 
 IFS=',' read -ra configs0 <<< "${CONFIGS}"
@@ -147,7 +147,7 @@ do
     if [[ "$RESTART_SERVERS" != "false" ]]; then
         /bin/bash ${SCRIPT_DIR}/benchmark-servers-start.sh ${CONFIG_INCLUDE}
 
-        sleep 3s
+        sleep 3
     fi
 
     /bin/bash ${SCRIPT_DIR}/benchmark-drivers-start.sh ${CONFIG_INCLUDE}
@@ -155,14 +155,14 @@ do
     if [[ "$RESTART_SERVERS" != "false" ]]; then
         /bin/bash ${SCRIPT_DIR}/benchmark-servers-stop.sh ${CONFIG_INCLUDE}
 
-        sleep 1s
+        sleep 1
     fi
 done
 
 if [[ "$RESTART_SERVERS" == "false" ]]; then
     /bin/bash ${SCRIPT_DIR}/benchmark-servers-stop.sh ${CONFIG_INCLUDE}
 
-    sleep 1s
+    sleep 1
 fi
 
 # Collecting results and logs from the remote hosts
