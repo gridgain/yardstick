@@ -17,5 +17,5 @@
 #
 
 while pgrep -f "Dyardstick.driver" > /dev/null 2>&1; do
-    sleep 1s
+    sleep 1
 done
