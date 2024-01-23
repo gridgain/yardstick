@@ -144,8 +144,6 @@ do
         fi
     done
 
-    file_log=${LOGS_DIR}"/"${now}"-id"${id}"-"${host_name}"-"${DS}".log"
-
     if [[ ${JVM_OPTS_ORIG} == *"#filename#"* ]]
     then
         filename_ptrn=${LOGS_DIR}/${now}-server-id${id}-${host_name}-${DS}
@@ -156,6 +154,16 @@ do
         GC_JVM_OPTS=" -Xloggc:${LOGS_DIR}/gc-${now}-server-id${id}-${host_name}-${DS}.log"
     fi
 
+    if [[ ${host_name} =~ (.*)\*([0-9]*)$ ]]; then
+      host_name=${BASH_REMATCH[1]}
+      node_count=${BASH_REMATCH[2]}
+    else
+      node_count=1
+    fi
+    
+    for SERVER_NODE in $( seq 0 $(( $node_count - 1 )) ); do
+    file_log=${LOGS_DIR}"/"${now}"-id"${id}"-"${host_name}"-"${DS}"-"${SERVER_NODE}".log"
+
     if [[ ${host_name} = "127.0.0.1" || ${host_name} = "localhost" ]]; then
         mkdir -p ${LOGS_DIR}
 
@@ -163,7 +171,7 @@ do
 
         JAVA_HOME=${JAVA_HOME} MAIN_CLASS='org.yardstickframework.BenchmarkServerStartUp' \
         JVM_OPTS="${JVM_OPTS} ${GC_JVM_OPTS} ${SERVER_JVM_OPTS} -Dyardstick.server${id} " CP=${CP} CUR_DIR=${CUR_DIR} \
-        PROPS_ENV0=${PROPS_ENV} nohup ${SCRIPT_DIR}/benchmark-bootstrap.sh \
+        PROPS_ENV0=${PROPS_ENV} nohup $( eval echo ${SERVER_START_PREFIX} ) ${SCRIPT_DIR}/benchmark-bootstrap.sh \
         ${CONFIG_PRM} "--config" ${CONFIG_INCLUDE} "--logsFolder" ${LOGS_DIR} \
         "--remoteuser" ${REMOTE_USER} "--remoteHostName" ${host_name} > ${file_log} 2>& 1 &
 
@@ -175,7 +183,7 @@ do
             "JAVA_HOME='${JAVA_HOME}'" \
             "MAIN_CLASS='org.yardstickframework.BenchmarkServerStartUp'" "JVM_OPTS='${JVM_OPTS} ${GC_JVM_OPTS} ${SERVER_JVM_OPTS} -Dyardstick.server${id} '" \
             "CP='${CP}'" "CUR_DIR='${CUR_DIR}'" "PROPS_ENV0='${PROPS_ENV}'" \
-            "nohup ${SCRIPT_DIR}/benchmark-bootstrap.sh ${CONFIG_PRM} "--config" ${CONFIG_INCLUDE} "--logsFolder" ${LOGS_DIR} \
+            "nohup $( eval echo ${SERVER_START_PREFIX} ) ${SCRIPT_DIR}/benchmark-bootstrap.sh ${CONFIG_PRM} "--config" ${CONFIG_INCLUDE} "--logsFolder" ${LOGS_DIR} \
             "--remoteuser" ${REMOTE_USER} "--remoteHostName" ${host_name} > ${file_log} 2>& 1 &"
     fi
 
@@ -196,7 +204,7 @@ do
                 if [[ "${delay}" != "" ]] && [[ "${pause}" != "" ]] && [[ "${period}" != "" ]] ; then
                     file_log=${RESTARTERS_LOGS_DIR}"/"${now}"_id"${id}"_"${host_name}".log"
 
-                    nohup ${SCRIPT_DIR}/benchmark-server-restarter-start.sh "${host_name}" "${id}" "${CONFIG_PRM}" \
+                    nohup $( eval echo ${SERVER_START_PREFIX} ) ${SCRIPT_DIR}/benchmark-server-restarter-start.sh "${host_name}" "${id}" "${CONFIG_PRM}" \
                     "${delay}" "${pause}" "${period}" "${CONFIG_INCLUDE}" > ${file_log} 2>& 1 &
 
                     echo "<"$(date +"%H:%M:%S")"><yardstick> Server restarter is started for ${host_to_restart} \
@@ -208,6 +216,8 @@ do
             fi
         done
     fi
+    done
+
     # End of restarter logic.
 
     id=$((1 + $id))
